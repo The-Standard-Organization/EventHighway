@@ -1,11 +1,14 @@
-﻿using System;
+﻿// ---------------------------------------------------------------------------------- 
+// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+
+using System;
 using EventHighway.Core.Brokers.Apis;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Clients.EventAddresses;
 using EventHighway.Core.Clients.EventAddresses.V1;
-using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Clients.EventListeners;
 using EventHighway.Core.Clients.EventListeners.V1;
 using EventHighway.Core.Clients.Events;
@@ -39,213 +42,216 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
 
-public class EventHighwayClient : IEventHighwayClient
+namespace EventHighway.Core.Clients.EventHighways
 {
-    private readonly string dataConnectionString;
-
-    public EventHighwayClient(string dataConnectionString)
+    public class EventHighwayClient : IEventHighwayClient
     {
-        this.dataConnectionString = dataConnectionString;
-        IServiceProvider serviceProvider = ConfigureDependencies();
-        InitializeClients(serviceProvider);
-    }
+        private readonly string dataConnectionString;
 
-    public IEventAddressesClient EventAddresses { get; set; }
-    public IEventListenersClient EventListeners { get; set; }
-    public IEventsClient Events { get; set; }
-    public IEventV1sClient EventV1s { get; set; }
-    public IEventAddressesV1Client EventAddressV1s { get; set; }
-    public IEventListenerV1sClient EventListenerV1s { get; set; }
-    public IListenerEventV1sClient ListenerEventV1s { get; set; }
-
-    private void InitializeClients(IServiceProvider serviceProvider)
-    {
-        this.EventAddresses =
-            serviceProvider.GetRequiredService<IEventAddressesClient>();
-
-        this.EventListeners =
-            serviceProvider.GetRequiredService<IEventListenersClient>();
-
-        this.Events =
-            serviceProvider.GetRequiredService<IEventsClient>();
-
-        this.EventV1s =
-            serviceProvider.GetRequiredService<IEventV1sClient>();
-
-        this.EventAddressV1s =
-            serviceProvider.GetRequiredService<IEventAddressesV1Client>();
-
-        this.EventListenerV1s =
-            serviceProvider.GetRequiredService<IEventListenerV1sClient>();
-
-        this.ListenerEventV1s =
-            serviceProvider.GetRequiredService<IListenerEventV1sClient>();
-    }
-
-    private IServiceProvider ConfigureDependencies()
-    {
-        var serviceCollection =
-            new ServiceCollection();
-
-        RegisterBrokers(serviceCollection);
-        RegisterFoundationServices(serviceCollection);
-        RegisterProcessingServices(serviceCollection);
-        RegisterOrchestrationServices(serviceCollection);
-        RegisterCoordinationServices(serviceCollection);
-        RegisterClients(serviceCollection);
-        ConfigureHttpClientOptions(serviceCollection);
-        ConfigureFormOptions(serviceCollection);
-
-        return serviceCollection.BuildServiceProvider();
-    }
-
-    private void RegisterBrokers(IServiceCollection services)
-    {
-        services.AddLogging();
-        services.AddTransient<ILoggingBroker, LoggingBroker>();
-        services.AddTransient<IDateTimeBroker, DateTimeBroker>();
-        services.AddDbContext<StorageBroker>();
-
-        services.AddTransient<
-            IStorageBroker,
-            StorageBroker>(broker =>
-                new StorageBroker(this.dataConnectionString));
-
-        services.AddTransient<IApiBroker, ApiBroker>();
-    }
-
-    private static void RegisterFoundationServices(IServiceCollection services)
-    {
-        services.AddTransient<IEventService, EventService>();
-        services.AddTransient<IEventAddressService, EventAddressService>();
-        services.AddTransient<IEventListenerService, EventListenerService>();
-        services.AddTransient<IListenerEventService, ListenerEventService>();
-        services.AddTransient<IEventCallService, EventCallService>();
-        services.AddTransient<IEventV1Service, EventV1Service>();
-        services.AddTransient<IEventListenerV1Service, EventListenerV1Service>();
-        services.AddTransient<IListenerEventV1Service, ListenerEventV1Service>();
-        services.AddTransient<IEventCallV1Service, EventCallV1Service>();
-        services.AddTransient<IEventAddressV1Service, EventAddressV1Service>();
-    }
-
-    private static void RegisterProcessingServices(IServiceCollection services)
-    {
-        services.AddTransient<
-            IEventListenerProcessingService,
-            EventListenerProcessingService>();
-
-        services.AddTransient<
-            IEventCallProcessingService,
-            EventCallProcessingService>();
-
-        services.AddTransient<
-            IListenerEventProcessingService,
-            ListenerEventProcessingService>();
-
-        services.AddTransient<
-            IEventCallV1ProcessingService,
-            EventCallV1ProcessingService>();
-
-        services.AddTransient<
-            IEventListenerV1ProcessingService,
-            EventListenerV1ProcessingService>();
-
-        services.AddTransient<
-            IEventV1ProcessingService,
-            EventV1ProcessingService>();
-
-        services.AddTransient<
-            IListenerEventV1ProcessingService,
-            ListenerEventV1ProcessingService>();
-
-        services.AddTransient<
-            IEventAddressV1ProcessingService,
-            EventAddressV1ProcessingService>();
-    }
-
-    private static void RegisterOrchestrationServices(IServiceCollection services)
-    {
-        services.AddTransient<
-            IEventListenerOrchestrationService,
-            EventListenerOrchestrationService>();
-
-        services.AddTransient<
-            IEventOrchestrationService,
-            EventOrchestrationService>();
-
-        services.AddTransient<
-            IEventListenerV1OrchestrationService,
-            EventListenerV1OrchestrationService>();
-
-        services.AddTransient<
-            IEventV1OrchestrationService,
-            EventV1OrchestrationService>();
-    }
-
-    private static void RegisterCoordinationServices(IServiceCollection services)
-    {
-        services.AddTransient<
-            IEventCoordinationService,
-            EventCoordinationService>();
-
-        services.AddTransient<
-            IEventV1CoordinationService,
-            EventV1CoordinationService>();
-    }
-
-    private static void RegisterClients(IServiceCollection services)
-    {
-        services.AddTransient<
-            IEventsClient,
-            EventsClient>();
-
-        services.AddTransient<
-            IEventV1sClient,
-            EventV1sClient>();
-
-        services.AddTransient<
-            IEventListenersClient,
-            EventListenersClient>();
-
-        services.AddTransient<
-            IEventListenerV1sClient,
-            EventListenerV1sClient>();
-
-        services.AddTransient<
-            IEventAddressesClient,
-            EventAddressesClient>();
-
-        services.AddTransient<
-            IEventAddressesV1Client,
-            EventAddressesV1Client>();
-
-        services.AddTransient<
-            IListenerEventV1sClient,
-            ListenerEventV1sClient>();
-
-        services.AddTransient<
-            IEventHighwayClient,
-            EventHighwayClient>();
-    }
-
-    private static void ConfigureHttpClientOptions(IServiceCollection services)
-    {
-        services.ConfigureAll<HttpClientFactoryOptions>(options =>
+        public EventHighwayClient(string dataConnectionString)
         {
-            options.HttpClientActions.Add(client =>
+            this.dataConnectionString = dataConnectionString;
+            IServiceProvider serviceProvider = ConfigureDependencies();
+            InitializeClients(serviceProvider);
+        }
+
+        public IEventAddressesClient EventAddresses { get; set; }
+        public IEventListenersClient EventListeners { get; set; }
+        public IEventsClient Events { get; set; }
+        public IEventV1sClient EventV1s { get; set; }
+        public IEventAddressesV1Client EventAddressV1s { get; set; }
+        public IEventListenerV1sClient EventListenerV1s { get; set; }
+        public IListenerEventV1sClient ListenerEventV1s { get; set; }
+
+        private void InitializeClients(IServiceProvider serviceProvider)
+        {
+            this.EventAddresses =
+                serviceProvider.GetRequiredService<IEventAddressesClient>();
+
+            this.EventListeners =
+                serviceProvider.GetRequiredService<IEventListenersClient>();
+
+            this.Events =
+                serviceProvider.GetRequiredService<IEventsClient>();
+
+            this.EventV1s =
+                serviceProvider.GetRequiredService<IEventV1sClient>();
+
+            this.EventAddressV1s =
+                serviceProvider.GetRequiredService<IEventAddressesV1Client>();
+
+            this.EventListenerV1s =
+                serviceProvider.GetRequiredService<IEventListenerV1sClient>();
+
+            this.ListenerEventV1s =
+                serviceProvider.GetRequiredService<IListenerEventV1sClient>();
+        }
+
+        private IServiceProvider ConfigureDependencies()
+        {
+            var serviceCollection =
+                new ServiceCollection();
+
+            RegisterBrokers(serviceCollection);
+            RegisterFoundationServices(serviceCollection);
+            RegisterProcessingServices(serviceCollection);
+            RegisterOrchestrationServices(serviceCollection);
+            RegisterCoordinationServices(serviceCollection);
+            RegisterClients(serviceCollection);
+            ConfigureHttpClientOptions(serviceCollection);
+            ConfigureFormOptions(serviceCollection);
+
+            return serviceCollection.BuildServiceProvider();
+        }
+
+        private void RegisterBrokers(IServiceCollection services)
+        {
+            services.AddLogging();
+            services.AddTransient<ILoggingBroker, LoggingBroker>();
+            services.AddTransient<IDateTimeBroker, DateTimeBroker>();
+            services.AddDbContext<StorageBroker>();
+
+            services.AddTransient<
+                IStorageBroker,
+                StorageBroker>(broker =>
+                    new StorageBroker(this.dataConnectionString));
+
+            services.AddTransient<IApiBroker, ApiBroker>();
+        }
+
+        private static void RegisterFoundationServices(IServiceCollection services)
+        {
+            services.AddTransient<IEventService, EventService>();
+            services.AddTransient<IEventAddressService, EventAddressService>();
+            services.AddTransient<IEventListenerService, EventListenerService>();
+            services.AddTransient<IListenerEventService, ListenerEventService>();
+            services.AddTransient<IEventCallService, EventCallService>();
+            services.AddTransient<IEventV1Service, EventV1Service>();
+            services.AddTransient<IEventListenerV1Service, EventListenerV1Service>();
+            services.AddTransient<IListenerEventV1Service, ListenerEventV1Service>();
+            services.AddTransient<IEventCallV1Service, EventCallV1Service>();
+            services.AddTransient<IEventAddressV1Service, EventAddressV1Service>();
+        }
+
+        private static void RegisterProcessingServices(IServiceCollection services)
+        {
+            services.AddTransient<
+                IEventListenerProcessingService,
+                EventListenerProcessingService>();
+
+            services.AddTransient<
+                IEventCallProcessingService,
+                EventCallProcessingService>();
+
+            services.AddTransient<
+                IListenerEventProcessingService,
+                ListenerEventProcessingService>();
+
+            services.AddTransient<
+                IEventCallV1ProcessingService,
+                EventCallV1ProcessingService>();
+
+            services.AddTransient<
+                IEventListenerV1ProcessingService,
+                EventListenerV1ProcessingService>();
+
+            services.AddTransient<
+                IEventV1ProcessingService,
+                EventV1ProcessingService>();
+
+            services.AddTransient<
+                IListenerEventV1ProcessingService,
+                ListenerEventV1ProcessingService>();
+
+            services.AddTransient<
+                IEventAddressV1ProcessingService,
+                EventAddressV1ProcessingService>();
+        }
+
+        private static void RegisterOrchestrationServices(IServiceCollection services)
+        {
+            services.AddTransient<
+                IEventListenerOrchestrationService,
+                EventListenerOrchestrationService>();
+
+            services.AddTransient<
+                IEventOrchestrationService,
+                EventOrchestrationService>();
+
+            services.AddTransient<
+                IEventListenerV1OrchestrationService,
+                EventListenerV1OrchestrationService>();
+
+            services.AddTransient<
+                IEventV1OrchestrationService,
+                EventV1OrchestrationService>();
+        }
+
+        private static void RegisterCoordinationServices(IServiceCollection services)
+        {
+            services.AddTransient<
+                IEventCoordinationService,
+                EventCoordinationService>();
+
+            services.AddTransient<
+                IEventV1CoordinationService,
+                EventV1CoordinationService>();
+        }
+
+        private static void RegisterClients(IServiceCollection services)
+        {
+            services.AddTransient<
+                IEventsClient,
+                EventsClient>();
+
+            services.AddTransient<
+                IEventV1sClient,
+                EventV1sClient>();
+
+            services.AddTransient<
+                IEventListenersClient,
+                EventListenersClient>();
+
+            services.AddTransient<
+                IEventListenerV1sClient,
+                EventListenerV1sClient>();
+
+            services.AddTransient<
+                IEventAddressesClient,
+                EventAddressesClient>();
+
+            services.AddTransient<
+                IEventAddressesV1Client,
+                EventAddressesV1Client>();
+
+            services.AddTransient<
+                IListenerEventV1sClient,
+                ListenerEventV1sClient>();
+
+            services.AddTransient<
+                IEventHighwayClient,
+                EventHighwayClient>();
+        }
+
+        private static void ConfigureHttpClientOptions(IServiceCollection services)
+        {
+            services.ConfigureAll<HttpClientFactoryOptions>(options =>
             {
-                client.Timeout = TimeSpan.FromMinutes(minutes: 10);
+                options.HttpClientActions.Add(client =>
+                {
+                    client.Timeout = TimeSpan.FromMinutes(minutes: 10);
+                });
             });
-        });
-    }
+        }
 
-    private static void ConfigureFormOptions(IServiceCollection services)
-    {
-        services.Configure<FormOptions>(options =>
+        private static void ConfigureFormOptions(IServiceCollection services)
         {
-            options.ValueLengthLimit = int.MaxValue;
-            options.MultipartBodyLengthLimit = long.MaxValue;
-            options.MultipartHeadersLengthLimit = int.MaxValue;
-        });
+            services.Configure<FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = long.MaxValue;
+                options.MultipartHeadersLengthLimit = int.MaxValue;
+            });
+        }
     }
 }
