@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <PackageReference Include="EFxceptions" Version="0.4.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.IIS" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
@@ -36,6 +37,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
     <PackageReference Include="RESTFulSense" Version="3.1.0" />
   </ItemGroup>
 
