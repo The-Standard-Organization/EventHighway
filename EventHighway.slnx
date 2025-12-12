@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/EventHighway/" />
+  <Project Path="EventHighway.App/EventHighway.App.csproj" />
+  <Project Path="EventHighway.Core.Tests.Acceptance/EventHighway.Core.Tests.Acceptance.csproj" />
+  <Project Path="EventHighway.Core.Tests.Unit/EventHighway.Core.Tests.Unit.csproj" />
+  <Project Path="EventHighway.Core/EventHighway.Core.csproj" />
+</Solution>

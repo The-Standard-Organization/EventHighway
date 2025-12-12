@@ -1,66 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <NoWarn>CS1998</NoWarn>
-    <Title>EventHighway</Title>
-    <Authors>Hassan Habib</Authors>
-    <Company>The Standard Community</Company>
-    <Product>EventHighway</Product>
-    <Version>1.3.1</Version>
-    <PackageId>EventHighway</PackageId>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Copyright>Hassan Habib 2025 (c)</Copyright>
-    <PackageIcon>EventHighwayLogo.png</PackageIcon>
-    <PackageLicenseFile>license.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Description>Standard-Compliant Open-Source Pub/Sub .NET library for managing events in distributed systems.</Description>
-    <PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/hassanhabib/EventHighway</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Event-Driven</PackageTags>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<NoWarn>CS1998</NoWarn>
+		<Title>EventHighway</Title>
+		<Authors>Hassan Habib</Authors>
+		<Company>The Standard Community</Company>
+		<Product>EventHighway</Product>
+		<Version>1.3.1</Version>
+		<PackageId>EventHighway</PackageId>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Copyright>Hassan Habib 2025 (c)</Copyright>
+		<PackageIcon>EventHighwayLogo.png</PackageIcon>
+		<PackageLicenseFile>license.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Description>Standard-Compliant Open-Source Pub/Sub .NET library for managing events in distributed systems.</Description>
+		<PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/hassanhabib/EventHighway</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Event-Driven</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EFxceptions" Version="0.4.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="RESTFulSense" Version="3.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="EFxceptions" Version="1.0.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.1" />
+		<PackageReference Include="RESTFulSense" Version="3.2.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="EventHighway.Core.Tests.Unit" />
-    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
-  </ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="EventHighway.Core.Tests.Unit" />
+		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="EventHighwayLogo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="license.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="EventHighwayLogo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="license.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
