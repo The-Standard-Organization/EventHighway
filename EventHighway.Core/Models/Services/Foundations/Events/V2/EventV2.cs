@@ -13,6 +13,7 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V2
     {
         public Guid Id { get; set; }
         public string Content { get; set; }
+        public string EventName { get; set; }
         public EventV2Type Type { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
         public DateTimeOffset UpdatedDate { get; set; }
