@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EventHighway.Core.Models.Services.Foundations.EventCall.V2
+namespace EventHighway.Core.Models.Services.Foundations.EventCalls.V2
 {
     internal class EventCallV2
     {

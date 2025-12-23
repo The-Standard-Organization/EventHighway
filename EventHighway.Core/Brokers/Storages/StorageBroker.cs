@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Linq;
@@ -26,10 +26,13 @@ namespace EventHighway.Core.Brokers.Storages
         {
             ConfigureEvents(modelBuilder);
             ConfigureEventV1s(modelBuilder);
+            ConfigureEventsV2(modelBuilder);
             ConfigureEventListeners(modelBuilder);
             ConfigureEventListenerV1s(modelBuilder);
+            ConfigureEventListenersV2(modelBuilder);
             ConfigureListenerEvents(modelBuilder);
             ConfigureListenerEventV1s(modelBuilder);
+            ConfigureListenerEventsV2(modelBuilder);
         }
 
         private async ValueTask<T> InsertAsync<T>(T @object)
