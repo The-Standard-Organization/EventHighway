@@ -26,41 +26,122 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prefixes = [
+              'MAJOR INFRA:',
+              'MEDIUM INFRA:',
+              'MINOR INFRA:',
               'INFRA:',
-              'PROVISIONS:',
-              'RELEASES:',
+              'MAJOR DATA:',
+              'MEDIUM DATA:',
+              'MINOR DATA:',
               'DATA:',
-              'BROKERS:',
-              'FOUNDATIONS:',
-              'PROCESSINGS:',
-              'ORCHESTRATIONS:',
-              'COORDINATIONS:',
-              'MANAGEMENTS:',
-              'AGGREGATIONS:',
-              'CONTROLLERS:',
-              'CLIENTS:',
-              'EXPOSERS:',
-              'PROVIDERS:',
-              'BASE:',
-              'COMPONENTS:',
-              'VIEWS:',
-              'PAGES:',
+              'MAJOR MIGRATION:',
+              'MEDIUM MIGRATION:',
+              'MINOR MIGRATION:',
+              'MIGRATION:',
+              'MAJOR BROKER:',
+              'MEDIUM BROKER:',
+              'MINOR BROKER:',
+              'BROKER:',
+              'MAJOR FOUNDATION:',
+              'MEDIUM FOUNDATION:',
+              'MINOR FOUNDATION:',
+              'FOUNDATION:',
+              'MAJOR PROCESSING:',
+              'MEDIUM PROCESSING:',
+              'MINOR PROCESSING:',
+              'PROCESSING:',
+              'MAJOR ORCHESTRATION:',
+              'MEDIUM ORCHESTRATION:',
+              'MINOR ORCHESTRATION:',
+              'ORCHESTRATION:',
+              'MAJOR COORDINATION:',
+              'MEDIUM COORDINATION:',
+              'MINOR COORDINATION:',
+              'COORDINATION:',
+              'MAJOR MANAGEMENT:',
+              'MEDIUM MANAGEMENT:',
+              'MINOR MANAGEMENT:',
+              'MANAGEMENT:',
+              'MAJOR AGGREGATION:',
+              'MEDIUM AGGREGATION:',
+              'MINOR AGGREGATION:',
+              'AGGREGATION:',
+              'MAJOR CONTROLLER:',
+              'MEDIUM CONTROLLER:',
+              'MINOR CONTROLLER:',
+              'CONTROLLER:',
+              'MAJOR ACCEPTANCE:',
+              'MEDIUM ACCEPTANCE:',
+              'MINOR ACCEPTANCE:',
               'ACCEPTANCE:',
-              'INTEGRATIONS:',
-              'CODE RUB:',
-              'MINOR FIX:',
-              'MEDIUM FIX:',
-              'MAJOR FIX:',
-              'DOCUMENTATION:',
-              'CONFIG:',
-              'STANDARD:',
+              'MAJOR INTEGRATION:',
+              'MEDIUM INTEGRATION:',
+              'MINOR INTEGRATION:',
+              'INTEGRATION:',
+              'MAJOR VIEW:',
+              'MEDIUM VIEW:',
+              'MINOR VIEW:',
+              'VIEW:',
+              'MAJOR BASE:',
+              'MEDIUM BASE:',
+              'MINOR BASE:',
+              'BASE:',
+              'MAJOR COMPONENT:',
+              'MEDIUM COMPONENT:',
+              'MINOR COMPONENT:',
+              'COMPONENT:',
+              'MAJOR PAGE:',
+              'MEDIUM PAGE:',
+              'MINOR PAGE:',
+              'PAGE:',
+              'MAJOR CLIENT:',
+              'MEDIUM CLIENT:',
+              'MINOR CLIENT:',
+              'CLIENT:',
+              'MAJOR EXPOSER:',
+              'MEDIUM EXPOSER:',
+              'MINOR EXPOSER:',
+              'EXPOSER:',
+              'MAJOR DESIGN:',
+              'MEDIUM DESIGN:',
+              'MINOR DESIGN:',
               'DESIGN:',
-              'BUSINESS:'
+              'MAJOR FIX:',
+              'MEDIUM FIX:',
+              'MINOR FIX:',
+              'MAJOR PLANNING:',
+              'MINOR PLANNING:',
+              'MINIOR PLANNING:',
+              'PLANNING:',
+              'MAJOR MENTORSHIP:',
+              'MINOR MENTORSHIP:',
+              'MINIOR MENTORSHIP:',
+              'MENTORSHIP:',
+              'MAJOR DISCUSSION:',
+              'MINOR DISCUSSION:',
+              'MINIOR DISCUSSION:',
+              'DISCUSSION:',
+              'MAJOR CODE RUB:',
+              'MEDIUM CODE RUB:',
+              'MINOR CODE RUB:',
+              'CODE RUB:',
+              'PROVISION:',
+              'IMPORT:',
+              'RELEASE:',
+              'CONFIG:',
+              'REVIEW:',
+              'DOCUMENTATION:',
+              'STANDARD:',
+              'BUSINESS:',
+              'STATUS:'
             ];
+            
             const pr = context.payload.pull_request;
             if (!pr) return;
+            
             const title = pr.title;
             const existingLabels = pr.labels.map(l => l.name);
+            
             for (const prefix of prefixes) {
               if (title.startsWith(prefix)) {
                 const label = prefix.slice(0, -1);
@@ -88,20 +169,26 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+            
             if (!pr) {
               core.setFailed("No pull request context.");
               return;
             }
+            
             if (pr.user?.login === "dependabot[bot]") {
               return;
             }
+            
             const body = pr.body || "";
+            
             if (!body.trim()) {
               core.setFailed("PR description must reference an issue.");
               return;
             }
+            
             const normalized = body.replace(/\s+/g, " ");
-            const issueRegex = /(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+(#\d+|AB#\d+)/i;
+            const issueRegex = /(close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+(#\d+|AB#\d+|https:\/\/github\.com\/[\w-]+\/[\w-]+\/issues\/\d+)/gi;
+            
             if (!issueRegex.test(normalized)) {
               core.setFailed("PR description must reference an issue using closes/fixes/resolves.");
             }
