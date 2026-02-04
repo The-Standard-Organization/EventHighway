@@ -2,10 +2,12 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace EventHighway.Core.Brokers.Storages
 {
@@ -16,7 +18,11 @@ namespace EventHighway.Core.Brokers.Storages
         public StorageBroker(string connectionString)
         {
             this.connectionString = connectionString;
-            this.Database.Migrate();
+
+            if (!IsDesignTime())
+            {
+                this.Database.Migrate();
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
@@ -31,7 +37,13 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureListenerEvents(modelBuilder);
             ConfigureListenerEventV1s(modelBuilder);
             ConfigureListenerEventV1Archives(modelBuilder);
+            ConfigureEventV1Archives(modelBuilder);
         }
+
+        private static bool IsDesignTime() =>
+            AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Any(a => a.FullName.Contains("Microsoft.EntityFrameworkCore.Design"));
 
         private async ValueTask<T> InsertAsync<T>(T @object)
         {
@@ -45,14 +57,12 @@ namespace EventHighway.Core.Brokers.Storages
         private async ValueTask<T> SelectAsync<T>(params object[] objectIds) where T : class
         {
             var broker = new StorageBroker(this.connectionString);
-
             return await broker.FindAsync<T>(objectIds);
         }
 
         private IQueryable<T> SelectAll<T>() where T : class
         {
             var broker = new StorageBroker(this.connectionString);
-
             return broker.Set<T>();
         }
 
@@ -72,6 +82,19 @@ namespace EventHighway.Core.Brokers.Storages
             await broker.SaveChangesAsync();
 
             return @object;
+        }
+    }
+
+    internal sealed class StorageBrokerFactory
+        : IDesignTimeDbContextFactory<StorageBroker>
+    {
+        public StorageBroker CreateDbContext(string[] args)
+        {
+            string connectionString =
+    "Server=(localdb)\\MSSQLLocalDB;Database=EventHighway;Trusted_Connection=True;";
+
+
+            return new StorageBroker(connectionString);
         }
     }
 }
