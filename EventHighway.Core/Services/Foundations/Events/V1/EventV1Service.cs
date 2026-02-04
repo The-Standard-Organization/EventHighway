@@ -39,6 +39,11 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
         public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sAsync() =>
         TryCatch(async () => await this.storageBroker.SelectAllEventV1sAsync());
 
+        public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sWithListenersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public ValueTask<EventV1> ModifyEventV1Async(EventV1 eventV1) =>
         TryCatch(async () =>
         {
