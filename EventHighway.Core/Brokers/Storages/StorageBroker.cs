@@ -30,6 +30,7 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureEventListenerV1s(modelBuilder);
             ConfigureListenerEvents(modelBuilder);
             ConfigureListenerEventV1s(modelBuilder);
+            ConfigureListenerEventV1Archives(modelBuilder);
         }
 
         private async ValueTask<T> InsertAsync<T>(T @object)
