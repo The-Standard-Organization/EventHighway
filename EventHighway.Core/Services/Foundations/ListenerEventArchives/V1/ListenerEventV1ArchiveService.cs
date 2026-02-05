@@ -29,6 +29,8 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
         public ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
             ListenerEventV1Archive listenerEventV1Archive) => TryCatch(async () =>
         {
+            await ValidateListenerEventV1ArchiveOnAddAsync(listenerEventV1Archive);
+
             return await storageBroker.InsertListenerEventV1ArchiveAsync(
                 listenerEventV1Archive);
         });

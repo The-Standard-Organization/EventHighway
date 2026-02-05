@@ -16,7 +16,16 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
         private async ValueTask<ListenerEventV1Archive> TryCatch(
             ReturningListenerEventV1ArchiveFunction returningListenerEventV1ArchiveFunction)
         {
-            return await returningListenerEventV1ArchiveFunction();
+            try
+            {
+                return await returningListenerEventV1ArchiveFunction();
+            }
+            catch (NullListenerEventV1ArchiveException
+                nullListenerEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullListenerEventV1ArchiveException);
+            }
         }
 
         private async ValueTask<ListenerEventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
