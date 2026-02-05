@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -40,6 +41,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventV1ArchiveStorageException);
+            }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistsEventV1ArchiveException =
+                    new AlreadyExistsEventV1ArchiveException(
+                        message: "Event archive with the same id already exists.",
+                        innerException: duplicateKeyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    alreadyExistsEventV1ArchiveException);
             }
         }
 
