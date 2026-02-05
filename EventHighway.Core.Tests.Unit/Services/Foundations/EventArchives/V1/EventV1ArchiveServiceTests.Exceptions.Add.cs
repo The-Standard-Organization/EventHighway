@@ -118,6 +118,60 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
 
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfReferenceErrorOccursAndLogItAsync()
+        {
+            // given
+            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            string someMessage = GetRandomString();
+
+            var foreignKeyConstraintConflictException =
+                new ForeignKeyConstraintConflictException(someMessage);
+
+            var invalidEventV1ArchiveReferenceException =
+                new InvalidEventV1ArchiveReferenceException(
+                    message: "Invalid event archive reference error occurred.",
+                    innerException: foreignKeyConstraintConflictException);
+
+            var expectedEventV1ArchiveDependencyValidationException =
+                new EventV1ArchiveDependencyValidationException(
+                    message: "Event archive validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventV1ArchiveReferenceException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(foreignKeyConstraintConflictException);
+
+            // when
+            ValueTask<EventV1Archive> addEventV1ArchiveTask =
+                this.eventV1ArchiveService.AddEventV1ArchiveAsync(someEventV1Archive);
+
+            EventV1ArchiveDependencyValidationException actualEventV1ArchiveDependencyValidationException =
+                await Assert.ThrowsAsync<EventV1ArchiveDependencyValidationException>(
+                    addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveDependencyValidationException.Should()
+                .BeEquivalentTo(expectedEventV1ArchiveDependencyValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveDependencyValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertEventV1ArchiveAsync(
+                    It.IsAny<EventV1Archive>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
 
     }
 }
