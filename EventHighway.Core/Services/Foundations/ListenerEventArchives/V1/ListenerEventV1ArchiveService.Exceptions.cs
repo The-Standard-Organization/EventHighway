@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -42,6 +43,16 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedListenerEventV1ArchiveStorageException);
+            }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistsListenerEventV1ArchiveException =
+                    new AlreadyExistsListenerEventV1ArchiveException(
+                        message: "Listener event archive with the same id already exists.",
+                        innerException: duplicateKeyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    alreadyExistsListenerEventV1ArchiveException);
             }
         }
 
