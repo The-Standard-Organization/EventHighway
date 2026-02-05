@@ -54,7 +54,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             this.dateTimeBrokerMock.Verify(broker =>
                 broker.GetDateTimeOffsetAsync(),
-                    Times.Never);
+                    Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
                 broker.InsertEventV1ArchiveAsync(
