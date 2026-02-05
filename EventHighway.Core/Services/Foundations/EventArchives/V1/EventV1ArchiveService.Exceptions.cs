@@ -7,6 +7,7 @@ using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.EventArchives.V1
@@ -62,6 +63,15 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedEventV1ArchiveStorageException =
+                    new FailedEventV1ArchiveStorageException(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: dbUpdateException);
+
+                throw await CreateAndLogDependencyExceptionAsync(failedEventV1ArchiveStorageException);
             }
         }
 
