@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using FluentAssertions;
@@ -58,6 +59,59 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             this.storageBrokerMock.Verify(broker =>
                 broker.InsertEventV1ArchiveAsync(It.IsAny<EventV1Archive>()),
                     Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfEventV1ArchiveAlreadyExistsAndLogItAsync()
+        {
+            // given
+            string randomMessage = GetRandomString();
+            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            var duplicateKeyException = new DuplicateKeyException(randomMessage);
+
+            var alreadyExistsEventV1ArchiveException =
+                new AlreadyExistsEventV1ArchiveException(
+                    message: "Event archive with the same id already exists.",
+                    innerException: duplicateKeyException);
+
+            var expectedEventV1ArchiveDependencyValidationException =
+                new EventV1ArchiveDependencyValidationException(
+                    message: "Event archive validation error occurred, fix the errors and try again.",
+                    innerException: alreadyExistsEventV1ArchiveException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(duplicateKeyException);
+
+            // when
+            ValueTask<EventV1Archive> addEventV1ArchiveTask =
+                this.eventV1ArchiveService.AddEventV1ArchiveAsync(someEventV1Archive);
+
+            EventV1ArchiveDependencyValidationException actualEventV1ArchiveDependencyValidationException =
+                await Assert.ThrowsAsync<EventV1ArchiveDependencyValidationException>(
+                    addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveDependencyValidationException.Should()
+                .BeEquivalentTo(expectedEventV1ArchiveDependencyValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveDependencyValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertEventV1ArchiveAsync(
+                    It.IsAny<EventV1Archive>()),
+                        Times.Never);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
