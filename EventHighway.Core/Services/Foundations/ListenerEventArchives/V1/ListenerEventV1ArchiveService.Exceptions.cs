@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
@@ -64,6 +65,16 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 
                 throw await CreateAndLogDependencyExceptionAsync(
                     failedListenerEventV1ArchiveStorageException);
+            }
+            catch (Exception serviceException)
+            {
+                var failedListenerEventV1ArchiveServiceException =
+                    new FailedListenerEventV1ArchiveServiceException(
+                        message: "Failed listener event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedListenerEventV1ArchiveServiceException);
             }
         }
 
