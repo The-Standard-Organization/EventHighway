@@ -39,6 +39,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 Parameter: nameof(ListenerEventV1Archive.UpdatedDate)),
 
                 (Rule: IsInvalid(listenerEventV1Archive.ArchivedDate),
+                Parameter: nameof(ListenerEventV1Archive.ArchivedDate)),
+
+                (Rule: await IsNotRecentAsync(listenerEventV1Archive.ArchivedDate),
                 Parameter: nameof(ListenerEventV1Archive.ArchivedDate)));
         }
 
