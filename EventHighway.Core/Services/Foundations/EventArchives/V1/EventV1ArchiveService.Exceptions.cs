@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -72,6 +73,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                         innerException: dbUpdateException);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedEventV1ArchiveStorageException);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventV1ArchiveServiceException =
+                    new FailedEventV1ArchiveServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveServiceException);
             }
         }
 
