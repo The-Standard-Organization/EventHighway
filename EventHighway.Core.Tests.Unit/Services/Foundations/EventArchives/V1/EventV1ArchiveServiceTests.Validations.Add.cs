@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
@@ -55,6 +56,90 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        private async Task ShouldThrowValidationExceptionOnAddIfEventV1ArchiveIsInvalidAndLogItAsync(
+            string invalidText)
+        {
+            EventV1ArchiveType invalidType = GetInvalidEnum<EventV1ArchiveType>();
+
+            var invalidEventV1Archive = new EventV1Archive
+            {
+                Id = Guid.Empty,
+                Type = invalidType,
+                Content = invalidText,
+            };
+
+            var invalidEventV1ArchiveException =
+                new InvalidEventV1ArchiveException(
+                    message: "Event archive is invalid, fix the errors and try again.");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.Id),
+                values: "Required");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.Content),
+                values: "Required");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.Type),
+                values: "Value is not recognized");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.CreatedDate),
+                values: "Required");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.UpdatedDate),
+                values: "Required");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.ArchivedDate),
+                values: "Required");
+
+            invalidEventV1ArchiveException.AddData(
+                key: nameof(EventV1Archive.EventAddressId),
+                values: "Required");
+
+            var expectedEventV1ArchiveValidationException =
+                new EventV1ArchiveValidationException(
+                    message: "Event archive validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventV1ArchiveException);
+
+            // when
+            ValueTask<EventV1Archive> addEventV1ArchiveTask =
+                this.eventV1ArchiveService.AddEventV1ArchiveAsync(invalidEventV1Archive);
+
+            EventV1ArchiveValidationException actualEventV1ArchiveValidationException =
+                await Assert.ThrowsAsync<EventV1ArchiveValidationException>(
+                    addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveValidationException.Should().BeEquivalentTo(
+                expectedEventV1ArchiveValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertEventV1ArchiveAsync(
+                    It.IsAny<EventV1Archive>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
 
