@@ -53,7 +53,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             if (eventV1Archive is null)
             {
                 throw new NullEventV1ArchiveException(
-                    message: "Event listener is null.");
+                    message: "Event archive is null.");
             }
         }
 
