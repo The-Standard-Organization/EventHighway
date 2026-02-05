@@ -86,6 +86,27 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 
+        private static T GetInvalidEnum<T>()
+        {
+            int randomNumber =
+                GetLocalRandomNumber();
+
+            while (Enum.IsDefined(typeof(T), randomNumber) is true)
+            {
+                randomNumber = GetLocalRandomNumber();
+            }
+
+            return (T)(object)randomNumber;
+
+            static int GetLocalRandomNumber()
+            {
+                return new IntRange(
+                    min: int.MinValue,
+                    max: int.MaxValue)
+                        .GetValue();
+            }
+        }
+
         private static Filler<EventV1Archive> CreateEventV1ArchiveFiller(
             DateTimeOffset date)
         {
