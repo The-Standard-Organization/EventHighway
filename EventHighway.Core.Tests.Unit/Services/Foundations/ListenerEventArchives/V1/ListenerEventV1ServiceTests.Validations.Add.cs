@@ -147,5 +147,66 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(MinutesBeforeAndAfterNow))]
+        public async Task ShouldThrowValidationExceptionOnAddIfArchivedDateIsNotRecentAndLogItAsync(
+            int minutesBeforeAndAfter)
+        {
+            // given
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+
+            ListenerEventV1Archive randomListenerEventV1Archive =
+                CreateRandomListenerEventV1Archive(randomDateTimeOffset
+                    .AddMinutes(minutes: minutesBeforeAndAfter));
+
+            ListenerEventV1Archive invalidListenerEventV1Archive = randomListenerEventV1Archive;
+
+            var invalidListenerEventV1ArchiveException =
+                new InvalidListenerEventV1ArchiveException(
+                    message: "Listener event archive is invalid, fix the errors and try again.");
+
+            invalidListenerEventV1ArchiveException.AddData(
+                key: nameof(ListenerEventV1Archive.ArchivedDate),
+                values: "Date is not recent");
+
+            var expectedListenerEventV1ArchiveValidationException =
+                new ListenerEventV1ArchiveValidationException(
+                    message: "Listener event archive validation error occurred, fix the errors and try again.",
+                    innerException: invalidListenerEventV1ArchiveException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
+
+            // when
+            ValueTask<ListenerEventV1Archive> addListenerEventV1ArchiveTask =
+                this.listenerEventV1ArchiveService.AddListenerEventV1ArchiveAsync(invalidListenerEventV1Archive);
+
+            ListenerEventV1ArchiveValidationException actualListenerEventV1ArchiveValidationException =
+                await Assert.ThrowsAsync<ListenerEventV1ArchiveValidationException>(
+                    addListenerEventV1ArchiveTask.AsTask);
+
+            // then
+            actualListenerEventV1ArchiveValidationException.Should().BeEquivalentTo(
+                expectedListenerEventV1ArchiveValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedListenerEventV1ArchiveValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+                    Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
