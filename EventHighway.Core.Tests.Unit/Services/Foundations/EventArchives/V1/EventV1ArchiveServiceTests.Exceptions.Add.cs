@@ -8,6 +8,7 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
@@ -172,6 +173,59 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnAddIfDbUpdateExceptionOccursAndLogItAsync()
+        {
+            // given
+            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            var dbUpdateException = new DbUpdateException();
+
+            var failedEventV1ArchiveStorageException =
+                new FailedEventV1ArchiveStorageException(
+                    message: "Failed event archive storage error occurred, contact support.",
+                    innerException: dbUpdateException);
+
+            var expectedEventV1ArchiveDependencyException =
+                new EventV1ArchiveDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: failedEventV1ArchiveStorageException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(dbUpdateException);
+
+            // when
+            ValueTask<EventV1Archive> addEventV1ArchiveTask =
+                this.eventV1ArchiveService.AddEventV1ArchiveAsync(someEventV1Archive);
+
+            EventV1ArchiveDependencyException actualEventV1ArchiveDependencyException =
+                await Assert.ThrowsAsync<EventV1ArchiveDependencyException>(
+                    addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveDependencyException.Should()
+                .BeEquivalentTo(expectedEventV1ArchiveDependencyException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveDependencyException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertEventV1ArchiveAsync(
+                    It.IsAny<EventV1Archive>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
 
     }
 }
