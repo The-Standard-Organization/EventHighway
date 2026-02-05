@@ -29,7 +29,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         public ValueTask<EventV1Archive> AddEventV1ArchiveAsync(
             EventV1Archive eventV1Archive) => TryCatch(async () =>
         {
-            ValidateEventV1ArchiveIsNotNull(eventV1Archive);
+            await ValidateEventV1ArchiveOnAddAsync(eventV1Archive);
 
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });

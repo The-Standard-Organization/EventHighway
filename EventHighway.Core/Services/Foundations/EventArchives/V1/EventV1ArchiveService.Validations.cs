@@ -25,9 +25,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 (Rule: IsInvalid(eventV1Archive.Type),
                 Parameter: nameof(EventV1Archive.Type)),
 
-                (Rule: IsInvalid(eventV1Archive.EventAddressId),
-                Parameter: nameof(EventV1Archive.EventAddressId)),
-
                 (Rule: IsInvalid(eventV1Archive.CreatedDate),
                 Parameter: nameof(EventV1Archive.CreatedDate)),
 
@@ -56,7 +53,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             if (eventV1Archive is null)
             {
                 throw new NullEventV1ArchiveException(
-                    message: "Event archive is null.");
+                    message: "Event listener is null.");
             }
         }
 
