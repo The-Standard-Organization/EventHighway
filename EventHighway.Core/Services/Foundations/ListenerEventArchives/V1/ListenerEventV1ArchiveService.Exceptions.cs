@@ -26,6 +26,12 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     nullListenerEventV1ArchiveException);
             }
+            catch (InvalidListenerEventV1ArchiveException
+                invalidListenerEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidListenerEventV1ArchiveException);
+            }
         }
 
         private async ValueTask<ListenerEventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(

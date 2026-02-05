@@ -15,6 +15,31 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
             ListenerEventV1Archive listenerEventV1Archive)
         {
             ValidateListenerEventV1ArchiveIsNotNull(listenerEventV1Archive);
+
+            Validate(
+                (Rule: IsInvalid(listenerEventV1Archive.Id),
+                Parameter: nameof(ListenerEventV1Archive.Id)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.EventId),
+                Parameter: nameof(ListenerEventV1Archive.EventId)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.EventAddressId),
+                Parameter: nameof(ListenerEventV1Archive.EventAddressId)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.EventListenerId),
+                Parameter: nameof(ListenerEventV1Archive.EventListenerId)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.Status),
+                Parameter: nameof(ListenerEventV1Archive.Status)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.CreatedDate),
+                Parameter: nameof(ListenerEventV1Archive.CreatedDate)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.UpdatedDate),
+                Parameter: nameof(ListenerEventV1Archive.UpdatedDate)),
+
+                (Rule: IsInvalid(listenerEventV1Archive.ArchivedDate),
+                Parameter: nameof(ListenerEventV1Archive.ArchivedDate)));
         }
 
         private static void ValidateListenerEventV1ArchiveIsNotNull(
