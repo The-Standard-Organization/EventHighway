@@ -7,6 +7,7 @@ using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
@@ -53,6 +54,16 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsListenerEventV1ArchiveException);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedListenerEventV1ArchiveStorageException =
+                    new FailedListenerEventV1ArchiveStorageException(
+                        message: "Failed listener event archive storage error occurred, contact support.",
+                        innerException: dbUpdateException);
+
+                throw await CreateAndLogDependencyExceptionAsync(
+                    failedListenerEventV1ArchiveStorageException);
             }
         }
 
