@@ -1,0 +1,96 @@
+﻿// ---------------------------------------------------------------------------------- 
+// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+
+using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
+using Xeptions;
+
+namespace EventHighway.Core.Services.Foundations.EventArchives.V1
+{
+    internal partial class EventV1ArchiveService
+    {
+        private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+
+        private async ValueTask<EventV1Archive> TryCatch(
+            ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
+        {
+            try
+            {
+                return await returningEventV1ArchiveFunction();
+            }
+            catch (NullEventV1ArchiveException nullEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventV1ArchiveException);
+            }
+        }
+
+        private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
+           Xeption exception)
+        {
+            var eventV1ArchiveValidationException =
+                new EventV1ArchiveValidationException(
+                    message: "Event archive validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1ArchiveValidationException);
+
+            return eventV1ArchiveValidationException;
+        }
+
+        private async ValueTask<EventV1ArchiveDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(
+                Xeption exception)
+        {
+            var eventV1ArchiveDependencyValidationException =
+                new EventV1ArchiveDependencyValidationException(
+                    message: "Event archive validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1ArchiveDependencyValidationException);
+
+            return eventV1ArchiveDependencyValidationException;
+        }
+
+        private async ValueTask<EventV1ArchiveDependencyException> CreateAndLogDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventV1ArchiveDependencyException =
+                new EventV1ArchiveDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1ArchiveDependencyException);
+
+            return eventV1ArchiveDependencyException;
+        }
+
+        private async ValueTask<EventV1ArchiveDependencyException> CreateAndLogCriticalDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventV1ArchiveDependencyException =
+                new EventV1ArchiveDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogCriticalAsync(eventV1ArchiveDependencyException);
+
+            return eventV1ArchiveDependencyException;
+        }
+
+        private async ValueTask<EventV1ArchiveServiceException> CreateAndLogServiceExceptionAsync(
+            Xeption exception)
+        {
+            var eventV1ArchiveServiceException =
+                new EventV1ArchiveServiceException(
+                    message: "Event archive service error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1ArchiveServiceException);
+
+            return eventV1ArchiveServiceException;
+        }
+    }
+}
