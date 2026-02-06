@@ -22,9 +22,9 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1Archive> AddEventV1ArchiveAsync(EventV1Archive eventV1Archive)
+        public async ValueTask<EventV1Archive> AddEventV1ArchiveAsync(EventV1Archive eventV1Archive)
         {
-            throw new System.NotImplementedException();
+            return await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         }
     }
 }
