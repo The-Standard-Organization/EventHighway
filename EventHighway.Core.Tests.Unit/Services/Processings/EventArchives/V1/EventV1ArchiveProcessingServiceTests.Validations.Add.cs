@@ -20,11 +20,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
 
             var nullEventV1ArchiveProcessingException =
                 new NullEventV1ArchiveProcessingException(
-                    message: "Event listener is null.");
+                    message: "Event archive is null.");
 
             var expectedEventV1ArchiveProcessingValidationException =
                 new EventV1ArchiveProcessingValidationException(
-                    message: "Event listener validation error occurred, fix the errors and try again.",
+                    message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: nullEventV1ArchiveProcessingException);
 
             // when
