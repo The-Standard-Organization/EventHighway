@@ -45,6 +45,18 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1ArchiveDependencyValidationException);
             }
+            catch (EventV1ArchiveDependencyException
+                eventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveDependencyException);
+            }
+            catch (EventV1ArchiveServiceException
+                eventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveServiceException);
+            }
         }
 
         private async ValueTask<EventV1ArchiveProcessingValidationException> CreateAndLogValidationExceptionAsync(
