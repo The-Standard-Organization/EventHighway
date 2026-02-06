@@ -62,7 +62,7 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             {
                 var failedEventV1ArchiveProcessingServiceException =
                     new FailedEventV1ArchiveProcessingServiceException(
-                        message: "Failed listener archive service error occurred, contact support.",
+                        message: "Failed event archive service error occurred, contact support.",
                         innerException: exception);
 
                 throw await CreateAndLogServiceExceptionAsync(
