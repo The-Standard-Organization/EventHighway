@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Processings.EventArchives.V1.Exceptions;
@@ -99,6 +100,52 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnAddIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            var serviceException = new Exception();
 
+            var failedEventV1ArchiveProcessingServiceException =
+                new FailedEventV1ArchiveProcessingServiceException(
+                    message: "Failed event listener service error occurred, contact support.",
+                    innerException: serviceException);
+
+            var expectedEventV1ArchiveProcessingExceptionException =
+                new EventV1ArchiveProcessingServiceException(
+                    message: "Event archive service error occurred, contact support.",
+                    innerException: failedEventV1ArchiveProcessingServiceException);
+
+            this.eventV1ArchiveServiceMock.Setup(service =>
+                service.AddEventV1ArchiveAsync(It.IsAny<EventV1Archive>()))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<EventV1Archive> addEventV1ArchiveTask =
+                this.eventV1ArchiveProcessingService.AddEventV1ArchiveAsync(
+                    someEventV1Archive);
+
+            EventV1ArchiveProcessingServiceException
+                actualEventV1ArchiveProcessingServiceException =
+                    await Assert.ThrowsAsync<EventV1ArchiveProcessingServiceException>(
+                        addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveProcessingServiceException.Should().BeEquivalentTo(
+                expectedEventV1ArchiveProcessingExceptionException);
+
+            this.eventV1ArchiveServiceMock.Verify(service =>
+                service.AddEventV1ArchiveAsync(It.IsAny<EventV1Archive>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveProcessingExceptionException))),
+                        Times.Once);
+
+            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
