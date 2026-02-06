@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.EventArchives.V1.Exceptions;
 using Xeptions;
 
@@ -25,6 +26,24 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     nullEventV1ArchiveProcessingException);
+            }
+            catch (InvalidEventV1ArchiveProcessingException
+                invalidEventV1ArchiveProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV1ArchiveProcessingException);
+            }
+            catch (EventV1ArchiveValidationException
+                eventV1ArchiveValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveValidationException);
+            }
+            catch (EventV1ArchiveDependencyValidationException
+                eventV1ArchiveDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveDependencyValidationException);
             }
         }
 
