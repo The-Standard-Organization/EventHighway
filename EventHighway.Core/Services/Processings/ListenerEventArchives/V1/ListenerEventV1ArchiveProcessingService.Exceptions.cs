@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.ListenerEventArchives.V1.Exceptions;
 using Xeptions;
 
@@ -23,6 +24,14 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
             catch (NullListenerEventV1ArchiveProcessingException nullListenerEventV1ArchiveProcessingException)
             {
                 throw await CreateAndLogValidationExceptionAsync(nullListenerEventV1ArchiveProcessingException);
+            }
+            catch (ListenerEventV1ArchiveValidationException ListenerEventV1ArchiveValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventV1ArchiveValidationException);
+            }
+            catch (ListenerEventV1ArchiveDependencyValidationException ListenerEventV1ArchiveDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventV1ArchiveDependencyValidationException);
             }
         }
 
