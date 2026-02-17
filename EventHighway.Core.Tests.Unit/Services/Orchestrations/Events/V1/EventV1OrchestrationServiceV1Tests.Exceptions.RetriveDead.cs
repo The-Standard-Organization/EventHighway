@@ -72,7 +72,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: failedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveScheduledPendingEventV1sAsync())
+                service.RetrieveAllDeadEventV1sWithListenersAsync())
                     .ThrowsAsync(serviceException);
 
             // when
@@ -88,7 +88,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveScheduledPendingEventV1sAsync(),
+                service.RetrieveAllDeadEventV1sWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
