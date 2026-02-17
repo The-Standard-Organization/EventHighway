@@ -33,6 +33,14 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventV1ArchiveDependencyValidationException);
             }
+            catch (ListenerEventV1ArchiveDependencyException listenerEventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ArchiveDependencyException);
+            }
+            catch (ListenerEventV1ArchiveServiceException listenerEventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ArchiveServiceException);
+            }
         }
 
         private async ValueTask<ListenerEventV1ArchiveProcessingValidationException>
