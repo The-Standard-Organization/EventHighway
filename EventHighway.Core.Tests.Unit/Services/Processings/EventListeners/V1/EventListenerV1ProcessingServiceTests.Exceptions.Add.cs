@@ -33,7 +33,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1ProcessingService.AddEventListenerV1Async(someEventListenerV1);
+                this.eventListenerV1ProcessingService.AddEventListenerV1Async(
+                    someEventListenerV1);
 
             EventListenerV1ProcessingDependencyValidationException
                 actualEventListenerV1ProcessingDependencyValidationException =
@@ -41,8 +42,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                         addEventListenerV1Task.AsTask);
 
             // then
-            actualEventListenerV1ProcessingDependencyValidationException.Should()
-                .BeEquivalentTo(expectedEventListenerV1ProcessingDependencyValidationException);
+            actualEventListenerV1ProcessingDependencyValidationException.Should().BeEquivalentTo(
+                expectedEventListenerV1ProcessingDependencyValidationException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
                 service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()),
@@ -84,8 +85,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                         addEventListenerV1Task.AsTask);
 
             // then
-            actualEventListenerV1ProcessingDependencyException.Should()
-                .BeEquivalentTo(expectedEventListenerV1ProcessingDependencyException);
+            actualEventListenerV1ProcessingDependencyException.Should().BeEquivalentTo(
+                expectedEventListenerV1ProcessingDependencyException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
                 service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()),
@@ -136,8 +137,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1ProcessingExceptionException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()),
-                    Times.Once);
+                service.AddEventListenerV1Async(
+                    It.IsAny<EventListenerV1>()),
+                        Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
