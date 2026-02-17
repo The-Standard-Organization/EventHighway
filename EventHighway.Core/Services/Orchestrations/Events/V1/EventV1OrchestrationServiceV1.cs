@@ -25,7 +25,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() => 
-            await this.eventV1ProcessingService.RetrieveAllDeadEventV1sWithListenersAsync();
+        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
+        TryCatch(async () => await this.eventV1ProcessingService.RetrieveAllDeadEventV1sWithListenersAsync());
     }
 }
