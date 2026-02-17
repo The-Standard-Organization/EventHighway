@@ -62,6 +62,14 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1ProcessingDependencyValidationException);
             }
+            catch (EventV1ProcessingDependencyException eventV1ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ProcessingDependencyException);
+            }
+            catch (EventV1ProcessingServiceException eventV1ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ProcessingServiceException);
+            }
             catch (ListenerEventV1ProcessingValidationException listenerEventV1ProcessingValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
@@ -73,14 +81,13 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     listenerEventV1ProcessingDependencyValidationException);
             }
-            catch (Exception exception)
+            catch (ListenerEventV1ProcessingDependencyException listenerEventV1ProcessingDependencyException)
             {
-                var failedEventV1OrchestrationServiceException =
-                    new FailedEventV1OrchestrationServiceException(
-                        message: "Failed event service error occurred, contact support.",
-                        innerException: exception);
-
-                throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ProcessingDependencyException);
+            }
+            catch (ListenerEventV1ProcessingServiceException listenerEventV1ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ProcessingServiceException);
             }
         }
 
