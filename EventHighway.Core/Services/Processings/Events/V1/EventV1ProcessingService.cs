@@ -9,6 +9,7 @@ using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Services.Foundations.Events.V1;
+using Microsoft.Identity.Client;
 
 namespace EventHighway.Core.Services.Processings.Events.V1
 {
@@ -49,6 +50,14 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 eventV1.Type == EventV1Type.Scheduled &&
                 eventV1.ScheduledDate < now);
         });
+
+        public async ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync()
+        {
+            IQueryable<EventV1> eventV1s = 
+                await this.eventV1Service.RetrieveAllEventV1sWithListenersAsync();
+
+            return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
+        }
 
         public ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1) =>
         TryCatch(async () =>
