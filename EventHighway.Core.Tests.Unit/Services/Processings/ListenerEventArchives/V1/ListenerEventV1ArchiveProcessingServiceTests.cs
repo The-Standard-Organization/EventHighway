@@ -6,6 +6,7 @@ using System;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exceptions;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Services.Processings.ListenerEventArchives.V1;
 using Moq;
@@ -31,6 +32,40 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             this.listenerEventV1ArchiveProcessingService = new ListenerEventV1ArchiveProcessingService(
                 listenerEventV1ArchiveService: this.listenerEventV1ArchiveServiceMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
+        }
+
+        public static TheoryData<Xeption> ValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+
+            return new TheoryData<Xeption>
+            {
+                new ListenerEventV1ArchiveValidationException(
+                    someMessage,
+                    someInnerException),
+
+                new ListenerEventV1ArchiveDependencyValidationException(
+                    someMessage,
+                    someInnerException),
+            };
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+
+            return new TheoryData<Xeption>
+            {
+                new ListenerEventV1ArchiveDependencyException(
+                    someMessage,
+                    someInnerException),
+
+                new ListenerEventV1ArchiveServiceException(
+                    someMessage,
+                    someInnerException),
+            };
         }
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
