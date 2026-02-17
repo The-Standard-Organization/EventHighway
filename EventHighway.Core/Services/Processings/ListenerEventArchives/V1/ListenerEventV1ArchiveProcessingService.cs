@@ -22,10 +22,11 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
+        public async ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
             ListenerEventV1Archive listenerEventV1Archive)
         {
-            throw new System.NotImplementedException();
+            return await this.listenerEventV1ArchiveService.AddListenerEventV1ArchiveAsync(
+                listenerEventV1Archive);
         }
     }
 }
