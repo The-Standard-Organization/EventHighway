@@ -28,8 +28,11 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1)
+        public ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1) =>
+        TryCatch(async () =>
         {
+            ValidateEventV1IsNotNull(eventV1);
+
             foreach (ListenerEventV1 listenerEvent in eventV1.ListenerEvents)
             {
                 await this.listenerEventV1ProcessingService
@@ -37,7 +40,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             }
 
             await this.eventV1ProcessingService.RemoveEventV1ByIdAsync(eventV1.Id);
-        }
+        });
 
         public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
         TryCatch(async () => await this.eventV1ProcessingService.RetrieveAllDeadEventV1sWithListenersAsync());

@@ -5,11 +5,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
-using EventHighway.Core.Models.Services.Processings.EventAddresses.V1.Exceptions;
-using EventHighway.Core.Models.Services.Processings.EventCalls.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions;
 using Xeptions;
 
@@ -18,6 +15,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
     internal partial class EventV1OrchestrationServiceV1
     {
         private delegate ValueTask<IQueryable<EventV1>> ReturningEventV1sFunction();
+        private delegate ValueTask ReturningNothingFunction();
 
         private async ValueTask<IQueryable<EventV1>> TryCatch(ReturningEventV1sFunction returningEventV1sFunction)
         {
@@ -42,6 +40,31 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
             }
+        }
+
+        private async ValueTask TryCatch(ReturningNothingFunction returningNothingFunction)
+        {
+            try
+            {
+                await returningNothingFunction();
+            }
+            catch (NullEventV1OrchestrationException nullEventV1OrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(nullEventV1OrchestrationException);
+            }
+        }
+
+        private async ValueTask<EventV1OrchestrationValidationException> CreateAndLogValidationExceptionAsync(
+            Xeption exception)
+        {
+            var eventV1OrchestrationValidationException =
+                new EventV1OrchestrationValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1OrchestrationValidationException);
+
+            return eventV1OrchestrationValidationException;
         }
 
         private async ValueTask<EventV1OrchestrationDependencyException> CreateAndLogDependencyExceptionAsync(
