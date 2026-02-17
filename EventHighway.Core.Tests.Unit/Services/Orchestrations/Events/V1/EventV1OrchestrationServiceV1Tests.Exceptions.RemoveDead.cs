@@ -64,5 +64,55 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
+        [Theory]
+        [MemberData(nameof(EventV1DependencyExceptions))]
+        [MemberData(nameof(ListenerEventV1DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRemoveByIdIfDependencyExceptionOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            EventV1 someEventV1 = CreateRandomEventV1();
+
+            var expectedEventV1OrchestrationDependencyException =
+                new EventV1OrchestrationDependencyException(
+                    message: "Event dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.listenerEventV1ProcessingServiceMock.Setup(service =>
+                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask removeEventV1AndListenerEventV1sTask =
+                this.eventV1OrchestrationServiceV1.RemoveEventV1AndListenerEventV1sAsync(
+                    someEventV1);
+
+            EventV1OrchestrationDependencyException
+                actualEventV1OrchestrationDependencyException =
+                    await Assert.ThrowsAsync<EventV1OrchestrationDependencyException>(
+                        removeEventV1AndListenerEventV1sTask.AsTask);
+
+            // then
+            actualEventV1OrchestrationDependencyException.Should()
+                .BeEquivalentTo(expectedEventV1OrchestrationDependencyException);
+
+            this.listenerEventV1ProcessingServiceMock.Verify(service =>
+                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1OrchestrationDependencyException))),
+                        Times.Once);
+
+            this.eventV1ProcessingServiceMock.Verify(service =>
+                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()),
+                    Times.Never);
+
+            this.listenerEventV1ProcessingServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventV1ProcessingServiceMock.VerifyNoOtherCalls();
+        }
+
     }
 }
