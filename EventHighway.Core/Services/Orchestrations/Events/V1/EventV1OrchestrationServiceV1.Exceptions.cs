@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions;
+using EventHighway.Core.Models.Services.Processings.ListenerEvents.V1.Exceptions;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Orchestrations.Events.V1
@@ -52,6 +53,35 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventV1OrchestrationException);
             }
+            catch (EventV1ProcessingValidationException eventV1ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV1ProcessingValidationException);
+            }
+            catch (EventV1ProcessingDependencyValidationException eventV1ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ProcessingDependencyValidationException);
+            }
+            catch (ListenerEventV1ProcessingValidationException listenerEventV1ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV1ProcessingValidationException);
+            }
+            catch (ListenerEventV1ProcessingDependencyValidationException
+                listenerEventV1ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV1ProcessingDependencyValidationException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1OrchestrationServiceException =
+                    new FailedEventV1OrchestrationServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
+            }
         }
 
         private async ValueTask<EventV1OrchestrationValidationException> CreateAndLogValidationExceptionAsync(
@@ -65,6 +95,20 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             await this.loggingBroker.LogErrorAsync(eventV1OrchestrationValidationException);
 
             return eventV1OrchestrationValidationException;
+        }
+
+        private async ValueTask<EventV1OrchestrationDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(
+                Xeption exception)
+        {
+            var eventV1OrchestrationDependencyValidationException =
+                new EventV1OrchestrationDependencyValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: exception.InnerException as Xeption);
+
+            await this.loggingBroker.LogErrorAsync(eventV1OrchestrationDependencyValidationException);
+
+            return eventV1OrchestrationDependencyValidationException;
         }
 
         private async ValueTask<EventV1OrchestrationDependencyException> CreateAndLogDependencyExceptionAsync(
