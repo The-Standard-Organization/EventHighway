@@ -18,9 +18,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             // given
             ListenerEventV1Archive nullListenerEventV1Archive = null;
 
-            var expectedListenerEventV1ArchiveProcessingValidationException =
+            var nullListenerEventV1ArchiveProcessingException =
                 new NullListenerEventV1ArchiveProcessingException(
                     message: "Listener event archive is null.");
+
+            var expectedListenerEventV1ArchiveProcessingValidationException =
+                new ListenerEventV1ArchiveProcessingValidationException(
+                    message: "Listener event archive validation error occurred, fix the errors and try again.",
+                    innerException: nullListenerEventV1ArchiveProcessingException);
+
             // when
             ValueTask<ListenerEventV1Archive> addListenerEventV1ArchiveTask =
                 this.listenerEventV1ArchiveProcessingService.AddListenerEventV1ArchiveAsync(
@@ -39,8 +45,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                     expectedListenerEventV1ArchiveProcessingValidationException))),
                         Times.Once);
 
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV1ArchiveServiceMock.Verify(service =>
+                service.AddListenerEventV1ArchiveAsync(
+                    It.IsAny<ListenerEventV1Archive>()),
+                        Times.Never);
+
             this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
         }
     }
 }
