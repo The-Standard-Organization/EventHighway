@@ -11,5 +11,6 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
     public interface IEventV1OrchestrationServiceV1
     {
         ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync();
+        ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1);
     }
 }
