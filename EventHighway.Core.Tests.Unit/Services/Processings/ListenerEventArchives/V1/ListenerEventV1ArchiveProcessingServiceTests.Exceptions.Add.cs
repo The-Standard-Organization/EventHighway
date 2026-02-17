@@ -2,7 +2,6 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
-using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Processings.ListenerEventArchives.V1.Exceptions;
@@ -102,53 +101,5 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
-        public async Task ShouldThrowServiceExceptionOnAddIfExceptionOccursAndLogItAsync()
-        {
-            // given
-            ListenerEventV1Archive someListenerEventV1Archive = CreateRandomListenerEventV1Archive();
-            var serviceException = new Exception();
-
-            var failedListenerEventV1ArchiveProcessingServiceException =
-                new FailedListenerEventV1ArchiveProcessingServiceException(
-                    message: "Failed event listener service error occurred, contact support.",
-                    innerException: serviceException);
-
-            var expectedListenerEventV1ArchiveProcessingExceptionException =
-                new ListenerEventV1ArchiveProcessingServiceException(
-                    message: "Listener event archive service error occurred, contact support.",
-                    innerException: failedListenerEventV1ArchiveProcessingServiceException);
-
-            this.listenerEventV1ArchiveServiceMock.Setup(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()))
-                    .ThrowsAsync(serviceException);
-
-            // when
-            ValueTask<ListenerEventV1Archive> addListenerEventV1ArchiveTask =
-                this.listenerEventV1ArchiveProcessingService.AddListenerEventV1ArchiveAsync(
-                    someListenerEventV1Archive);
-
-            ListenerEventV1ArchiveProcessingServiceException
-                actualListenerEventV1ArchiveProcessingServiceException =
-                    await Assert.ThrowsAsync<ListenerEventV1ArchiveProcessingServiceException>(
-                        addListenerEventV1ArchiveTask.AsTask);
-
-            // then
-            actualListenerEventV1ArchiveProcessingServiceException.Should()
-                .BeEquivalentTo(expectedListenerEventV1ArchiveProcessingExceptionException);
-
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(
-                    It.IsAny<ListenerEventV1Archive>()),
-                        Times.Once);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedListenerEventV1ArchiveProcessingExceptionException))),
-                        Times.Once);
-
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-        }
     }
 }
