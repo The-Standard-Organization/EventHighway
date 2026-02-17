@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions;
+using EventHighway.Core.Models.Services.Processings.ListenerEvents.V1.Exceptions;
 using EventHighway.Core.Services.Orchestrations.Events.V1;
 using EventHighway.Core.Services.Processings.Events.V1;
 using EventHighway.Core.Services.Processings.ListenerEvents.V1;
@@ -59,6 +60,23 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
             };
         }
 
+        public static TheoryData<Xeption> ListenerEventV1ValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+
+            return new TheoryData<Xeption>
+            {
+                new ListenerEventV1ProcessingValidationException(
+                    someMessage,
+                    someInnerException),
+
+                new ListenerEventV1ProcessingDependencyValidationException(
+                    someMessage,
+                    someInnerException),
+            };
+        }
+
         public static TheoryData<Xeption> EventV1DependencyExceptions()
         {
             string someMessage = GetRandomString();
@@ -71,6 +89,23 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     someInnerException),
 
                 new EventV1ProcessingServiceException(
+                    someMessage,
+                    someInnerException),
+            };
+        }
+
+        public static TheoryData<Xeption> ListenerEventV1DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+
+            return new TheoryData<Xeption>
+            {
+                new ListenerEventV1ProcessingDependencyException(
+                    someMessage,
+                    someInnerException),
+
+                new ListenerEventV1ProcessingServiceException(
                     someMessage,
                     someInnerException),
             };
