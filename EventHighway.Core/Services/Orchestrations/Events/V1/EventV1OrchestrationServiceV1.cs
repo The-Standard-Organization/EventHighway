@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using EventHighway.Core.Services.Processings.Events.V1;
 using EventHighway.Core.Services.Processings.ListenerEvents.V1;
 
@@ -27,9 +28,15 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1)
+        public async ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1)
         {
-            throw new System.NotImplementedException();
+            foreach (ListenerEventV1 listenerEvent in eventV1.ListenerEvents)
+            {
+                await this.listenerEventV1ProcessingService
+                    .RemoveListenerEventV1ByIdAsync(listenerEvent.Id);
+            }
+
+            await this.eventV1ProcessingService.RemoveEventV1ByIdAsync(eventV1.Id);
         }
 
         public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
