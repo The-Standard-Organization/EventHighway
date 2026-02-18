@@ -20,7 +20,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
     {
         [Theory]
         [MemberData(nameof(EventV1ArchiveValidationExceptions))]
-        [MemberData(nameof(ListenerEventV1ArchiveDependencyExceptions))]
+        [MemberData(nameof(ListenerEventV1ArchiveValidationExceptions))]
         public async Task ShouldThrowDependencyValidationExceptionOnAddIfValidationExceptionOccursAndLogItAsync(
             Xeption validationException)
         {
