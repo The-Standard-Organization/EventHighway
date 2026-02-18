@@ -30,7 +30,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
         public ValueTask AddEventV1ArchiveWithListenerEventV1ArchivesAsync(EventV1Archive eventV1Archive) =>
         TryCatch(async () =>
         {
-            ValidateEventV1ArhiveIsNotNull(eventV1Archive);
+            ValidateEventV1Arhive(eventV1Archive);
 
             foreach (ListenerEventV1Archive listenerEventV1Archive in eventV1Archive.ListenerEventV1Archives)
             {
