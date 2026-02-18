@@ -63,6 +63,30 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     listenerEventV1ArchiveDependencyValidationException);
             }
+            catch (EventV1ArchiveDependencyException
+                eventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveDependencyException);
+            }
+            catch (EventV1ArchiveServiceException
+                eventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveServiceException);
+            }
+            catch (ListenerEventV1ArchiveDependencyException
+                listenerListenerEventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerListenerEventV1ArchiveDependencyException);
+            }
+            catch (ListenerEventV1ArchiveServiceException
+                listenerListenerEventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerListenerEventV1ArchiveServiceException);
+            }
         }
 
         private async ValueTask<EventV1ArchiveOrchestrationValidationException> CreateAndLogValidationExceptionAsync(
