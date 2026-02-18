@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -11,6 +12,7 @@ using EventHighway.Core.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V1;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 {
@@ -32,6 +34,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
                 eventV1ArchiveService: this.eventV1ArchiveServiceMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
+
+        private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
