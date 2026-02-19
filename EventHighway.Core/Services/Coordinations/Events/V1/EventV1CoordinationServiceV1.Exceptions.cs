@@ -71,6 +71,16 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1ArchiveOrchestrationDependencyValidationException);
             }
+            catch (Exception exception)
+            {
+                var failedEventV1CoordinationServiceException =
+                    new FailedEventV1CoordinationServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1CoordinationServiceException);
+            }
         }
 
         private async ValueTask<EventV1CoordinationValidationException> CreateAndLogValidationExceptionAsync(
