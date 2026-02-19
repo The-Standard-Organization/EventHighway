@@ -35,7 +35,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask ArchiveDeadEventV1sAsync()
+        public ValueTask ArchiveDeadEventV1sAsync() =>
+        TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
                 await this.eventV1OrchestrationServiceV1
@@ -54,7 +55,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     .RemoveEventV1AndListenerEventV1sAsync(
                         eventV1);
             }
-        }
+        });
 
         private async ValueTask<EventV1Archive> MapToEventV1ArchiveAsync(
             EventV1 eventV1)
