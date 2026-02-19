@@ -47,6 +47,30 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyExceptionAsync(
                     eventV1ArchiveOrchestrationServiceException);
             }
+            catch (EventV1OrchestrationValidationException
+                eventV1OrchestrationValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1OrchestrationValidationException);
+            }
+            catch (EventV1OrchestrationDependencyValidationException
+                eventV1OrchestrationDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1OrchestrationDependencyValidationException);
+            }
+            catch (EventV1ArchiveOrchestrationValidationException
+                eventV1ArchiveOrchestrationValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveOrchestrationValidationException);
+            }
+            catch (EventV1ArchiveOrchestrationDependencyValidationException
+                eventV1ArchiveOrchestrationDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveOrchestrationDependencyValidationException);
+            }
         }
 
         private async ValueTask<EventV1CoordinationValidationException> CreateAndLogValidationExceptionAsync(
