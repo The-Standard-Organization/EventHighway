@@ -13,6 +13,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
     {
         ValueTask<EventV1> AddEventV1Async(EventV1 eventV1);
         ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sAsync();
+        ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sWithListenersAsync();
         ValueTask<EventV1> ModifyEventV1Async(EventV1 eventV1);
         ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id);
     }
