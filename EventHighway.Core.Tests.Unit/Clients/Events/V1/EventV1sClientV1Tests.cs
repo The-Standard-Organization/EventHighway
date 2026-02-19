@@ -42,7 +42,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
 
                 new EventV1CoordinationDependencyValidationException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
