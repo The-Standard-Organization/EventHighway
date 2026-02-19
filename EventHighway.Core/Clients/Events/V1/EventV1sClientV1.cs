@@ -14,9 +14,9 @@ namespace EventHighway.Core.Clients.Events.V1
         public EventV1sClientV1(IEventV1CoordinationServiceV1 eventV1CoordinationServiceV1) =>
             this.eventV1CoordinationServiceV1 = eventV1CoordinationServiceV1;
 
-        public ValueTask ArchiveDeadEventV1sAsync()
+        public async ValueTask ArchiveDeadEventV1sAsync()
         {
-            throw new System.NotImplementedException();
+            await this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
         }
     }
 }
