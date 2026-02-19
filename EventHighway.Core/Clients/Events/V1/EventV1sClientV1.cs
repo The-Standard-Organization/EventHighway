@@ -37,6 +37,13 @@ namespace EventHighway.Core.Clients.Events.V1
                     eventV1CoordinationDependencyException.InnerException
                         as Xeption);
             }
+            catch (EventV1CoordinationServiceException
+                eventV1CoordinationServiceException)
+            {
+                throw CreateEventV1ClientServiceException(
+                    eventV1CoordinationServiceException.InnerException
+                        as Xeption);
+            }
         }
 
         private static EventV1ClientDependencyValidationException CreateEventV1ClientDependencyValidationException(
