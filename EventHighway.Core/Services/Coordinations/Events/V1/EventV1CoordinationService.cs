@@ -36,7 +36,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         }
 
         public ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
-        TryCatch(async () =>
+        TryCatch(returningEventV1Function: async () =>
         {
             ValidateEventV1IsNotNull(eventV1);
 
@@ -61,7 +61,19 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await ProcessEventListenerV1sAsync(submittedEventV1);
 
             return submittedEventV1;
-        });
+        },
+
+        retryEventV1Function: async () =>
+        {
+            if (eventV1.RetryAttempts > 0)
+            {
+                eventV1.RetryAttempts--;
+                return await SubmitEventV1Async(eventV1);
+            }
+
+            return null;
+        } // retry logic
+    );
 
         public ValueTask FireScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
@@ -144,6 +156,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 listenerEventV1.Response = exception.Message;
                 listenerEventV1.Status = ListenerEventV1Status.Error;
             }
+
+            eventV1.ListenerEvents.Add(listenerEventV1); // fire and observe
 
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();

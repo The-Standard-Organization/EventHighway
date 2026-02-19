@@ -15,9 +15,12 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
     internal partial class EventV1CoordinationService
     {
         private delegate ValueTask<EventV1> ReturningEventV1Function();
+        private delegate ValueTask<EventV1> RetryingEventV1Function();
         private delegate ValueTask ReturningNothingFunction();
 
-        private async ValueTask<EventV1> TryCatch(ReturningEventV1Function returningEventV1Function)
+        private async ValueTask<EventV1> TryCatch(
+            ReturningEventV1Function returningEventV1Function,
+            RetryingEventV1Function retryEventV1Function)
         {
             try
             {
@@ -62,26 +65,34 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             catch (EventV1OrchestrationDependencyException
                 eventV1OrchestrationDependencyException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1OrchestrationDependencyException);
+                return await TryRetryOrThrowAsync(
+                    retryEventV1Function,
+                    async () => await CreateAndLogDependencyExceptionAsync(
+                        eventV1OrchestrationDependencyException));
             }
             catch (EventV1OrchestrationServiceException
                 eventV1OrchestrationServiceException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1OrchestrationServiceException);
+                return await TryRetryOrThrowAsync(
+                    retryEventV1Function,
+                    async () => await CreateAndLogDependencyExceptionAsync(
+                        eventV1OrchestrationServiceException));
             }
             catch (EventListenerV1OrchestrationDependencyException
                 eventListenerV1OrchestrationDependencyException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(
-                    eventListenerV1OrchestrationDependencyException);
+                return await TryRetryOrThrowAsync(
+                    retryEventV1Function,
+                    async () => await CreateAndLogDependencyExceptionAsync(
+                        eventListenerV1OrchestrationDependencyException));
             }
             catch (EventListenerV1OrchestrationServiceException
                 eventListenerV1OrchestrationServiceException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(
-                    eventListenerV1OrchestrationServiceException);
+                return await TryRetryOrThrowAsync(
+                    retryEventV1Function,
+                    async () => await CreateAndLogDependencyExceptionAsync(
+                        eventListenerV1OrchestrationServiceException));
             }
             catch (Exception exception)
             {
@@ -90,8 +101,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                         message: "Failed event service error occurred, contact support.",
                         innerException: exception);
 
-                throw await CreateAndLogServiceExceptionAsync(
-                    failedEventV1CoordinationServiceException);
+                return await TryRetryOrThrowAsync(
+                    retryEventV1Function,
+                    async () => await CreateAndLogServiceExceptionAsync(
+                        failedEventV1CoordinationServiceException));
             }
         }
 
@@ -212,6 +225,18 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             await this.loggingBroker.LogErrorAsync(eventV1CoordinationServiceException);
 
             return eventV1CoordinationServiceException;
+        }
+
+        private async ValueTask<EventV1> TryRetryOrThrowAsync(
+            RetryingEventV1Function retryEventV1Function,
+            Func<ValueTask<Xeption>> createAndLogExceptionAsync)
+        {
+            EventV1 retriedEventV1 = await retryEventV1Function();
+
+            if (retriedEventV1 is not null)
+                return retriedEventV1;
+
+            throw await createAndLogExceptionAsync();
         }
     }
 }
