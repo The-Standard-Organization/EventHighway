@@ -55,6 +55,47 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
             this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();
         }
 
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnArchiveIfDependencyErrorOccursAsync()
+        {
+            // given
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+
+            var eventV1CoordinationDependencyException =
+                new EventV1CoordinationDependencyException(
+                    someMessage,
+                    someInnerException);
+
+            var expectedEventV1ClientDependencyException =
+                new EventV1ClientDependencyException(
+                    message: "Event client dependency error occurred, contact support.",
+
+                    innerException: eventV1CoordinationDependencyException
+                        .InnerException as Xeption);
+
+            this.eventV1CoordinationServiceV1Mock.Setup(service =>
+                service.ArchiveDeadEventV1sAsync())
+                    .ThrowsAsync(eventV1CoordinationDependencyException);
+
+            // when
+            ValueTask archiveDeadEventV1sTask =
+                this.eventV1SClientV1.ArchiveDeadEventV1sAsync();
+
+            EventV1ClientDependencyException actualEventV1ClientDependencyException =
+                await Assert.ThrowsAsync<EventV1ClientDependencyException>(
+                    archiveDeadEventV1sTask.AsTask);
+
+            // then
+            actualEventV1ClientDependencyException.Should()
+                .BeEquivalentTo(expectedEventV1ClientDependencyException);
+
+            this.eventV1CoordinationServiceV1Mock.Verify(service =>
+                service.ArchiveDeadEventV1sAsync(),
+                    Times.Once);
+
+            this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();
+        }
 
     }
 }
