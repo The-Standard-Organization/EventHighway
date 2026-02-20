@@ -22,6 +22,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         private readonly IEventListenerV1OrchestrationService eventListenerV1OrchestrationService;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
+        private int counter = 0;
 
         public EventV1CoordinationService(
             IEventV1OrchestrationService eventV1OrchestrationService,
@@ -39,6 +40,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         TryCatch(returningEventV1Function: async () =>
         {
             ValidateEventV1IsNotNull(eventV1);
+            if (counter is 0)
+            {
+                throw new Exception();
+            }
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();

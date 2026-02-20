@@ -19,6 +19,85 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         private delegate ValueTask ReturningNothingFunction();
 
         private async ValueTask<EventV1> TryCatch(
+            ReturningEventV1Function returningEventV1Function)
+        {
+            try
+            {
+                return await returningEventV1Function();
+            }
+            catch (NullEventV1CoordinationException
+                nullEventV1CoordinationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventV1CoordinationException);
+            }
+            catch (InvalidEventV1CoordinationException
+                invalidEventV1CoordinationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV1CoordinationException);
+            }
+            catch (EventV1OrchestrationValidationException
+                eventV1OrchestrationValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1OrchestrationValidationException);
+            }
+            catch (EventV1OrchestrationDependencyValidationException
+                eventV1OrchestrationDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1OrchestrationDependencyValidationException);
+            }
+            catch (EventListenerV1OrchestrationValidationException
+                eventListenerV1OrchestrationValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventListenerV1OrchestrationValidationException);
+            }
+            catch (EventListenerV1OrchestrationDependencyValidationException
+                eventListenerV1OrchestrationDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventListenerV1OrchestrationDependencyValidationException);
+            }
+            catch (EventV1OrchestrationDependencyException
+                eventV1OrchestrationDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1OrchestrationDependencyException);
+            }
+            catch (EventV1OrchestrationServiceException
+                eventV1OrchestrationServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1OrchestrationServiceException);
+            }
+            catch (EventListenerV1OrchestrationDependencyException
+                eventListenerV1OrchestrationDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                     eventListenerV1OrchestrationDependencyException);
+            }
+            catch (EventListenerV1OrchestrationServiceException
+                eventListenerV1OrchestrationServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                     eventListenerV1OrchestrationServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1CoordinationServiceException =
+                    new FailedEventV1CoordinationServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1CoordinationServiceException);
+            }
+        }
+
+        private async ValueTask<EventV1> TryCatch(
             ReturningEventV1Function returningEventV1Function,
             RetryingEventV1Function retryEventV1Function)
         {
