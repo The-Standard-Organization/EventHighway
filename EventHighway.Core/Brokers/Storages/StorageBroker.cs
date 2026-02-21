@@ -13,10 +13,10 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private readonly string connectionString;
 
-        public StorageBroker(string connectionString =
-    "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDb;Trusted_Connection=True;")
+        public StorageBroker(string connectionString)
         {
             this.connectionString = connectionString;
+            this.Database.Migrate();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
