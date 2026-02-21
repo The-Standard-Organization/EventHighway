@@ -228,5 +228,78 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.eventV1OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(EventV1DependencyExceptions))]
+        [MemberData(nameof(EventListenerV1DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnSubmitIfAllRetryAttemptsAreExhaustedAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            int randomRetryAttempts = GetRandomNumber();
+            int inputRetryAttempts = randomRetryAttempts;
+            int expectedCallCount = randomRetryAttempts + 1;
+            EventV1 someEventV1 = CreateRandomEventV1(inputRetryAttempts);
+
+            var expectedEventV1CoordinationDependencyException =
+                new EventV1CoordinationDependencyException(
+                    message: "Event dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask<EventV1> submitEventV1Task =
+                this.eventV1CoordinationService.SubmitEventV1Async(someEventV1);
+
+            EventV1CoordinationDependencyException
+                actualEventV1CoordinationDependencyException =
+                    await Assert.ThrowsAsync<EventV1CoordinationDependencyException>(
+                        submitEventV1Task.AsTask);
+
+            // then
+            actualEventV1CoordinationDependencyException.Should()
+                .BeEquivalentTo(expectedEventV1CoordinationDependencyException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Exactly(expectedCallCount));
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1CoordinationDependencyException))),
+                        Times.Once);
+
+            this.eventV1OrchestrationServiceMock.Verify(service =>
+                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                    Times.Never);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                    It.IsAny<Guid>()),
+                        Times.Never);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.AddListenerEventV1Async(
+                    It.IsAny<ListenerEventV1>()),
+                        Times.Never);
+
+            this.eventV1OrchestrationServiceMock.Verify(service =>
+                service.RunEventCallV1Async(
+                    It.IsAny<EventCallV1>()),
+                        Times.Never);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.ModifyListenerEventV1Async(
+                    It.IsAny<ListenerEventV1>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventV1OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
+        }
     }
 }
