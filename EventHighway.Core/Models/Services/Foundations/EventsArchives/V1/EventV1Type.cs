@@ -2,14 +2,11 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
-using Xeptions;
-
-namespace EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions
+namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V1
 {
-    public class NullEventV1CoordinationException : Xeption
+    public enum EventV1ArchiveType
     {
-        public NullEventV1CoordinationException(string message)
-            : base(message)
-        { }
+        Immediate,
+        Scheduled
     }
 }
