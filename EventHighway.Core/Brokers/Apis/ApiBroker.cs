@@ -21,7 +21,7 @@ namespace EventHighway.Core.Brokers.Apis
                    mediaType: "application/json");
 
             httpClient.DefaultRequestHeaders.Add(
-                name: "X-Highway", 
+                name: "X-Highway",
                 value: secret);
 
             HttpResponseMessage httpResponseMessage =

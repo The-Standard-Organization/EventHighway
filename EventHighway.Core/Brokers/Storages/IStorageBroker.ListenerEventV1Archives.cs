@@ -2,14 +2,9 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
-using Xeptions;
-
-namespace EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions
+namespace EventHighway.Core.Brokers.Storages
 {
-    public class NullEventV1CoordinationException : Xeption
+    internal partial interface IStorageBroker
     {
-        public NullEventV1CoordinationException(string message)
-            : base(message)
-        { }
     }
 }
