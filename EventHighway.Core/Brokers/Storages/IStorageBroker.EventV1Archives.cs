@@ -5,6 +5,5 @@
 namespace EventHighway.Core.Brokers.Storages
 {
     internal partial interface IStorageBroker
-    {
-    }
+    { }
 }
