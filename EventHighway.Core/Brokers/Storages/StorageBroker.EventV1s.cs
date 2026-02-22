@@ -20,7 +20,7 @@ namespace EventHighway.Core.Brokers.Storages
         public async ValueTask<IQueryable<EventV1>> SelectAllEventV1sAsync() =>
             SelectAll<EventV1>();
 
-        public async ValueTask<IQueryable<EventV1>> SelectAllEventV1sWithListenersAsync()
+        public async ValueTask<IQueryable<EventV1>> SelectAllEventV1sWithListenerEventV1sAsync()
         {
             return SelectAll<EventV1>().Include(eventV1 =>
                 eventV1.ListenerEvents);
