@@ -5,11 +5,11 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 
-namespace EventHighway.Core.Brokers.Storages
+namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
-    internal partial interface IStorageBroker
+    internal interface IListenerEventV1ArchiveService
     {
-        ValueTask<ListenerEventV1Archive> InsertListenerEventV1ArchiveAsync(
+        ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
             ListenerEventV1Archive listenerEventV1Archive);
     }
 }
