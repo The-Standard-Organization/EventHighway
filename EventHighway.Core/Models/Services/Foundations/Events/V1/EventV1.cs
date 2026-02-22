@@ -21,6 +21,6 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V1
         public Guid EventAddressId { get; set; }
         public EventAddressV1 EventAddress { get; set; }
 
-        public IEnumerable<ListenerEventV1> ListenerEvents { get; set; }
+        public ICollection<ListenerEventV1> ListenerEvents { get; set; }
     }
 }
