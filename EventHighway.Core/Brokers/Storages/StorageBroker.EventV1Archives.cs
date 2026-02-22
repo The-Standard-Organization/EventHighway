@@ -3,19 +3,16 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        public DbSet<ListenerEventV1Archive> ListenerEventV1Archives { get; set; }
+        public DbSet<EventV1Archive> EventV1Archives { get; set; }
 
-        public async ValueTask<ListenerEventV1Archive> InsertListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive)
-        {
-            return await InsertAsync(listenerEventV1Archive);
-        }
+        public async ValueTask<EventV1Archive> InsertEventV1ArchiveAsync(EventV1Archive eventV1Archive) =>
+            await InsertAsync(eventV1Archive);
     }
 }
