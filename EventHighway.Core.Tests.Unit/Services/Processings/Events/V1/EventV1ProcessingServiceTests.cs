@@ -50,7 +50,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
                 new EventV1DependencyValidationException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
@@ -67,7 +67,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
                 new EventV1ServiceException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 

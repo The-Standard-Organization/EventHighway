@@ -6,15 +6,9 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
-using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
-using EventHighway.Core.Models.Services.Processings.EventAddresses.V1.Exceptions;
-using EventHighway.Core.Models.Services.Processings.EventCalls.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions;
 using EventHighway.Core.Services.Orchestrations.Events.V1;
-using EventHighway.Core.Services.Processings.EventAddresses.V1;
-using EventHighway.Core.Services.Processings.EventCalls.V1;
 using EventHighway.Core.Services.Processings.Events.V1;
 using Moq;
 using Tynamix.ObjectFiller;
@@ -55,7 +49,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
                 new EventV1ProcessingDependencyValidationException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
@@ -72,15 +66,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
                 new EventV1ProcessingServiceException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
-
-        private static Guid GetRandomId() =>
-            Guid.NewGuid();
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
