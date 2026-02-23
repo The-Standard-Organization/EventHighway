@@ -64,18 +64,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
 
                 new ListenerEventV1ArchiveServiceException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
-
-        private static Guid GetRandomId() =>
-            Guid.NewGuid();
-
-        private static int GetRandomNegativeNumber() =>
-            -1 * GetRandomNumber();
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();

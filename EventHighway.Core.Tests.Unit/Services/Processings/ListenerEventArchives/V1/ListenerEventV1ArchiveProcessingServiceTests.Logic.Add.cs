@@ -42,8 +42,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             actualListenerEventV1Archive.Should().BeEquivalentTo(
                 expectedListenerEventV1Archive);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddListenerEventV1ArchiveAsync(
+            this.listenerEventV1ArchiveServiceMock.Verify(service =>
+                service.AddListenerEventV1ArchiveAsync(
                     inputListenerEventV1Archive),
                         Times.Once);
 
