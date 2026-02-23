@@ -72,7 +72,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             {
                 Id = Guid.Empty,
                 Type = invalidType,
-                Content = invalidText,
+                Content = invalidText
             };
 
             var invalidEventV1ArchiveException =
