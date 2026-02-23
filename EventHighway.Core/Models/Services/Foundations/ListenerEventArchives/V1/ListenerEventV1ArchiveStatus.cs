@@ -2,14 +2,12 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
-using Xeptions;
-
-namespace EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions
+namespace EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1
 {
-    public class NullEventV1CoordinationException : Xeption
+    public enum ListenerEventV1ArchiveStatus
     {
-        public NullEventV1CoordinationException(string message)
-            : base(message)
-        { }
+        Pending,
+        Success,
+        Error
     }
 }
