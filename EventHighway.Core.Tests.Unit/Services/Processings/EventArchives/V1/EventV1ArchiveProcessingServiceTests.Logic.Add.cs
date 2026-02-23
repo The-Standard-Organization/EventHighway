@@ -28,8 +28,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             EventV1Archive expectedEventV1Archive =
                 addedEventV1Archive.DeepClone();
 
-            this.eventV1ArchiveServiceMock.Setup(broker =>
-                broker.AddEventV1ArchiveAsync(
+            this.eventV1ArchiveServiceMock.Setup(service =>
+                service.AddEventV1ArchiveAsync(
                     inputEventV1Archive))
                         .ReturnsAsync(addedEventV1Archive);
 
@@ -43,8 +43,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             actualEventV1Archive.Should().BeEquivalentTo(
                 expectedEventV1Archive);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(
+            this.eventV1ArchiveServiceMock.Verify(service =>
+                service.AddEventV1ArchiveAsync(
                     inputEventV1Archive),
                         Times.Once);
 

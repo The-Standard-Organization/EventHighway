@@ -45,8 +45,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                     expectedEventV1ArchiveProcessingValidationException))),
                         Times.Once);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(
+            this.eventV1ArchiveServiceMock.Verify(service =>
+                service.AddEventV1ArchiveAsync(
                     It.IsAny<EventV1Archive>()),
                         Times.Never);
 
