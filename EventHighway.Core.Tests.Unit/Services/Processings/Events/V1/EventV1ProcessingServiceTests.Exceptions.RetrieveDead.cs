@@ -51,10 +51,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     expectedEventV1ProcessingDependencyException))),
                         Times.Once);
 
-            this.dateTimeBrokerMock.Verify(broker =>
-                broker.GetDateTimeOffsetAsync(),
-                    Times.Never);
-
             this.eventV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
@@ -100,10 +96,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedEventV1ProcessingServiceException))),
                         Times.Once);
-
-            this.dateTimeBrokerMock.Verify(broker =>
-                broker.GetDateTimeOffsetAsync(),
-                    Times.Never);
 
             this.eventV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
