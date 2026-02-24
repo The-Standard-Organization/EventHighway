@@ -9,7 +9,6 @@ using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Services.Foundations.Events.V1;
-using Microsoft.Identity.Client;
 
 namespace EventHighway.Core.Services.Processings.Events.V1
 {
