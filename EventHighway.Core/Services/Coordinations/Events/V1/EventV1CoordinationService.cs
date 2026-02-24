@@ -87,7 +87,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     .RetrieveEventListenerV1sByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
-            eventV1.ListenerEvents = new List<ListenerEventV1>();   
+            eventV1.ListenerEvents = new List<ListenerEventV1>();
 
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
             {
