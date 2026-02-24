@@ -20,7 +20,7 @@ namespace EventHighway.Core.Brokers.Storages
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-             optionsBuilder.UseSqlServer(this.connectionString);
+            optionsBuilder.UseSqlServer(this.connectionString);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
