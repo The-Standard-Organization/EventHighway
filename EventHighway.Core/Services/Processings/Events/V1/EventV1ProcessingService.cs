@@ -50,6 +50,15 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 eventV1.ScheduledDate < now);
         });
 
+        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
+        TryCatch(async () =>
+        {
+            IQueryable<EventV1> eventV1s =
+                await this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
+
+            return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
+        });
+
         public ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1) =>
         TryCatch(async () =>
         {
