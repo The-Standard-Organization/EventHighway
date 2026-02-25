@@ -56,7 +56,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
                 new EventV1ProcessingDependencyValidationException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
                 new EventV1ProcessingServiceException(
                     someMessage,
-                    someInnerException),
+                    someInnerException)
             };
         }
 
@@ -113,9 +113,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
-
-        private static Guid GetRandomId() =>
-            Guid.NewGuid();
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();

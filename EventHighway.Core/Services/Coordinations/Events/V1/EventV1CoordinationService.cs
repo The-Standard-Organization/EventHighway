@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
@@ -36,7 +37,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         }
 
         public ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
-        TryCatch(async () =>
+        TryCatchWithRetryAsync(returningEventV1Function: async () =>
         {
             ValidateEventV1IsNotNull(eventV1);
 
@@ -61,8 +62,20 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await ProcessEventListenerV1sAsync(submittedEventV1);
 
             return submittedEventV1;
-        });
+        },
 
+        retryEventV1Function: async () =>
+        {
+            if (eventV1.RetryAttempts > 0)
+            {
+                eventV1.RetryAttempts--;
+
+                return await SubmitEventV1Async(eventV1);
+            }
+
+            return null;
+        }
+    );
         public ValueTask FireScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
         {
@@ -85,6 +98,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await this.eventListenerV1OrchestrationService
                     .RetrieveEventListenerV1sByEventAddressIdAsync(
                         eventV1.EventAddressId);
+
+            eventV1.ListenerEvents = new List<ListenerEventV1>();
 
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
             {
@@ -148,8 +163,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            await this.eventListenerV1OrchestrationService
-                .ModifyListenerEventV1Async(listenerEventV1);
+            ListenerEventV1 modifiedListenerEventV1 =
+                await this.eventListenerV1OrchestrationService
+                    .ModifyListenerEventV1Async(listenerEventV1);
+
+            eventV1.ListenerEvents.Add(modifiedListenerEventV1);
         }
 
         private static ListenerEventV1 CreateEventListenerV1(

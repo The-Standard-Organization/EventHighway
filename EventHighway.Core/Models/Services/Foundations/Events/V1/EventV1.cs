@@ -17,10 +17,11 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V1
         public DateTimeOffset CreatedDate { get; set; }
         public DateTimeOffset UpdatedDate { get; set; }
         public DateTimeOffset? ScheduledDate { get; set; }
+        public int RetryAttempts { get; set; }
 
         public Guid EventAddressId { get; set; }
         public EventAddressV1 EventAddress { get; set; }
 
-        public IEnumerable<ListenerEventV1> ListenerEvents { get; set; }
+        public ICollection<ListenerEventV1> ListenerEvents { get; set; }
     }
 }

@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
-using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventHighway.Core.Brokers.Storages

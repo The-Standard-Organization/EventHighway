@@ -20,7 +20,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
             EventV1 inputEventV1 = randomEventV1;
             EventV1 submittedEventV1 = inputEventV1;
 
-            EventV1 expectedEventV1 = 
+            EventV1 expectedEventV1 =
                 submittedEventV1.DeepClone();
 
             this.eventV1CoordinationServiceMock.Setup(service =>

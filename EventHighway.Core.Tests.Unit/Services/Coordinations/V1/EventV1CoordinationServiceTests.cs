@@ -128,6 +128,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             };
         }
 
+        public static TheoryData<Exception> PlainException()
+        {
+            return new TheoryData<Exception> 
+            { 
+                new Exception() 
+            };
+        }
+
         public static TheoryData<DateTimeOffset, DateTimeOffset?> ScheduledDates()
         {
             int randomNegativeDays = GetRandomNegativeNumber();
@@ -159,8 +167,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     .AsQueryable();
         }
 
-        private static EventV1 CreateRandomEventV1() =>
-            CreateEventV1Filler().Create();
+        private static EventV1 CreateRandomEventV1(int retryAttemtps = 0) =>
+            CreateEventV1Filler(retryAttemtps).Create();
 
         private static IQueryable<EventListenerV1> CreateRandomEventListenerV1s() =>
             CreateEventListenerV1Filler().Create(count: GetRandomNumber()).AsQueryable();
@@ -200,7 +208,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .AreEqual;
         }
 
-        private static Filler<EventV1> CreateEventV1Filler()
+        private static Filler<EventV1> CreateEventV1Filler(
+            int retryAttempts = 0)
         {
             var filler = new Filler<EventV1>();
 
@@ -213,6 +222,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 .OnProperty(eventV1 =>
                     eventV1.EventAddress).IgnoreIt()
+                
+                .OnProperty(eventV1 =>
+                    eventV1.RetryAttempts).Use(retryAttempts)
 
                 .OnProperty(eventV1 =>
                     eventV1.ListenerEvents).IgnoreIt();
