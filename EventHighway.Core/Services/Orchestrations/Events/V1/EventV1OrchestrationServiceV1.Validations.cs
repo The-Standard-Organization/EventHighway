@@ -2,15 +2,20 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
-using System.Linq;
-using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
+using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 
 namespace EventHighway.Core.Services.Orchestrations.Events.V1
 {
-    public interface IEventV1OrchestrationServiceV1
+    internal partial class EventV1OrchestrationServiceV1
     {
-        ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync();
-        ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1);
+        private static void ValidateEventV1IsNotNull(EventV1 eventV1)
+        {
+            if (eventV1 is null)
+            {
+                throw new NullEventV1OrchestrationException(
+                    message: "Event is null.");
+            }
+        }
     }
 }

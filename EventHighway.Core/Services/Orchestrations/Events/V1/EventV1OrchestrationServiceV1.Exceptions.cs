@@ -5,12 +5,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
-using EventHighway.Core.Models.Services.Processings.EventAddresses.V1.Exceptions;
-using EventHighway.Core.Models.Services.Processings.EventCalls.V1.Exceptions;
 using EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions;
+using EventHighway.Core.Models.Services.Processings.ListenerEvents.V1.Exceptions;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Orchestrations.Events.V1
@@ -18,6 +16,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
     internal partial class EventV1OrchestrationServiceV1
     {
         private delegate ValueTask<IQueryable<EventV1>> ReturningEventV1sFunction();
+        private delegate ValueTask ReturningNothingFunction();
 
         private async ValueTask<IQueryable<EventV1>> TryCatch(ReturningEventV1sFunction returningEventV1sFunction)
         {
@@ -42,6 +41,90 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
             }
+        }
+
+        private async ValueTask TryCatch(ReturningNothingFunction returningNothingFunction)
+        {
+            try
+            {
+                await returningNothingFunction();
+            }
+            catch (NullEventV1OrchestrationException nullEventV1OrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(nullEventV1OrchestrationException);
+            }
+            catch (EventV1ProcessingValidationException eventV1ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV1ProcessingValidationException);
+            }
+            catch (EventV1ProcessingDependencyValidationException eventV1ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ProcessingDependencyValidationException);
+            }
+            catch (EventV1ProcessingDependencyException eventV1ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ProcessingDependencyException);
+            }
+            catch (EventV1ProcessingServiceException eventV1ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ProcessingServiceException);
+            }
+            catch (ListenerEventV1ProcessingValidationException listenerEventV1ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV1ProcessingValidationException);
+            }
+            catch (ListenerEventV1ProcessingDependencyValidationException
+                listenerEventV1ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV1ProcessingDependencyValidationException);
+            }
+            catch (ListenerEventV1ProcessingDependencyException listenerEventV1ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ProcessingDependencyException);
+            }
+            catch (ListenerEventV1ProcessingServiceException listenerEventV1ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ProcessingServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1OrchestrationServiceException =
+                    new FailedEventV1OrchestrationServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
+            }
+        }
+
+        private async ValueTask<EventV1OrchestrationValidationException> CreateAndLogValidationExceptionAsync(
+            Xeption exception)
+        {
+            var eventV1OrchestrationValidationException =
+                new EventV1OrchestrationValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventV1OrchestrationValidationException);
+
+            return eventV1OrchestrationValidationException;
+        }
+
+        private async ValueTask<EventV1OrchestrationDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(
+                Xeption exception)
+        {
+            var eventV1OrchestrationDependencyValidationException =
+                new EventV1OrchestrationDependencyValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: exception.InnerException as Xeption);
+
+            await this.loggingBroker.LogErrorAsync(eventV1OrchestrationDependencyValidationException);
+
+            return eventV1OrchestrationDependencyValidationException;
         }
 
         private async ValueTask<EventV1OrchestrationDependencyException> CreateAndLogDependencyExceptionAsync(
