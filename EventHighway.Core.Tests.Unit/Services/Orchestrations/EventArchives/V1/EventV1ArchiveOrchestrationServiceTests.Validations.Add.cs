@@ -67,10 +67,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
         public async Task ShouldThrowValidationExceptionOnAddIfListenerEventV1ArchivesAreNullAndLogItAsync()
         {
             // given
-            var invalidEventV1Archive = new EventV1Archive
-            {
-                ListenerEventV1Archives = null
-            };
+            var invalidEventV1Archive = new EventV1Archive();
+            invalidEventV1Archive.ListenerEventV1Archives = null;
 
             var nullEventV1ArchiveOrchestrationException =
                 new NullListenerEventV1ArchivesOrchestrationException(
