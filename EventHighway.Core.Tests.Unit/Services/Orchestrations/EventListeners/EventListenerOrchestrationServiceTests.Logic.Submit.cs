@@ -220,7 +220,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners
                             .ReturnsAsync(expectedListenerEvent.DeepClone());
             }
 
-            for (int i = 0; i< expectedCallEvents.Count; i++)
+            for (int i = 0; i < expectedCallEvents.Count; i++)
             {
                 var ranEventCall = new EventCall
                 {
