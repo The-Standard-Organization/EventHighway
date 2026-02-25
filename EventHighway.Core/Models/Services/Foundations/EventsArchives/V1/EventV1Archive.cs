@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 
 namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V1
 {
@@ -17,5 +19,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V1
         public DateTimeOffset ArchivedDate { get; set; }
 
         public Guid EventAddressId { get; set; }
+
+        public IEnumerable<ListenerEventV1Archive> ListenerEventV1Archives { get; set; }
     }
 }
