@@ -32,12 +32,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                     innerException: failedEventV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventV1sWithListenersAsync())
+                broker.SelectAllEventV1sWithListenerEventV1sAsync())
                     .ThrowsAsync(sqlException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllEventV1sTask =
-                this.eventV1Service.RetrieveAllEventV1sWithListenersAsync();
+                this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
 
             EventV1DependencyException actualEventV1DependencyException =
                 await Assert.ThrowsAsync<EventV1DependencyException>(
@@ -48,7 +48,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                 .BeEquivalentTo(expectedEventV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventV1sWithListenersAsync(),
+                broker.SelectAllEventV1sWithListenerEventV1sAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -62,7 +62,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
         }
 
         [Fact]
-        public async Task ShouldThrowServiceExceptionOnRetrieveAllWithListenersIfExceptionOccursAndLogItAsync()
+        public async Task ShouldThrowServiceExceptionOnRetrieveAllWithListenerEventV1sIfExceptionOccursAndLogItAsync()
         {
             // given
             var serviceException = new Exception();
@@ -78,12 +78,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                     innerException: failedEventV1ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventV1sWithListenersAsync())
+                broker.SelectAllEventV1sWithListenerEventV1sAsync())
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllEventV1sTask =
-                this.eventV1Service.RetrieveAllEventV1sWithListenersAsync();
+                this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
 
             EventV1ServiceException actualEventV1ServiceException =
                 await Assert.ThrowsAsync<EventV1ServiceException>(
@@ -94,7 +94,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                 .BeEquivalentTo(expectedEventV1ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventV1sWithListenersAsync(),
+                broker.SelectAllEventV1sWithListenerEventV1sAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

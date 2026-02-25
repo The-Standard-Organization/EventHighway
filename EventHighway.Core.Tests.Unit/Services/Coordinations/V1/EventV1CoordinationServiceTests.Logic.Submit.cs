@@ -13,13 +13,14 @@ using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 {
     public partial class EventV1CoordinationServiceTests
     {
         [Fact]
-        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsync()
+        public async Task ShouldSubmitScheduleEventV1WhenScheduledDateIsInFutureAsync()
         {
             // given
             int randomDays = GetRandomNumber();
@@ -87,8 +88,84 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
         }
 
         [Theory]
+        [MemberData(nameof(PlainException))]
+        [MemberData(nameof(EventV1DependencyExceptions))]
+        [MemberData(nameof(EventListenerV1DependencyExceptions))]
+        public async Task ShouldRetryAndReturnEventV1OnSubmitWhenTransientErrorOccursAsync(
+            Exception exception)
+        {
+            // given
+            int randomDays = GetRandomNumber();
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+            DateTimeOffset retrievedDateTimeOffset = randomDateTimeOffset;
+            int randomRetryAttempts = GetRandomNumber();
+            int inputRetryAttempts = randomRetryAttempts;
+            EventV1 randomEventV1 = CreateRandomEventV1(inputRetryAttempts);
+            EventV1 inputEventV1 = randomEventV1;
+
+            inputEventV1.ScheduledDate =
+                retrievedDateTimeOffset.AddDays(randomDays);
+
+            EventV1 inputScheduledEventV1 = inputEventV1;
+            inputScheduledEventV1.Type = EventV1Type.Scheduled;
+            EventV1 submittedEventV1 = inputScheduledEventV1;
+            EventV1 expectedEventV1 = submittedEventV1.DeepClone();
+            expectedEventV1.RetryAttempts = randomRetryAttempts - 1;
+
+            this.dateTimeBrokerMock.SetupSequence(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(exception)
+                    .ReturnsAsync(retrievedDateTimeOffset);
+
+            this.eventV1OrchestrationServiceMock.Setup(service =>
+                service.SubmitEventV1Async(inputScheduledEventV1))
+                    .ReturnsAsync(submittedEventV1);
+
+            // when
+            EventV1 actualEventV1 =
+                await this.eventV1CoordinationService
+                    .SubmitEventV1Async(inputEventV1);
+
+            // then
+            actualEventV1.Should().BeEquivalentTo(expectedEventV1);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Exactly(callCount: 2));
+
+            this.eventV1OrchestrationServiceMock.Verify(service =>
+                service.SubmitEventV1Async(inputScheduledEventV1),
+                    Times.Once);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                    It.IsAny<Guid>()),
+                        Times.Never);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.AddListenerEventV1Async(
+                    It.IsAny<ListenerEventV1>()),
+                        Times.Never);
+
+            this.eventV1OrchestrationServiceMock.Verify(service =>
+                service.RunEventCallV1Async(
+                    It.IsAny<EventCallV1>()),
+                        Times.Never);
+
+            this.eventListenerV1OrchestrationServiceMock.Verify(service =>
+                service.ModifyListenerEventV1Async(
+                    It.IsAny<ListenerEventV1>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.eventV1OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
         [MemberData(nameof(ScheduledDates))]
-        public async Task ShouldSubmitScheduledEventV1WhenScheduledDateIsInFutureAsync(
+        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsync(
             DateTimeOffset randomDateTimeOffset,
             DateTimeOffset? scheduledDate)
         {
@@ -126,6 +203,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
+            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
+
             List<ListenerEventV1> expectedListenerEventV1s =
                 modifiedListenerEventV1s.DeepClone();
 
@@ -139,7 +218,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                             Secret = retrievedEventListenerV1.HeaderSecret,
                         }).ToList();
 
-            int expectedDateTimeBrokerCalls = 
+            int expectedDateTimeBrokerCalls =
                 inputListenerEventV1s.Count +
                     modifiedListenerEventV1s.Count + 1;
 

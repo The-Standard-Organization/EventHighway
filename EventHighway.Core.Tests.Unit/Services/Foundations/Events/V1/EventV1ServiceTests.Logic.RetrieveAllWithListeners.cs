@@ -14,7 +14,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
     public partial class EventV1ServiceTests
     {
         [Fact]
-        public async Task ShouldRetrieveAllEventV1sWithListenersAsync()
+        public async Task ShouldRetrieveAllEventV1sWithListenerEventV1sAsync()
         {
             // given
             IQueryable<EventV1> randomEventV1s =
@@ -27,20 +27,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                 retrievedEventV1s.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventV1sWithListenersAsync())
+                broker.SelectAllEventV1sWithListenerEventV1sAsync())
                     .ReturnsAsync(retrievedEventV1s);
 
             // when
             IQueryable<EventV1> actualEventV1s =
                 await this.eventV1Service
-                    .RetrieveAllEventV1sWithListenersAsync();
+                    .RetrieveAllEventV1sWithListenerEventV1sAsync();
 
             // then
             actualEventV1s.Should().BeEquivalentTo(
                 expectedEventV1s);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventV1sWithListenersAsync(),
+                broker.SelectAllEventV1sWithListenerEventV1sAsync(),
                     Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();

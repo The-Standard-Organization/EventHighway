@@ -44,7 +44,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 (Rule: await IsNotRecentAsync(eventV1Archive.CreatedDate),
                 Parameter: nameof(EventV1Archive.CreatedDate)),
 
-            (Rule: IsInvalid(eventV1Archive.EventAddressId),
+                (Rule: IsInvalid(eventV1Archive.EventAddressId),
                 Parameter: nameof(EventV1Archive.EventAddressId)));
         }
 

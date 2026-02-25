@@ -176,6 +176,9 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventAddressId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("RetryAttempts")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset?>("ScheduledDate")
                         .HasColumnType("datetimeoffset");
 
