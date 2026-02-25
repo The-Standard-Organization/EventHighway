@@ -69,6 +69,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             if (eventV1.RetryAttempts > 0)
             {
                 eventV1.RetryAttempts--;
+
                 return await SubmitEventV1Async(eventV1);
             }
 

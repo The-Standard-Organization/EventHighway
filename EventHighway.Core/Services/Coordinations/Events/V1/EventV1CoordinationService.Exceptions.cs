@@ -67,6 +67,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 return await TryRetryOrThrowAsync(
                     retryEventV1Function,
+
                     async () => await CreateAndLogDependencyExceptionAsync(
                         eventV1OrchestrationDependencyException));
             }
@@ -75,6 +76,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 return await TryRetryOrThrowAsync(
                     retryEventV1Function,
+
                     async () => await CreateAndLogDependencyExceptionAsync(
                         eventV1OrchestrationServiceException));
             }
@@ -83,6 +85,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 return await TryRetryOrThrowAsync(
                     retryEventV1Function,
+
                     async () => await CreateAndLogDependencyExceptionAsync(
                         eventListenerV1OrchestrationDependencyException));
             }
@@ -91,6 +94,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 return await TryRetryOrThrowAsync(
                     retryEventV1Function,
+
                     async () => await CreateAndLogDependencyExceptionAsync(
                         eventListenerV1OrchestrationServiceException));
             }
@@ -103,6 +107,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
                 return await TryRetryOrThrowAsync(
                     retryEventV1Function,
+
                     async () => await CreateAndLogServiceExceptionAsync(
                         failedEventV1CoordinationServiceException));
             }
@@ -259,7 +264,9 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             EventV1 retriedEventV1 = await retryEventV1Function();
 
             if (retriedEventV1 is not null)
+            {
                 return retriedEventV1;
+            }
 
             throw await createAndLogExceptionAsync();
         }
