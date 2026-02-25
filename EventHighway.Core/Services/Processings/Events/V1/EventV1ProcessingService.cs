@@ -9,7 +9,6 @@ using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Services.Foundations.Events.V1;
-using Microsoft.Identity.Client;
 
 namespace EventHighway.Core.Services.Processings.Events.V1
 {
@@ -55,7 +54,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
-                await this.eventV1Service.RetrieveAllEventV1sWithListenersAsync();
+                await this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
 
             return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
         });
