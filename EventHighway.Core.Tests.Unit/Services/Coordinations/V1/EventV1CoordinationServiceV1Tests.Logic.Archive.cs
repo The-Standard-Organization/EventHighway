@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
-using EventHighway.Core.Models.Services.Foundations.ListenerEvents;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using Moq;
 
@@ -23,7 +22,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // given
             var mockSequence = new MockSequence();
 
-            DateTimeOffset randomDateTimeOffset = 
+            DateTimeOffset randomDateTimeOffset =
                 GetRandomDateTimeOffset();
 
             DateTimeOffset retrievedDateTimeOffset =
@@ -34,9 +33,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             List<dynamic> randomEventV1sProperties =
                 CreateRandomEventV1sProperties();
-            
-            IQueryable<ListenerEventV1> retrievedListenerEventV1s =
-                randomListenerEventV1sProperties.Select(item => 
+
+            ICollection<ListenerEventV1> retrievedListenerEventV1s =
+                randomListenerEventV1sProperties.Select(item =>
                     new ListenerEventV1
                     {
                         Id = item.Id,
@@ -47,10 +46,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         EventId = item.EventId,
                         EventAddressId = item.EventAddressId,
                         EventListenerId = item.EventListenerId
-                    }).AsQueryable();
+                    }).ToList();
 
-            IQueryable<EventV1> retrievedEventV1s = 
-                randomEventV1sProperties.Select(item => 
+            IQueryable<EventV1> retrievedEventV1s =
+                randomEventV1sProperties.Select(item =>
                     new EventV1
                     {
                         Id = item.Id,
@@ -98,7 +97,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     service.RetrieveAllDeadEventV1sWithListenersAsync())
                         .ReturnsAsync(retrievedEventV1s);
 
-            foreach ((EventV1Archive mappedEventV1Archive, EventV1 retrievedEventV1) 
+            foreach ((EventV1Archive mappedEventV1Archive, EventV1 retrievedEventV1)
                 in mappedEventV1Archives.Zip(retrievedEventV1s))
             {
                 this.dateTimeBrokerMock
