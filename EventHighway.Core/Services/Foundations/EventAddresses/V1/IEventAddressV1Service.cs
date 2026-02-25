@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
-using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 
 namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
 {

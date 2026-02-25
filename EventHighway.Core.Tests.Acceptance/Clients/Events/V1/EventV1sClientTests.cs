@@ -171,10 +171,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             filler.Setup()
                 .OnProperty(eventV1 =>
                     eventV1.EventAddress).IgnoreIt()
-                    
+
                 .OnProperty(eventV1 =>
                     eventV1.ListenerEvents).IgnoreIt()
-                    
+
                 .OnProperty(eventV1 =>
                     eventV1.EventAddressId).Use(eventAddressV1Id)
 

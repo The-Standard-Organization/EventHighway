@@ -205,7 +205,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
 
-            List <ListenerEventV1> expectedListenerEventV1s =
+            List<ListenerEventV1> expectedListenerEventV1s =
                 modifiedListenerEventV1s.DeepClone();
 
             List<EventCallV1> expectedInputCallEventV1s =
@@ -218,7 +218,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                             Secret = retrievedEventListenerV1.HeaderSecret,
                         }).ToList();
 
-            int expectedDateTimeBrokerCalls = 
+            int expectedDateTimeBrokerCalls =
                 inputListenerEventV1s.Count +
                     modifiedListenerEventV1s.Count + 1;
 
