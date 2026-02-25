@@ -5,7 +5,6 @@
 using System;
 using EventHighway.Core.Clients.Events.V1;
 using EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Services.Coordinations.Events.V1;
 using Moq;

@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
@@ -86,6 +87,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     .RetrieveEventListenerV1sByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
+            eventV1.ListenerEvents = new List<ListenerEventV1>();
+
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
             {
                 DateTimeOffset now =
@@ -148,8 +151,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            await this.eventListenerV1OrchestrationService
-                .ModifyListenerEventV1Async(listenerEventV1);
+            ListenerEventV1 modifiedListenerEventV1 =
+                await this.eventListenerV1OrchestrationService
+                    .ModifyListenerEventV1Async(listenerEventV1);
+
+            eventV1.ListenerEvents.Add(modifiedListenerEventV1);
         }
 
         private static ListenerEventV1 CreateEventListenerV1(

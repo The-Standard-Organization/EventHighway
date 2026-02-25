@@ -19,7 +19,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
     public partial class EventV1CoordinationServiceTests
     {
         [Fact]
-        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsync()
+        public async Task ShouldSubmitScheduleEventV1WhenScheduledDateIsInFutureAsync()
         {
             // given
             int randomDays = GetRandomNumber();
@@ -88,7 +88,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
         [Theory]
         [MemberData(nameof(ScheduledDates))]
-        public async Task ShouldSubmitScheduledEventV1WhenScheduledDateIsInFutureAsync(
+        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsync(
             DateTimeOffset randomDateTimeOffset,
             DateTimeOffset? scheduledDate)
         {
@@ -126,6 +126,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
+            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
+
             List<ListenerEventV1> expectedListenerEventV1s =
                 modifiedListenerEventV1s.DeepClone();
 
@@ -139,7 +141,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                             Secret = retrievedEventListenerV1.HeaderSecret,
                         }).ToList();
 
-            int expectedDateTimeBrokerCalls = 
+            int expectedDateTimeBrokerCalls =
                 inputListenerEventV1s.Count +
                     modifiedListenerEventV1s.Count + 1;
 
