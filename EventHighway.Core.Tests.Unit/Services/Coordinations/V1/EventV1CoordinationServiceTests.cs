@@ -130,9 +130,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
         public static TheoryData<Exception> PlainException()
         {
-            return new TheoryData<Exception> 
-            { 
-                new Exception() 
+            return new TheoryData<Exception>
+            {
+                new Exception()
             };
         }
 
@@ -222,7 +222,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 .OnProperty(eventV1 =>
                     eventV1.EventAddress).IgnoreIt()
-                
+
                 .OnProperty(eventV1 =>
                     eventV1.RetryAttempts).Use(retryAttempts)
 
