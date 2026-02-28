@@ -13,7 +13,6 @@ using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
-using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 {

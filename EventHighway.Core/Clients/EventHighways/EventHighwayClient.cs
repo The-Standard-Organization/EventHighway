@@ -186,11 +186,11 @@ namespace EventHighway.Core.Clients.EventHighways
             services.AddTransient<
                 IEventV1OrchestrationService,
                 EventV1OrchestrationService>();
-            
+
             services.AddTransient<
                 IEventV1OrchestrationServiceV1,
                 EventV1OrchestrationServiceV1>();
-            
+
             services.AddTransient<
                 IEventV1ArchiveOrchestrationService,
                 EventV1ArchiveOrchestrationService>();
@@ -205,7 +205,7 @@ namespace EventHighway.Core.Clients.EventHighways
             services.AddTransient<
                 IEventV1CoordinationService,
                 EventV1CoordinationService>();
-            
+
             services.AddTransient<
                 IEventV1CoordinationServiceV1,
                 EventV1CoordinationServiceV1>();

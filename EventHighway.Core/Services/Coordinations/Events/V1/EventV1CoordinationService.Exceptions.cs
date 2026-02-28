@@ -261,7 +261,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             RetryingEventV1Function retryEventV1Function,
             Func<ValueTask<Xeption>> createAndLogExceptionAsync)
         {
-            EventV1 retriedEventV1 = 
+            EventV1 retriedEventV1 =
                 await retryEventV1Function();
 
             if (retriedEventV1 is not null)
