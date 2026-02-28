@@ -4,13 +4,9 @@
 
 using System;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1.Exceptions;
-using EventHighway.Core.Models.Services.Foundations.Events.V1;
-using EventHighway.Core.Models.Services.Foundations.Events.V1.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
-using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -68,7 +64,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
         }
-        
+
         [Theory]
         [MemberData(nameof(EventV1ArchiveDependencyExceptions))]
         [MemberData(nameof(ListenerEventV1ArchiveDependencyExceptions))]
@@ -118,7 +114,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
         }
-        
+
         [Fact]
         public async Task ShouldThrowServiceExceptionOnAddIfExceptionOccursAndLogItAsync()
         {
