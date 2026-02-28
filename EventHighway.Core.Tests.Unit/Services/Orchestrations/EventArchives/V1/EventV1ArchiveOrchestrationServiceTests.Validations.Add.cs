@@ -3,11 +3,9 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
-using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using FluentAssertions;
 using Moq;
 
@@ -62,7 +60,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
             this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
         }
-        
+
         [Fact]
         public async Task ShouldThrowValidationExceptionOnAddIfListenerEventV1ArchivesAreNullAndLogItAsync()
         {
