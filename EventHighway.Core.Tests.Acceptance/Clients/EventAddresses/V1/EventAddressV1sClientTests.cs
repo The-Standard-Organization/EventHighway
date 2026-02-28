@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
 using EventHighway.Core.Tests.Acceptance.Brokers;
@@ -21,6 +23,28 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
         {
             this.wireMockServer = WireMockServer.Start();
             this.clientBroker = new ClientBroker();
+        }
+
+        private static int GetRandomNumber() =>
+            new IntRange(min: 2, max: 10).GetValue();
+
+        private async ValueTask<IQueryable<EventAddressV1>> CreateRandomEventAddressV1sAsync()
+        {
+            int randomCount = GetRandomNumber();
+            var randomEventAddressV1s = new List<EventAddressV1>();
+
+            for (int index = 1; index <= randomCount; index++)
+            {
+                EventAddressV1 randomEventAddressV1 =
+                    CreateRandomEventAddressV1();
+
+                await this.clientBroker.RegisterEventAddressV1Async(
+                    randomEventAddressV1);
+
+                randomEventAddressV1s.Add(randomEventAddressV1);
+            }
+
+            return randomEventAddressV1s.AsQueryable();
         }
 
         private async ValueTask<EventAddressV1> CreateRandomEventAddressV1Async()
