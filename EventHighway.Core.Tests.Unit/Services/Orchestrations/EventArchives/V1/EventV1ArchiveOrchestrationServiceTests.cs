@@ -5,7 +5,6 @@
 using System;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
-using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exceptions;

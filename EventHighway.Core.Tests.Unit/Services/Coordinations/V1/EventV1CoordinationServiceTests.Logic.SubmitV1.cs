@@ -19,7 +19,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
     public partial class EventV1CoordinationServiceTests
     {
         [Fact]
-        public async Task ShouldSubmitScheduleEventV1WhenScheduledDateIsInFutureAsync()
+        public async Task ShouldSubmitScheduleEventV1WhenScheduledDateIsInFutureAsyncV1()
         {
             // given
             int randomDays = GetRandomNumber();
@@ -47,7 +47,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1Async(inputEventV1);
+                    .SubmitEventV1AsyncV1(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -71,7 +71,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1Async(
+                service.RunEventCallV1AsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
         [MemberData(nameof(PlainException))]
         [MemberData(nameof(EventV1DependencyExceptions))]
         [MemberData(nameof(EventListenerV1DependencyExceptions))]
-        public async Task ShouldRetryAndReturnEventV1OnSubmitWhenTransientErrorOccursAsync(
+        public async Task ShouldRetryAndReturnEventV1OnSubmitWhenTransientErrorOccursAsyncV1(
             Exception exception)
         {
             // given
@@ -123,7 +123,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1Async(inputEventV1);
+                    .SubmitEventV1AsyncV1(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -147,7 +147,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1Async(
+                service.RunEventCallV1AsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
@@ -164,7 +164,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
         [Theory]
         [MemberData(nameof(ScheduledDates))]
-        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsync(
+        public async Task ShouldSubmitImmediateEventV1WhenScheduledDateIsNullOrInPastAsyncV1(
             DateTimeOffset randomDateTimeOffset,
             DateTimeOffset? scheduledDate)
         {
@@ -259,7 +259,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 this.eventV1OrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
-                        service.RunEventCallV1Async(
+                        service.RunEventCallV1AsyncV1(
                             It.Is(SameEventCallAs(expectedInputCallEventV1s[index]))))
                                 .ReturnsAsync(ranEventCall);
 
@@ -283,7 +283,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1Async(inputEventV1);
+                    .SubmitEventV1AsyncV1(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -309,7 +309,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                             Times.Once);
 
                 this.eventV1OrchestrationServiceMock.Verify(service =>
-                    service.RunEventCallV1Async(
+                    service.RunEventCallV1AsyncV1(
                         It.Is(SameEventCallAs(expectedInputCallEventV1s[index]))),
                             Times.Once);
 

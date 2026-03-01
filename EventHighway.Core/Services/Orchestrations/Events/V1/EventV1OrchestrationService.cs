@@ -85,5 +85,14 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             return await this.eventCallV1ProcessingService.RunEventCallV1Async(
                 eventCallV1);
         });
+
+        public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
+        TryCatch(async () =>
+        {
+            ValidateEventCallV1IsNotNull(eventCallV1);
+
+            return await this.eventCallV1ProcessingService.RunEventCallV1AsyncV1(
+                eventCallV1);
+        });
     }
 }

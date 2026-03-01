@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using EventHighway.Core.Brokers.Apis;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
@@ -84,6 +86,35 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
                     item: GetRandomString()));
 
             return randomList;
+        }
+
+        private static HttpResponseMessage CreateRandomHttpResponseMessage(
+            string content,
+            string reasonPhrase)
+        {
+            return new HttpResponseMessage
+            {
+                StatusCode = GetRandomEnum<HttpStatusCode>(),
+                ReasonPhrase = reasonPhrase,
+
+                Content = new StringContent(
+                    content: content,
+                    encoding: Encoding.UTF8,
+                    mediaType: "application/json")
+            };
+        }
+
+        private static T GetRandomEnum<T>()
+        {
+            int randomNumber =
+                new IntRange(
+                    min: 0,
+
+                    max: Enum.GetValues(
+                        enumType: typeof(T)).Length)
+                            .GetValue();
+
+            return (T)(object)randomNumber;
         }
 
         private static int GetRandomNumber() =>

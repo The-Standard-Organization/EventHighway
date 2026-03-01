@@ -33,12 +33,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             // then
             foreach (ListenerEventV1Archive listenerEventV1Archive in inputListenerEventV1Archives)
             {
-                this.listenerEventV1ArchiveServiceMock.Verify(service => 
+                this.listenerEventV1ArchiveServiceMock.Verify(service =>
                     service.AddListenerEventV1ArchiveAsync(listenerEventV1Archive),
                         Times.Once);
             }
 
-            this.eventV1ArchiveServiceMock.Verify(service => 
+            this.eventV1ArchiveServiceMock.Verify(service =>
                 service.AddEventV1ArchiveAsync(inputEventV1Archive),
                     Times.Once);
 

@@ -31,5 +31,30 @@ namespace EventHighway.Core.Brokers.Apis
 
             return httpResponseMessage.ToString();
         }
+
+        public async ValueTask<HttpResponseMessage> PostAsyncV1(
+            string content,
+            string url,
+            string secret)
+        {
+            var httpClient = new HttpClient();
+
+            var stringContent =
+               new StringContent(
+                   content,
+                   encoding: Encoding.UTF8,
+                   mediaType: "application/json");
+
+            httpClient.DefaultRequestHeaders.Add(
+                name: "X-Highway",
+                value: secret);
+
+            HttpResponseMessage httpResponseMessage =
+                await httpClient.PostAsync(
+                    requestUri: url,
+                    content: stringContent);
+
+            return httpResponseMessage;
+        }
     }
 }

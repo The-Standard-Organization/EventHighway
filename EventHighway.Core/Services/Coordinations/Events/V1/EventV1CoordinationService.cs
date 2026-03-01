@@ -76,6 +76,48 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             return null;
         }
     );
+
+        public ValueTask<EventV1> SubmitEventV1AsyncV1(EventV1 eventV1) =>
+        TryCatchWithRetryAsync(returningEventV1Function: async () =>
+        {
+            ValidateEventV1IsNotNull(eventV1);
+
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            eventV1.Type = eventV1.ScheduledDate switch
+            {
+                null => EventV1Type.Immediate,
+
+                DateTimeOffset scheduledDate
+                    when scheduledDate < now => EventV1Type.Immediate,
+
+                _ => EventV1Type.Scheduled,
+            };
+
+            EventV1 submittedEventV1 =
+                await this.eventV1OrchestrationService
+                    .SubmitEventV1Async(eventV1);
+
+            if (submittedEventV1.Type is EventV1Type.Immediate)
+                await ProcessEventListenerV1sAsyncV1(submittedEventV1);
+
+            return submittedEventV1;
+        },
+
+        retryEventV1Function: async () =>
+        {
+            if (eventV1.RetryAttempts > 0)
+            {
+                eventV1.RetryAttempts--;
+
+                return await SubmitEventV1AsyncV1(eventV1);
+            }
+
+            return null;
+        }
+    );
+
         public ValueTask FireScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
         {
@@ -123,6 +165,37 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             }
         }
 
+        private async ValueTask ProcessEventListenerV1sAsyncV1(EventV1 eventV1)
+        {
+            IQueryable<EventListenerV1> eventListenerV1s =
+                await this.eventListenerV1OrchestrationService
+                    .RetrieveEventListenerV1sByEventAddressIdAsync(
+                        eventV1.EventAddressId);
+
+            eventV1.ListenerEvents = new List<ListenerEventV1>();
+
+            foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
+            {
+                DateTimeOffset now =
+                    await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+                ListenerEventV1 listenerEventV1 =
+                    CreateEventListenerV1(
+                        eventV1,
+                        eventListenerV1,
+                        now);
+
+                ListenerEventV1 addedListenerEventV1 =
+                    await this.eventListenerV1OrchestrationService
+                        .AddListenerEventV1Async(listenerEventV1);
+
+                await RunEventCallV1AsyncV1(
+                    eventV1,
+                    eventListenerV1,
+                    addedListenerEventV1);
+            }
+        }
+
         public ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id) =>
         TryCatch(async () =>
         {
@@ -150,6 +223,44 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 EventCallV1 ranEventCallV1 =
                     await this.eventV1OrchestrationService
                         .RunEventCallV1Async(eventCallV1);
+
+                listenerEventV1.Response = ranEventCallV1.Response;
+                listenerEventV1.Status = ListenerEventV1Status.Success;
+            }
+            catch (Exception exception)
+            {
+                listenerEventV1.Response = exception.Message;
+                listenerEventV1.Status = ListenerEventV1Status.Error;
+            }
+
+            listenerEventV1.UpdatedDate =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            ListenerEventV1 modifiedListenerEventV1 =
+                await this.eventListenerV1OrchestrationService
+                    .ModifyListenerEventV1Async(listenerEventV1);
+
+            eventV1.ListenerEvents.Add(modifiedListenerEventV1);
+        }
+
+        private async Task RunEventCallV1AsyncV1(
+           EventV1 eventV1,
+           EventListenerV1 eventListenerV1,
+           ListenerEventV1 listenerEventV1)
+        {
+            var eventCallV1 = new EventCallV1
+            {
+                Content = eventV1.Content,
+                Endpoint = eventListenerV1.Endpoint,
+                Secret = eventListenerV1.HeaderSecret,
+                Response = null
+            };
+
+            try
+            {
+                EventCallV1 ranEventCallV1 =
+                    await this.eventV1OrchestrationService
+                        .RunEventCallV1AsyncV1(eventCallV1);
 
                 listenerEventV1.Response = ranEventCallV1.Response;
                 listenerEventV1.Status = ListenerEventV1Status.Success;

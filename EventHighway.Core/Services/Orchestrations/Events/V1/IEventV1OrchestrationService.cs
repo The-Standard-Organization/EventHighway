@@ -17,5 +17,6 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
         ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1);
         ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id);
         ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCallV1);
+        ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1);
     }
 }

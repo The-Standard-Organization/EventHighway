@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System.Net.Http;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V1.Exceptions;
 
@@ -27,6 +28,15 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
             {
                 throw new NullEventCallV1Exception(
                     message: "Event call is null.");
+            }
+        }
+
+        private static void ValidateHttpResponseMessageIsNotNull(HttpResponseMessage httpResponseMessage)
+        {
+            if (httpResponseMessage is null)
+            {
+                throw new NullHttpResponseMessageException(
+                    message: "Http response message is null.");
             }
         }
 

@@ -18,8 +18,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
         private readonly ILoggingBroker loggingBroker;
 
         public EventV1ArchiveOrchestrationService(
-            IListenerEventV1ArchiveService listenerEventV1ArchiveService, 
-            IEventV1ArchiveService eventV1ArchiveService, 
+            IListenerEventV1ArchiveService listenerEventV1ArchiveService,
+            IEventV1ArchiveService eventV1ArchiveService,
             ILoggingBroker loggingBroker)
         {
             this.listenerEventV1ArchiveService = listenerEventV1ArchiveService;

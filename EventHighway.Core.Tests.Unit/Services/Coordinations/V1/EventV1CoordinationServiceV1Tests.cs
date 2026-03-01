@@ -6,26 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Net.NetworkInformation;
-using System.Reflection.Metadata;
-using Azure;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
-using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
-using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
-using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
-using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V1.Exceptions;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using EventHighway.Core.Services.Coordinations.Events.V1;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V1;
-using EventHighway.Core.Services.Orchestrations.EventListeners.V1;
 using EventHighway.Core.Services.Orchestrations.Events.V1;
 using KellermanSoftware.CompareNetObjects;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -99,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     someInnerException),
             };
         }
-        
+
         public static TheoryData<Xeption> EventV1ArchiveValidationExceptions()
         {
             string someMessage = GetRandomString();
@@ -171,7 +162,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     actualEventV1)
                         .AreEqual;
         }
-        
+
         private Expression<Func<EventV1Archive, bool>> SameEventV1ArchiveAs(
            EventV1Archive expectedEventV1Archive)
         {
@@ -190,7 +181,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 .Select(item => CreateRandomEventV1Properties())
                     .ToList();
         }
-        
+
         private static List<dynamic> CreateRandomListenerEventV1sProperties()
         {
             int randomCount = GetRandomNumber();
@@ -205,16 +196,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             Guid randomId = GetRandomId();
             string randomContent = GetRandomString();
 
-            EventV1Type randomType = 
+            EventV1Type randomType =
                 GetRandomEnum<EventV1Type>();
 
-            DateTimeOffset randomCreatedDate = 
+            DateTimeOffset randomCreatedDate =
                 GetRandomDateTimeOffset();
 
-            DateTimeOffset randomUpdatedDate = 
+            DateTimeOffset randomUpdatedDate =
                 GetRandomDateTimeOffset();
 
-            DateTimeOffset randomScheduledDate = 
+            DateTimeOffset randomScheduledDate =
                 GetRandomDateTimeOffset();
 
             Guid randomEventAddressId = GetRandomId();
