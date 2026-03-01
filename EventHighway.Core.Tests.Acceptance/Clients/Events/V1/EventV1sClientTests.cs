@@ -15,6 +15,7 @@ using WireMock.Server;
 
 namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
 {
+    [Collection(nameof(ClientTestCollection))]
     public partial class EventV1sClientTests
     {
         private readonly WireMockServer wireMockServer;
@@ -22,12 +23,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
 
         public EventV1sClientTests()
         {
-            string connectionString = String.Concat(
-                "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
-                "Trusted_Connection=True;MultipleActiveResultSets=true");
-
             this.wireMockServer = WireMockServer.Start();
-            this.clientBroker = new ClientBroker(connectionString);
+            this.clientBroker = new ClientBroker();
         }
 
         private static int GetRandomNumber() =>
