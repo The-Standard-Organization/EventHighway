@@ -118,5 +118,60 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
             this.apiBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddV1IfBadRequestErrorOccursAndLogItAsync()
+        {
+            // given
+            EventCallV1 someEventCallV1 = CreateRandomEventCallV1();
+
+            HttpResponseBadRequestException httpBadRequestException =
+                CreateHttpBadRequestException();
+
+            var invalidEventCallV1Exception =
+                new InvalidEventCallV1Exception(
+                    message: "Event call is invalid, fix the errors and try again.",
+                    innerException: httpBadRequestException,
+                    data: httpBadRequestException.Data);
+
+            var expectedEventCallV1DependencyValidationException =
+                new EventCallV1DependencyValidationException(
+                    message: "Event call validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventCallV1Exception);
+
+            this.apiBrokerMock.Setup(broker =>
+                broker.PostAsyncV1(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                        .ThrowsAsync(httpBadRequestException);
+
+            // when
+            ValueTask<EventCallV1> runEventCallV1Task =
+                this.eventCallV1Service.RunEventCallV1AsyncV1(someEventCallV1);
+
+            EventCallV1DependencyValidationException actualEventCallV1DependencyValidationException =
+                await Assert.ThrowsAsync<EventCallV1DependencyValidationException>(
+                    runEventCallV1Task.AsTask);
+
+            // then
+            actualEventCallV1DependencyValidationException.Should()
+                .BeEquivalentTo(expectedEventCallV1DependencyValidationException);
+
+            this.apiBrokerMock.Verify(broker =>
+                broker.PostAsyncV1(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventCallV1DependencyValidationException))),
+                        Times.Once);
+
+            this.apiBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
