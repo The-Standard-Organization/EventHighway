@@ -56,6 +56,43 @@ namespace EventHighway.Core.Clients.Events.V1
             }
         }
 
+        public async ValueTask<EventV1> SubmitEventV1AsyncV1(EventV1 eventV1)
+        {
+            try
+            {
+                return await this.eventV1CoordinationService
+                    .SubmitEventV1AsyncV1(eventV1);
+            }
+            catch (EventV1CoordinationValidationException
+                eventV1CoordinationValidationException)
+            {
+                throw CreateEventV1ClientDependencyValidationException(
+                    eventV1CoordinationValidationException.InnerException
+                        as Xeption);
+            }
+            catch (EventV1CoordinationDependencyValidationException
+                eventV1CoordinationDependencyValidationException)
+            {
+                throw CreateEventV1ClientDependencyValidationException(
+                    eventV1CoordinationDependencyValidationException.InnerException
+                        as Xeption);
+            }
+            catch (EventV1CoordinationDependencyException
+                eventV1CoordinationDependencyException)
+            {
+                throw CreateEventV1ClientDependencyException(
+                    eventV1CoordinationDependencyException.InnerException
+                        as Xeption);
+            }
+            catch (EventV1CoordinationServiceException
+                eventV1CoordinationServiceException)
+            {
+                throw CreateEventV1ClientServiceException(
+                    eventV1CoordinationServiceException.InnerException
+                        as Xeption);
+            }
+        }
+
         public async ValueTask FireScheduledPendingEventV1sAsync()
         {
             try

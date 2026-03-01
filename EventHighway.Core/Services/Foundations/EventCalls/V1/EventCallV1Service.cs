@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System.Net.Http;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Apis;
 using EventHighway.Core.Brokers.Loggings;
@@ -37,5 +38,34 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
 
             return eventCallV1;
         });
+
+        public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
+        TryCatch(async () =>
+        {
+            ValidateEventCallV1OnRun(eventCallV1);
+
+            HttpResponseMessage httpResponseMessage =
+                await apiBroker.PostAsyncV1(
+                    content: eventCallV1.Content,
+                    url: eventCallV1.Endpoint,
+                    secret: eventCallV1.Secret);
+
+            ValidateHttpResponseMessageIsNotNull(httpResponseMessage);
+            await MapToEventCallV1Async(eventCallV1, httpResponseMessage);
+
+            return eventCallV1;
+        });
+
+        private static async ValueTask MapToEventCallV1Async(
+            EventCallV1 eventCallV1,
+            HttpResponseMessage httpResponseMessage)
+        {
+            eventCallV1.Response =
+                await httpResponseMessage.Content
+                    .ReadAsStringAsync();
+
+            eventCallV1.ResponseReasonPhrase =
+                httpResponseMessage.ReasonPhrase;
+        }
     }
 }
