@@ -23,7 +23,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
         public EventV1sClientTests()
         {
             string connectionString = String.Concat(
-                "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDb;",
+                "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
                 "Trusted_Connection=True;MultipleActiveResultSets=true");
 
             this.wireMockServer = WireMockServer.Start();
