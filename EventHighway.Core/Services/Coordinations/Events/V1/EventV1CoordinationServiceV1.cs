@@ -92,6 +92,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 Id = listenerEventV1.Id,
                 Status = (ListenerEventV1ArchiveStatus)listenerEventV1.Status,
                 Response = listenerEventV1.Response,
+                ResponseReasonPhrase = listenerEventV1.ResponseReasonPhrase,
                 CreatedDate = listenerEventV1.CreatedDate,
                 UpdatedDate = listenerEventV1.UpdatedDate,
                 ArchivedDate = currentDateTime,

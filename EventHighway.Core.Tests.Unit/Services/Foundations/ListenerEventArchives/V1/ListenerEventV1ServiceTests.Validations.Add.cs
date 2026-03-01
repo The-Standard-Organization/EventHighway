@@ -71,6 +71,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
             {
                 Id = Guid.Empty,
                 Response = invalidText,
+                ResponseReasonPhrase = invalidText,
                 Status = invalidListenerEventV1ArchiveStatus,
                 EventId = Guid.Empty,
                 EventAddressId = Guid.Empty,
