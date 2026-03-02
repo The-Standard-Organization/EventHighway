@@ -272,6 +272,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 addedListenerEventV1s[index].UpdatedDate = randomDateTimeOffset;
                 addedListenerEventV1s[index].Status = ListenerEventV1Status.Success;
                 addedListenerEventV1s[index].Response = ranEventCallV1s[index].Response;
+                addedListenerEventV1s[index].ResponseReasonPhrase = ranEventCallV1s[index].ResponseReasonPhrase;
 
                 this.eventListenerV1OrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
