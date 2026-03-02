@@ -52,6 +52,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
             expectedEventCallV1.ResponseReasonPhrase =
                 randomHttpResponseMessageReasonPhrase;
 
+            expectedEventCallV1.IsSuccess =
+                retrievedHttpResponseMessage.IsSuccessStatusCode;
+
             this.apiBrokerMock.Setup(broker =>
                 broker.PostAsyncV1(
                     inputEventCallV1.Content,

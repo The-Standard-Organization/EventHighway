@@ -173,6 +173,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
         private static IQueryable<EventListenerV1> CreateRandomEventListenerV1s() =>
             CreateEventListenerV1Filler().Create(count: GetRandomNumber()).AsQueryable();
 
+        private static IQueryable<EventListenerV1> CreateRandomEventListenerV1s(int count) =>
+            CreateEventListenerV1Filler().Create(count).AsQueryable();
+
         private static Guid GetRandomId() =>
             Guid.NewGuid();
 

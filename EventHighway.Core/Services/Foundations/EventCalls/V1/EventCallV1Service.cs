@@ -66,6 +66,9 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
 
             eventCallV1.ResponseReasonPhrase =
                 httpResponseMessage.ReasonPhrase;
+
+            eventCallV1.IsSuccess =
+                httpResponseMessage.IsSuccessStatusCode;
         }
     }
 }

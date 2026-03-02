@@ -102,8 +102,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             }
 
             return null;
-        }
-    );
+        });
 
         public ValueTask FireScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
@@ -226,9 +225,9 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         }
 
         private async Task RunEventCallV1AsyncV1(
-           EventV1 eventV1,
-           EventListenerV1 eventListenerV1,
-           ListenerEventV1 listenerEventV1)
+            EventV1 eventV1,
+            EventListenerV1 eventListenerV1,
+            ListenerEventV1 listenerEventV1)
         {
             var eventCallV1 = new EventCallV1
             {
@@ -238,20 +237,30 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 Response = null
             };
 
-            try
-            {
-                EventCallV1 ranEventCallV1 =
-                    await this.eventV1OrchestrationService
-                        .RunEventCallV1AsyncV1(eventCallV1);
+            EventCallV1 ranEventCallV1 =
+                await this.eventV1OrchestrationService
+                    .RunEventCallV1AsyncV1(eventCallV1);
 
-                listenerEventV1.Response = ranEventCallV1.Response;
-                listenerEventV1.Status = ListenerEventV1Status.Success;
-            }
-            catch (Exception exception)
+            if (HasFailedAndCanRetry(ranEventCallV1, eventV1))
             {
-                listenerEventV1.Response = exception.Message;
-                listenerEventV1.Status = ListenerEventV1Status.Error;
+                eventV1.RetryAttempts--;
+
+                await RunEventCallV1AsyncV1(
+                    eventV1,
+                    eventListenerV1,
+                    listenerEventV1);
+
+                return;
             }
+
+            listenerEventV1.Response = ranEventCallV1.Response;
+
+            listenerEventV1.ResponseReasonPhrase =
+                ranEventCallV1.ResponseReasonPhrase;
+
+            listenerEventV1.Status = ranEventCallV1.IsSuccess
+                ? ListenerEventV1Status.Success
+                : ListenerEventV1Status.Error;
 
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -260,8 +269,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await this.eventListenerV1OrchestrationService
                     .ModifyListenerEventV1Async(listenerEventV1);
 
-            eventV1.ListenerEvents.Add(modifiedListenerEventV1);
+            eventV1.ListenerEvents.Add(item: modifiedListenerEventV1);
         }
+
+        private static bool HasFailedAndCanRetry(EventCallV1 eventCallV1, EventV1 eventV1) =>
+            eventCallV1.IsSuccess is false && eventV1.RetryAttempts > 0;
 
         private static ListenerEventV1 CreateEventListenerV1(
             EventV1 eventV1,
