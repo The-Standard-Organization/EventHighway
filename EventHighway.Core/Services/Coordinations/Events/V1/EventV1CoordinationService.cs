@@ -128,8 +128,6 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     .RetrieveEventListenerV1sByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
-            eventV1.ListenerEvents = new List<ListenerEventV1>();
-
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
             {
                 DateTimeOffset now =
@@ -223,11 +221,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            ListenerEventV1 modifiedListenerEventV1 =
-                await this.eventListenerV1OrchestrationService
-                    .ModifyListenerEventV1Async(listenerEventV1);
-
-            eventV1.ListenerEvents.Add(modifiedListenerEventV1);
+            await this.eventListenerV1OrchestrationService
+                .ModifyListenerEventV1Async(listenerEventV1);
         }
 
         private async Task RunEventCallV1AsyncV1(

@@ -126,8 +126,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
-            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
-
             List<ListenerEventV1> expectedListenerEventV1s =
                 modifiedListenerEventV1s.DeepClone();
 
