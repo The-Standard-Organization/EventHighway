@@ -263,6 +263,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                         .RunEventCallV1AsyncV1(eventCallV1);
 
                 listenerEventV1.Response = ranEventCallV1.Response;
+                listenerEventV1.ResponseReasonPhrase = ranEventCallV1.ResponseReasonPhrase;
                 listenerEventV1.Status = ListenerEventV1Status.Success;
             }
             catch (Exception exception)
