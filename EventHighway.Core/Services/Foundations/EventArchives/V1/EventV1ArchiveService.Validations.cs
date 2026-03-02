@@ -25,12 +25,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 (Rule: IsInvalid(eventV1Archive.Type),
                 Parameter: nameof(EventV1Archive.Type)),
 
-                (Rule: IsInvalid(eventV1Archive.CreatedDate),
-                Parameter: nameof(EventV1Archive.CreatedDate)),
-
-                (Rule: IsInvalid(eventV1Archive.UpdatedDate),
-                Parameter: nameof(EventV1Archive.UpdatedDate)),
-
                 (Rule: IsInvalid(eventV1Archive.ArchivedDate),
                 Parameter: nameof(EventV1Archive.ArchivedDate)),
 
