@@ -11,5 +11,6 @@ namespace EventHighway.Core.Models.Services.Foundations.EventCall.V1
         public string Content { get; set; }
         public string Response { get; set; }
         public string ResponseReasonPhrase { get; set; }
+        public bool IsSuccess { get; set; }
     }
 }
