@@ -1,0 +1,11 @@
+{
+    "profiles": {
+        "EventListenerApi": {
+            "commandName": "Project",
+            "applicationUrl": "https://localhost:7201",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        }
+    }
+}

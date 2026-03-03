@@ -1,0 +1,130 @@
+{
+  "info": {
+    "_postman_id": "707719ba-3fad-44c2-9303-88f5b92d19ba",
+    "name": "EventHighwayDemo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "46805953"
+  },
+  "item": [
+    {
+      "name": "FIRE_EVENT_AND_FORGET",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/submit-event-and-forget",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "submit-event-and-forget"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "FIRE_EVENT_AND_OBSERVE",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/submit-event-and-observe",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "submit-event-and-observe"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RETRY_SUBMIT_EVENT",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/retry-event",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "retry-event"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "SCHEDULE_EVENT",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/schedule-event",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "schedule-event"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "FIRE_SCHEDULED_EVENTS",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/fire-scheduled-events",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "fire-scheduled-events"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ARCHIVE_EVENTS",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:7200/api/archive-events",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "7200",
+          "path": [
+            "api",
+            "archive-events"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
