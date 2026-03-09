@@ -2,7 +2,9 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EFxceptions;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +73,17 @@ namespace EventHighway.Core.Brokers.Storages
             await broker.SaveChangesAsync();
 
             return @object;
+        }
+
+        private async ValueTask<int> ExecuteDeleteAsync<T>(
+          Expression<Func<T, bool>> predicate)
+            where T : class
+        {
+            var broker = new StorageBroker(this.connectionString);
+
+            return await broker.Set<T>()
+                .Where(predicate)
+                .ExecuteDeleteAsync();
         }
     }
 }
