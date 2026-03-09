@@ -11,6 +11,6 @@ namespace EventHighway.Core.Brokers.Storages
     internal partial interface IStorageBroker
     {
         ValueTask<EventV1Archive> InsertEventV1ArchiveAsync(EventV1Archive eventV1Archive);
-        ValueTask<int> DeleteEventV1ArchivesAsync(DateTimeOffset cutOffDate);
+        ValueTask<int> DeleteEventV1ArchivesAsync(DateTimeOffset? cutOffDate);
     }
 }
