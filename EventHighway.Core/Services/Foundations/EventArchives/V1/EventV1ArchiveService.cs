@@ -36,10 +36,10 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public ValueTask<int> RemoveEventV1ArchivesAsync(
+        public async ValueTask<int> RemoveEventV1ArchivesAsync(
             DateTimeOffset cutOffDate)
         {
-            throw new NotImplementedException();
+            return await this.storageBroker.DeleteEventV1ArchivesAsync(cutOffDate);
         }
     }
 }
