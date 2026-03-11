@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,10 @@ namespace EventHighway.Core.Brokers.Storages
 
         public async ValueTask<EventV1Archive> InsertEventV1ArchiveAsync(EventV1Archive eventV1Archive) =>
             await InsertAsync(eventV1Archive);
+
+        public async ValueTask<IQueryable<EventV1Archive>> SelectAllEventV1ArchivesAsync() =>
+            SelectAll<EventV1Archive>();
+
         public async ValueTask<int> DeleteEventV1ArchivesAsync(DateTimeOffset? cutOffDate) =>
             await ExecuteDeleteAsync<EventV1Archive>(entity => entity.CreatedDate < cutOffDate);
     }
