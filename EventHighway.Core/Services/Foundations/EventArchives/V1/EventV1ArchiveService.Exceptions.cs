@@ -36,11 +36,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventV1ArchiveException);
             }
-            catch (NotFoundEventV1ArchiveException notFoundEventV1ArchiveException)
-            {
-                throw await CreateAndLogValidationExceptionAsync(
-                    notFoundEventV1ArchiveException);
-            }
             catch (SqlException sqlException)
             {
                 var failedEventV1ArchiveStorageException =
@@ -72,15 +67,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
-            }
-            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
-            {
-                var lockedEventV1ArchiveException =
-                    new LockedEventV1ArchiveException(
-                        message: "Event archive is locked, try again.",
-                        innerException: dbUpdateConcurrencyException);
-
-                throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventV1ArchiveException);
             }
             catch (DbUpdateException dbUpdateException)
             {
@@ -135,6 +121,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventV1ArchiveServiceException =
+                    new FailedEventV1ArchiveServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveServiceException);
             }
         }
 
