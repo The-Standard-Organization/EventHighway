@@ -17,6 +17,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
     internal partial class EventV1ArchiveService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<int> ReturningIntegerFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
             ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
@@ -99,6 +100,20 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveServiceException);
+            }
+        }
+
+        private async ValueTask<int> TryCatch(
+            ReturningIntegerFunction returningIntegerFunction)
+        {
+            try
+            {
+                return await returningIntegerFunction();
+            }
+            catch (InvalidEventV1ArchiveException invalidEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV1ArchiveException);
             }
         }
 
