@@ -16,6 +16,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
     internal partial class EventV1ArchiveService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<IQueryable<EventV1Archive>> ReturningEventV1ArchivesFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
             ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
@@ -85,6 +86,26 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                     failedEventV1ArchiveServiceException);
             }
         }
+
+        private async ValueTask<IQueryable<EventV1Archive>> TryCatch(
+            ReturningEventV1ArchivesFunction returningEventV1ArchivesFunction)
+        {
+            try
+            {
+                return await returningEventV1ArchivesFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedEventV1ArchiveStorageException =
+                    new FailedEventV1ArchiveStorageException(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: sqlException);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedEventV1ArchiveStorageException);
+            }
+        }
+
 
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
