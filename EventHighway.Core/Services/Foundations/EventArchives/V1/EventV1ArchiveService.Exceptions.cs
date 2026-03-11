@@ -115,6 +115,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventV1ArchiveException);
             }
+            catch (SqlException sqlException)
+            {
+                var failedEventV1ArchiveStorageException =
+                    new FailedEventV1ArchiveStorageException(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: sqlException);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedEventV1ArchiveStorageException);
+            }
         }
 
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
