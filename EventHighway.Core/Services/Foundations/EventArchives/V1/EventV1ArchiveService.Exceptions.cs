@@ -125,6 +125,17 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventV1ArchiveStorageException);
             }
+            catch (ForeignKeyConstraintConflictException
+                foreignKeyConstraintConflictException)
+            {
+                var invalidEventV1ArchiveReferenceException =
+                    new InvalidEventV1ArchiveReferenceException(
+                        message: "Invalid event archive reference error occurred.",
+                        innerException: foreignKeyConstraintConflictException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    invalidEventV1ArchiveReferenceException);
+            }
         }
 
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
