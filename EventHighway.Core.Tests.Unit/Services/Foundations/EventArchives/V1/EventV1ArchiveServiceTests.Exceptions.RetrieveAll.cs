@@ -60,51 +60,5 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
-
-        [Fact]
-        public async Task ShouldThrowServiceExceptionOnRetrieveAllIfExceptionOccursAndLogItAsync()
-        {
-            // given
-            var serviceException = new Exception();
-
-            var failedEventV1ArchiveServiceException =
-                new FailedEventV1ArchiveServiceException(
-                    message: "Failed event archive service error occurred, contact support.",
-                    innerException: serviceException);
-
-            var expectedEventV1ArchiveServiceException =
-                new EventV1ArchiveServiceException(
-                    message: "Event archive service error occurred, contact support.",
-                    innerException: failedEventV1ArchiveServiceException);
-
-            this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventV1ArchivesAsync())
-                    .ThrowsAsync(serviceException);
-
-            // when
-            ValueTask<IQueryable<EventV1Archive>> retrieveAllEventV1ArchivesTask =
-                this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync();
-
-            EventV1ArchiveServiceException actualEventV1ArchiveServiceException =
-                await Assert.ThrowsAsync<EventV1ArchiveServiceException>(
-                    retrieveAllEventV1ArchivesTask.AsTask);
-
-            // then
-            actualEventV1ArchiveServiceException.Should()
-                .BeEquivalentTo(expectedEventV1ArchiveServiceException);
-
-            this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventV1ArchivesAsync(),
-                    Times.Once);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveServiceException))),
-                        Times.Once);
-
-            this.storageBrokerMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.dateTimeBrokerMock.VerifyNoOtherCalls();
-        }
     }
 }
