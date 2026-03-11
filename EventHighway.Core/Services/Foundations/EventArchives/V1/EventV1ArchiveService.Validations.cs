@@ -128,6 +128,9 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return timeDifference.TotalSeconds is > 60 or < 0;
         }
 
+        private async ValueTask ValidateCutOffDate(DateTimeOffset date) =>
+            Validate((Rule: IsInvalid(date), Parameter: nameof(EventV1Archive.CreatedDate)));
+
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventV1ArchiveException =

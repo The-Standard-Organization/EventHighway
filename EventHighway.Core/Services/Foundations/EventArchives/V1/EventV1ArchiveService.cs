@@ -39,6 +39,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         public ValueTask<int> RemoveEventV1ArchivesAsync(
             DateTimeOffset cutOffDate) => TryCatch(async () =>
         {
+            await ValidateCutOffDate(cutOffDate);
+
             return await this.storageBroker.DeleteEventV1ArchivesAsync(cutOffDate);
         });
     }
