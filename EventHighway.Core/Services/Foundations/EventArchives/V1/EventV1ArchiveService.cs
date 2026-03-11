@@ -2,6 +2,8 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
@@ -33,5 +35,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
+
+        public ValueTask<int> RemoveEventV1ArchivesAsync(
+            DateTimeOffset cutOffDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

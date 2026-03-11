@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using EventHighway.Core.Brokers.Loggings;
@@ -57,6 +58,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             };
         }
 
+        private static Guid GetRandomId() =>
+            Guid.NewGuid();
+
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
@@ -68,6 +72,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
         private static EventV1Archive CreateRandomEventV1Archive(DateTimeOffset date) =>
             CreateEventV1ArchiveFiller(date).Create();
+
+        private static IQueryable<EventV1Archive> CreateRandomEventV1Archives()
+        {
+            return CreateEventV1ArchiveFiller(date: GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber())
+                    .AsQueryable();
+        }
 
         private static EventV1Archive CreateRandomEventV1Archive() =>
             CreateEventV1ArchiveFiller(date: GetRandomDateTimeOffset()).Create();

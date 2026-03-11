@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -34,6 +35,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventV1ArchiveException);
             }
+            catch (NotFoundEventV1ArchiveException notFoundEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    notFoundEventV1ArchiveException);
+            }
             catch (SqlException sqlException)
             {
                 var failedEventV1ArchiveStorageException =
@@ -54,16 +60,26 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventV1ArchiveException);
             }
-            catch (ForeignKeyConstraintConflictException
-                foreignKeyConstraintConflictException)
+            catch (ForeignKeyConstraintConflictException foreignKeyConstraintConflictException)
             {
                 var invalidEventV1ArchiveReferenceException =
                     new InvalidEventV1ArchiveReferenceException(
+
                         message: "Invalid event archive reference error occurred.",
+
                         innerException: foreignKeyConstraintConflictException);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedEventV1ArchiveException =
+                    new LockedEventV1ArchiveException(
+                        message: "Event archive is locked, try again.",
+                        innerException: dbUpdateConcurrencyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventV1ArchiveException);
             }
             catch (DbUpdateException dbUpdateException)
             {
