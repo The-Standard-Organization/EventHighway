@@ -136,6 +136,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
             }
+            catch (Exception serviceException)
+            {
+                var failedEventV1ArchiveServiceException =
+                    new FailedEventV1ArchiveServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveServiceException);
+            }
         }
 
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
