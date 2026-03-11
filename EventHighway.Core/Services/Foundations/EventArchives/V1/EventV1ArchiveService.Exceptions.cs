@@ -17,6 +17,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
     internal partial class EventV1ArchiveService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<IQueryable<EventV1Archive>> ReturningEventV1ArchivesFunction();
         private delegate ValueTask<int> ReturningIntegerFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
@@ -103,6 +104,25 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             }
         }
 
+        private async ValueTask<IQueryable<EventV1Archive>> TryCatch(
+            ReturningEventV1ArchivesFunction returningEventV1ArchivesFunction)
+        {
+            try
+            {
+                return await returningEventV1ArchivesFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedEventV1ArchiveStorageException =
+                    new FailedEventV1ArchiveStorageException(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: sqlException);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedEventV1ArchiveStorageException);
+            }
+        }
+
         private async ValueTask<int> TryCatch(
             ReturningIntegerFunction returningIntegerFunction)
         {
@@ -135,6 +155,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventV1ArchiveServiceException =
+                    new FailedEventV1ArchiveServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveServiceException);
             }
         }
 
