@@ -35,10 +35,10 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
-        
-        public async ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync()
+
+        public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync()
         {
-            return await this.storageBroker.SelectAllEventV1ArchivesAsync();
+            throw new NotImplementedException();
         }
 
     }
