@@ -36,11 +36,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync()
-        {
-            throw new NotImplementedException();
-        }
-
         public ValueTask<int> RemoveEventV1ArchivesAsync(
             DateTimeOffset cutOffDate) => TryCatch(async () =>
         {
