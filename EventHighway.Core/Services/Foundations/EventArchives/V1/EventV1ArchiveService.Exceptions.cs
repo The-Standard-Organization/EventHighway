@@ -34,6 +34,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventV1ArchiveException);
             }
+            catch (NotFoundEventV1ArchiveException notFoundEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    notFoundEventV1ArchiveException);
+            }
             catch (SqlException sqlException)
             {
                 var failedEventV1ArchiveStorageException =
