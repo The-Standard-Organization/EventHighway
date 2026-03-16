@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -59,8 +60,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventV1ArchiveException);
             }
-            catch (ForeignKeyConstraintConflictException
-                foreignKeyConstraintConflictException)
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedEventV1ArchiveException =
+                    new LockedEventV1ArchiveException(
+                        message: "Event archive is locked, try again.",
+                        innerException: dbUpdateConcurrencyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventV1ArchiveException);
+            }
+            catch (ForeignKeyConstraintConflictException foreignKeyConstraintConflictException)
             {
                 var invalidEventV1ArchiveReferenceException =
                     new InvalidEventV1ArchiveReferenceException(
