@@ -60,5 +60,53 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(EventV1DependencyExceptions))]
+        [MemberData(nameof(EventV1ArchiveDependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnCleanUpArchiveDeadEventV1sIfDependencyErrorOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            var expectedEventV1CoordinationDependencyException =
+                new EventV1CoordinationDependencyException(
+                    message: "Event dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.eventV1ArchiveOrchestrationServiceMock.Setup(service =>
+                service.RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy.Monthly))
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask archiveDeadEventV1sTask =
+                this.eventV1CoordinationServiceV1.CleanUpArchiveDeadEventV1sAsync(
+                    ArchiveDeletionPolicy.Monthly);
+
+            EventV1CoordinationDependencyException
+                actualEventV1CoordinationDependencyException =
+                    await Assert.ThrowsAsync<EventV1CoordinationDependencyException>(
+                        archiveDeadEventV1sTask.AsTask);
+
+            // then
+            actualEventV1CoordinationDependencyException.Should()
+                .BeEquivalentTo(expectedEventV1CoordinationDependencyException);
+
+            this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
+                service.RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy.Monthly),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1CoordinationDependencyException))),
+                        Times.Once);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Never);
+
+            this.eventV1ArchiveOrchestrationServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
