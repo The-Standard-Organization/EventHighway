@@ -2,8 +2,10 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Services.Foundations.EventArchives.V1;
@@ -15,15 +17,18 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
     {
         private readonly IListenerEventV1ArchiveService listenerEventV1ArchiveService;
         private readonly IEventV1ArchiveService eventV1ArchiveService;
+        private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventV1ArchiveOrchestrationService(
             IListenerEventV1ArchiveService listenerEventV1ArchiveService,
             IEventV1ArchiveService eventV1ArchiveService,
+            IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.listenerEventV1ArchiveService = listenerEventV1ArchiveService;
             this.eventV1ArchiveService = eventV1ArchiveService;
+            this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -39,5 +44,10 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 
             await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         });
+
+        public ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
