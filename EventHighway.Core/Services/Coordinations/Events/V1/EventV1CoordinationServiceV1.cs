@@ -57,12 +57,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             }
         });
 
-        public async ValueTask CleanUpArchiveDeadEventV1sAsync(
-            ArchiveDeletionPolicy policy, int duration = 0)
+        public ValueTask CleanUpArchiveDeadEventV1sAsync(
+            ArchiveDeletionPolicy policy, int duration = 0) =>
+        TryCatch(async () =>
         {
             await this.eventV1ArchiveOrchestrationService
-                .RemoveEventV1ArchivesByDeletionPolicyAsync(policy, duration);
-        }
+                .RemoveEventV1ArchivesByDeletionPolicyAsync(
+                    policy, duration);
+        });
 
         private async ValueTask<EventV1Archive> MapToEventV1ArchiveAsync(
             EventV1 eventV1)
