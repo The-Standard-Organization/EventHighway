@@ -34,6 +34,12 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
                 throw await CreateAndLogValidationExceptionAsync(
                     nullListenerEventV1ArchivesOrchestrationException);
             }
+            catch (InvalidEventV1ArchiveOrchestrationException
+              invalidEventV1ArchiveOrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV1ArchiveOrchestrationException);
+            }
             catch (EventV1ArchiveValidationException
                 eventV1ArchiveValidationException)
             {
