@@ -108,5 +108,57 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnCleanUpArchiveDeadEventV1sIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            var serviceException = new Exception();
+
+            var failedEventV1CoordinationServiceException =
+                new FailedEventV1CoordinationServiceException(
+                    message: "Failed event service error occurred, contact support.",
+                    innerException: serviceException);
+
+            var expectedEventV1CoordinationServiceException =
+                new EventV1CoordinationServiceException(
+                    message: "Event service error occurred, contact support.",
+                    innerException: failedEventV1CoordinationServiceException);
+
+            this.eventV1ArchiveOrchestrationServiceMock.Setup(service =>
+                service.RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy.Monthly))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask archiveDeadEventV1sTask =
+                this.eventV1CoordinationServiceV1.CleanUpArchiveDeadEventV1sAsync(
+                    ArchiveDeletionPolicy.Monthly);
+
+            EventV1CoordinationServiceException
+                actualEventV1CoordinationServiceException =
+                    await Assert.ThrowsAsync<EventV1CoordinationServiceException>(
+                        archiveDeadEventV1sTask.AsTask);
+
+            // then
+            actualEventV1CoordinationServiceException.Should()
+                .BeEquivalentTo(expectedEventV1CoordinationServiceException);
+
+            this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
+                service.RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy.Monthly),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1CoordinationServiceException))),
+                        Times.Once);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Never);
+
+            this.eventV1ArchiveOrchestrationServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
