@@ -14,5 +14,9 @@ namespace EventHighway.Core.Brokers.Storages
 
         public async ValueTask<EventV1Archive> InsertEventV1ArchiveAsync(EventV1Archive eventV1Archive) =>
             await InsertAsync(eventV1Archive);
+
+
+        public async ValueTask<EventV1Archive> DeleteEventV1ArchiveAsync(EventV1Archive eventV1ArchiveV1) =>
+            await DeleteAsync(eventV1ArchiveV1);
     }
 }
