@@ -61,5 +61,53 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRetrieveByIdIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            Guid someEventV1ArchiveId = GetRandomId();
+            var serviceException = new Exception();
+
+            var failedEventV1ArchiveServiceException =
+                new FailedEventV1ArchiveServiceException(
+                    message: "Failed event archive service error occurred, contact support.",
+                    innerException: serviceException);
+
+            var expectedEventV1ArchiveServiceException =
+                new EventV1ArchiveServiceException(
+                    message: "Event archive service error occurred, contact support.",
+                    innerException: failedEventV1ArchiveServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectEventV1ArchiveByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<EventV1Archive> retrieveEventV1ArchiveByIdTask =
+                this.eventV1ArchiveService.RetrieveEventV1ArchiveByIdAsync(
+                    someEventV1ArchiveId);
+
+            EventV1ArchiveServiceException actualEventV1ArchiveServiceException =
+                await Assert.ThrowsAsync<EventV1ArchiveServiceException>(
+                    retrieveEventV1ArchiveByIdTask.AsTask);
+
+            // then
+            actualEventV1ArchiveServiceException.Should()
+                .BeEquivalentTo(expectedEventV1ArchiveServiceException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectEventV1ArchiveByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveServiceException))),
+                        Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
