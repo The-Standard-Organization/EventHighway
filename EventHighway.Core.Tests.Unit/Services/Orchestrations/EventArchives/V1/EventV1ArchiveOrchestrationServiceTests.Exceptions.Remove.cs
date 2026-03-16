@@ -68,5 +68,60 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRemoveIfDependencyExceptionOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+            DateTimeOffset inputDateTimeOffset = randomDateTimeOffset;
+
+            ArchiveDeletionPolicy someArchiveDeletionType =
+                GetValidEnum<ArchiveDeletionPolicy>();
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(inputDateTimeOffset);
+
+            var expectedEventV1ArchiveOrchestrationDependencyException =
+                new EventV1ArchiveOrchestrationDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.eventV1ArchiveServiceMock.Setup(service =>
+                service.RemoveEventV1ArchivesAsync(It.IsAny<DateTimeOffset>()))
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask addEventV1ArchiveTask =
+                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesAsync(someArchiveDeletionType);
+
+            EventV1ArchiveOrchestrationDependencyException
+                actualEventV1ArchiveOrchestrationDependencyException =
+                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationDependencyException>(
+                        addEventV1ArchiveTask.AsTask);
+
+            // then
+            actualEventV1ArchiveOrchestrationDependencyException.Should().BeEquivalentTo(
+                expectedEventV1ArchiveOrchestrationDependencyException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.eventV1ArchiveServiceMock.Verify(service =>
+                service.RemoveEventV1ArchivesAsync(It.IsAny<DateTimeOffset>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveOrchestrationDependencyException))),
+                        Times.Once);
+
+            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
