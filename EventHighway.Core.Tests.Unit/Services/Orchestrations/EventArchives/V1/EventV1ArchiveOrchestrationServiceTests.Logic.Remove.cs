@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             await this.eventV1ArchiveOrchestrationService
-                .RemoveEventV1ArchivesAsync(
+                .RemoveEventV1ArchivesByDeletionPolicyAsync(
                     policy);
 
             // then

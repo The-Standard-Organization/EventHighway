@@ -10,6 +10,6 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
     public interface IEventV1ArchiveOrchestrationService
     {
         ValueTask AddEventV1ArchiveWithListenerEventV1ArchivesAsync(EventV1Archive eventV1Archive);
-        ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0);
+        ValueTask RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy policy, int duration = 0);
     }
 }

@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesAsync(someArchiveDeletionType);
+                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesByDeletionPolicyAsync(someArchiveDeletionType);
 
             EventV1ArchiveOrchestrationDependencyValidationException
                 actualEventV1ArchiveOrchestrationDependencyValidationException =
@@ -96,7 +96,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesAsync(someArchiveDeletionType);
+                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesByDeletionPolicyAsync(someArchiveDeletionType);
 
             EventV1ArchiveOrchestrationDependencyException
                 actualEventV1ArchiveOrchestrationDependencyException =
@@ -156,7 +156,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesAsync(
+                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesByDeletionPolicyAsync(
                     someArchiveDeletionType);
 
             EventV1ArchiveOrchestrationServiceException

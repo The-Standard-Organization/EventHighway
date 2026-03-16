@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesAsync(invalidArchiveDeletionType);
+                this.eventV1ArchiveOrchestrationService.RemoveEventV1ArchivesByDeletionPolicyAsync(invalidArchiveDeletionType);
 
             EventV1ArchiveOrchestrationValidationException
                 actualEventV1ArchiveOrchestrationValidationException =

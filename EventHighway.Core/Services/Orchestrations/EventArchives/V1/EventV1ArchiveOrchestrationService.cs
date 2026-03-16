@@ -45,7 +45,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0) =>
+        public ValueTask RemoveEventV1ArchivesByDeletionPolicyAsync(ArchiveDeletionPolicy policy, int duration = 0) =>
         TryCatch(async () =>
         {
             await ValidateArchiveDeletionType(policy);

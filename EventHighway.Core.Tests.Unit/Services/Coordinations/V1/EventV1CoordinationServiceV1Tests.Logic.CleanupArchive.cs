@@ -21,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
         {
             // given
             this.eventV1ArchiveOrchestrationServiceMock
-                .Setup(service => service.RemoveEventV1ArchivesAsync(policy))
+                .Setup(service => service.RemoveEventV1ArchivesByDeletionPolicyAsync(policy))
                     .Returns(ValueTask.CompletedTask);
 
             // when
@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // then
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.RemoveEventV1ArchivesAsync(policy),
+                service.RemoveEventV1ArchivesByDeletionPolicyAsync(policy),
                     Times.Once);
 
             this.dateTimeBrokerMock.Verify(broker =>
