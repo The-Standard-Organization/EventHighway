@@ -39,9 +39,9 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync() =>
         TryCatch(async () => await this.storageBroker.SelectAllEventV1ArchivesAsync());
 
-        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id)
+        public async ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id)
         {
-            throw new NotImplementedException();
+            return await this.storageBroker.SelectEventV1ArchiveByIdAsync(eventArchiveV1Id);
         }
 
         public ValueTask<int> RemoveEventV1ArchivesAsync(
