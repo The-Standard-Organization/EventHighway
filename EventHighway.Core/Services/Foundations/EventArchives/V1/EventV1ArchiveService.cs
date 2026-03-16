@@ -33,5 +33,10 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
+
+        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
