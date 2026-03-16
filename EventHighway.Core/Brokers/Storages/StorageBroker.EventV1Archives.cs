@@ -23,6 +23,9 @@ namespace EventHighway.Core.Brokers.Storages
         public async ValueTask<EventV1Archive> SelectEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) =>
             await SelectAsync<EventV1Archive>(eventV1ArchiveId);
 
+        public async ValueTask<EventV1Archive> DeleteEventV1ArchiveAsync(EventV1Archive eventV1ArchiveV1) =>
+            await DeleteAsync(eventV1ArchiveV1);
+
         public async ValueTask<int> DeleteEventV1ArchivesAsync(DateTimeOffset? cutOffDate) =>
             await ExecuteDeleteAsync<EventV1Archive>(entity => entity.CreatedDate < cutOffDate);
     }
