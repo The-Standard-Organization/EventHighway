@@ -45,8 +45,11 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public async ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0) 
+        public ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0) =>
+        TryCatch(async () =>
         {
+            await ValidateArchiveDeletionType(policy);
+
             DateTimeOffset currentTime =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
@@ -54,7 +57,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
                 (DateTimeOffset)GetCutoffDate(policy, currentTime, duration);
 
             await this.eventV1ArchiveService.RemoveEventV1ArchivesAsync(cutOffDate);
-        }
+        });
 
         private static DateTimeOffset? GetCutoffDate(
             ArchiveDeletionPolicy policy,
