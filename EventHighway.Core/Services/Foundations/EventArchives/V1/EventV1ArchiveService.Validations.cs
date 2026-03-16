@@ -57,6 +57,19 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             }
         }
 
+        private static void ValidateEventV1ArchiveExists(
+            EventV1Archive eventV1Archive,
+            Guid eventV1ArchiveId)
+        {
+            if (eventV1Archive is null)
+            {
+                throw new NotFoundEventV1ArchiveException(
+
+                    message: $"Could not find event archive " +
+                        $"with id: {eventV1ArchiveId}.");
+            }
+        }
+
         private static dynamic IsInvalid(Guid id) => new
         {
             Condition = id == Guid.Empty,
