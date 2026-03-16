@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
@@ -34,9 +35,12 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id)
+        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id) =>
+        TryCatch(async () =>
         {
+            ValidateEventV1ArchiveId(eventArchiveV1Id);
+
             return await this.storageBroker.SelectEventV1ArchiveByIdAsync(eventArchiveV1Id);
-        }
+        });
     }
 }
