@@ -45,9 +45,32 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         });
 
-        public ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0)
+        public async ValueTask RemoveEventV1ArchivesAsync(ArchiveDeletionPolicy policy, int duration = 0) 
         {
-            throw new NotImplementedException();
+            DateTimeOffset currentTime =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            DateTimeOffset cutOffDate =
+                (DateTimeOffset)GetCutoffDate(policy, currentTime, duration);
+
+            await this.eventV1ArchiveService.RemoveEventV1ArchivesAsync(cutOffDate);
+        }
+
+        private static DateTimeOffset? GetCutoffDate(
+            ArchiveDeletionPolicy policy,
+            DateTimeOffset currentTime,
+            int customDays = 0)
+        {
+            return policy switch
+            {
+                ArchiveDeletionPolicy.Daily => currentTime.AddDays(-1),
+                ArchiveDeletionPolicy.Weekly => currentTime.AddDays(-7),
+                ArchiveDeletionPolicy.Monthly => currentTime.AddMonths(-1),
+                ArchiveDeletionPolicy.Quarterly => currentTime.AddMonths(-3),
+                ArchiveDeletionPolicy.Yearly => currentTime.AddYears(-1),
+                ArchiveDeletionPolicy.Duration => currentTime.AddDays(-customDays),
+                _ => null
+            };
         }
     }
 }
