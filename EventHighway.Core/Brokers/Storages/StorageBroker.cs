@@ -83,7 +83,7 @@ namespace EventHighway.Core.Brokers.Storages
 
             return await broker.Set<T>()
                 .Where(predicate)
-                .ExecuteDeleteAsync();
+                    .ExecuteDeleteAsync();
         }
     }
 }
