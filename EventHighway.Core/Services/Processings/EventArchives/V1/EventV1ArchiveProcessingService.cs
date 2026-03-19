@@ -35,7 +35,10 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
         public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync() =>
         TryCatch(async () => await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync());
 
-        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) =>
-            throw new NotImplementedException();
+        public async ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) 
+        {
+            return await this.eventV1ArchiveService.RetrieveEventV1ArchiveByIdAsync(
+                eventV1ArchiveId);   
+        }
     }
 }
