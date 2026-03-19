@@ -20,6 +20,21 @@ EventHighway is Standard-Compliant .NET library for event-driven programming. It
 
 ![In-Depth Architecture](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Diagrams/indepth-architecture.png)
 
+# 0/ Version Information
+
+Use the latest version when possible.
+
+`Version 0` introduced a **Fire and Forget** model — publish events and move on.
+`V1` (released in `v2.10`) evolves this into **Fire and Observe** — publish events and track what happened per listener with better visibility and operational confidence.
+
+> [!NOTE]
+> ![Obsolete](https://img.shields.io/badge/Version_0-Obsolete-red?style=for-the-badge)
+> `Version 0` is the initial release and is now considered obsolete for new adoption. Emphasis is on `V1` for all new development, and existing users of `Version 0` are encouraged to upgrade to `V1` to benefit the new observability features.
+
+> [!TIP]
+> ![Recommended](https://img.shields.io/badge/V1_(v2.10+)-Recommended-brightgreen?style=for-the-badge)
+> `V1` (released in `v2.10`) is the recommended version for teams that need observable, reliable event delivery.
+
 # 1/ How to Use
 
 ## 1.0/ Installation
@@ -27,43 +42,50 @@ EventHighway is Standard-Compliant .NET library for event-driven programming. It
 You must define a connection string that points to a SQL DB Server when initializing the EventHighway client as follows:
 
 ```csharp
-var eventHighway = new EventHighway("Server=.;Database=EventHighwayDB;Trusted_Connection=True;");
+var eventHighway = new EventHighwayClient("Server=.;Database=EventHighwayDB;Trusted_Connection=True;");
 ```
 
 ## 1.1/ Registering Event Address
 
-In order for an event to be published, it must target a certain `EventAddress`. You can register an `EventAddress` as follows:
+In order for an event to be published, it must target a certain `EventAddressV1`. You can register an `EventAddressV1` as follows:
 
 ```csharp
-var eventAddress = new EventAddress 
+DateTimeOffset now = DateTimeOffset.UtcNow;
+
+var eventAddressV1 = new EventAddressV1
 {
 	Id = Guid.NewGuid(),
 	Name = "EventAddressName",
-	Description = "EventAddressDescription"
-	CreatedDate = DateTimeOffset.UtcNow,
-	UpdatedDate = DateTimeOffset.UtcNow
+	Description = "EventAddressDescription",
+	CreatedDate = now,
+	UpdatedDate = now
 };
 
-await eventHighway.EventAddresses.RegisterEventAddressAsync(eventAddress);
+await eventHighway.EventAddressV1s.RegisterEventAddressV1Async(eventAddressV1);
 ```
 
-Make sure you store your `EventAddress` Id in a safe place, as you will need it to publish events to that address.
+Make sure you store your `EventAddressV1` Id in a safe place, as you will need it to publish events to that address.
 
 ## 1.2/ Registering Event Listeners
 
-In order to listen to events, you must register an `EventListener` as follows:
+In order to listen to events, you must register an `EventListenerV1` as follows:
 
 ```csharp
-var eventListener = new EventListener
+DateTimeOffset now = DateTimeOffset.UtcNow;
+
+var eventListenerV1 = new EventListenerV1
 {
 	Id = Guid.NewGuid(),
+	Name = "Students API Listener",
+	Description = "Receives student domain events",
+	HeaderSecret = "super-secret-token",
 	Endpoint = "https://my.endpoint.com/api/v1.0/students",
 	EventAddressId = SomePreconfiguredEventAddressId,
-	CreatedDate = DateTimeOffset.UtcNow,
-	UpdatedDate = DateTimeOffset.UtcNow
+	CreatedDate = now,
+	UpdatedDate = now
 };
 
-await eventHighway.EventListeners.RegisterEventListenerAsync(eventListener);
+await eventHighway.EventListenerV1s.RegisterEventListenerV1Async(eventListenerV1);
 ```
 
 ## 1.3/ Publishing Events
@@ -71,24 +93,38 @@ await eventHighway.EventListeners.RegisterEventListenerAsync(eventListener);
 You can publish an event as follows:
 
 ```csharp
-var event = new Event
+DateTimeOffset now = DateTimeOffset.UtcNow;
+
+var eventV1 = new EventV1
 {
 	Id = Guid.NewGuid(),
 	EventAddressId = SomePreconfiguredEventAddressId,
 	Content = "SomeStringifiedJsonContent",
-	CreatedDate = DateTimeOffset.UtcNow,
-	UpdatedDate = DateTimeOffset.UtcNow
+	Type = EventV1Type.Immediate,
+	CreatedDate = now,
+	UpdatedDate = now
 };
 
-await eventHighway.Events.PublishEventAsync(event);
+EventV1 submittedEventV1 = await eventHighway.EventV1s.SubmitEventV1Async(eventV1);
+
+var listenerEvents = await eventHighway.ListenerEventV1s.RetrieveAllListenerEventV1sAsync();
+
+var deliveryResults = listenerEvents
+	.Where(listenerEventV1 => listenerEventV1.EventId == submittedEventV1.Id)
+	.ToList();
 
 ```
 
-When an event is published, a notification will be sent to all registered `EventListeners` that are listening to the event's `EventAddress`. A record of the status of the published event per listener will be available through the `ListenerEvent` table in the database.
+When an event is submitted, notifications are sent to all registered `EventListenerV1` entries for that `EventAddressV1`. This is the `Fire and Observe` behavior, where you can query `ListenerEventV1` records to inspect delivery status per listener.
 
 # Walk-through Video
 
 [![YouTube EventHighway Introduction](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Images/YT/intro-eventhighway.jpg)](https://www.youtube.com/watch?v=z3_wx29Cs9U)
+
+# Introduction to V1 Version
+[![YouTube EventHighway v2.1.0 V1 Introduction](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Images/YT/v1-eventhighway.jpg)](https://www.youtube.com/watch?v=54YWf9G5cE8&t=1407s)
+
+---
 
 # Note
 
