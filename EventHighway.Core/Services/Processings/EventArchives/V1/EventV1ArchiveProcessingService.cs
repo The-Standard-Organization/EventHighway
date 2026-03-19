@@ -2,6 +2,8 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -29,5 +31,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
 
             return await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
         });
+
+        public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync() =>
+        TryCatch(async () => await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync());
     }
 }
