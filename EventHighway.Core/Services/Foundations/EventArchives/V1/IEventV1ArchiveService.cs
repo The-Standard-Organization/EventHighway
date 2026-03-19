@@ -16,6 +16,9 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
         ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync();
 
+        ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(
+            Guid eventV1ArchiveId);
+
         ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(
             Guid eventArchiveV1Id);
     }

@@ -42,6 +42,13 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return await this.storageBroker.SelectAllEventV1ArchivesAsync();
         });
 
+        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id) =>
+        TryCatch(async () =>
+        {
+            ValidateEventV1ArchiveId(eventArchiveV1Id);
+
+            return await this.storageBroker.SelectEventV1ArchiveByIdAsync(eventArchiveV1Id);
+        });
 
         public ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id) =>
         TryCatch(async () =>
