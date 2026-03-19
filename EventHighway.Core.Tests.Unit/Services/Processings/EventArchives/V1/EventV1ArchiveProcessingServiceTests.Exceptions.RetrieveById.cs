@@ -56,5 +56,47 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRetrieveByIdIfDependencyExceptionOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            Guid someEventV1ArchiveId = GetRandomId();
+
+            var expectedEventV1ArchiveProcessingDependencyException =
+                new EventV1ArchiveProcessingDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.eventV1ArchiveServiceMock.Setup(service =>
+                service.RetrieveEventV1ArchiveByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask<EventV1Archive> retrieveEventV1ArchiveByIdTask =
+                this.eventV1ArchiveProcessingService.RetrieveEventV1ArchiveByIdAsync(someEventV1ArchiveId);
+
+            EventV1ArchiveProcessingDependencyException actualEventV1ArchiveProcessingDependencyException =
+                await Assert.ThrowsAsync<EventV1ArchiveProcessingDependencyException>(
+                    retrieveEventV1ArchiveByIdTask.AsTask);
+
+            // then
+            actualEventV1ArchiveProcessingDependencyException.Should().BeEquivalentTo(
+                expectedEventV1ArchiveProcessingDependencyException);
+
+            this.eventV1ArchiveServiceMock.Verify(service =>
+                service.RetrieveEventV1ArchiveByIdAsync(It.IsAny<Guid>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV1ArchiveProcessingDependencyException))),
+                        Times.Once);
+
+            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
