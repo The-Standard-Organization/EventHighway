@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -16,6 +17,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
     internal partial class EventV1ArchiveService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<IQueryable<EventV1Archive>> ReturningEventV1ArchivesFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
             ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
@@ -33,6 +35,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventV1ArchiveException);
+            }
+            catch (NotFoundEventV1ArchiveException notFoundEventV1ArchiveException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    notFoundEventV1ArchiveException);
             }
             catch (SqlException sqlException)
             {
@@ -54,8 +61,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventV1ArchiveException);
             }
-            catch (ForeignKeyConstraintConflictException
-                foreignKeyConstraintConflictException)
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedEventV1ArchiveException =
+                    new LockedEventV1ArchiveException(
+                        message: "Event archive is locked, try again.",
+                        innerException: dbUpdateConcurrencyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventV1ArchiveException);
+            }
+            catch (ForeignKeyConstraintConflictException foreignKeyConstraintConflictException)
             {
                 var invalidEventV1ArchiveReferenceException =
                     new InvalidEventV1ArchiveReferenceException(
@@ -85,6 +100,36 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                     failedEventV1ArchiveServiceException);
             }
         }
+
+        private async ValueTask<IQueryable<EventV1Archive>> TryCatch(
+            ReturningEventV1ArchivesFunction returningEventV1ArchivesFunction)
+        {
+            try
+            {
+                return await returningEventV1ArchivesFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedEventV1ArchiveStorageException =
+                    new FailedEventV1ArchiveStorageException(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: sqlException);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedEventV1ArchiveStorageException);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventV1ArchiveServiceException =
+                    new FailedEventV1ArchiveServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveServiceException);
+            }
+        }
+
 
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
