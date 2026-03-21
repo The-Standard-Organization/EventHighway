@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Processings.EventArchives.V1.Exceptions;
 
@@ -31,6 +32,16 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             Condition = id == Guid.Empty,
             Message = "Required"
         };
+
+        private static dynamic IsInvalid(DateTimeOffset date) => new
+        {
+            Condition = date == default,
+            Message = "Required"
+        };
+
+        private async ValueTask ValidateCutOffDate(DateTimeOffset date) =>
+            Validate((Rule: IsInvalid(date), Parameter: nameof(EventV1Archive.ArchivedDate)));
+
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {

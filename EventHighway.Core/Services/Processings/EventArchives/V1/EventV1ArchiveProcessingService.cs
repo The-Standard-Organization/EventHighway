@@ -53,8 +53,11 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
                 eventV1ArchiveId);
         });
 
-        public async ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate)
+        public ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate) => 
+        TryCatch(async () =>
         {
+             await ValidateCutOffDate(cutOffDate);
+
              IQueryable<EventV1Archive> eventV1Archives =
                 await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync();
 
@@ -65,6 +68,6 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
              {
                 await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(eventV1Archive.Id);
              } 
-        }
+        });
     }
 }
