@@ -15,5 +15,6 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
         ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync();
         ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId);
         ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId);
+        ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate);
     }
 }

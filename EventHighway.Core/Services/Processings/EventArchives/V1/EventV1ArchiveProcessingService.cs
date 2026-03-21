@@ -52,5 +52,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             return await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(
                 eventV1ArchiveId);
         });
+
+        public ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate) =>
+            throw new NotImplementedException();
     }
 }
