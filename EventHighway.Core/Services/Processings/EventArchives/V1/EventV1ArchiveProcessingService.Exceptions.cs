@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
@@ -14,6 +15,7 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
     internal partial class EventV1ArchiveProcessingService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<IQueryable<EventV1Archive>> ReturningEventV1ArchivesFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
             ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
@@ -67,6 +69,33 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveProcessingServiceException);
+            }
+        }
+
+
+        private async ValueTask<IQueryable<EventV1Archive>> TryCatch(
+            ReturningEventV1ArchivesFunction ReturningEventV1ArchivesFunction)
+        {
+            try
+            {
+                return await ReturningEventV1ArchivesFunction();
+            }
+            catch (EventV1ArchiveDependencyException eventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ArchiveDependencyException);
+            }
+            catch (EventV1ArchiveServiceException eventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ArchiveServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1ArchiveProcessingServiceException =
+                    new FailedEventV1ArchiveProcessingServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV1ArchiveProcessingServiceException);
             }
         }
 

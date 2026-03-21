@@ -2,6 +2,8 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
@@ -32,6 +34,33 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             await ValidateEventV1ArchiveOnAddAsync(eventV1Archive);
 
             return await this.storageBroker.InsertEventV1ArchiveAsync(eventV1Archive);
+        });
+
+        public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync() =>
+        TryCatch(async () =>
+        {
+            return await this.storageBroker.SelectAllEventV1ArchivesAsync();
+        });
+
+        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id) =>
+        TryCatch(async () =>
+        {
+            ValidateEventV1ArchiveId(eventArchiveV1Id);
+
+            return await this.storageBroker.SelectEventV1ArchiveByIdAsync(eventArchiveV1Id);
+        });
+
+        public ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id) =>
+        TryCatch(async () =>
+        {
+            ValidateEventV1ArchiveId(eventArchiveV1Id);
+
+            EventV1Archive maybeEventV1Archive =
+                await this.storageBroker.SelectEventV1ArchiveByIdAsync(eventArchiveV1Id);
+
+            ValidateEventV1ArchiveExists(maybeEventV1Archive, eventArchiveV1Id);
+
+            return await this.storageBroker.DeleteEventV1ArchiveAsync(maybeEventV1Archive);
         });
     }
 }
