@@ -44,10 +44,13 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
                 eventV1ArchiveId);
         });
 
-        public async ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId)
+        public ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) =>
+        TryCatch(async () =>
         {
+            ValidateEventV1ArchiveId(eventV1ArchiveId);
+
             return await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(
                 eventV1ArchiveId);
-        }
+        });
     }
 }
