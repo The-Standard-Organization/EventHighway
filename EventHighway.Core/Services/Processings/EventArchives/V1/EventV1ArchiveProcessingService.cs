@@ -53,7 +53,18 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
                 eventV1ArchiveId);
         });
 
-        public ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate) =>
-            throw new NotImplementedException();
+        public async ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate)
+        {
+             IQueryable<EventV1Archive> eventV1Archives =
+                await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync();
+
+             IQueryable<EventV1Archive> filteredEventV1Archives = 
+                eventV1Archives.Where(archives => archives.ArchivedDate < cutOffDate);
+
+             foreach(var eventV1Archive in filteredEventV1Archives)
+             {
+                await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(eventV1Archive.Id);
+             } 
+        }
     }
 }
