@@ -2,6 +2,8 @@
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
@@ -28,6 +30,44 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             ValidateEventV1ArchiveIsNotNull(eventV1Archive);
 
             return await this.eventV1ArchiveService.AddEventV1ArchiveAsync(eventV1Archive);
+        });
+
+        public ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync() =>
+        TryCatch(async () => await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync());
+
+        public ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) =>
+        TryCatch(async () =>
+        {
+            ValidateEventV1ArchiveId(eventV1ArchiveId);
+
+            return await this.eventV1ArchiveService.RetrieveEventV1ArchiveByIdAsync(
+                eventV1ArchiveId);
+        });
+
+        public ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId) =>
+        TryCatch(async () =>
+        {
+            ValidateEventV1ArchiveId(eventV1ArchiveId);
+
+            return await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(
+                eventV1ArchiveId);
+        });
+
+        public ValueTask RemoveEventV1ArchivesAsync(DateTimeOffset cutOffDate) => 
+        TryCatch(async () =>
+        {
+             await ValidateCutOffDate(cutOffDate);
+
+             IQueryable<EventV1Archive> eventV1Archives =
+                await this.eventV1ArchiveService.RetrieveAllEventV1ArchivesAsync();
+
+             IQueryable<EventV1Archive> filteredEventV1Archives = 
+                eventV1Archives.Where(archives => archives.ArchivedDate < cutOffDate);
+
+             foreach(var eventV1Archive in filteredEventV1Archives)
+             {
+                await this.eventV1ArchiveService.RemoveEventV1ArchiveByIdAsync(eventV1Archive.Id);
+             } 
         });
     }
 }

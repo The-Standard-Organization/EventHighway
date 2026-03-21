@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
@@ -14,6 +15,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
     internal partial class EventV1ArchiveProcessingService
     {
         private delegate ValueTask<EventV1Archive> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<IQueryable<EventV1Archive>> ReturningEventV1ArchivesFunction();
+        private delegate ValueTask ReturningFunction();
 
         private async ValueTask<EventV1Archive> TryCatch(
             ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
@@ -21,6 +24,87 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             try
             {
                 return await returningEventV1ArchiveFunction();
+            }
+            catch (NullEventV1ArchiveProcessingException
+                nullEventV1ArchiveProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventV1ArchiveProcessingException);
+            }
+            catch (InvalidEventV1ArchiveProcessingException
+                invalidEventV1ArchiveProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV1ArchiveProcessingException);
+            }
+            catch (EventV1ArchiveValidationException
+                eventV1ArchiveValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveValidationException);
+            }
+            catch (EventV1ArchiveDependencyValidationException
+                eventV1ArchiveDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventV1ArchiveDependencyValidationException);
+            }
+            catch (EventV1ArchiveDependencyException
+                eventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveDependencyException);
+            }
+            catch (EventV1ArchiveServiceException
+                eventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventV1ArchiveServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1ArchiveProcessingServiceException =
+                    new FailedEventV1ArchiveProcessingServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventV1ArchiveProcessingServiceException);
+            }
+        }
+
+        private async ValueTask<IQueryable<EventV1Archive>> TryCatch(
+            ReturningEventV1ArchivesFunction ReturningEventV1ArchivesFunction)
+        {
+            try
+            {
+                return await ReturningEventV1ArchivesFunction();
+            }
+            catch (EventV1ArchiveDependencyException eventV1ArchiveDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ArchiveDependencyException);
+            }
+            catch (EventV1ArchiveServiceException eventV1ArchiveServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV1ArchiveServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventV1ArchiveProcessingServiceException =
+                    new FailedEventV1ArchiveProcessingServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV1ArchiveProcessingServiceException);
+            }
+        }
+
+        private async ValueTask TryCatch(
+            ReturningFunction returningFunction)
+        {
+            try
+            {
+                 await returningFunction();
             }
             catch (NullEventV1ArchiveProcessingException
                 nullEventV1ArchiveProcessingException)
