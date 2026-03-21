@@ -41,7 +41,12 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
             ValidateEventV1ArchiveId(eventV1ArchiveId);
 
             return await this.eventV1ArchiveService.RetrieveEventV1ArchiveByIdAsync(
-                eventV1ArchiveId);   
+                eventV1ArchiveId);
         });
+
+        public ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
