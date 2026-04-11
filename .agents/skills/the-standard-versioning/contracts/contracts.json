@@ -1,0 +1,125 @@
+{
+  "skill": "the-standard-versioning",
+  "version": "1.0.0",
+
+  "release_version_format": {
+    "pattern": "v{major}.{minor}.{patch}.{build}",
+    "example": "v1.2.3.4",
+    "segments": {
+      "1_major": "model change",
+      "2_minor": "service or routine change",
+      "3_patch": "bug fix or configuration change",
+      "4_build": "automated build version"
+    }
+  },
+
+  "release_increment_rules": {
+    "model_change": "increment segment 1, reset segments 2, 3, 4 to zero",
+    "service_change": "increment segment 2, reset segments 3, 4 to zero",
+    "bug_fix": "increment segment 3, reset segment 4 to zero",
+    "build_only": "increment segment 4 only",
+    "multiple_changes": "highest-order change wins, all lower segments reset to zero"
+  },
+
+  "release_increment_examples": {
+    "from_v1.2.3.4": {
+      "model_change": "v2.0.0.0",
+      "service_change": "v1.3.0.0",
+      "bug_fix": "v1.2.4.0",
+      "build": "v1.2.3.5",
+      "model_and_service": "v2.0.0.0"
+    }
+  },
+
+  "file_versioning": {
+    "V0_convention": "no version folder means V0 is implied",
+    "versioned_model_path": "Models/Foundations/{Entity}/V{n}/{Entity}V{n}.cs",
+    "versioned_service_path": "Services/Foundations/{Entity}/V{n}/{Entity}V{n}Service.cs",
+    "versioned_exceptions_path": "Models/Foundations/{Entity}/V{n}/Exceptions/",
+    "examples": {
+      "V0_model": "Models/Foundations/Students/Student.cs",
+      "V1_model": "Models/Foundations/Students/V1/StudentV1.cs",
+      "V0_service": "Services/Foundations/Students/StudentService.cs",
+      "V1_service": "Services/Foundations/Students/V1/StudentV1Service.cs",
+      "V1_exceptions": "Models/Foundations/Students/V1/Exceptions/"
+    }
+  },
+
+  "file_versioning_rules": {
+    "additive_only": "new versions are created by adding new files, not overwriting",
+    "folder_structure": "Vn folders are subfolders of the original location",
+    "naming_convention": "{Entity}V{n}.cs for models, {Entity}V{n}Service.cs for services",
+    "exception_alignment": "versioned exceptions live beneath the corresponding versioned model path",
+    "earlier_versions": "earlier-version code remains available unless explicitly deprecated/removed"
+  },
+
+  "api_versioning": {
+    "V0_route": "api/{Resource}",
+    "model_version_route": "api/V{n}/{Resource}",
+    "model_behavior_version_route": "api/V{n}.{m}/{Resource}",
+    "route_interpretation": {
+      "n": "model version",
+      "m": "behavior/service version for that model"
+    },
+    "examples": {
+      "V0": "api/Students",
+      "model_V1": "api/V1/Students",
+      "model_V1_behavior_1": "api/V1.1/Students"
+    }
+  },
+
+  "api_versioning_rules": {
+    "default_is_V0": "api/{resource} denotes version 0",
+    "model_version_explicit": "api/Vn/{resource} denotes model version n",
+    "behavior_version_explicit": "api/Vn.m/{resource} denotes model version n with behavior version m",
+    "route_alignment": "API route must align with underlying model/service pair versioning"
+  },
+
+  "deprecation": {
+    "required_metadata": [
+      "deprecation_notice",
+      "sunset_date",
+      "migration_guidance_link"
+    ],
+    "code_marker": "[Obsolete(\"message\")]",
+    "api_marker": "[DeprecatedApi(Sunset = \"YYYY-MM-DD\", Warning = \"message\", Link = \"url\")]",
+    "consumer_notice_requirement": "consumers MUST be given enough time to act before sunset"
+  },
+
+  "capabilities": {
+    "purpose": "discovery of supported features before invocation",
+    "surfaces": [
+      "Swagger",
+      "middleware-based metadata",
+      "bespoke capabilities endpoint",
+      "provider-specific capabilities endpoint"
+    ],
+    "consumer_benefits": [
+      "discover supported features",
+      "discover supported model versions",
+      "discover supported behavior versions",
+      "discover optional features unavailability",
+      "avoid unsupported calls",
+      "avoid circuit-breaking exceptions"
+    ]
+  },
+
+  "operating_principles": [
+    "follow explicit versioning rules exactly as defined",
+    "do not replace with inferred semantic versioning practices",
+    "prefer additive versioned structure over destructive replacement",
+    "keep routes and files discoverable",
+    "make deprecation visible and actionable",
+    "surface capabilities where version differences matter to consumers"
+  ],
+
+  "forbidden": [
+    "hiding model changes inside service segment",
+    "hiding service changes inside bug/config segment",
+    "using build increment to represent code change",
+    "overwriting earlier versions instead of creating new versioned files",
+    "weakening storage constraints at foundation layer",
+    "sunsetting APIs without adequate consumer notice period",
+    "removing earlier versions without explicit deprecation strategy"
+  ]
+}

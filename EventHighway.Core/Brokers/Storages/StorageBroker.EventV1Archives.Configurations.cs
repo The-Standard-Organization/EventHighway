@@ -3,17 +3,16 @@
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private void ConfigureEventV1Archives(ModelBuilder modelBuilder)
+        private static void ConfigureEventV1Archives(EntityTypeBuilder<EventV1Archive> model)
         {
-            modelBuilder.Entity<EventV1Archive>()
-                .HasKey(eventV1Archive =>
-                    eventV1Archive.Id);
+            model.HasKey(eventV1Archive =>
+                eventV1Archive.Id);
         }
     }
 }
