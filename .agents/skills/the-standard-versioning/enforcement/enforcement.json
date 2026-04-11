@@ -1,0 +1,206 @@
+{
+  "skill": "the-standard-versioning",
+  "enforcement_version": "1.0.0",
+  "description": "Automated validation hooks for versioning rule enforcement",
+
+  "release_version_validators": {
+    "format_validator": {
+      "rule": "version-001",
+      "pattern": "^v\\d+\\.\\d+\\.\\d+\\.\\d+$",
+      "description": "Validates release version matches v1.2.3.4 format",
+      "severity": "critical",
+      "automation": "git tag validation hook"
+    },
+    "segment_increment_validator": {
+      "rules": ["version-002", "version-003", "version-004", "version-005", "version-006"],
+      "description": "Validates segment increment follows versioning rules",
+      "severity": "critical",
+      "automation": "CI/CD pipeline validation before tag creation",
+      "checks": [
+        "model change: segment 1 incremented, segments 2-4 are zero",
+        "service change: segment 2 incremented, segments 3-4 are zero",
+        "bug fix: segment 3 incremented, segment 4 is zero",
+        "build only: only segment 4 incremented",
+        "multiple changes: highest-order wins"
+      ]
+    }
+  },
+
+  "file_structure_validators": {
+    "V0_convention_validator": {
+      "rule": "version-010",
+      "description": "Validates V0 files exist without version folder",
+      "severity": "warning",
+      "automation": "pre-commit hook",
+      "checks": [
+        "Models/Foundations/{Entity}/{Entity}.cs exists for V0",
+        "Services/Foundations/{Entity}/{Entity}Service.cs exists for V0"
+      ]
+    },
+    "versioned_file_location_validator": {
+      "rules": ["version-011", "version-012", "version-013"],
+      "description": "Validates versioned files are in correct V{n} subfolder",
+      "severity": "critical",
+      "automation": "pre-commit hook",
+      "checks": [
+        "versioned model: Models/.../V{n}/{Entity}V{n}.cs",
+        "versioned service: Services/.../V{n}/{Entity}V{n}Service.cs",
+        "versioned exceptions: Models/.../V{n}/Exceptions/"
+      ]
+    },
+    "file_naming_validator": {
+      "description": "Validates versioned file naming convention",
+      "severity": "critical",
+      "automation": "pre-commit hook",
+      "checks": [
+        "model files match pattern: {Entity}V{n}.cs",
+        "service files match pattern: {Entity}V{n}Service.cs"
+      ]
+    },
+    "additive_versioning_validator": {
+      "rule": "version-014",
+      "description": "Validates earlier versions still exist (no destructive changes)",
+      "severity": "critical",
+      "automation": "pre-commit hook",
+      "checks": [
+        "V0 files still exist when V1 added",
+        "V1 files still exist when V2 added",
+        "no deletions unless explicit deprecation"
+      ]
+    }
+  },
+
+  "api_route_validators": {
+    "V0_route_validator": {
+      "rule": "version-020",
+      "description": "Validates V0 routes follow api/{Resource} pattern",
+      "severity": "critical",
+      "automation": "API documentation generation",
+      "pattern": "^api/[A-Z][a-zA-Z]+$"
+    },
+    "model_version_route_validator": {
+      "rule": "version-021",
+      "description": "Validates model version routes follow api/V{n}/{Resource} pattern",
+      "severity": "critical",
+      "automation": "API documentation generation",
+      "pattern": "^api/V\\d+/[A-Z][a-zA-Z]+$"
+    },
+    "behavior_version_route_validator": {
+      "rule": "version-022",
+      "description": "Validates behavior version routes follow api/V{n}.{m}/{Resource} pattern",
+      "severity": "critical",
+      "automation": "API documentation generation",
+      "pattern": "^api/V\\d+\\.\\d+/[A-Z][a-zA-Z]+$"
+    },
+    "route_alignment_validator": {
+      "rules": ["version-023", "version-024"],
+      "description": "Validates API route aligns with underlying model/service version",
+      "severity": "critical",
+      "automation": "integration test suite",
+      "checks": [
+        "api/V1/Students maps to StudentV1 model and StudentV1Service",
+        "api/V1.1/Students maps to StudentV1 model with behavior version 1",
+        "route version segments match file version segments"
+      ]
+    }
+  },
+
+  "deprecation_validators": {
+    "deprecation_metadata_validator": {
+      "rules": ["version-030", "version-033", "version-034"],
+      "description": "Validates deprecated APIs have required metadata",
+      "severity": "critical",
+      "automation": "API documentation generation",
+      "checks": [
+        "DeprecatedApi attribute present",
+        "Sunset date specified",
+        "Warning message specified",
+        "Link to migration guidance specified"
+      ]
+    },
+    "code_deprecation_validator": {
+      "rule": "version-031",
+      "description": "Validates deprecated code marked with [Obsolete]",
+      "severity": "warning",
+      "automation": "static code analysis",
+      "checks": [
+        "Obsolete attribute present on deprecated classes",
+        "Obsolete message explains deprecation reason"
+      ]
+    },
+    "sunset_notice_validator": {
+      "rule": "version-032",
+      "description": "Validates consumers have adequate notice before sunset",
+      "severity": "critical",
+      "automation": "release pipeline validation",
+      "checks": [
+        "sunset date is at least 90 days from deprecation announcement",
+        "deprecation notice has been published"
+      ]
+    }
+  },
+
+  "consistency_validators": {
+    "version_segment_integrity_validator": {
+      "description": "Validates version segments represent correct change types",
+      "severity": "critical",
+      "automation": "commit message parsing + CI validation",
+      "checks": [
+        "model changes do not hide in service segment",
+        "service changes do not hide in bug/config segment",
+        "build increment only used for build changes"
+      ]
+    },
+    "discoverable_versions_validator": {
+      "description": "Validates all versions remain discoverable",
+      "severity": "warning",
+      "automation": "documentation generation",
+      "checks": [
+        "all version folders are documented",
+        "all API versions are documented",
+        "capabilities endpoint lists all supported versions"
+      ]
+    }
+  },
+
+  "automation_hooks": {
+    "pre_commit": [
+      "file_structure_validators.V0_convention_validator",
+      "file_structure_validators.versioned_file_location_validator",
+      "file_structure_validators.file_naming_validator",
+      "file_structure_validators.additive_versioning_validator"
+    ],
+    "pre_push": [
+      "consistency_validators.version_segment_integrity_validator"
+    ],
+    "ci_pipeline": [
+      "release_version_validators.format_validator",
+      "release_version_validators.segment_increment_validator",
+      "api_route_validators",
+      "deprecation_validators.deprecation_metadata_validator"
+    ],
+    "release_pipeline": [
+      "release_version_validators",
+      "deprecation_validators.sunset_notice_validator"
+    ],
+    "documentation_generation": [
+      "api_route_validators",
+      "consistency_validators.discoverable_versions_validator"
+    ]
+  },
+
+  "reporting": {
+    "violation_severity_levels": {
+      "critical": "blocks commit/build/release",
+      "warning": "requires review but does not block",
+      "info": "informational only"
+    },
+    "violation_report_format": {
+      "rule_id": "version-xxx",
+      "severity": "critical|warning|info",
+      "violation_description": "human-readable explanation",
+      "file_path": "path to violating file",
+      "suggested_fix": "actionable remediation guidance"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "skill": "the-standard-practices",
+  "version": "1.0.0",
+
+  "branch_naming": {
+    "pattern": "users/[username]/[CATEGORY]-[entity]-[action]",
+    "username": "GitHub username of contributor",
+    "category_case": "UPPER-CASE",
+    "separator": "/ between username section and category section, - between category/entity/action"
+  },
+
+  "commit_discipline": {
+    "tdd_fail_prefix": "[FAIL]:",
+    "tdd_pass_prefix": "[PASS]:",
+    "fail_requires": "test running and verified red by test runner",
+    "pass_requires": "all relevant tests running and verified green",
+    "atomicity": "one test per FAIL commit, one implementation unit per PASS commit",
+    "non_tdd_commits": "no prefix required, but message must be descriptive"
+  },
+
+  "categories": {
+    "infrastructure": ["INFRA", "MAJOR INFRA", "MEDIUM INFRA", "MINOR INFRA", "PROVISIONS", "RELEASES"],
+    "data": ["DATA", "MAJOR DATA", "MEDIUM DATA", "MINOR DATA", "MIGRATION", "MAJOR MIGRATION", "MEDIUM MIGRATION", "MINOR MIGRATION"],
+    "brokers": ["BROKERS", "MAJOR BROKERS", "MEDIUM BROKERS", "MINOR BROKERS"],
+    "services": [
+      "FOUNDATIONS", "MAJOR FOUNDATIONS", "MEDIUM FOUNDATIONS", "MINOR FOUNDATIONS",
+      "PROCESSINGS", "MAJOR PROCESSINGS", "MEDIUM PROCESSINGS", "MINOR PROCESSINGS",
+      "ORCHESTRATIONS", "MAJOR ORCHESTRATIONS", "MEDIUM ORCHESTRATIONS", "MINOR ORCHESTRATIONS",
+      "COORDINATIONS", "MAJOR COORDINATIONS", "MEDIUM COORDINATIONS", "MINOR COORDINATIONS",
+      "MANAGEMENTS", "MAJOR MANAGEMENTS", "MEDIUM MANAGEMENTS", "MINOR MANAGEMENTS",
+      "AGGREGATIONS", "MAJOR AGGREGATIONS", "MEDIUM AGGREGATIONS", "MINOR AGGREGATIONS"
+    ],
+    "exposers": [
+      "CONTROLLERS", "MAJOR CONTROLLERS", "MEDIUM CONTROLLERS", "MINOR CONTROLLERS",
+      "CLIENTS", "MAJOR CLIENTS", "MEDIUM CLIENTS", "MINOR CLIENTS",
+      "PROVIDERS",
+      "EXPOSERS", "MAJOR EXPOSERS", "MEDIUM EXPOSERS", "MINOR EXPOSERS"
+    ],
+    "ui": [
+      "VIEWS", "MAJOR VIEWS", "MEDIUM VIEWS", "MINOR VIEWS",
+      "COMPONENTS", "MAJOR COMPONENTS", "MEDIUM COMPONENTS", "MINOR COMPONENTS",
+      "PAGES", "MAJOR PAGES", "MEDIUM PAGES", "MINOR PAGES"
+    ],
+    "other": ["FEATURES", "PATCH", "RELEASES"]
+  },
+
+  "size_thresholds": {
+    "MAJOR": "5 or more tests added or modified",
+    "MEDIUM": "3 to 4 tests added or modified",
+    "MINOR": "1 to 2 tests added or modified"
+  },
+
+  "pull_requests": {
+    "title_format": "[CATEGORY]: [Entity] - [Description]",
+    "required_before_merge": ["CI passing", "human approval", "no sensitive data in diff"],
+    "ai_may": "suggest, review, comment",
+    "ai_must_not": "approve or merge"
+  },
+
+  "configuration": {
+    "secrets_in_source_control": false,
+    "environment_specific_values_in_code": false,
+    "local_config_in_gitignore": true,
+    "ci_cd_secrets_method": "repository secrets (not plain text in workflow files)"
+  },
+
+  "forbidden": [
+    "pushing directly to official repository (unless maintainer)",
+    "committing secrets, API keys, or connection strings",
+    "WIP commits on main",
+    "FAIL commits without verified test failure",
+    "PASS commits without verified full suite pass",
+    "non-Standard branch names",
+    "PR titles without category prefix"
+  ]
+}

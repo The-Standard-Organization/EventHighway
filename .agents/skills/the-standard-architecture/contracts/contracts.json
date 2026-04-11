@@ -1,0 +1,104 @@
+{
+  "skill": "the-standard-architecture",
+  "version": "1.0.0",
+
+  "naming": {
+    "broker_interface": "I{Resource}Broker",
+    "broker_class": "{Resource}Broker",
+    "broker_method": "{Action}{Entity}Async (infrastructure verbs: Insert, Select, Update, Delete, Post, Get, Put)",
+    "service_interface": "I{Entity}Service",
+    "service_class": "{Entity}Service",
+    "service_method": "{BusinessVerb}{Entity}Async (business verbs: Add, Retrieve, Modify, Remove)",
+    "processing_service_interface": "I{Entity}ProcessingService",
+    "processing_service_class": "{Entity}ProcessingService",
+    "processing_service_method": "{ProcessVerb}{Entity}Async (process verbs: Ensure, Upsert, TryAdd, TryRemove, Verify)",
+    "orchestration_service_interface": "I{Entity}OrchestrationService",
+    "orchestration_service_class": "{Entity}OrchestrationService",
+    "aggregation_service_interface": "I{Entity}AggregationService",
+    "aggregation_service_class": "{Entity}AggregationService",
+    "controller_class": "{Entities}Controller (plural entity name)",
+    "controller_route": "/api/{entities} (plural lowercase)"
+  },
+
+  "layer_dependency_rules": {
+    "allowed": [
+      "Exposer → Service (Foundation, Processing, Orchestration, Aggregation)",
+      "Foundation Service → Broker",
+      "Processing Service → Foundation Service",
+      "Orchestration Service → Processing Service or Foundation Service",
+      "Aggregation Service → any Service",
+      "Any Service → Support Broker (Logging, DateTime, Identifier)"
+    ],
+    "forbidden": [
+      "Foundation Service → Foundation Service (same-layer call)",
+      "Foundation Service → Processing Service (upward dependency)",
+      "Foundation Service → Infrastructure directly (must go through broker)",
+      "Broker → Broker (entity brokers must not call other entity brokers)",
+      "Exposer → Broker (must always go through a service)",
+      "Service → Exposer (downward exposure call)",
+      "Processing Service → multiple Foundation Services (must be exactly one)"
+    ]
+  },
+
+  "broker_rules": {
+    "max_external_resources_per_broker": 1,
+    "flow_control_allowed": false,
+    "exception_handling_allowed": false,
+    "all_methods_must_be_async": true,
+    "language": "infrastructure",
+    "must_implement_interface": true
+  },
+
+  "foundation_service_rules": {
+    "entity_types_handled": 1,
+    "input_output_type": "same_entity",
+    "validation_order": ["structural", "logical", "external", "dependency"],
+    "circuit_breaking": "structural validations must break immediately on null",
+    "continuous_validation": "collect all field errors before throwing",
+    "exception_categories": [
+      "{Entity}ValidationException",
+      "{Entity}DependencyValidationException",
+      "{Entity}CriticalDependencyException",
+      "{Entity}DependencyException",
+      "{Entity}ServiceException"
+    ]
+  },
+
+  "processing_service_rules": {
+    "foundation_service_dependencies": "exactly_one",
+    "validation": "used-data-only",
+    "patterns": ["Ensure", "Upsert", "TryAdd", "TryRemove", "Verify"]
+  },
+
+  "orchestration_service_rules": {
+    "dependency_count": "2-3 (Florance Pattern)",
+    "call_order": "natural or explicitly enforced",
+    "multi_entity": true
+  },
+
+  "aggregation_service_rules": {
+    "order_validation": false,
+    "mock_sequence_assertions": false,
+    "validation_level": "basic structural only"
+  },
+
+  "exposer_rules": {
+    "business_logic": false,
+    "mapping_only": true,
+    "single_contact_point_per_entity": true,
+    "route_convention": "/api/{entities}",
+    "http_success_codes": {
+      "POST": 201,
+      "GET": 200,
+      "PUT": 200,
+      "DELETE": 200
+    },
+    "http_error_codes": {
+      "ValidationException": 400,
+      "DependencyValidationException": 400,
+      "CriticalDependencyException": 500,
+      "DependencyException": 500,
+      "ServiceException": 500
+    }
+  }
+}
