@@ -1,0 +1,104 @@
+{
+  "skill": "the-standard-core",
+  "version": "1.0.0",
+
+  "engineering_sequence": {
+    "mandatory_order": ["Purposing", "Modeling", "Simulation"],
+    "skip_allowed": false,
+    "iteration_allowed": true,
+    "note": "Iteration is allowed after initial sequence completes. Skipping is never allowed."
+  },
+
+  "model_types": {
+    "primary": {
+      "self_sufficient": true,
+      "external_physical_dependency": false,
+      "examples": ["Student", "Course", "Product", "Order"]
+    },
+    "secondary": {
+      "depends_on": "primary",
+      "examples": ["StudentContact", "OrderLine"]
+    },
+    "relational": {
+      "connects": "exactly_two_primary_models",
+      "unrelated_attributes": false,
+      "examples": ["StudentCourse", "UserRole"]
+    },
+    "hybrid": {
+      "use_condition": "business_flow_truly_requires_it",
+      "default": false
+    },
+    "operational": {
+      "integration": "broker",
+      "processing": "service",
+      "exposure": "exposer",
+      "configuration": "startup_or_middleware"
+    }
+  },
+
+  "forbidden_patterns": [
+    {
+      "pattern": "Utils class",
+      "reason": "Creates horizontal entanglement",
+      "rule": "core-052"
+    },
+    {
+      "pattern": "Commons class",
+      "reason": "Creates horizontal entanglement",
+      "rule": "core-052"
+    },
+    {
+      "pattern": "Helper class",
+      "reason": "Creates horizontal entanglement",
+      "rule": "core-052"
+    },
+    {
+      "pattern": "Shared model across independent flows",
+      "reason": "Breaks component autonomy",
+      "rule": "core-053"
+    },
+    {
+      "pattern": "Local base class with business logic",
+      "reason": "Creates vertical entanglement",
+      "rule": "core-054"
+    },
+    {
+      "pattern": "More than one level of inheritance",
+      "reason": "Excessive inheritance, prohibited",
+      "rule": "core-051"
+    },
+    {
+      "pattern": "Hidden routines or extension methods with magic",
+      "reason": "Violates No Magic principle",
+      "rule": "core-070"
+    },
+    {
+      "pattern": "Style cop / analyzer as primary compliance mechanism",
+      "reason": "Violates No Toasters principle",
+      "rule": "core-130"
+    }
+  ],
+
+  "principles": {
+    "people_first": true,
+    "simplicity": "mandatory",
+    "autonomous_components": true,
+    "no_magic": true,
+    "rewritability": true,
+    "mono_micro": true,
+    "level_0": true,
+    "open_code": true,
+    "airplane_mode": true,
+    "no_toasters": true,
+    "pass_forward": true,
+    "all_in_all_out": true,
+    "readability_over_optimization": true,
+    "last_day": true
+  },
+
+  "adoption": {
+    "partial_adoption_valid": false,
+    "full_adoption_required": true,
+    "note": "The Standard must be embraced fully or rejected fully."
+  }
+}
