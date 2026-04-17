@@ -22,8 +22,13 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<HandlerConfiguration> AddHandlerConfigurationAsync(
+        public ValueTask<HandlerConfiguration> AddHandlerConfigurationAsync(
             HandlerConfiguration handlerConfiguration) =>
-            await storageBroker.InsertHandlerConfigurationAsync(handlerConfiguration);
+        TryCatch(async () =>
+        {
+            await ValidateHandlerConfigurationOnAddAsync(handlerConfiguration);
+
+            return await storageBroker.InsertHandlerConfigurationAsync(handlerConfiguration);
+        });
     }
 }
