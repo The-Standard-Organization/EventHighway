@@ -24,6 +24,10 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             {
                 throw await CreateAndLogValidationExceptionAsync(nullHandlerConfigurationException);
             }
+            catch (InvalidHandlerConfigurationException invalidHandlerConfigurationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(invalidHandlerConfigurationException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
