@@ -8,7 +8,6 @@ using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
 using FluentAssertions;
 using Moq;
-
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfigurations
 {
     public partial class HandlerConfigurationServiceTests
@@ -156,6 +155,63 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
                 broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
                     Times.Never);
 
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfCreatedDateIsNotSameAsUpdatedDateAndLogItAsync()
+        {
+            // given
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+            DateTimeOffset anotherRandomDateTimeOffset = GetRandomDateTimeOffset();
+            HandlerConfiguration randomHandlerConfiguration = CreateRandomHandlerConfiguration(randomDateTimeOffset);
+            HandlerConfiguration invalidHandlerConfiguration = randomHandlerConfiguration;
+            invalidHandlerConfiguration.UpdatedDate = anotherRandomDateTimeOffset;
+
+            var invalidHandlerConfigurationException =
+                new InvalidHandlerConfigurationException(
+                    message: "Handler configuration is invalid, fix the errors and try again.");
+
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.CreatedDate),
+                values: $"Date is not the same as {nameof(HandlerConfiguration.UpdatedDate)}");
+
+            var expectedHandlerConfigurationValidationException =
+                new HandlerConfigurationValidationException(
+                    message: "Handler configuration validation error occurred, fix the errors and try again.",
+                    innerException: invalidHandlerConfigurationException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
+
+            // when
+            ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
+                this.handlerConfigurationService.AddHandlerConfigurationAsync(invalidHandlerConfiguration);
+
+            HandlerConfigurationValidationException actualHandlerConfigurationValidationException =
+                await Assert.ThrowsAsync<HandlerConfigurationValidationException>(
+                    addHandlerConfigurationTask.AsTask);
+
+            // then
+            actualHandlerConfigurationValidationException.Should().BeEquivalentTo(
+                expectedHandlerConfigurationValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHandlerConfigurationValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
+                    Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
