@@ -50,6 +50,16 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsHandlerConfigurationException);
             }
+            catch (ForeignKeyConstraintConflictException foreignKeyConstraintConflictException)
+            {
+                var invalidHandlerConfigurationReferenceException =
+                    new InvalidHandlerConfigurationReferenceException(
+                        message: "Invalid handler configuration reference error occurred.",
+                        innerException: foreignKeyConstraintConflictException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    invalidHandlerConfigurationReferenceException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
