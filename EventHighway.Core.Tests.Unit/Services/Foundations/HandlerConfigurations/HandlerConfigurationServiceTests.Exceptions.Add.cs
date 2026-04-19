@@ -10,6 +10,7 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Moq;
 
+
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfigurations
 {
     public partial class HandlerConfigurationServiceTests
@@ -66,7 +67,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         }
 
         [Fact]
-        public async Task ShouldThrowDependencyValidationExceptionOnAddIfHandlerConfigurationAlreadyExistsAndLogItAsync()
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfHandlerConfigAlreadyExistsAndLogItAsync()
         {
             // given
             string randomMessage = GetRandomString();
@@ -86,6 +87,58 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
                     .ThrowsAsync(duplicateKeyException);
+
+            // when
+            ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
+                this.handlerConfigurationService.AddHandlerConfigurationAsync(someHandlerConfiguration);
+
+            HandlerConfigurationDependencyValidationException actualHandlerConfigurationDependencyValidationException =
+                await Assert.ThrowsAsync<HandlerConfigurationDependencyValidationException>(
+                    addHandlerConfigurationTask.AsTask);
+
+            // then
+            actualHandlerConfigurationDependencyValidationException.Should()
+                .BeEquivalentTo(expectedHandlerConfigurationDependencyValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHandlerConfigurationDependencyValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
+                    Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfReferenceErrorOccursAndLogItAsync()
+        {
+            // given
+            HandlerConfiguration someHandlerConfiguration = CreateRandomHandlerConfiguration();
+            string someMessage = GetRandomString();
+            var foreignKeyConstraintConflictException = new ForeignKeyConstraintConflictException(someMessage);
+
+            var invalidHandlerConfigurationReferenceException =
+                new InvalidHandlerConfigurationReferenceException(
+                    message: "Invalid handler configuration reference error occurred.",
+                    innerException: foreignKeyConstraintConflictException);
+
+            var expectedHandlerConfigurationDependencyValidationException =
+                new HandlerConfigurationDependencyValidationException(
+                    message: "Handler configuration validation error occurred, fix the errors and try again.",
+                    innerException: invalidHandlerConfigurationReferenceException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(foreignKeyConstraintConflictException);
 
             // when
             ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
