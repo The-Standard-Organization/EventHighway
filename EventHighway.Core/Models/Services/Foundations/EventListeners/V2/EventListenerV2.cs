@@ -16,7 +16,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventListeners.V2
         public string Name { get; set; }
         public string Description { get; set; }
         public string HandlerName { get; set; }
-        public List<HandlerConfiguration> HandlerConfigurations { get; set; } = new();
+        public IEnumerable<HandlerConfiguration> HandlerConfigurations { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
         public DateTimeOffset UpdatedDate { get; set; }
 
