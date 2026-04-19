@@ -1,0 +1,25 @@
+{
+  "rules": [
+    { "id": "version-001", "category": "release-versioning", "description": "All releases MUST follow the v1.2.3.4 format (major.minor.patch.build).", "severity": "error" },
+    { "id": "version-002", "category": "release-versioning", "description": "Model changes MUST increment major version and reset all lower segments to 0.", "severity": "error" },
+    { "id": "version-003", "category": "release-versioning", "description": "Service changes MUST increment minor version and reset patch and build to 0.", "severity": "error" },
+    { "id": "version-004", "category": "release-versioning", "description": "Bug fixes or configuration changes MUST increment patch version and reset build to 0.", "severity": "error" },
+    { "id": "version-005", "category": "release-versioning", "description": "Build/pipeline changes MUST increment build version only.", "severity": "error" },
+    { "id": "version-006", "category": "release-versioning", "description": "When multiple changes occur, the highest-order change determines version increment (model > service > patch > build).", "severity": "error" },
+    { "id": "version-010", "category": "file-versioning", "description": "Default version is V0 — version is inferred and MUST NOT be included in the filename.", "severity": "error" },
+    { "id": "version-011", "category": "file-versioning", "description": "Model changes MUST require creation of a new Vn folder (e.g., V1, V2).", "severity": "error" },
+    { "id": "version-012", "category": "file-versioning", "description": "Service changes MUST require creation of a new Vn folder.", "severity": "error" },
+    { "id": "version-013", "category": "file-versioning", "description": "Previous version files MUST NOT be overwritten — always create new versioned folders.", "severity": "error" },
+    { "id": "version-014", "category": "file-versioning", "description": "File versioning MUST be applied to maintain backward compatibility.", "severity": "error" },
+    { "id": "version-020", "category": "api-versioning", "description": "V0 APIs have no version prefix in the route.", "severity": "error" },
+    { "id": "version-021", "category": "api-versioning", "description": "Model version changes MUST use Vn prefix in routes (e.g., /V1/students).", "severity": "error" },
+    { "id": "version-022", "category": "api-versioning", "description": "Service version changes MUST use Vn.m prefix in routes (e.g., /V1.1/students).", "severity": "error" },
+    { "id": "version-023", "category": "api-versioning", "description": "API routes are immutable — existing routes MUST NOT be modified or removed.", "severity": "error" },
+    { "id": "version-024", "category": "api-versioning", "description": "API versioning MUST reflect the underlying model or service version.", "severity": "error" },
+    { "id": "version-030", "category": "deprecation", "description": "Deprecated APIs MUST include sunset metadata indicating when they will be removed.", "severity": "error" },
+    { "id": "version-031", "category": "deprecation", "description": "Deprecated code MUST include warning messages to notify consumers.", "severity": "error" },
+    { "id": "version-032", "category": "deprecation", "description": "Deprecated code MUST use the [Obsolete] attribute in C# or equivalent in other languages.", "severity": "error" },
+    { "id": "version-033", "category": "deprecation", "description": "Deprecation period MUST provide adequate time for consumers to migrate (recommended minimum: 6 months).", "severity": "error" },
+    { "id": "version-034", "category": "deprecation", "description": "Deprecation notices MUST be communicated through documentation, API responses, and release notes.", "severity": "error" }
+  ]
+}

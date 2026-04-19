@@ -1,0 +1,59 @@
+{
+  "name": "the-standard-practices",
+  "version": "1.0.0",
+  "description": "Governs how contributions are structured, branches are named, commits are made (FAIL/PASS TDD discipline), pull requests are formatted, configuration is handled, and the forking workflow is applied for open-source Standard-compliant projects.",
+  "the_standard_version": "v2.12.0",
+  "skill_version": "v0.3.0.0",
+
+  "inputs": [
+    "A request to name a branch",
+    "A request to format a commit message",
+    "A PR review request",
+    "A question about how to structure a contribution",
+    "A request to check configuration handling"
+  ],
+
+  "outputs": [
+    "Standard-compliant branch name",
+    "FAIL/PASS commit message",
+    "PR title and description following Standard format",
+    "Configuration guidance that avoids secret leakage"
+  ],
+
+  "dependencies": [
+    "the-standard-core"
+  ],
+
+  "activation": {
+    "trigger": "planning work, naming branches, writing commits, creating PRs, configuring environments, reviewing contributions",
+    "note": "Always activate the-standard-core first."
+  },
+
+  "validation": {
+    "required": true,
+    "checklist": "validations/checklist.md",
+    "anti_patterns": "validations/anti-patterns.md"
+  },
+
+  "files": {
+    "rules": {
+      "human": "rules/rules.md",
+      "machine": "rules/rules.json"
+    },
+    "examples": {
+      "good": [
+        "examples/good/example_branch_names.md",
+        "examples/good/example_commit_messages.md"
+      ],
+      "bad": [
+        "examples/bad/example_bad_branches.md",
+        "examples/bad/example_bad_commits.md"
+      ]
+    },
+    "templates": [
+      "templates/pull_request_template.md",
+      "templates/branch_naming_guide.md"
+    ],
+    "contracts": "contracts/contracts.json"
+  }
+}
