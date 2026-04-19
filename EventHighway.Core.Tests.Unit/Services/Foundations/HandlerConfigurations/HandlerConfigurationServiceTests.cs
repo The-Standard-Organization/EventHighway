@@ -11,6 +11,7 @@ using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Services.Foundations.HandlerConfigurations;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xunit;
 using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfigurations
@@ -48,6 +49,21 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
+        public static TheoryData<int> MinutesBeforeAndAfterNow()
+        {
+            int randomMoreThanOneMinuteAhead = GetRandomNumber();
+            int randomMoreThanOneMinuteAgo = -1 * GetRandomNumber();
+
+            return new TheoryData<int>
+            {
+                randomMoreThanOneMinuteAhead,
+                randomMoreThanOneMinuteAgo
+            };
+        }
+
+        private static int GetRandomNumber() =>
+            new IntRange(min: 2, max: 9).GetValue();
 
         private static Filler<HandlerConfiguration> CreateHandlerConfigurationFiller(DateTimeOffset dates)
         {
