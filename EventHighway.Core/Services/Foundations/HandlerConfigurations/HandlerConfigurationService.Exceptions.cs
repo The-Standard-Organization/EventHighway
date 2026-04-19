@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
@@ -71,6 +72,16 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 throw await CreateAndLogDependencyExceptionAsync(
                     failedHandlerConfigurationStorageException);
             }
+            catch (Exception serviceException)
+            {
+                var failedHandlerConfigurationServiceException =
+                    new FailedHandlerConfigurationServiceException(
+                        message: "Failed handler configuration service error occurred, contact support.",
+                        innerException: serviceException);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedHandlerConfigurationServiceException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
@@ -123,6 +134,19 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             await this.loggingBroker.LogErrorAsync(handlerConfigurationDependencyException);
 
             return handlerConfigurationDependencyException;
+        }
+
+        private async ValueTask<HandlerConfigurationServiceException>
+            CreateAndLogServiceExceptionAsync(Xeption exception)
+        {
+            var handlerConfigurationServiceException =
+                new HandlerConfigurationServiceException(
+                    message: "Handler configuration service error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(handlerConfigurationServiceException);
+
+            return handlerConfigurationServiceException;
         }
     }
 }
