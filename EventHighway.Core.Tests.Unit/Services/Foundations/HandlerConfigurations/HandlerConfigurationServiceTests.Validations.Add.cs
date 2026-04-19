@@ -125,7 +125,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         public async Task ShouldThrowValidationExceptionOnAddIfNameIsInvalidLengthAndLogItAsync()
         {
             // given
-            HandlerConfiguration randomHandlerConfiguration = CreateRandomHandlerConfiguration();
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+            HandlerConfiguration randomHandlerConfiguration = CreateRandomHandlerConfiguration(randomDateTimeOffset);
             HandlerConfiguration invalidHandlerConfiguration = randomHandlerConfiguration;
             invalidHandlerConfiguration.Name = GetRandomStringWithLengthOf(451);
 
@@ -142,6 +143,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
                     message: "Handler configuration validation error occurred, fix the errors and try again.",
                     innerException: invalidHandlerConfigurationException);
 
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
+
             // when
             ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
                 this.handlerConfigurationService.AddHandlerConfigurationAsync(invalidHandlerConfiguration);
@@ -154,6 +159,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             actualHandlerConfigurationValidationException.Should().BeEquivalentTo(
                 expectedHandlerConfigurationValidationException);
 
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedHandlerConfigurationValidationException))),
@@ -163,6 +172,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
                 broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
                     Times.Never);
 
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }

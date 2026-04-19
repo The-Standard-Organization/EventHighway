@@ -42,6 +42,11 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                     firstDate: handlerConfiguration.CreatedDate,
                     secondDate: handlerConfiguration.UpdatedDate,
                     secondDateName: nameof(HandlerConfiguration.UpdatedDate)),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)),
+
+                (Rule: IsNotRecent(
+                    date: handlerConfiguration.CreatedDate,
+                    currentDateTime: currentDateTime),
                 Parameter: nameof(HandlerConfiguration.CreatedDate)));
         }
 
@@ -87,6 +92,21 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 Condition = firstDate != secondDate,
                 Message = $"Date is not the same as {secondDateName}"
             };
+
+        private static dynamic IsNotRecent(DateTimeOffset date, DateTimeOffset currentDateTime) => new
+        {
+            Condition = IsDateMoreThanOneMinuteApart(date, currentDateTime),
+            Message = "Date is not recent"
+        };
+
+        private static bool IsDateMoreThanOneMinuteApart(
+            DateTimeOffset date,
+            DateTimeOffset currentDateTime)
+        {
+            TimeSpan difference = currentDateTime.Subtract(date);
+
+            return Math.Abs(difference.TotalMinutes) > 1;
+        }
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
