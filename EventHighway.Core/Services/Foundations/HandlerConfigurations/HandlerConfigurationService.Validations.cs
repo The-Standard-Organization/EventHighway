@@ -1,0 +1,130 @@
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
+// ----------------------------------------------------------------------------------
+
+using System;
+using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
+using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
+
+namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
+{
+    internal partial class HandlerConfigurationService
+    {
+        private async ValueTask ValidateHandlerConfigurationOnAddAsync(
+            HandlerConfiguration handlerConfiguration)
+        {
+            ValidateHandlerConfigurationIsNotNull(handlerConfiguration);
+
+            DateTimeOffset currentDateTime =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            Validate(
+                (Rule: IsInvalid(handlerConfiguration.Id),
+                Parameter: nameof(HandlerConfiguration.Id)),
+
+                (Rule: IsInvalid(handlerConfiguration.Name),
+                Parameter: nameof(HandlerConfiguration.Name)),
+
+                (Rule: IsInvalid(handlerConfiguration.Value),
+                Parameter: nameof(HandlerConfiguration.Value)),
+
+                (Rule: IsInvalidLength(handlerConfiguration.Name, 450),
+                Parameter: nameof(HandlerConfiguration.Name)),
+
+                (Rule: IsInvalid(handlerConfiguration.CreatedDate),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)),
+
+                (Rule: IsInvalid(handlerConfiguration.UpdatedDate),
+                Parameter: nameof(HandlerConfiguration.UpdatedDate)),
+
+                (Rule: IsNotSameAs(
+                    firstDate: handlerConfiguration.CreatedDate,
+                    secondDate: handlerConfiguration.UpdatedDate,
+                    secondDateName: nameof(HandlerConfiguration.UpdatedDate)),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)),
+
+                (Rule: IsNotRecent(
+                    date: handlerConfiguration.CreatedDate,
+                    currentDateTime: currentDateTime),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)));
+        }
+
+        private static void ValidateHandlerConfigurationIsNotNull(
+            HandlerConfiguration handlerConfiguration)
+        {
+            if (handlerConfiguration is null)
+            {
+                throw new NullHandlerConfigurationException(
+                    message: "Handler configuration is null.");
+            }
+        }
+
+        private static dynamic IsInvalid(Guid id) => new
+        {
+            Condition = id == default,
+            Message = "Required"
+        };
+
+        private static dynamic IsInvalid(string text) => new
+        {
+            Condition = string.IsNullOrWhiteSpace(text),
+            Message = "Required"
+        };
+
+        private static dynamic IsInvalidLength(string text, int maxLength) => new
+        {
+            Condition = !string.IsNullOrWhiteSpace(text) && text.Length > maxLength,
+            Message = $"Exceeds {maxLength} characters"
+        };
+
+        private static dynamic IsInvalid(DateTimeOffset date) => new
+        {
+            Condition = date == default,
+            Message = "Required"
+        };
+
+        private static dynamic IsNotSameAs(
+            DateTimeOffset firstDate,
+            DateTimeOffset secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate != secondDate,
+                Message = $"Date is not the same as {secondDateName}"
+            };
+
+        private static dynamic IsNotRecent(DateTimeOffset date, DateTimeOffset currentDateTime) => new
+        {
+            Condition = IsDateMoreThanOneMinuteApart(date, currentDateTime),
+            Message = "Date is not recent"
+        };
+
+        private static bool IsDateMoreThanOneMinuteApart(
+            DateTimeOffset date,
+            DateTimeOffset currentDateTime)
+        {
+            TimeSpan difference = currentDateTime.Subtract(date);
+
+            return Math.Abs(difference.TotalMinutes) > 1;
+        }
+
+        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidHandlerConfigurationException =
+                new InvalidHandlerConfigurationException(
+                    message: "Handler configuration is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidHandlerConfigurationException.AddData(
+                        key: parameter,
+                        values: rule.Message);
+                }
+            }
+
+            invalidHandlerConfigurationException.ThrowIfContainsErrors();
+        }
+    }
+}
