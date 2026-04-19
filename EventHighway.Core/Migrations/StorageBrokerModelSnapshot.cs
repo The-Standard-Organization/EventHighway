@@ -68,6 +68,29 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventAddressV1s");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.EventAddressV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EventAddressV2s");
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.EventListener", b =>
                 {
                     b.Property<Guid>("Id")
@@ -136,6 +159,37 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventListenerV1s");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.V2.EventListenerV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EventAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("HandlerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventAddressId");
+
+                    b.ToTable("EventListenerV2s", (string)null);
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.Events.Event", b =>
                 {
                     b.Property<Guid>("Id")
@@ -195,6 +249,40 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventV1s");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ScheduledDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventAddressId");
+
+                    b.ToTable("EventV2s", (string)null);
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", b =>
                 {
                     b.Property<Guid>("Id")
@@ -225,6 +313,71 @@ namespace EventHighway.Core.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EventV1Archives");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.EventArchiveV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ArchivedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ScheduledDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EventArchiveV2s", (string)null);
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.HandlerConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventListenerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventListenerId", "Name")
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
+
+                    b.ToTable("HandlerConfigurations", (string)null);
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventV1Archive", b =>
@@ -268,6 +421,49 @@ namespace EventHighway.Core.Migrations
                     b.HasIndex("EventV1ArchiveId");
 
                     b.ToTable("ListenerEventV1Archives");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.ListenerEventArchiveV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ArchivedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("EventArchiveV2Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EventListenerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResponseReasonPhrase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventArchiveV2Id");
+
+                    b.ToTable("ListenerEventArchiveV2s", (string)null);
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEvents.ListenerEvent", b =>
@@ -349,6 +545,47 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("ListenerEventV1s");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2.ListenerEventV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventAddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EventListenerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ResponseReasonPhrase")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventAddressId");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("EventListenerId");
+
+                    b.ToTable("ListenerEventV2s", (string)null);
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.EventListener", b =>
                 {
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventAddresses.EventAddress", "EventAddress")
@@ -363,6 +600,17 @@ namespace EventHighway.Core.Migrations
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.V1.EventListenerV1", b =>
                 {
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventAddresses.V1.EventAddressV1", "EventAddress")
+                        .WithMany("EventListeners")
+                        .HasForeignKey("EventAddressId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("EventAddress");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.V2.EventListenerV2", b =>
+                {
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.EventAddressV2", "EventAddress")
                         .WithMany("EventListeners")
                         .HasForeignKey("EventAddressId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -393,11 +641,40 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("EventAddress");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", b =>
+                {
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.EventAddressV2", "EventAddress")
+                        .WithMany("Events")
+                        .HasForeignKey("EventAddressId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("EventAddress");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.HandlerConfiguration", b =>
+                {
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventListeners.V2.EventListenerV2", "EventListener")
+                        .WithMany("HandlerConfigurations")
+                        .HasForeignKey("EventListenerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("EventListener");
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventV1Archive", b =>
                 {
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", null)
                         .WithMany("ListenerEventV1Archives")
                         .HasForeignKey("EventV1ArchiveId");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.ListenerEventArchiveV2", b =>
+                {
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.EventArchiveV2", null)
+                        .WithMany("ListenerEventArchives")
+                        .HasForeignKey("EventArchiveV2Id");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEvents.ListenerEvent", b =>
@@ -454,6 +731,33 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("EventListener");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2.ListenerEventV2", b =>
+                {
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.EventAddressV2", "EventAddress")
+                        .WithMany("ListenerEvents")
+                        .HasForeignKey("EventAddressId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", "Event")
+                        .WithMany("ListenerEvents")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventListeners.V2.EventListenerV2", "EventListener")
+                        .WithMany("ListenerEvents")
+                        .HasForeignKey("EventListenerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("EventAddress");
+
+                    b.Navigation("EventListener");
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventAddresses.EventAddress", b =>
                 {
                     b.Navigation("EventListeners");
@@ -472,6 +776,15 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("ListenerEvents");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.EventAddressV2", b =>
+                {
+                    b.Navigation("EventListeners");
+
+                    b.Navigation("Events");
+
+                    b.Navigation("ListenerEvents");
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.EventListener", b =>
                 {
                     b.Navigation("ListenerEvents");
@@ -479,6 +792,13 @@ namespace EventHighway.Core.Migrations
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.V1.EventListenerV1", b =>
                 {
+                    b.Navigation("ListenerEvents");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.V2.EventListenerV2", b =>
+                {
+                    b.Navigation("HandlerConfigurations");
+
                     b.Navigation("ListenerEvents");
                 });
 
@@ -492,9 +812,19 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("ListenerEvents");
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", b =>
+                {
+                    b.Navigation("ListenerEvents");
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", b =>
                 {
                     b.Navigation("ListenerEventV1Archives");
+                });
+
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.EventArchiveV2", b =>
+                {
+                    b.Navigation("ListenerEventArchives");
                 });
 #pragma warning restore 612, 618
         }

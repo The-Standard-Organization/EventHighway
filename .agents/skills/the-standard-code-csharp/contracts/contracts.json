@@ -1,0 +1,79 @@
+{
+  "skill": "the-standard-code-csharp",
+  "version": "1.0.0",
+
+  "naming": {
+    "files": {
+      "pattern": "PascalCase.cs",
+      "partial_files": "PascalCase.Dimension.cs or PascalCase.Dimension.Method.cs",
+      "forbidden": ["camelCase.cs", "PascalCase_Dimension.cs", "PascalCaseDimension.cs"]
+    },
+    "variables": {
+      "style": "camelCase",
+      "full_descriptive_names": true,
+      "abbreviations": false,
+      "type_suffixes": false,
+      "null_intent": "prefix with 'no': noStudent, noCount",
+      "collections": "natural plural: students not studentList"
+    },
+    "methods": {
+      "must_contain_verb": true,
+      "async_suffix": "Async for all Task/ValueTask-returning methods",
+      "parameter_naming": "fully qualified with entity context: studentName not name"
+    },
+    "classes": {
+      "models": "PascalCase, no suffix",
+      "services": "Singular + Service: StudentService",
+      "brokers": "Singular + Broker: StorageBroker",
+      "controllers": "Plural entity + Controller: StudentsController"
+    },
+    "fields": {
+      "style": "camelCase",
+      "prefix": "none (no underscore, no m_, no _)",
+      "reference": "always via this."
+    }
+  },
+
+  "line_length": {
+    "max_characters": 120,
+    "on_exceeded": {
+      "variable_declaration": "break after =",
+      "method_one_liner": "break after =>",
+      "method_declaration": "break parameters to next line, one per line",
+      "method_call": "break arguments to next line, one per line"
+    }
+  },
+
+  "method_style": {
+    "one_liner": "fat arrow =>",
+    "multi_liner": "scope body {}",
+    "chaining": "first call same line as subject, subsequent calls +1 tab indentation",
+    "return_separation": "blank line before return in multi-line methods"
+  },
+
+  "instantiation": {
+    "literal_args": "named aliases required",
+    "matching_var_names": "aliases optional",
+    "target_typed_new": false,
+    "property_order": "must match class declaration order"
+  },
+
+  "declaration_style": {
+    "clear_type_right_side": "var",
+    "unclear_type_right_side": "explicit type",
+    "single_property_object": "construct then assign",
+    "multi_property_object": "object initializer"
+  },
+
+  "blank_line_rules": {
+    "between_single_line_declarations": "none",
+    "around_multi_line_declarations": "one blank line before and after",
+    "before_return_in_multi_liner": "one blank line"
+  },
+
+  "copyright": {
+    "required": true,
+    "format": "// ---\n// Copyright (c) ...\n// FREE TO USE ...\n// ---",
+    "forbidden_formats": ["xml copyright", "block comment copyright"]
+  }
+}
