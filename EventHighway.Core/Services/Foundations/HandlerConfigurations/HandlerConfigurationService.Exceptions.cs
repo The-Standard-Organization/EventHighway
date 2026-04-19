@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
 using Microsoft.Data.SqlClient;
@@ -39,6 +40,16 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedHandlerConfigurationStorageException);
             }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistsHandlerConfigurationException =
+                    new AlreadyExistsHandlerConfigurationException(
+                        message: "Handler configuration with the same id already exists.",
+                        innerException: duplicateKeyException);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    alreadyExistsHandlerConfigurationException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
@@ -65,6 +76,19 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             await this.loggingBroker.LogCriticalAsync(handlerConfigurationDependencyException);
 
             return handlerConfigurationDependencyException;
+        }
+
+        private async ValueTask<HandlerConfigurationDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(Xeption exception)
+        {
+            var handlerConfigurationDependencyValidationException =
+                new HandlerConfigurationDependencyValidationException(
+                    message: "Handler configuration validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(handlerConfigurationDependencyValidationException);
+
+            return handlerConfigurationDependencyValidationException;
         }
     }
 }
