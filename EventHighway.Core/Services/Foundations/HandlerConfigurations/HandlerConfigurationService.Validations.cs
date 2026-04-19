@@ -24,7 +24,10 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 Parameter: nameof(HandlerConfiguration.Name)),
 
                 (Rule: IsInvalid(handlerConfiguration.Value),
-                Parameter: nameof(HandlerConfiguration.Value)));
+                Parameter: nameof(HandlerConfiguration.Value)),
+
+                (Rule: IsInvalidLength(handlerConfiguration.Name, 450),
+                Parameter: nameof(HandlerConfiguration.Name)));
 
             return ValueTask.CompletedTask;
         }
@@ -49,6 +52,12 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
         {
             Condition = string.IsNullOrWhiteSpace(text),
             Message = "Required"
+        };
+
+        private static dynamic IsInvalidLength(string text, int maxLength) => new
+        {
+            Condition = !string.IsNullOrWhiteSpace(text) && text.Length > maxLength,
+            Message = $"Exceeds {maxLength} characters"
         };
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
