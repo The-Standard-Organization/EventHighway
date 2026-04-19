@@ -55,7 +55,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
 
             filler.Setup()
                 .OnType<Guid>().Use(Guid.NewGuid)
-                .OnType<DateTimeOffset>().Use(dates);
+                .OnType<DateTimeOffset>().Use(dates)
+                .OnType<DateTimeOffset?>().Use((DateTimeOffset?)GetRandomDateTimeOffset());
 
             return filler;
         }

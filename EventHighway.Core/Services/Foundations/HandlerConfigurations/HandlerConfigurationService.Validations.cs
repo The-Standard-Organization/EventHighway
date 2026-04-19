@@ -11,10 +11,13 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
 {
     internal partial class HandlerConfigurationService
     {
-        private static ValueTask ValidateHandlerConfigurationOnAddAsync(
+        private async ValueTask ValidateHandlerConfigurationOnAddAsync(
             HandlerConfiguration handlerConfiguration)
         {
             ValidateHandlerConfigurationIsNotNull(handlerConfiguration);
+
+            DateTimeOffset currentDateTime =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             Validate(
                 (Rule: IsInvalid(handlerConfiguration.Id),
@@ -27,9 +30,19 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 Parameter: nameof(HandlerConfiguration.Value)),
 
                 (Rule: IsInvalidLength(handlerConfiguration.Name, 450),
-                Parameter: nameof(HandlerConfiguration.Name)));
+                Parameter: nameof(HandlerConfiguration.Name)),
 
-            return ValueTask.CompletedTask;
+                (Rule: IsInvalid(handlerConfiguration.CreatedDate),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)),
+
+                (Rule: IsInvalid(handlerConfiguration.UpdatedDate),
+                Parameter: nameof(HandlerConfiguration.UpdatedDate)),
+
+                (Rule: IsNotSameAs(
+                    firstDate: handlerConfiguration.CreatedDate,
+                    secondDate: handlerConfiguration.UpdatedDate,
+                    secondDateName: nameof(HandlerConfiguration.UpdatedDate)),
+                Parameter: nameof(HandlerConfiguration.CreatedDate)));
         }
 
         private static void ValidateHandlerConfigurationIsNotNull(
@@ -59,6 +72,21 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             Condition = !string.IsNullOrWhiteSpace(text) && text.Length > maxLength,
             Message = $"Exceeds {maxLength} characters"
         };
+
+        private static dynamic IsInvalid(DateTimeOffset date) => new
+        {
+            Condition = date == default,
+            Message = "Required"
+        };
+
+        private static dynamic IsNotSameAs(
+            DateTimeOffset firstDate,
+            DateTimeOffset secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate != secondDate,
+                Message = $"Date is not the same as {secondDateName}"
+            };
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {

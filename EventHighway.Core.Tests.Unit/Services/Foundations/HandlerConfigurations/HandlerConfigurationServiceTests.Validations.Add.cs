@@ -83,6 +83,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
                 key: nameof(HandlerConfiguration.Value),
                 values: "Required");
 
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.CreatedDate),
+                values: "Required");
+
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.UpdatedDate),
+                values: "Required");
+
             var expectedHandlerConfigurationValidationException =
                 new HandlerConfigurationValidationException(
                     message: "Handler configuration validation error occurred, fix the errors and try again.",
