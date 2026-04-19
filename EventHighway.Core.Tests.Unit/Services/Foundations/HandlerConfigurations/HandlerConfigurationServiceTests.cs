@@ -70,6 +70,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         private static SqlException GetSqlException() =>
             (SqlException)RuntimeHelpers.GetUninitializedObject(type: typeof(SqlException));
 
+        private static string GetRandomString() =>
+            new MnemonicString().GetValue();
+
         private static Filler<HandlerConfiguration> CreateHandlerConfigurationFiller(DateTimeOffset dates)
         {
             var filler = new Filler<HandlerConfiguration>();

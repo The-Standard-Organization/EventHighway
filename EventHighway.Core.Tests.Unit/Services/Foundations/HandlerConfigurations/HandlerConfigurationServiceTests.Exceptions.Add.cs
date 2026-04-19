@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
+using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
 using FluentAssertions;
@@ -53,6 +54,58 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogCriticalAsync(It.Is(SameExceptionAs(
                     expectedHandlerConfigurationDependencyException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
+                    Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfHandlerConfigurationAlreadyExistsAndLogItAsync()
+        {
+            // given
+            string randomMessage = GetRandomString();
+            HandlerConfiguration someHandlerConfiguration = CreateRandomHandlerConfiguration();
+            var duplicateKeyException = new DuplicateKeyException(randomMessage);
+
+            var alreadyExistsHandlerConfigurationException =
+                new AlreadyExistsHandlerConfigurationException(
+                    message: "Handler configuration with the same id already exists.",
+                    innerException: duplicateKeyException);
+
+            var expectedHandlerConfigurationDependencyValidationException =
+                new HandlerConfigurationDependencyValidationException(
+                    message: "Handler configuration validation error occurred, fix the errors and try again.",
+                    innerException: alreadyExistsHandlerConfigurationException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(duplicateKeyException);
+
+            // when
+            ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
+                this.handlerConfigurationService.AddHandlerConfigurationAsync(someHandlerConfiguration);
+
+            HandlerConfigurationDependencyValidationException actualHandlerConfigurationDependencyValidationException =
+                await Assert.ThrowsAsync<HandlerConfigurationDependencyValidationException>(
+                    addHandlerConfigurationTask.AsTask);
+
+            // then
+            actualHandlerConfigurationDependencyValidationException.Should()
+                .BeEquivalentTo(expectedHandlerConfigurationDependencyValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHandlerConfigurationDependencyValidationException))),
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
