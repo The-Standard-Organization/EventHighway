@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
@@ -211,6 +212,57 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedHandlerConfigurationDependencyException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
+                    Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnAddIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            HandlerConfiguration someHandlerConfiguration = CreateRandomHandlerConfiguration();
+            var serviceException = new Exception();
+
+            var failedHandlerConfigurationServiceException =
+                new FailedHandlerConfigurationServiceException(
+                    message: "Failed handler configuration service error occurred, contact support.",
+                    innerException: serviceException);
+
+            var expectedHandlerConfigurationServiceException =
+                new HandlerConfigurationServiceException(
+                    message: "Handler configuration service error occurred, contact support.",
+                    innerException: failedHandlerConfigurationServiceException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<HandlerConfiguration> addHandlerConfigurationTask =
+                this.handlerConfigurationService.AddHandlerConfigurationAsync(someHandlerConfiguration);
+
+            HandlerConfigurationServiceException actualHandlerConfigurationServiceException =
+                await Assert.ThrowsAsync<HandlerConfigurationServiceException>(
+                    addHandlerConfigurationTask.AsTask);
+
+            // then
+            actualHandlerConfigurationServiceException.Should()
+                .BeEquivalentTo(expectedHandlerConfigurationServiceException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHandlerConfigurationServiceException))),
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
