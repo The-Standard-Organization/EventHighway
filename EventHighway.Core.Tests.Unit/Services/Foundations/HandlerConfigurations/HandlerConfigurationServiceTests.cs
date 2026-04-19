@@ -4,11 +4,13 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Services.Foundations.HandlerConfigurations;
+using Microsoft.Data.SqlClient;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xunit;
@@ -64,6 +66,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
+
+        private static SqlException GetSqlException() =>
+            (SqlException)RuntimeHelpers.GetUninitializedObject(type: typeof(SqlException));
 
         private static Filler<HandlerConfiguration> CreateHandlerConfigurationFiller(DateTimeOffset dates)
         {
