@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
+using Microsoft.Data.SqlClient;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
@@ -28,6 +29,16 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             {
                 throw await CreateAndLogValidationExceptionAsync(invalidHandlerConfigurationException);
             }
+            catch (SqlException sqlException)
+            {
+                var failedHandlerConfigurationStorageException =
+                    new FailedHandlerConfigurationStorageException(
+                        message: "Failed handler configuration storage error occurred, contact support.",
+                        innerException: sqlException);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedHandlerConfigurationStorageException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
@@ -41,6 +52,19 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             await this.loggingBroker.LogErrorAsync(handlerConfigurationValidationException);
 
             return handlerConfigurationValidationException;
+        }
+
+        private async ValueTask<HandlerConfigurationDependencyException>
+            CreateAndLogCriticalDependencyExceptionAsync(Xeption exception)
+        {
+            var handlerConfigurationDependencyException =
+                new HandlerConfigurationDependencyException(
+                    message: "Handler configuration dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogCriticalAsync(handlerConfigurationDependencyException);
+
+            return handlerConfigurationDependencyException;
         }
     }
 }
