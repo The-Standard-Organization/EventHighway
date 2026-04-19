@@ -7,6 +7,7 @@ using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
@@ -60,6 +61,16 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidHandlerConfigurationReferenceException);
             }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedHandlerConfigurationStorageException =
+                    new FailedHandlerConfigurationStorageException(
+                        message: "Failed handler configuration storage error occurred, contact support.",
+                        innerException: dbUpdateException);
+
+                throw await CreateAndLogDependencyExceptionAsync(
+                    failedHandlerConfigurationStorageException);
+            }
         }
 
         private async ValueTask<HandlerConfigurationValidationException>
@@ -99,6 +110,19 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
             await this.loggingBroker.LogErrorAsync(handlerConfigurationDependencyValidationException);
 
             return handlerConfigurationDependencyValidationException;
+        }
+
+        private async ValueTask<HandlerConfigurationDependencyException>
+            CreateAndLogDependencyExceptionAsync(Xeption exception)
+        {
+            var handlerConfigurationDependencyException =
+                new HandlerConfigurationDependencyException(
+                    message: "Handler configuration dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(handlerConfigurationDependencyException);
+
+            return handlerConfigurationDependencyException;
         }
     }
 }
