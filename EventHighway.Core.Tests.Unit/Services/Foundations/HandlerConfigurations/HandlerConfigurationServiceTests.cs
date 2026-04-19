@@ -33,6 +33,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         private static HandlerConfiguration CreateRandomHandlerConfiguration() =>
             CreateHandlerConfigurationFiller().Create();
 
+        private static string GetRandomStringWithLengthOf(int length) =>
+            new MnemonicString(wordCount: 1, wordMinLength: length, wordMaxLength: length).GetValue();
+
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
 
