@@ -1,10 +1,24 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions;
+using EventHighway.Core.Models.Services.Foundations.EventListeners;
+using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
+using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Foundations.Events;
+using EventHighway.Core.Models.Services.Foundations.Events.V1;
+using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventHighway.Core.Brokers.Storages
@@ -24,12 +38,20 @@ namespace EventHighway.Core.Brokers.Storages
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ConfigureEvents(modelBuilder);
-            ConfigureEventV1s(modelBuilder);
-            ConfigureEventListeners(modelBuilder);
-            ConfigureEventListenerV1s(modelBuilder);
-            ConfigureListenerEvents(modelBuilder);
-            ConfigureListenerEventV1s(modelBuilder);
+            ConfigureEvents(modelBuilder.Entity<Event>());
+            ConfigureEventV1s(modelBuilder.Entity<EventV1>());
+            ConfigureEventV2s(modelBuilder.Entity<EventV2>());
+            ConfigureEventListeners(modelBuilder.Entity<EventListener>());
+            ConfigureEventListenerV1s(modelBuilder.Entity<EventListenerV1>());
+            ConfigureEventListenerV2s(modelBuilder.Entity<EventListenerV2>());
+            ConfigureListenerEvents(modelBuilder.Entity<ListenerEvent>());
+            ConfigureListenerEventV1s(modelBuilder.Entity<ListenerEventV1>());
+            ConfigureListenerEventV2s(modelBuilder.Entity<ListenerEventV2>());
+            ConfigureEventV1Archives(modelBuilder.Entity<EventV1Archive>());
+            ConfigureListenerEventV1Archives(modelBuilder.Entity<ListenerEventV1Archive>());
+            ConfigureEventArchiveV2s(modelBuilder.Entity<EventArchiveV2>());
+            ConfigureListenerEventV2Archives(modelBuilder.Entity<ListenerEventArchiveV2>());
+            ConfigureHandlerConfigurations(modelBuilder.Entity<HandlerConfiguration>());
         }
 
         private async ValueTask<T> InsertAsync<T>(T @object)

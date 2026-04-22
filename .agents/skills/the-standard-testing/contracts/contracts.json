@@ -1,0 +1,85 @@
+{
+  "skill": "the-standard-testing",
+  "version": "1.0.0",
+
+  "tdd_cycle": {
+    "steps": ["FAIL", "PASS", "REFACTOR"],
+    "fail_commit_requires": "test actually running and failing (verified by test runner)",
+    "pass_commit_requires": "all relevant tests running and passing",
+    "refactor_requires": "no behavior change, all tests still passing"
+  },
+
+  "test_file_structure": {
+    "root": "{Entity}ServiceTests.cs",
+    "logic": "{Entity}ServiceTests.Logic.{Method}.cs",
+    "validations": "{Entity}ServiceTests.Validations.{Method}.cs",
+    "exceptions": "{Entity}ServiceTests.Exceptions.{Method}.cs",
+    "root_contains": ["setup", "mock_declarations", "helper_methods", "filler_configuration"]
+  },
+
+  "test_naming": {
+    "success_case": "Should{Action}Async",
+    "error_case": "ShouldThrow{ExceptionType}On{Action}If{Condition}AndLogItAsync"
+  },
+
+  "validation_test_order": [
+    "happy_path",
+    "structural_validations",
+    "logical_validations",
+    "external_validations",
+    "dependency_validations",
+    "dependency_exceptions",
+    "service_exceptions"
+  ],
+
+  "foundation_add_exact_order": [
+    "ShouldAdd{Entity}Async",
+    "ShouldThrowValidationExceptionOnAddIf{Entity}IsNullAndLogItAsync",
+    "ShouldThrowValidationExceptionOnAddIf{Entity}IsInvalidAndLogItAsync",
+    "ShouldThrowDependencyValidationExceptionOnAddIfBadRequestErrorOccursAndLogItAsync",
+    "ShouldThrowDependencyValidationExceptionOnAddIfConflictErrorOccursAndLogItAsync",
+    "ShouldThrowCriticalDependencyExceptionOnAddIfUnauthorizedErrorOccursAndLogItAsync",
+    "ShouldThrowCriticalDependencyExceptionOnAddIfForbiddenErrorOccursAndLogItAsync",
+    "ShouldThrowCriticalDependencyExceptionOnAddIfNotFoundErrorOccursAndLogItAsync",
+    "ShouldThrowCriticalDependencyExceptionOnAddIfUrlNotFoundErrorOccursAndLogItAsync",
+    "ShouldThrowDependencyExceptionOnAddIfInternalServerErrorOccursAndLogItAsync",
+    "ShouldThrowDependencyExceptionOnAddIfServiceUnavailableErrorOccursAndLogItAsync",
+    "ShouldThrowCriticalDependencyExceptionOnAddIfHttpRequestErrorOccursAndLogItAsync",
+    "ShouldThrowServiceExceptionOnAddIfServiceErrorOccursAndLogItAsync"
+  ],
+
+  "required_verifications_per_test": [
+    "exact_broker_calls_with_Times.Once_or_Times.Never",
+    "logging_broker_received_error",
+    "VerifyNoOtherCalls_on_all_mocks"
+  ],
+
+  "required_libraries": {
+    "mocking": "Moq",
+    "assertions": "FluentAssertions",
+    "deep_cloning": "DeepCloner",
+    "random_data": "Tynamix.ObjectFiller",
+    "exception_comparison": "Xeption.SameExceptionAs",
+    "test_framework": "xUnit",
+    "exception_base": "Xeption"
+  },
+
+  "patterns": {
+    "test_style": "GWT (Given / When / Then with inline comments)",
+    "parameterized_tests": "[Theory] [InlineData]",
+    "single_tests": "[Fact]",
+    "random_data": "always use ObjectFiller — never hard-code values",
+    "test_isolation": "always deep-clone input/expected/actual objects"
+  },
+
+  "forbidden": [
+    "hard_coded_test_values",
+    "shared_state_between_input_and_expected",
+    "missing_VerifyNoOtherCalls",
+    "missing_logging_verification",
+    "aggregation_test_with_mock_sequence_order",
+    "test_written_after_implementation",
+    "commit_FAIL_without_verified_failure",
+    "commit_PASS_without_verified_pass"
+  ]
+}

@@ -13,6 +13,9 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
         public async ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
             await this.eventHighwayClient.EventV1s.SubmitEventV1Async(eventV1);
 
+        public async ValueTask<EventV1> SubmitEventV1AsyncV1(EventV1 eventV1) =>
+            await this.eventHighwayClient.EventV1s.SubmitEventV1AsyncV1(eventV1);
+
         public async ValueTask FireScheduledPendingEventV1sAsync() =>
             await this.eventHighwayClient.EventV1s.FireScheduledPendingEventV1sAsync();
 
