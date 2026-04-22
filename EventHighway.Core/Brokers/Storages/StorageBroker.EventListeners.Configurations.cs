@@ -1,14 +1,14 @@
 ﻿using EventHighway.Core.Models.Services.Foundations.EventListeners;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private void ConfigureEventListeners(ModelBuilder modelBuilder)
+        private static void ConfigureEventListeners(EntityTypeBuilder<EventListener> model)
         {
-            modelBuilder.Entity<EventListener>()
-                .HasOne(eventListener => eventListener.EventAddress)
+            model.HasOne(eventListener => eventListener.EventAddress)
                 .WithMany(eventAddress => eventAddress.EventListeners)
                 .HasForeignKey(eventListener => eventListener.EventAddressId)
                 .OnDelete(DeleteBehavior.NoAction);

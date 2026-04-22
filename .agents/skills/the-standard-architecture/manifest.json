@@ -1,0 +1,58 @@
+{
+  "name": "the-standard-architecture",
+  "version": "1.0.0",
+  "description": "Governs how Standard-compliant systems are decomposed into models, brokers, foundation services, processing services, orchestration services, aggregation services, and exposers. Defines dependency flow, validation strategy, exception categorization, and REST API conventions.",
+  "the_standard_version": "v2.12.0",
+  "skill_version": "v0.3.0.0",
+
+  "inputs": [
+    "A system or feature design that requires architectural decisions",
+    "A code review request for an existing system component"
+  ],
+
+  "outputs": [
+    "A Standard-compliant system decomposition (brokers, services, exposers)",
+    "Validation strategy per layer",
+    "Exception hierarchy for each entity",
+    "REST API route and HTTP code mapping"
+  ],
+
+  "dependencies": [
+    "the-standard-core"
+  ],
+
+  "activation": {
+    "trigger": "when designing systems, creating services, reviewing architecture, or writing brokers/controllers",
+    "note": "Always activate the-standard-core first."
+  },
+
+  "validation": {
+    "required": true,
+    "checklist": "validations/checklist.md",
+    "anti_patterns": "validations/anti-patterns.md"
+  },
+
+  "files": {
+    "rules": {
+      "human": "rules/rules.md",
+      "machine": "rules/rules.json"
+    },
+    "examples": {
+      "good": [
+        "examples/good/example_broker.cs",
+        "examples/good/example_foundation_service.cs",
+        "examples/good/example_processing_service.cs"
+      ],
+      "bad": [
+        "examples/bad/example_bad_broker.cs",
+        "examples/bad/example_bad_service.cs"
+      ]
+    },
+    "templates": [
+      "templates/broker_template.cs",
+      "templates/foundation_service_template.cs",
+      "templates/processing_service_template.cs"
+    ],
+    "contracts": "contracts/contracts.json"
+  }
+}
