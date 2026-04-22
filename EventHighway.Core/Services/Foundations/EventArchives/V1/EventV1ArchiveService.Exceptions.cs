@@ -130,7 +130,6 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             }
         }
 
-
         private async ValueTask<EventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
         {
