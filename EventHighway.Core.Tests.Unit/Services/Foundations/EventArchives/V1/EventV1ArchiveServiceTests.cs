@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using EventHighway.Core.Brokers.Loggings;
@@ -58,7 +59,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
         }
 
         private static Guid GetRandomId() =>
-           Guid.NewGuid();
+            Guid.NewGuid();
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
@@ -77,6 +78,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
+
+        private static IQueryable<EventV1Archive> CreateRandomEventV1Archives()
+        {
+            return CreateEventV1ArchiveFiller(date: GetRandomDateTimeOffset())
+                .Create(count: GetRandomNumber())
+                    .AsQueryable();
+        }
 
         private static T GetInvalidEnum<T>()
         {
