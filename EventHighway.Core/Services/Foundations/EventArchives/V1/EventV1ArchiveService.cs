@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------- 
+// ---------------------------------------------------------------------------------- 
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
@@ -28,8 +28,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1Archive> AddEventV1ArchiveAsync(
-            EventV1Archive eventV1Archive) => TryCatch(async () =>
+        public ValueTask<EventV1Archive> AddEventV1ArchiveAsync(EventV1Archive eventV1Archive) => 
+        TryCatch(async () =>
         {
             await ValidateEventV1ArchiveOnAddAsync(eventV1Archive);
 
