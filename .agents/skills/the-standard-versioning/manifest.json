@@ -1,0 +1,50 @@
+{
+  "name": "the-standard-versioning",
+  "version": "1.2.0",
+  "description": "Governs release versioning (v1.2.3.4), file versioning (Vn folders), API versioning, and deprecation strategies for Standard-compliant systems.",
+  "the_standard_version": "v2.12.0",
+  "skill_version": "v1.2.0",
+
+  "inputs": [
+    "A release that needs version assignment",
+    "Files or folders that need versioning",
+    "API endpoints or contracts that need versioning",
+    "Code or APIs that need deprecation"
+  ],
+
+  "outputs": [
+    "Correct version numbers following v1.2.3.4 format",
+    "Properly structured Vn folder hierarchies",
+    "Version-aware API routes and contracts",
+    "Deprecation metadata and obsolete markers"
+  ],
+
+  "dependencies": [
+    "the-standard-core",
+    "the-standard-architecture"
+  ],
+
+  "activation": {
+    "trigger": "versioning releases, creating file versions, versioning APIs, deprecating features",
+    "note": "Always activate the-standard-core and the-standard-architecture first."
+  },
+
+  "validation": {
+    "required": true,
+    "files": {
+      "checklist": "validations/checklist.md"
+    }
+  },
+
+  "files": {
+    "rules": {
+      "human": "rules/rules.md",
+      "machine": "rules/rules.json"
+    },
+    "enforcement": "enforcement/enforcement.json",
+    "contracts": "contracts/contracts.json",
+    "validations": {
+      "checklist": "validations/checklist.md"
+    }
+  }
+}
