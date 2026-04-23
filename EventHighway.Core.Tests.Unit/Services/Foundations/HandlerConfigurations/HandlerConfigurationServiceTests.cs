@@ -14,7 +14,6 @@ using EventHighway.Core.Services.Foundations.HandlerConfigurations;
 using Microsoft.Data.SqlClient;
 using Moq;
 using Tynamix.ObjectFiller;
-using Xunit;
 using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfigurations
