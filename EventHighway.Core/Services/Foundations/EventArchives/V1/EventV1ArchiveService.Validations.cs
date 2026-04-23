@@ -50,6 +50,13 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             }
         }
 
+        private static void ValidateEventV1ArchiveId(Guid eventArchiveV1Id)
+        {
+            Validate(
+                (Rule: IsInvalid(eventArchiveV1Id),
+                Parameter: nameof(EventV1Archive.Id)));
+        }
+
         private static void ValidateEventV1ArchiveExists(
             EventV1Archive eventV1Archive,
             Guid eventV1ArchiveId)
