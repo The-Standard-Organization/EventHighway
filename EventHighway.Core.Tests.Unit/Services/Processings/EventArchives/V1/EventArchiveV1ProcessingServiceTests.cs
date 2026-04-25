@@ -84,7 +84,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             var filler = new Filler<EventArchiveV1>();
 
             filler.Setup()
-                .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset());
+                .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset)
+                .OnType<DateTimeOffset?>().Use(GetRandomDateTimeOffset());
 
             return filler;
         }
