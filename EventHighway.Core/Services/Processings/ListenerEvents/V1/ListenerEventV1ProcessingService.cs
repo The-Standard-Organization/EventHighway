@@ -43,7 +43,7 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
             return await this.listenerEventV1Service.ModifyListenerEventAsync(listenerEventV1);
         });
 
-        public ValueTask<ListenerEventV1> RemoveListenerEventV1ByIdAsync(
+        public ValueTask<ListenerEventV1> RemoveListenerEventByIdAsync(
             Guid listenerEventV1Id) => TryCatch(async () =>
         {
             ValidateListenerEventV1Id(listenerEventV1Id);

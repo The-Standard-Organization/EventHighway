@@ -11,10 +11,10 @@ namespace EventHighway.Core.Services.Processings.Events.V1
 {
     internal interface IEventV1ProcessingService
     {
-        ValueTask<EventV1> AddEventV1Async(EventV1 eventV1);
-        ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventV1sAsync();
-        ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync();
-        ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1);
-        ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id);
+        ValueTask<EventV1> AddEventAsync(EventV1 eventV1);
+        ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventsAsync();
+        ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventsWithListenersAsync();
+        ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 eventV1);
+        ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id);
     }
 }

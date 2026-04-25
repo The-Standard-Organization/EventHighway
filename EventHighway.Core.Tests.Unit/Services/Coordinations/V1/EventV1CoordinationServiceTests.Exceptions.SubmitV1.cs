@@ -57,26 +57,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1AsyncV1(
+                service.RunEventCallAsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
@@ -127,26 +127,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1AsyncV1(
+                service.RunEventCallAsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
@@ -200,26 +200,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1AsyncV1(
+                service.RunEventCallAsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
@@ -273,26 +273,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Once);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1AsyncV1(
+                service.RunEventCallAsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
@@ -349,26 +349,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         Times.Once);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1AsyncV1(
+                service.RunEventCallAsyncV1(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 

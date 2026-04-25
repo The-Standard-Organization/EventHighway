@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             await this.eventArchiveV1OrchestrationService
-                .AddEventArchiveV1WithListenerEventArchiveV1sAsync(inputEventV1Archive);
+                .AddEventArchiveWithListenerEventArchivesAsync(inputEventV1Archive);
 
             // then
             foreach (ListenerEventArchiveV1 listenerEventV1Archive in inputListenerEventV1Archives)

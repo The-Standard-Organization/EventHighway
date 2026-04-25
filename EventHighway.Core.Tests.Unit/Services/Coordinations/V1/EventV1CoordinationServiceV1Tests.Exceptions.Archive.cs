@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventV1OrchestrationServiceV1Mock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ThrowsAsync(validationException);
 
             // when
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 .BeEquivalentTo(expectedEventV1CoordinationDependencyValidationException);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -58,12 +58,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                service.AddEventArchiveWithListenerEventArchivesAsync(
                     It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RemoveEventV1AndListenerEventV1sAsync(
+                service.RemoveEventAndListenerEventsAsync(
                     It.IsAny<EventV1>()),
                         Times.Never);
 
@@ -86,7 +86,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     innerException: dependencyException.InnerException as Xeption);
 
             this.eventV1OrchestrationServiceV1Mock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -103,7 +103,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 .BeEquivalentTo(expectedEventV1CoordinationDependencyException);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -116,12 +116,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                service.AddEventArchiveWithListenerEventArchivesAsync(
                     It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RemoveEventV1AndListenerEventV1sAsync(
+                service.RemoveEventAndListenerEventsAsync(
                     It.IsAny<EventV1>()),
                         Times.Never);
 
@@ -148,7 +148,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     innerException: failedEventV1CoordinationServiceException);
 
             this.eventV1OrchestrationServiceV1Mock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ThrowsAsync(serviceException);
 
             // when
@@ -165,7 +165,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 .BeEquivalentTo(expectedEventV1CoordinationServiceException);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -178,12 +178,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                service.AddEventArchiveWithListenerEventArchivesAsync(
                     It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RemoveEventV1AndListenerEventV1sAsync(
+                service.RemoveEventAndListenerEventsAsync(
                     It.IsAny<EventV1>()),
                         Times.Never);
 

@@ -27,12 +27,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: eventV1DependencyException.InnerException as Xeption);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveScheduledPendingEventV1sAsync())
+                service.RetrieveScheduledPendingEventsAsync())
                     .ThrowsAsync(eventV1DependencyException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveScheduledPendingEventV1sTask =
-                this.eventV1OrchestrationService.RetrieveScheduledPendingEventV1sAsync();
+                this.eventV1OrchestrationService.RetrieveScheduledPendingEventsAsync();
 
             EventV1OrchestrationDependencyException actualEventV1OrchestrationDependencyException =
                 await Assert.ThrowsAsync<EventV1OrchestrationDependencyException>(
@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationDependencyException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveScheduledPendingEventV1sAsync(),
+                service.RetrieveScheduledPendingEventsAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -74,12 +74,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: failedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveScheduledPendingEventV1sAsync())
+                service.RetrieveScheduledPendingEventsAsync())
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveScheduledPendingEventV1sTask =
-                this.eventV1OrchestrationService.RetrieveScheduledPendingEventV1sAsync();
+                this.eventV1OrchestrationService.RetrieveScheduledPendingEventsAsync();
 
             EventV1OrchestrationServiceException actualEventV1OrchestrationServiceException =
                 await Assert.ThrowsAsync<EventV1OrchestrationServiceException>(
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveScheduledPendingEventV1sAsync(),
+                service.RetrieveScheduledPendingEventsAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

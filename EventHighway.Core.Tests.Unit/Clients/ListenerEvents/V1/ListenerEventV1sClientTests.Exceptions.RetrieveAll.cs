@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                         .InnerException as Xeption);
 
             this.eventListenerV1OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV1sAsync())
+                service.RetrieveAllListenerEventsAsync())
                     .ThrowsAsync(eventListenerV1OrchestrationDependencyException);
 
             // when
@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ClientDependencyException);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV1sAsync(),
+                service.RetrieveAllListenerEventsAsync(),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                         .InnerException as Xeption);
 
             this.eventListenerV1OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV1sAsync())
+                service.RetrieveAllListenerEventsAsync())
                     .ThrowsAsync(EventListenerV1OrchestrationServiceException);
 
             // when
@@ -93,7 +93,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ClientServiceException);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV1sAsync(),
+                service.RetrieveAllListenerEventsAsync(),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();

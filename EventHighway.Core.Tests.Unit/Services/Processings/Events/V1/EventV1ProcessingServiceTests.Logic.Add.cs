@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1ProcessingService
-                    .AddEventV1Async(
+                    .AddEventAsync(
                         inputEventV1);
 
             // then

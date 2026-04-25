@@ -27,12 +27,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: eventV1DependencyException.InnerException as Xeption);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ThrowsAsync(eventV1DependencyException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllDeadEventV1sWithListenersTask =
-                this.eventV1OrchestrationServiceV1.RetrieveAllDeadEventV1sWithListenersAsync();
+                this.eventV1OrchestrationServiceV1.RetrieveAllDeadEventsWithListenersAsync();
 
             EventV1OrchestrationDependencyException actualEventV1OrchestrationDependencyException =
                 await Assert.ThrowsAsync<EventV1OrchestrationDependencyException>(
@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationDependencyException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -72,12 +72,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: failedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllDeadEventV1sWithListenersTask =
-                this.eventV1OrchestrationServiceV1.RetrieveAllDeadEventV1sWithListenersAsync();
+                this.eventV1OrchestrationServiceV1.RetrieveAllDeadEventsWithListenersAsync();
 
             EventV1OrchestrationServiceException actualEventV1OrchestrationServiceException =
                 await Assert.ThrowsAsync<EventV1OrchestrationServiceException>(
@@ -88,7 +88,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

@@ -38,7 +38,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             // when
             IQueryable<EventListenerV1> actualEventListenerV1s =
                 await this.eventListenerV1OrchestrationService
-                    .RetrieveEventListenerV1sByEventAddressIdAsync(
+                    .RetrieveEventListenersByEventAddressIdAsync(
                         inputEventAddressId);
 
             // then

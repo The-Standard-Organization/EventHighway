@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -34,65 +34,65 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
+        public ValueTask<EventV1> SubmitEventAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(@event);
 
-            EventAddressV1 maybeEventAddressV1 =
+            EventAddressV1 maybeEventAddress =
                 await this.eventAddressV1ProcessingService
-                    .RetrieveEventAddressV1ByIdAsync(
-                        eventV1.EventAddressId);
+                    .RetrieveEventAddressByIdAsync(
+                        @event.EventAddressId);
 
-            ValidateListenerEventV1Exists(
-                maybeEventAddressV1,
-                eventV1.EventAddressId);
-
-            return await this.eventV1ProcessingService
-                .AddEventV1Async(eventV1);
-        });
-
-        public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventV1sAsync() =>
-        TryCatch(async () =>
-        {
-            return await this.eventV1ProcessingService
-                .RetrieveScheduledPendingEventV1sAsync();
-        });
-
-        public ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1) =>
-        TryCatch(async () =>
-        {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateListenerEventExists(
+                maybeEventAddress,
+                @event.EventAddressId);
 
             return await this.eventV1ProcessingService
-                .MarkEventV1AsImmediateAsync(eventV1);
+                .AddEventAsync(@event);
         });
 
-        public ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id) =>
+        public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventsAsync() =>
         TryCatch(async () =>
         {
-            ValidateEventV1Id(eventV1Id);
+            return await this.eventV1ProcessingService
+                .RetrieveScheduledPendingEventsAsync();
+        });
+
+        public ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 @event) =>
+        TryCatch(async () =>
+        {
+            ValidateEventIsNotNull(@event);
 
             return await this.eventV1ProcessingService
-                .RemoveEventV1ByIdAsync(eventV1Id);
+                .MarkEventAsImmediateAsync(@event);
         });
 
-        public ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCallV1) =>
+        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventId) =>
         TryCatch(async () =>
         {
-            ValidateEventCallV1IsNotNull(eventCallV1);
+            ValidateEventId(eventId);
 
-            return await this.eventCallV1ProcessingService.RunEventCallV1Async(
-                eventCallV1);
+            return await this.eventV1ProcessingService
+                .RemoveEventByIdAsync(eventId);
         });
 
-        public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCall) =>
         TryCatch(async () =>
         {
-            ValidateEventCallV1IsNotNull(eventCallV1);
+            ValidateEventCallIsNotNull(eventCall);
 
-            return await this.eventCallV1ProcessingService.RunEventCallV1AsyncV1(
-                eventCallV1);
+            return await this.eventCallV1ProcessingService.RunEventCallAsync(
+                eventCall);
+        });
+
+        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCall) =>
+        TryCatch(async () =>
+        {
+            ValidateEventCallIsNotNull(eventCall);
+
+            return await this.eventCallV1ProcessingService.RunEventCallAsyncV1(
+                eventCall);
         });
     }
 }

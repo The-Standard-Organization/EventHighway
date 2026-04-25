@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Linq;
@@ -10,7 +10,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
 {
     public interface IEventV1OrchestrationServiceV1
     {
-        ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync();
-        ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1);
+        ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventsWithListenersAsync();
+        ValueTask RemoveEventAndListenerEventsAsync(EventV1 @event);
     }
 }

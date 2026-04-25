@@ -34,7 +34,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1ProcessingService.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1ProcessingService.RetrieveEventAddressByIdAsync(
                     invalidEventAddressV1Id);
 
             EventAddressV1ProcessingValidationException

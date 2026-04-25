@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
@@ -27,17 +27,17 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask AddEventArchiveV1WithListenerEventArchiveV1sAsync(EventArchiveV1 eventArchiveV1) =>
+        public ValueTask AddEventArchiveWithListenerEventArchivesAsync(EventArchiveV1 eventArchive) =>
         TryCatch(async () =>
         {
-            ValidateEventArchiveV1(eventArchiveV1);
+            ValidateEventArchive(eventArchive);
 
-            foreach (ListenerEventArchiveV1 listenerEventArchiveV1 in eventArchiveV1.ListenerEventArchives)
+            foreach (ListenerEventArchiveV1 listenerEventArchive in eventArchive.ListenerEventArchives)
             {
-                await this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(listenerEventArchiveV1);
+                await this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(listenerEventArchive);
             }
 
-            await this.eventArchiveV1Service.AddEventArchiveAsync(eventArchiveV1);
+            await this.eventArchiveV1Service.AddEventArchiveAsync(eventArchive);
         });
     }
 }

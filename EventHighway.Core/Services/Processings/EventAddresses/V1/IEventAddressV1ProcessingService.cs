@@ -10,6 +10,6 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
 {
     internal interface IEventAddressV1ProcessingService
     {
-        ValueTask<EventAddressV1> RetrieveEventAddressV1ByIdAsync(Guid eventAddressV1Id);
+        ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressV1Id);
     }
 }

@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1ProcessingService.RemoveEventV1ByIdAsync(
+                this.eventV1ProcessingService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1ProcessingDependencyValidationException
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1ProcessingService.RemoveEventV1ByIdAsync(
+                this.eventV1ProcessingService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1ProcessingDependencyException
@@ -125,7 +125,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1ProcessingService.RemoveEventV1ByIdAsync(
+                this.eventV1ProcessingService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1ProcessingServiceException

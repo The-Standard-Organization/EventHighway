@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
                 this.listenerEventV1ProcessingService
-                    .RemoveListenerEventV1ByIdAsync(
+                    .RemoveListenerEventByIdAsync(
                         invalidListenerEventV1Id);
 
             ListenerEventV1ProcessingValidationException

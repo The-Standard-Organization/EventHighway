@@ -40,7 +40,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         {
             IQueryable<EventV1> eventV1s =
                 await this.eventV1OrchestrationServiceV1
-                    .RetrieveAllDeadEventV1sWithListenersAsync();
+                    .RetrieveAllDeadEventsWithListenersAsync();
 
             foreach (EventV1 eventV1 in eventV1s)
             {
@@ -48,11 +48,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     await MapToEventV1ArchiveAsync(eventV1);
 
                 await this.eventV1ArchiveOrchestrationService
-                    .AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    .AddEventArchiveWithListenerEventArchivesAsync(
                         eventV1Archive);
 
                 await this.eventV1OrchestrationServiceV1
-                    .RemoveEventV1AndListenerEventV1sAsync(
+                    .RemoveEventAndListenerEventsAsync(
                         eventV1);
             }
         });

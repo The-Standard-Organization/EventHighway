@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1ProcessingService.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1ProcessingService.RetrieveEventAddressByIdAsync(
                     someEventAddressV1Id);
 
             EventAddressV1ProcessingDependencyValidationException
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1ProcessingService.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1ProcessingService.RetrieveEventAddressByIdAsync(
                     someEventAddressV1Id);
 
             EventAddressV1ProcessingDependencyException
@@ -125,7 +125,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1ProcessingService.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1ProcessingService.RetrieveEventAddressByIdAsync(
                     someEventAddressV1Id);
 
             EventAddressV1ProcessingServiceException

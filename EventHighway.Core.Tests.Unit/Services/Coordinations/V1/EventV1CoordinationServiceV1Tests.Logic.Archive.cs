@@ -94,7 +94,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             this.eventV1OrchestrationServiceV1Mock
                 .InSequence(mockSequence).Setup(service =>
-                    service.RetrieveAllDeadEventV1sWithListenersAsync())
+                    service.RetrieveAllDeadEventsWithListenersAsync())
                         .ReturnsAsync(retrievedEventV1s);
 
             foreach ((EventArchiveV1 mappedEventV1Archive, EventV1 retrievedEventV1)
@@ -108,13 +108,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 this.eventV1ArchiveOrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
-                        service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                        service.AddEventArchiveWithListenerEventArchivesAsync(
                             It.Is(SameEventV1ArchiveAs(mappedEventV1Archive))))
                                 .Returns(ValueTask.CompletedTask);
 
                 this.eventV1OrchestrationServiceV1Mock
                     .InSequence(mockSequence).Setup(service =>
-                        service.RemoveEventV1AndListenerEventV1sAsync(
+                        service.RemoveEventAndListenerEventsAsync(
                             It.Is(SameEventV1As(retrievedEventV1))))
                                 .Returns(ValueTask.CompletedTask);
             }
@@ -124,7 +124,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // then
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.dateTimeBrokerMock.Verify(broker =>
@@ -135,12 +135,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 in mappedEventV1Archives.Zip(retrievedEventV1s))
             {
                 this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                    service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    service.AddEventArchiveWithListenerEventArchivesAsync(
                         It.Is(SameEventV1ArchiveAs(mappedEventV1Archive))),
                             Times.Once);
 
                 this.eventV1OrchestrationServiceV1Mock.Verify(service =>
-                    service.RemoveEventV1AndListenerEventV1sAsync(
+                    service.RemoveEventAndListenerEventsAsync(
                         It.Is(SameEventV1As(retrievedEventV1))),
                             Times.Once);
             }

@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<IQueryable<EventListenerV1>> retrieveEventListenerV1sByEventAddressIdTask =
-                this.eventListenerV1OrchestrationService.RetrieveEventListenerV1sByEventAddressIdAsync(
+                this.eventListenerV1OrchestrationService.RetrieveEventListenersByEventAddressIdAsync(
                     someEventAddressId);
 
             EventListenerV1OrchestrationDependencyValidationException
@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<IQueryable<EventListenerV1>> retrieveEventListenerV1sByEventAddressIdTask =
-                this.eventListenerV1OrchestrationService.RetrieveEventListenerV1sByEventAddressIdAsync(
+                this.eventListenerV1OrchestrationService.RetrieveEventListenersByEventAddressIdAsync(
                     someEventAddressId);
 
             EventListenerV1OrchestrationDependencyException actualEventListenerV1OrchestrationDependencyException =
@@ -133,7 +133,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<IQueryable<EventListenerV1>> retrieveEventListenerV1sByEventAddressIdTask =
-                this.eventListenerV1OrchestrationService.RetrieveEventListenerV1sByEventAddressIdAsync(
+                this.eventListenerV1OrchestrationService.RetrieveEventListenersByEventAddressIdAsync(
                     someEventAddressId);
 
             EventListenerV1OrchestrationServiceException actualEventListenerV1OrchestrationServiceException =

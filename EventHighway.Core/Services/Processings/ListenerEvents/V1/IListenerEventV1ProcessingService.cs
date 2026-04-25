@@ -14,6 +14,6 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
         ValueTask<ListenerEventV1> AddListenerEventV1Async(ListenerEventV1 listenerEventV1);
         ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventV1sAsync();
         ValueTask<ListenerEventV1> ModifyListenerEventV1Async(ListenerEventV1 listenerEventV1);
-        ValueTask<ListenerEventV1> RemoveListenerEventV1ByIdAsync(Guid listenerEventV1Id);
+        ValueTask<ListenerEventV1> RemoveListenerEventByIdAsync(Guid listenerEventV1Id);
     }
 }

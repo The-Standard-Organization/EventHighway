@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -12,37 +12,37 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
 {
     internal partial class EventV1OrchestrationService
     {
-        private static void ValidateEventCallV1IsNotNull(EventCallV1 eventCallV1)
+        private static void ValidateEventCallIsNotNull(EventCallV1 eventCall)
         {
-            if (eventCallV1 is null)
+            if (eventCall is null)
             {
                 throw new NullEventCallV1OrchestrationException(
                     message: "Event call is null.");
             }
         }
 
-        private static void ValidateEventV1IsNotNull(EventV1 eventV1)
+        private static void ValidateEventIsNotNull(EventV1 @event)
         {
-            if (eventV1 is null)
+            if (@event is null)
             {
                 throw new NullEventV1OrchestrationException(
                     message: "Event is null.");
             }
         }
 
-        private static void ValidateListenerEventV1Exists(EventAddressV1 eventAddressV1, Guid eventAddressV1Id)
+        private static void ValidateListenerEventExists(EventAddressV1 eventAddress, Guid eventAddressId)
         {
-            if (eventAddressV1 is null)
+            if (eventAddress is null)
             {
                 throw new NotFoundEventAddressV1OrchestrationException(
-                    message: $"Could not find event address with id: {eventAddressV1Id}.");
+                    message: $"Could not find event address with id: {eventAddressId}.");
             }
         }
 
-        private static void ValidateEventV1Id(Guid eventV1Id)
+        private static void ValidateEventId(Guid eventId)
         {
             Validate(
-                (Rule: IsInvalid(eventV1Id),
+                (Rule: IsInvalid(eventId),
                 Parameter: nameof(EventV1.Id)));
         }
 

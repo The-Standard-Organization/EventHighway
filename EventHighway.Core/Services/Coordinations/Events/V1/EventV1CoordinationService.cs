@@ -56,7 +56,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             EventV1 submittedEventV1 =
                 await this.eventV1OrchestrationService
-                    .SubmitEventV1Async(eventV1);
+                    .SubmitEventAsync(eventV1);
 
             if (submittedEventV1.Type is EventV1Type.Immediate)
                 await ProcessEventListenerV1sAsync(submittedEventV1);
@@ -84,7 +84,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             EventV1 submittedEventV1 =
                 await this.eventV1OrchestrationService
-                    .SubmitEventV1Async(eventV1);
+                    .SubmitEventAsync(eventV1);
 
             if (submittedEventV1.Type is EventV1Type.Immediate)
                 await ProcessEventListenerV1sAsyncV1(submittedEventV1);
@@ -109,14 +109,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         {
             IQueryable<EventV1> eventV1s =
                 await this.eventV1OrchestrationService
-                    .RetrieveScheduledPendingEventV1sAsync();
+                    .RetrieveScheduledPendingEventsAsync();
 
             foreach (EventV1 eventV1 in eventV1s)
             {
                 await ProcessEventListenerV1sAsync(eventV1);
 
                 await this.eventV1OrchestrationService
-                    .MarkEventV1AsImmediateAsync(eventV1);
+                    .MarkEventAsImmediateAsync(eventV1);
             }
         });
 
@@ -124,7 +124,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         {
             IQueryable<EventListenerV1> eventListenerV1s =
                 await this.eventListenerV1OrchestrationService
-                    .RetrieveEventListenerV1sByEventAddressIdAsync(
+                    .RetrieveEventListenersByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
@@ -140,7 +140,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
                 ListenerEventV1 addedListenerEventV1 =
                     await this.eventListenerV1OrchestrationService
-                        .AddListenerEventV1Async(listenerEventV1);
+                        .AddListenerEventAsync(listenerEventV1);
 
                 await RunEventCallV1Async(
                     eventV1,
@@ -153,7 +153,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         {
             IQueryable<EventListenerV1> eventListenerV1s =
                 await this.eventListenerV1OrchestrationService
-                    .RetrieveEventListenerV1sByEventAddressIdAsync(
+                    .RetrieveEventListenersByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
             eventV1.ListenerEvents = new List<ListenerEventV1>();
@@ -171,7 +171,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
                 ListenerEventV1 addedListenerEventV1 =
                     await this.eventListenerV1OrchestrationService
-                        .AddListenerEventV1Async(listenerEventV1);
+                        .AddListenerEventAsync(listenerEventV1);
 
                 await RunEventCallV1AsyncV1(
                     eventV1,
@@ -186,7 +186,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             ValidateEventId(eventV1Id);
 
             return await this.eventV1OrchestrationService
-                .RemoveEventV1ByIdAsync(eventV1Id);
+                .RemoveEventByIdAsync(eventV1Id);
         });
 
         private async Task RunEventCallV1Async(
@@ -206,7 +206,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 EventCallV1 ranEventCallV1 =
                     await this.eventV1OrchestrationService
-                        .RunEventCallV1Async(eventCallV1);
+                        .RunEventCallAsync(eventCallV1);
 
                 listenerEventV1.Response = ranEventCallV1.Response;
                 listenerEventV1.Status = ListenerEventV1Status.Success;
@@ -221,7 +221,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             await this.eventListenerV1OrchestrationService
-                .ModifyListenerEventV1Async(listenerEventV1);
+                .ModifyListenerEventAsync(listenerEventV1);
         }
 
         private async Task RunEventCallV1AsyncV1(
@@ -239,7 +239,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             EventCallV1 ranEventCallV1 =
                 await this.eventV1OrchestrationService
-                    .RunEventCallV1AsyncV1(eventCallV1);
+                    .RunEventCallAsyncV1(eventCallV1);
 
             if (HasFailedAndCanRetry(ranEventCallV1, eventV1))
             {
@@ -267,7 +267,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             ListenerEventV1 modifiedListenerEventV1 =
                 await this.eventListenerV1OrchestrationService
-                    .ModifyListenerEventV1Async(listenerEventV1);
+                    .ModifyListenerEventAsync(listenerEventV1);
 
             eventV1.ListenerEvents.Add(item: modifiedListenerEventV1);
         }

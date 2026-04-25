@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventListenerV1OrchestrationServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ClientDependencyValidationException);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -73,7 +73,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                         .InnerException as Xeption);
 
             this.eventListenerV1OrchestrationServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(eventListenerV1OrchestrationDependencyException);
 
             // when
@@ -89,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ClientDependencyException);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -116,7 +116,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                         .InnerException as Xeption);
 
             this.eventListenerV1OrchestrationServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(eventListenerV1OrchestrationServiceException);
 
             // when
@@ -132,7 +132,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ClientServiceException);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.VerifyNoOtherCalls();

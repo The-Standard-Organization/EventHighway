@@ -28,12 +28,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(validationException);
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1OrchestrationService.RemoveEventV1ByIdAsync(
+                this.eventV1OrchestrationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1OrchestrationDependencyValidationException
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationDependencyValidationException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -73,12 +73,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: dependencyException.InnerException as Xeption);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(dependencyException);
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1OrchestrationService.RemoveEventV1ByIdAsync(
+                this.eventV1OrchestrationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1OrchestrationDependencyException
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationDependencyException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -122,12 +122,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                     innerException: failedEventV1OrchestrationServiceException);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1OrchestrationService.RemoveEventV1ByIdAsync(
+                this.eventV1OrchestrationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1OrchestrationServiceException
@@ -140,7 +140,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .BeEquivalentTo(expectedEventV1OrchestrationExceptionException);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

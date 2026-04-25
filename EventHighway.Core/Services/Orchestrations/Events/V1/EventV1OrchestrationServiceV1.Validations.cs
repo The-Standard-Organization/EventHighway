@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
@@ -9,9 +9,9 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
 {
     internal partial class EventV1OrchestrationServiceV1
     {
-        private static void ValidateEventV1IsNotNull(EventV1 eventV1)
+        private static void ValidateEventIsNotNull(EventV1 @event)
         {
-            if (eventV1 is null)
+            if (@event is null)
             {
                 throw new NullEventV1OrchestrationException(
                     message: "Event is null.");

@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             // when
             ValueTask<EventListenerV1> removeEventListenerV1ByIdTask =
                 this.eventListenerV1OrchestrationService
-                    .RemoveEventListenerV1ByIdAsync(
+                    .RemoveEventListenerByIdAsync(
                         invalidEventListenerV1Id);
 
             EventListenerV1OrchestrationValidationException

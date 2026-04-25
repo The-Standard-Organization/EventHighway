@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             // when
             IQueryable<ListenerEventV1> actualListenerEventV1s =
                 await this.eventListenerV1OrchestrationService
-                    .RetrieveAllListenerEventV1sAsync();
+                    .RetrieveAllListenerEventsAsync();
 
             // then
             actualListenerEventV1s.Should().BeEquivalentTo(

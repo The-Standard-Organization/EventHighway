@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
@@ -9,24 +9,24 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 {
     internal partial class EventArchiveV1OrchestrationService
     {
-        private static void ValidateEventArchiveV1(EventArchiveV1 eventV1Archive)
+        private static void ValidateEventArchive(EventArchiveV1 eventArchive)
         {
-            ValidateEventV1ArhiveIsNotNull(eventV1Archive);
-            ValidateListenerEventV1ArhivesAreNotNull(eventV1Archive);
+            ValidateEventArhiveIsNotNull(eventArchive);
+            ValidateListenerEventArhivesAreNotNull(eventArchive);
         }
 
-        private static void ValidateEventV1ArhiveIsNotNull(EventArchiveV1 eventV1Archive)
+        private static void ValidateEventArhiveIsNotNull(EventArchiveV1 eventArchive)
         {
-            if (eventV1Archive is null)
+            if (eventArchive is null)
             {
                 throw new NullEventArchiveV1OrchestrationException(
                     message: "Event archive is null.");
             }
         }
 
-        private static void ValidateListenerEventV1ArhivesAreNotNull(EventArchiveV1 eventV1Archive)
+        private static void ValidateListenerEventArhivesAreNotNull(EventArchiveV1 eventArchive)
         {
-            if (eventV1Archive.ListenerEventArchives is null)
+            if (eventArchive.ListenerEventArchives is null)
             {
                 throw new NullListenerEventArchiveV1sOrchestrationException(
                     message: "Listener event archives are null.");

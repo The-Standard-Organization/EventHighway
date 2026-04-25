@@ -28,12 +28,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                     innerException: listenerEventV1ValidationException.InnerException as Xeption);
 
             this.listenerEventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(listenerEventV1ValidationException);
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.eventListenerV1OrchestrationService.RemoveListenerEventV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             EventListenerV1OrchestrationDependencyValidationException
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1OrchestrationDependencyValidationException);
 
             this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -73,12 +73,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                     innerException: listenerEventV1DependencyException.InnerException as Xeption);
 
             this.listenerEventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(listenerEventV1DependencyException);
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.eventListenerV1OrchestrationService.RemoveListenerEventV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             EventListenerV1OrchestrationDependencyException
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1OrchestrationDependencyException);
 
             this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -122,12 +122,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                     innerException: failedEventListenerV1OrchestrationServiceException);
 
             this.listenerEventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1Task =
-                this.eventListenerV1OrchestrationService.RemoveListenerEventV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             EventListenerV1OrchestrationServiceException
@@ -140,7 +140,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1OrchestrationServiceException);
 
             this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                service.RemoveListenerEventByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -69,7 +69,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 var failedEventListenerV1OrchestrationServiceException =
                     new FailedEventListenerV1OrchestrationServiceException(
                         message: "Failed event listener service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventListenerV1OrchestrationServiceException);
@@ -112,7 +113,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 var failedEventListenerV1OrchestrationServiceException =
                     new FailedEventListenerV1OrchestrationServiceException(
                         message: "Failed event listener service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventListenerV1OrchestrationServiceException);
@@ -167,7 +169,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 var failedEventListenerV1OrchestrationServiceException =
                     new FailedEventListenerV1OrchestrationServiceException(
                         message: "Failed event listener service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventListenerV1OrchestrationServiceException);
@@ -198,7 +201,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 var failedEventListenerV1OrchestrationServiceException =
                     new FailedEventListenerV1OrchestrationServiceException(
                         message: "Failed event listener service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventListenerV1OrchestrationServiceException);

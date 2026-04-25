@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.eventListenerV1OrchestrationService.ModifyListenerEventV1Async(someListenerEventV1);
+                this.eventListenerV1OrchestrationService.ModifyListenerEventAsync(someListenerEventV1);
 
             EventListenerV1OrchestrationDependencyValidationException
                 actualEventListenerV1OrchestrationDependencyValidationException =
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.eventListenerV1OrchestrationService.ModifyListenerEventV1Async(someListenerEventV1);
+                this.eventListenerV1OrchestrationService.ModifyListenerEventAsync(someListenerEventV1);
 
             EventListenerV1OrchestrationDependencyException
                 actualEventListenerV1OrchestrationDependencyException =
@@ -125,7 +125,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.eventListenerV1OrchestrationService.ModifyListenerEventV1Async(
+                this.eventListenerV1OrchestrationService.ModifyListenerEventAsync(
                     someListenerEventV1);
 
             EventListenerV1OrchestrationServiceException

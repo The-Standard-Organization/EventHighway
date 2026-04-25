@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,10 +11,10 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
 {
     internal partial class EventListenerV1OrchestrationService
     {
-        private static void ValidateEventListenerV1Id(Guid eventListenerV1Id)
+        private static void ValidateEventListenerId(Guid eventListenerId)
         {
             Validate(
-                (Rule: IsInvalid(eventListenerV1Id),
+                (Rule: IsInvalid(eventListenerId),
                 Parameter: nameof(EventListenerV1.Id)));
         }
 
@@ -25,25 +25,25 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 Parameter: nameof(EventListenerV1.EventAddressId)));
         }
 
-        private static void ValidateListenerEventV1Id(Guid listenerEventV1Id)
+        private static void ValidateListenerEventId(Guid listenerEventId)
         {
             Validate(
-                (Rule: IsInvalid(listenerEventV1Id),
+                (Rule: IsInvalid(listenerEventId),
                 Parameter: nameof(ListenerEventV1.Id)));
         }
 
-        private static void ValidateEventListenerV1IsNotNull(EventListenerV1 eventListenerV1)
+        private static void ValidateEventListenerIsNotNull(EventListenerV1 eventListener)
         {
-            if (eventListenerV1 is null)
+            if (eventListener is null)
             {
                 throw new NullEventListenerV1OrchestrationException(
                     message: "Event listener is null.");
             }
         }
 
-        private static void ValidateListenerEventV1IsNotNull(ListenerEventV1 listenerEventV1)
+        private static void ValidateListenerEventIsNotNull(ListenerEventV1 listenerEvent)
         {
-            if (listenerEventV1 is null)
+            if (listenerEvent is null)
             {
                 throw new NullListenerEventV1OrchestrationException(
                     message: "Listener event is null.");

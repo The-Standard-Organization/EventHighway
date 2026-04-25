@@ -30,14 +30,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                 removedListenerEventV1.DeepClone();
 
             this.listenerEventV1ProcessingServiceMock.Setup(service =>
-                service.RemoveListenerEventV1ByIdAsync(
+                service.RemoveListenerEventByIdAsync(
                     inputListenerEventId))
                         .ReturnsAsync(removedListenerEventV1);
 
             // when
             ListenerEventV1 actualListenerEventV1 =
                 await this.eventListenerV1OrchestrationService
-                    .RemoveListenerEventV1ByIdAsync(
+                    .RemoveListenerEventByIdAsync(
                         inputListenerEventId);
 
             // then
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                 .BeEquivalentTo(expectedListenerEventV1);
 
             this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(
+                service.RemoveListenerEventByIdAsync(
                     inputListenerEventId),
                         Times.Once);
 

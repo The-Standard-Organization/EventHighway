@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
             // when
             ListenerEventV1 actualListenerEventV1 =
                 await this.listenerEventV1ProcessingService
-                    .RemoveListenerEventV1ByIdAsync(
+                    .RemoveListenerEventByIdAsync(
                         inputListenerEventId);
 
             // then

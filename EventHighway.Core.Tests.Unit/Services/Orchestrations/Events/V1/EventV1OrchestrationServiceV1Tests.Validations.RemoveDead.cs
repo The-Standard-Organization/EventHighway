@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
             // when
             ValueTask removeEventV1AndListenerEventV1sTask =
-                this.eventV1OrchestrationServiceV1.RemoveEventV1AndListenerEventV1sAsync(
+                this.eventV1OrchestrationServiceV1.RemoveEventAndListenerEventsAsync(
                     nullEventV1);
 
             EventV1OrchestrationValidationException actualEventV1OrchestrationValidationException =
@@ -47,12 +47,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                         Times.Once);
 
             this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveListenerEventV1ByIdAsync(
+                service.RemoveListenerEventByIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveEventV1ByIdAsync(
+                service.RemoveEventByIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 

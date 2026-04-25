@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
                 this.eventListenerV1OrchestrationService
-                    .AddListenerEventV1Async(nullListenerEventV1);
+                    .AddListenerEventAsync(nullListenerEventV1);
 
             EventListenerV1OrchestrationValidationException
                 actualEventListenerV1OrchestrationValidationException =

@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<IQueryable<EventListenerV1>> retrieveEventListenerV1sByEventAddressIdTask =
-                this.eventListenerV1OrchestrationService.RetrieveEventListenerV1sByEventAddressIdAsync(
+                this.eventListenerV1OrchestrationService.RetrieveEventListenersByEventAddressIdAsync(
                     invalidEventAddressId);
 
             EventListenerV1OrchestrationValidationException actualEventListenerV1OrchestrationValidationException =

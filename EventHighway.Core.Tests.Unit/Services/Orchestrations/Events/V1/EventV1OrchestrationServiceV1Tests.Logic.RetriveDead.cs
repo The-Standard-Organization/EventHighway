@@ -24,19 +24,19 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 .DeepClone();
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync())
+                service.RetrieveAllDeadEventsWithListenersAsync())
                     .ReturnsAsync(retrievedEventV1s);
 
             // when
             IQueryable<EventV1> actualEventV1s =
                 await this.eventV1OrchestrationServiceV1
-                    .RetrieveAllDeadEventV1sWithListenersAsync();
+                    .RetrieveAllDeadEventsWithListenersAsync();
 
             // then
             actualEventV1s.Should().BeEquivalentTo(expectedEventV1s);
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV1sWithListenersAsync(),
+                service.RetrieveAllDeadEventsWithListenersAsync(),
                     Times.Once);
 
             this.eventV1ProcessingServiceMock.VerifyNoOtherCalls();

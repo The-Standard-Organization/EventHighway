@@ -26,18 +26,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
             // when
             await this.eventV1OrchestrationServiceV1
-                .RemoveEventV1AndListenerEventV1sAsync(inputEventV1);
+                .RemoveEventAndListenerEventsAsync(inputEventV1);
 
             // then
             foreach (ListenerEventV1 listenerEventV1 in randomListenerEventV1s)
             {
                 this.listenerEventV1ProcessingServiceMock.Verify(service =>
-                    service.RemoveListenerEventV1ByIdAsync(listenerEventV1.Id),
+                    service.RemoveListenerEventByIdAsync(listenerEventV1.Id),
                         Times.Once);
             }
 
             this.eventV1ProcessingServiceMock.Verify(service =>
-                service.RemoveEventV1ByIdAsync(inputEventV1.Id),
+                service.RemoveEventByIdAsync(inputEventV1.Id),
                     Times.Once);
 
             this.listenerEventV1ProcessingServiceMock.VerifyNoOtherCalls();

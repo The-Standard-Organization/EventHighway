@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
             // when
             IQueryable<EventV1> actualEventV1s =
                 await this.eventV1ProcessingService
-                    .RetrieveAllDeadEventV1sWithListenersAsync();
+                    .RetrieveAllDeadEventsWithListenersAsync();
 
             // then
             actualEventV1s.Should().BeEquivalentTo(expectedEventV1s);

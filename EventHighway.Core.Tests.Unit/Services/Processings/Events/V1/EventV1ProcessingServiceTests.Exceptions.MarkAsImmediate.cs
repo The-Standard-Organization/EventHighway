@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> markEventV1AsImmediateTask =
-                this.eventV1ProcessingService.MarkEventV1AsImmediateAsync(someEventV1);
+                this.eventV1ProcessingService.MarkEventAsImmediateAsync(someEventV1);
 
             EventV1ProcessingDependencyValidationException
                 actualEventV1ProcessingDependencyValidationException =
@@ -80,7 +80,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> markEventV1AsImmediateTask =
-                this.eventV1ProcessingService.MarkEventV1AsImmediateAsync(someEventV1);
+                this.eventV1ProcessingService.MarkEventAsImmediateAsync(someEventV1);
 
             EventV1ProcessingDependencyException
                 actualEventV1ProcessingDependencyException =
@@ -131,7 +131,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> markEventV1AsImmediateTask =
-                this.eventV1ProcessingService.MarkEventV1AsImmediateAsync(
+                this.eventV1ProcessingService.MarkEventAsImmediateAsync(
                     someEventV1);
 
             EventV1ProcessingServiceException

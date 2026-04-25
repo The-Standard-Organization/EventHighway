@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Linq;
@@ -28,21 +28,21 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask RemoveEventV1AndListenerEventV1sAsync(EventV1 eventV1) =>
+        public ValueTask RemoveEventAndListenerEventsAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(@event);
 
-            foreach (ListenerEventV1 listenerEvent in eventV1.ListenerEvents)
+            foreach (ListenerEventV1 listenerEvent in @event.ListenerEvents)
             {
                 await this.listenerEventV1ProcessingService
-                    .RemoveListenerEventV1ByIdAsync(listenerEvent.Id);
+                    .RemoveListenerEventByIdAsync(listenerEvent.Id);
             }
 
-            await this.eventV1ProcessingService.RemoveEventV1ByIdAsync(eventV1.Id);
+            await this.eventV1ProcessingService.RemoveEventByIdAsync(@event.Id);
         });
 
-        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
-        TryCatch(async () => await this.eventV1ProcessingService.RetrieveAllDeadEventV1sWithListenersAsync());
+        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventsWithListenersAsync() =>
+        TryCatch(async () => await this.eventV1ProcessingService.RetrieveAllDeadEventsWithListenersAsync());
     }
 }

@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
             // when
             ValueTask<EventV1> markEventV1AsImmediateTask =
-                this.eventV1OrchestrationService.MarkEventV1AsImmediateAsync(nullEventV1);
+                this.eventV1OrchestrationService.MarkEventAsImmediateAsync(nullEventV1);
 
             EventV1OrchestrationValidationException
                 actualEventV1OrchestrationValidationException =
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                         Times.Once);
 
             this.eventV1ProcessingServiceMock.Verify(broker =>
-                broker.MarkEventV1AsImmediateAsync(
+                broker.MarkEventAsImmediateAsync(
                     It.IsAny<EventV1>()),
                         Times.Never);
 

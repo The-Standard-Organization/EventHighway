@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     .ReturnsAsync(retrievedDateTimeOffset);
 
             this.eventV1OrchestrationServiceMock.Setup(service =>
-                service.SubmitEventV1Async(inputScheduledEventV1))
+                service.SubmitEventAsync(inputScheduledEventV1))
                     .ReturnsAsync(submittedEventV1);
 
             // when
@@ -57,26 +57,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Once);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(inputScheduledEventV1),
+                service.SubmitEventAsync(inputScheduledEventV1),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.AddListenerEventV1Async(
+                service.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.RunEventCallV1Async(
+                service.RunEventCallAsync(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.ModifyListenerEventV1Async(
+                service.ModifyListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 
@@ -151,12 +151,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             this.eventV1OrchestrationServiceMock
                 .InSequence(mockSequence).Setup(service =>
-                    service.SubmitEventV1Async(inputImmediateEventV1))
+                    service.SubmitEventAsync(inputImmediateEventV1))
                         .ReturnsAsync(submittedEventV1);
 
             this.eventListenerV1OrchestrationServiceMock
                 .InSequence(mockSequence).Setup(service =>
-                    service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                    service.RetrieveEventListenersByEventAddressIdAsync(
                         inputImmediateEventV1.EventAddressId))
                             .ReturnsAsync(retrievedEventListenerV1s);
 
@@ -168,7 +168,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 this.eventListenerV1OrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
-                        service.AddListenerEventV1Async(
+                        service.AddListenerEventAsync(
                             It.Is(SameListenerEventAs(inputListenerEventV1s[index]))))
                                 .ReturnsAsync(addedListenerEventV1s[index]);
 
@@ -181,7 +181,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 this.eventV1OrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
-                        service.RunEventCallV1Async(
+                        service.RunEventCallAsync(
                             It.Is(SameEventCallAs(expectedInputCallEventV1s[index]))))
                                 .ReturnsAsync(ranEventCall);
 
@@ -197,7 +197,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
                 this.eventListenerV1OrchestrationServiceMock
                     .InSequence(mockSequence).Setup(service =>
-                        service.ModifyListenerEventV1Async(
+                        service.ModifyListenerEventAsync(
                             It.Is(SameListenerEventAs(addedListenerEventV1s[index]))))
                                 .ReturnsAsync(modifiedListenerEventV1s[index]);
             }
@@ -215,28 +215,28 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Exactly(callCount: expectedDateTimeBrokerCalls));
 
             this.eventV1OrchestrationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(inputImmediateEventV1),
+                service.SubmitEventAsync(inputImmediateEventV1),
                     Times.Once);
 
             this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventListenerV1sByEventAddressIdAsync(
+                service.RetrieveEventListenersByEventAddressIdAsync(
                     inputImmediateEventV1.EventAddressId),
                         Times.Once);
 
             for (int index = 0; index < inputListenerEventV1s.Count; index++)
             {
                 this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                    service.AddListenerEventV1Async(
+                    service.AddListenerEventAsync(
                         It.Is(SameListenerEventAs(inputListenerEventV1s[index]))),
                             Times.Once);
 
                 this.eventV1OrchestrationServiceMock.Verify(service =>
-                    service.RunEventCallV1Async(
+                    service.RunEventCallAsync(
                         It.Is(SameEventCallAs(expectedInputCallEventV1s[index]))),
                             Times.Once);
 
                 this.eventListenerV1OrchestrationServiceMock.Verify(service =>
-                    service.ModifyListenerEventV1Async(
+                    service.ModifyListenerEventAsync(
                         It.Is(SameListenerEventAs(addedListenerEventV1s[index]))),
                             Times.Once);
             }

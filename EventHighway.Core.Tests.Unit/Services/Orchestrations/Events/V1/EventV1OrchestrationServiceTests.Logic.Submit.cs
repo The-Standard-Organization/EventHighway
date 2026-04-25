@@ -33,18 +33,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 randomEventAddressV1;
 
             this.eventAddressV1ProcessingServiceMock.Setup(service =>
-                service.RetrieveEventAddressV1ByIdAsync(
+                service.RetrieveEventAddressByIdAsync(
                     inputEventV1.EventAddressId))
                         .ReturnsAsync(retrievedEventAddressV1);
 
             this.eventV1ProcessingServiceMock.Setup(service =>
-                service.AddEventV1Async(inputEventV1))
+                service.AddEventAsync(inputEventV1))
                     .ReturnsAsync(addedEventV1);
 
             // when
             EventV1 actualEventV1 =
                 await this.eventV1OrchestrationService
-                    .SubmitEventV1Async(
+                    .SubmitEventAsync(
                         inputEventV1);
 
             // then
@@ -52,12 +52,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 expectedEventV1);
 
             this.eventAddressV1ProcessingServiceMock.Verify(service =>
-                service.RetrieveEventAddressV1ByIdAsync(
+                service.RetrieveEventAddressByIdAsync(
                     inputEventV1.EventAddressId),
                         Times.Once);
 
             this.eventV1ProcessingServiceMock.Verify(broker =>
-                broker.AddEventV1Async(inputEventV1),
+                broker.AddEventAsync(inputEventV1),
                     Times.Once);
 
             this.eventAddressV1ProcessingServiceMock

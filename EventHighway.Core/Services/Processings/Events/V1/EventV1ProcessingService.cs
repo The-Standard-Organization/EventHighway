@@ -28,7 +28,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1> AddEventV1Async(EventV1 eventV1) =>
+        public ValueTask<EventV1> AddEventAsync(EventV1 eventV1) =>
         TryCatch(async () =>
         {
             ValidateEventV1IsNotNull(eventV1);
@@ -36,7 +36,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             return await this.eventV1Service.AddEventAsync(eventV1);
         });
 
-        public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventV1sAsync() =>
+        public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventsAsync() =>
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
@@ -50,7 +50,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 eventV1.ScheduledDate < now);
         });
 
-        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventV1sWithListenersAsync() =>
+        public ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventsWithListenersAsync() =>
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
@@ -59,7 +59,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
         });
 
-        public ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1) =>
+        public ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 eventV1) =>
         TryCatch(async () =>
         {
             ValidateEventV1IsNotNull(eventV1);
@@ -67,7 +67,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             return await SetEventV1AsImmediateAsync(eventV1);
         });
 
-        public ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id) =>
+        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id) =>
         TryCatch(async () =>
         {
             ValidateEventV1Id(eventV1Id);

@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<EventV1> markEventV1AsImmediateTask =
-                this.eventV1ProcessingService.MarkEventV1AsImmediateAsync(nullEventV1);
+                this.eventV1ProcessingService.MarkEventAsImmediateAsync(nullEventV1);
 
             EventV1ProcessingValidationException
                 actualEventV1ProcessingValidationException =

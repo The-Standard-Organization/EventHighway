@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
                 this.eventV1OrchestrationService
-                    .RemoveEventV1ByIdAsync(
+                    .RemoveEventByIdAsync(
                         invalidEventV1Id);
 
             EventV1OrchestrationValidationException
@@ -53,7 +53,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                         Times.Once);
 
             this.eventV1ProcessingServiceMock.Verify(broker =>
-                broker.RemoveEventV1ByIdAsync(
+                broker.RemoveEventByIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 

@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1ProcessingService.RunEventCallV1Async(nullEventCallV1);
+                this.eventCallV1ProcessingService.RunEventCallAsync(nullEventCallV1);
 
             EventCallV1ProcessingValidationException
                 actualEventCallV1ProcessingValidationException =

@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveScheduledPendingEventV1sTask =
-                this.eventV1ProcessingService.RetrieveScheduledPendingEventV1sAsync();
+                this.eventV1ProcessingService.RetrieveScheduledPendingEventsAsync();
 
             EventV1ProcessingDependencyException actualEventV1ProcessingDependencyException =
                 await Assert.ThrowsAsync<EventV1ProcessingDependencyException>(
@@ -82,7 +82,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveScheduledPendingEventV1sTask =
-                this.eventV1ProcessingService.RetrieveScheduledPendingEventV1sAsync();
+                this.eventV1ProcessingService.RetrieveScheduledPendingEventsAsync();
 
             EventV1ProcessingServiceException actualEventV1ProcessingServiceException =
                 await Assert.ThrowsAsync<EventV1ProcessingServiceException>(

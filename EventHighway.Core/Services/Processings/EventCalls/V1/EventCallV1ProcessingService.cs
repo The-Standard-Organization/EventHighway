@@ -22,7 +22,7 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCallV1) =>
         TryCatch(async () =>
         {
             ValidateEventCallV1IsNotNull(eventCallV1);
@@ -30,7 +30,7 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
             return await this.eventCallV1Service.RunEventCallAsync(eventCallV1);
         });
 
-        public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCallV1) =>
         TryCatch(async () =>
         {
             ValidateEventCallV1IsNotNull(eventCallV1);

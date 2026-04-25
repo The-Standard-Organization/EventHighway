@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventV1OrchestrationService.RunEventCallV1Async(nullEventCallV1);
+                this.eventV1OrchestrationService.RunEventCallAsync(nullEventCallV1);
 
             EventV1OrchestrationValidationException
                 actualEventV1OrchestrationValidationException =
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                         Times.Once);
 
             this.eventCallV1ProcessingServiceMock.Verify(broker =>
-                broker.RunEventCallV1Async(
+                broker.RunEventCallAsync(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 

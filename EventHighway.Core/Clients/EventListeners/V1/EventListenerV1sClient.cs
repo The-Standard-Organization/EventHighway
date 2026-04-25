@@ -25,7 +25,7 @@ namespace EventHighway.Core.Clients.EventListeners.V1
             try
             {
                 return await this.eventListenerV1OrchestrationService
-                    .AddEventListenerV1Async(eventListenerV1);
+                    .AddEventListenerAsync(eventListenerV1);
             }
             catch (EventListenerV1OrchestrationValidationException
                 eventListenerV1OrchestrationValidationException)
@@ -63,7 +63,7 @@ namespace EventHighway.Core.Clients.EventListeners.V1
             try
             {
                 return await this.eventListenerV1OrchestrationService
-                    .RemoveEventListenerV1ByIdAsync(eventListenerV1Id);
+                    .RemoveEventListenerByIdAsync(eventListenerV1Id);
             }
             catch (EventListenerV1OrchestrationValidationException
                 eventListenerV1OrchestrationValidationException)

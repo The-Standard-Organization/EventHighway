@@ -29,21 +29,21 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
                 inputEventCallV1.DeepClone();
 
             this.eventCallV1ProcessingServiceMock.Setup(service =>
-                service.RunEventCallV1Async(
+                service.RunEventCallAsync(
                     inputEventCallV1))
                         .ReturnsAsync(ranEventCallV1);
 
             // when
             EventCallV1 actualEventCallV1 =
                 await this.eventV1OrchestrationService
-                    .RunEventCallV1Async(inputEventCallV1);
+                    .RunEventCallAsync(inputEventCallV1);
 
             // then
             actualEventCallV1.Should().BeEquivalentTo(
                 expectedEventCallV1);
 
             this.eventCallV1ProcessingServiceMock.Verify(service =>
-                service.RunEventCallV1Async(
+                service.RunEventCallAsync(
                     inputEventCallV1),
                         Times.Once);
 

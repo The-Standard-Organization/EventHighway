@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -87,7 +87,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
                 var failedEventV1ArchiveOrchestrationServiceException =
                     new FailedEventArchiveV1OrchestrationServiceException(
                         message: "Failed event archive service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveOrchestrationServiceException);

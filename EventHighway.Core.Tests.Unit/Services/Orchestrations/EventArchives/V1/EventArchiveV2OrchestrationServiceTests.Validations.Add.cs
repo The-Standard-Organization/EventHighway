@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventArchiveV1Task =
-                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                this.eventArchiveV1OrchestrationService.AddEventArchiveWithListenerEventArchivesAsync(
                     nullEventArchiveV1);
 
             EventArchiveV1OrchestrationValidationException
@@ -79,7 +79,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 
             // when
             ValueTask addEventArchiveV1Task =
-                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                this.eventArchiveV1OrchestrationService.AddEventArchiveWithListenerEventArchivesAsync(
                     invalidEventArchiveV1);
 
             EventArchiveV1OrchestrationValidationException

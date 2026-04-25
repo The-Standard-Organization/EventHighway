@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> removeEventListenerV1ByIdTask =
-                this.eventListenerV1OrchestrationService.RemoveEventListenerV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveEventListenerByIdAsync(
                     someEventListenerV1Id);
 
             EventListenerV1OrchestrationDependencyValidationException
@@ -78,7 +78,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> removeEventListenerV1ByIdTask =
-                this.eventListenerV1OrchestrationService.RemoveEventListenerV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveEventListenerByIdAsync(
                     someEventListenerV1Id);
 
             EventListenerV1OrchestrationDependencyException
@@ -127,7 +127,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1OrchestrationService.RemoveEventListenerV1ByIdAsync(
+                this.eventListenerV1OrchestrationService.RemoveEventListenerByIdAsync(
                     someEventListenerV1Id);
 
             EventListenerV1OrchestrationServiceException

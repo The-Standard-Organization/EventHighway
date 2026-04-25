@@ -29,16 +29,16 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventListenerV1> AddEventListenerV1Async(EventListenerV1 eventListenerV1) =>
+        public ValueTask<EventListenerV1> AddEventListenerAsync(EventListenerV1 eventListenerV1) =>
         TryCatch(async () =>
         {
-            ValidateEventListenerV1IsNotNull(eventListenerV1);
+            ValidateEventListenerIsNotNull(eventListenerV1);
 
             return await this.eventListenerV1ProcessingService.AddEventListenerV1Async(
                 eventListenerV1);
         });
 
-        public ValueTask<IQueryable<EventListenerV1>> RetrieveEventListenerV1sByEventAddressIdAsync(
+        public ValueTask<IQueryable<EventListenerV1>> RetrieveEventListenersByEventAddressIdAsync(
             Guid eventAddressId) => TryCatch(async () =>
         {
             ValidateEventAddressId(eventAddressId);
@@ -47,47 +47,47 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
                 .RetrieveEventListenerV1sByEventAddressIdAsync(eventAddressId);
         });
 
-        public ValueTask<EventListenerV1> RemoveEventListenerV1ByIdAsync(Guid eventListenerV1Id) =>
+        public ValueTask<EventListenerV1> RemoveEventListenerByIdAsync(Guid eventListenerV1Id) =>
         TryCatch(async () =>
         {
-            ValidateEventListenerV1Id(eventListenerV1Id);
+            ValidateEventListenerId(eventListenerV1Id);
 
             return await this.eventListenerV1ProcessingService.RemoveEventListenerV1ByIdAsync(
                 eventListenerV1Id);
         });
 
-        public ValueTask<ListenerEventV1> AddListenerEventV1Async(ListenerEventV1 listenerEventV1) =>
+        public ValueTask<ListenerEventV1> AddListenerEventAsync(ListenerEventV1 listenerEventV1) =>
         TryCatch(async () =>
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEventV1);
 
             return await this.listenerEventV1ProcessingService.AddListenerEventV1Async(
                 listenerEventV1);
         });
 
-        public ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventV1sAsync() =>
+        public ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventsAsync() =>
         TryCatch(async () =>
         {
             return await this.listenerEventV1ProcessingService
                 .RetrieveAllListenerEventV1sAsync();
         });
 
-        public ValueTask<ListenerEventV1> ModifyListenerEventV1Async(ListenerEventV1 listenerEventV1) =>
+        public ValueTask<ListenerEventV1> ModifyListenerEventAsync(ListenerEventV1 listenerEventV1) =>
         TryCatch(async () =>
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEventV1);
 
             return await this.listenerEventV1ProcessingService.ModifyListenerEventV1Async(
                 listenerEventV1);
         });
 
-        public ValueTask<ListenerEventV1> RemoveListenerEventV1ByIdAsync(Guid listenerEventV1Id) =>
+        public ValueTask<ListenerEventV1> RemoveListenerEventByIdAsync(Guid listenerEventV1Id) =>
         TryCatch(async () =>
         {
-            ValidateListenerEventV1Id(listenerEventV1Id);
+            ValidateListenerEventId(listenerEventV1Id);
 
             return await this.listenerEventV1ProcessingService
-                .RemoveListenerEventV1ByIdAsync(listenerEventV1Id);
+                .RemoveListenerEventByIdAsync(listenerEventV1Id);
         });
     }
 }

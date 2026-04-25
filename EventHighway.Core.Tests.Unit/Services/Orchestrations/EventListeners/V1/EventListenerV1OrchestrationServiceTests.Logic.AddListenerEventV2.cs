@@ -36,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             // when
             ListenerEventV1 actualListenerEventV1 =
                 await this.eventListenerV1OrchestrationService
-                    .AddListenerEventV1Async(
+                    .AddListenerEventAsync(
                         inputListenerEventV1);
 
             // then
