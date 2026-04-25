@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Threading.Tasks;
 using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
@@ -75,11 +76,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
         private static EventArchiveV1 CreateRandomEventArchiveV1() =>
             CreateEventArchiveV1Filler().Create();
 
-        private static Guid GetRandomId() => Guid.NewGuid();
-
-        private static int GetRandomNumber() =>
-            new IntRange(min: 2, max: 9).GetValue();
-
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 
@@ -88,7 +84,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             var filler = new Filler<EventArchiveV1>();
 
             filler.Setup()
-                .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset);
+                .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset());
 
             return filler;
         }
