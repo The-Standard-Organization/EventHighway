@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
@@ -9,9 +9,9 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
 {
     internal partial class EventCallV1ProcessingService
     {
-        private static void ValidateEventCallV1IsNotNull(EventCallV1 eventCallV1)
+        private static void ValidateEventCallIsNotNull(EventCallV1 eventCall)
         {
-            if (eventCallV1 is null)
+            if (eventCall is null)
             {
                 throw new NullEventCallV1ProcessingException(
                     message: "Event call is null.");

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -23,13 +23,13 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressV1Id) =>
+        public ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressId) =>
         TryCatch(async () =>
         {
-            ValidateEventAddressV1Id(eventAddressV1Id);
+            ValidateEventAddressId(eventAddressId);
 
             return await this.eventAddressV1Service.RetrieveEventAddressByIdAsync(
-                eventAddressV1Id);
+                eventAddressId);
         });
     }
 }

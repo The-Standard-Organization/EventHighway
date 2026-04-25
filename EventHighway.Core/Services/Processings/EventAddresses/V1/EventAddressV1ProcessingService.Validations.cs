@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -10,10 +10,10 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
 {
     internal partial class EventAddressV1ProcessingService
     {
-        private static void ValidateEventAddressV1Id(Guid eventAddressV1Id)
+        private static void ValidateEventAddressId(Guid eventAddressId)
         {
             Validate(
-                (Rule: IsInvalid(eventAddressV1Id),
+                (Rule: IsInvalid(eventAddressId),
                 Parameter: nameof(EventAddressV1.Id)));
         }
 

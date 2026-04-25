@@ -10,6 +10,6 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
     internal interface IEventCallV1Service
     {
         ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCall);
-        ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCall);
+        ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCall);
     }
 }

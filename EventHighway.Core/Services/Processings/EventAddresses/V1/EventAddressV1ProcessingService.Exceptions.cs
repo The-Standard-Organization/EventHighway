@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -57,7 +57,8 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
                 var failedEventAddressV1ProcessingServiceException =
                     new FailedEventAddressV1ProcessingServiceException(
                         message: "Failed event address service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventAddressV1ProcessingServiceException);

@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1ProcessingService.AddEventArchiveV1Async(nullEventArchiveV1);
+                this.eventArchiveV1ProcessingService.AddEventArchiveAsync(nullEventArchiveV1);
 
             EventArchiveV1ProcessingValidationException
                 actualEventArchiveV1ProcessingValidationException =

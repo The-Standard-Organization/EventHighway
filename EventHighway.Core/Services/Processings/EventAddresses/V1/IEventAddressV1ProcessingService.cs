@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -10,6 +10,6 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
 {
     internal interface IEventAddressV1ProcessingService
     {
-        ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressV1Id);
+        ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressId);
     }
 }

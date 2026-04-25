@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -46,7 +46,8 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
                 var failedEventCallV1ProcessingServiceException =
                     new FailedEventCallV1ProcessingServiceException(
                         message: "Failed event call service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventCallV1ProcessingServiceException);
             }

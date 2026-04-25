@@ -39,7 +39,7 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
             return eventCall;
         });
 
-        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCall) =>
+        public ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCall) =>
         TryCatch(async () =>
         {
             ValidateEventCallOnRun(eventCall);

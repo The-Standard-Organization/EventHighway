@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1ProcessingService.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1ProcessingService.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1ProcessingDependencyValidationException
                 actualEventArchiveV1ProcessingDependencyValidationException =
@@ -76,7 +76,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1ProcessingService.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1ProcessingService.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1ProcessingDependencyException
                 actualEventArchiveV1ProcessingDependencyException =
@@ -123,7 +123,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1ProcessingService.AddEventArchiveV1Async(
+                this.eventArchiveV1ProcessingService.AddEventArchiveAsync(
                     someEventArchiveV1);
 
             EventArchiveV1ProcessingServiceException

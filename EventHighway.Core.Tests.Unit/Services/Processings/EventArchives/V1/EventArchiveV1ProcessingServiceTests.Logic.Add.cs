@@ -36,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             // when
             EventArchiveV1 actualEventArchiveV1 =
                 await this.eventArchiveV1ProcessingService
-                    .AddEventArchiveV1Async(
+                    .AddEventArchiveAsync(
                         inputEventArchiveV1);
 
             // then

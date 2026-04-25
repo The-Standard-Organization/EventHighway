@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
@@ -9,9 +9,9 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
 {
     internal partial class EventArchiveV1ProcessingService
     {
-        private static void ValidateEventArchiveV1IsNotNull(EventArchiveV1 eventArchiveV1)
+        private static void ValidateEventArchiveIsNotNull(EventArchiveV1 eventArchive)
         {
-            if (eventArchiveV1 is null)
+            if (eventArchive is null)
             {
                 throw new NullEventArchiveV1ProcessingException(
                     message: "Event archive is null.");

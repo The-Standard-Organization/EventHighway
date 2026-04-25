@@ -91,7 +91,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
         {
             ValidateEventCallIsNotNull(eventCall);
 
-            return await this.eventCallV1ProcessingService.RunEventCallAsyncV1(
+            return await this.eventCallV1ProcessingService.RunEventCallV1Async(
                 eventCall);
         });
     }
