@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
 
             // when
             ValueTask<ListenerEventArchiveV1> addListenerEventArchiveV1Task =
-                this.listenerEventArchiveV1Service.AddListenerEventArchiveV1Async(someListenerEventArchiveV1);
+                this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(someListenerEventArchiveV1);
 
             ListenerEventArchiveV1DependencyException actualListenerEventArchiveV1DependencyException =
                 await Assert.ThrowsAsync<ListenerEventArchiveV1DependencyException>(
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
 
             // when
             ValueTask<ListenerEventArchiveV1> addListenerEventArchiveV1Task =
-                this.listenerEventArchiveV1Service.AddListenerEventArchiveV1Async(someListenerEventArchiveV1);
+                this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(someListenerEventArchiveV1);
 
             ListenerEventArchiveV1DependencyValidationException actualListenerEventArchiveV1DependencyValidationException =
                 await Assert.ThrowsAsync<ListenerEventArchiveV1DependencyValidationException>(
@@ -142,7 +142,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
 
             // when
             ValueTask<ListenerEventArchiveV1> addListenerEventArchiveV1Task =
-                this.listenerEventArchiveV1Service.AddListenerEventArchiveV1Async(someListenerEventArchiveV1);
+                this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(someListenerEventArchiveV1);
 
             ListenerEventArchiveV1DependencyException actualListenerEventArchiveV1DependencyException =
                 await Assert.ThrowsAsync<ListenerEventArchiveV1DependencyException>(
@@ -193,7 +193,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
 
             // when
             ValueTask<ListenerEventArchiveV1> addListenerEventArchiveV1Task =
-                this.listenerEventArchiveV1Service.AddListenerEventArchiveV1Async(someListenerEventArchiveV1);
+                this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(someListenerEventArchiveV1);
 
             ListenerEventArchiveV1ServiceException actualListenerEventArchiveV1ServiceException =
                 await Assert.ThrowsAsync<ListenerEventArchiveV1ServiceException>(

@@ -41,7 +41,8 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 var failedListenerEventArchiveV1StorageException =
                     new FailedStorageListenerEventArchiveV1Exception(
                         message: "Failed listener event archive storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedListenerEventArchiveV1StorageException);
@@ -51,7 +52,8 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 var alreadyExistsListenerEventArchiveV1Exception =
                     new AlreadyExistsListenerEventArchiveV1Exception(
                         message: "Listener event archive with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsListenerEventArchiveV1Exception);
@@ -61,7 +63,8 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 var failedListenerEventArchiveV1StorageException =
                     new FailedStorageListenerEventArchiveV1Exception(
                         message: "Failed listener event archive storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(
                     failedListenerEventArchiveV1StorageException);
@@ -71,7 +74,8 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
                 var failedListenerEventArchiveV1ServiceException =
                     new FailedListenerEventArchiveV1ServiceException(
                         message: "Failed listener event archive service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedListenerEventArchiveV1ServiceException);

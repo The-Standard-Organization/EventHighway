@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                     innerException: validationException.InnerException as Xeption);
 
             this.listenerEventArchiveV1ServiceMock.Setup(service =>
-                service.AddListenerEventArchiveV1Async(
+                service.AddListenerEventArchiveAsync(
                     It.IsAny<ListenerEventArchiveV1>()))
                         .ThrowsAsync(validationException);
 
@@ -47,7 +47,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                 expectedListenerEventArchiveV1ProcessingDependencyValidationException);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -73,7 +73,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                     innerException: dependencyException.InnerException as Xeption);
 
             this.listenerEventArchiveV1ServiceMock.Setup(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()))
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                 expectedListenerEventArchiveV1ProcessingDependencyException);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -120,7 +120,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                     innerException: failedListenerEventArchiveV1ProcessingServiceException);
 
             this.listenerEventArchiveV1ServiceMock.Setup(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()))
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -138,7 +138,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                 .BeEquivalentTo(expectedListenerEventArchiveV1ProcessingExceptionException);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(
+                service.AddListenerEventArchiveAsync(
                     It.IsAny<ListenerEventArchiveV1>()),
                         Times.Once);
 

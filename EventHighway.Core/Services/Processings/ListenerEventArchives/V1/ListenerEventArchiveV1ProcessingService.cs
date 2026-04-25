@@ -29,7 +29,7 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
             ValidateListenerEventArchiveV1(listenerEventArchiveV1);
 
             return await this.listenerEventArchiveV1Service
-                .AddListenerEventArchiveV1Async(listenerEventArchiveV1);
+                .AddListenerEventArchiveAsync(listenerEventArchiveV1);
         });
     }
 }

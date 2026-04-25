@@ -34,7 +34,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 
             foreach (ListenerEventArchiveV1 listenerEventArchiveV1 in eventArchiveV1.ListenerEventArchives)
             {
-                await this.listenerEventArchiveV1Service.AddListenerEventArchiveV1Async(listenerEventArchiveV1);
+                await this.listenerEventArchiveV1Service.AddListenerEventArchiveAsync(listenerEventArchiveV1);
             }
 
             await this.eventArchiveV1Service.AddEventArchiveAsync(eventArchiveV1);

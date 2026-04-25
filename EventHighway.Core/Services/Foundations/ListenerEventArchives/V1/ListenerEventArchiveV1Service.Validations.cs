@@ -11,44 +11,44 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
     internal partial class ListenerEventArchiveV1Service
     {
-        private async ValueTask ValidateListenerEventArchiveV1OnAddAsync(
-            ListenerEventArchiveV1 listenerEventArchiveV1)
+        private async ValueTask ValidateListenerEventArchiveOnAddAsync(
+            ListenerEventArchiveV1 listenerEventArchive)
         {
-            ValidateListenerEventArchiveV1IsNotNull(listenerEventArchiveV1);
+            ValidateListenerEventArchiveIsNotNull(listenerEventArchive);
 
             Validate(
-                (Rule: IsInvalid(listenerEventArchiveV1.Id),
+                (Rule: IsInvalid(listenerEventArchive.Id),
                 Parameter: nameof(ListenerEventArchiveV1.Id)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.EventId),
+                (Rule: IsInvalid(listenerEventArchive.EventId),
                 Parameter: nameof(ListenerEventArchiveV1.EventId)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.EventAddressId),
+                (Rule: IsInvalid(listenerEventArchive.EventAddressId),
                 Parameter: nameof(ListenerEventArchiveV1.EventAddressId)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.EventListenerId),
+                (Rule: IsInvalid(listenerEventArchive.EventListenerId),
                 Parameter: nameof(ListenerEventArchiveV1.EventListenerId)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.Status),
+                (Rule: IsInvalid(listenerEventArchive.Status),
                 Parameter: nameof(ListenerEventArchiveV1.Status)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.CreatedDate),
+                (Rule: IsInvalid(listenerEventArchive.CreatedDate),
                 Parameter: nameof(ListenerEventArchiveV1.CreatedDate)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.UpdatedDate),
+                (Rule: IsInvalid(listenerEventArchive.UpdatedDate),
                 Parameter: nameof(ListenerEventArchiveV1.UpdatedDate)),
 
-                (Rule: IsInvalid(listenerEventArchiveV1.ArchivedDate),
+                (Rule: IsInvalid(listenerEventArchive.ArchivedDate),
                 Parameter: nameof(ListenerEventArchiveV1.ArchivedDate)),
 
-                (Rule: await IsNotRecentAsync(listenerEventArchiveV1.ArchivedDate),
+                (Rule: await IsNotRecentAsync(listenerEventArchive.ArchivedDate),
                 Parameter: nameof(ListenerEventArchiveV1.ArchivedDate)));
         }
 
-        private static void ValidateListenerEventArchiveV1IsNotNull(
-            ListenerEventArchiveV1 listenerEventArchiveV1)
+        private static void ValidateListenerEventArchiveIsNotNull(
+            ListenerEventArchiveV1 listenerEventArchive)
         {
-            if (listenerEventArchiveV1 is null)
+            if (listenerEventArchive is null)
             {
                 throw new NullListenerEventArchiveV1Exception(
                     message: "Listener event archive is null.");

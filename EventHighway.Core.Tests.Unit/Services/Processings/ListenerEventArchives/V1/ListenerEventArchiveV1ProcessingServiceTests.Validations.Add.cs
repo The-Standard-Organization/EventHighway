@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                         Times.Once);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(
+                service.AddListenerEventArchiveAsync(
                     It.IsAny<ListenerEventArchiveV1>()),
                         Times.Never);
 

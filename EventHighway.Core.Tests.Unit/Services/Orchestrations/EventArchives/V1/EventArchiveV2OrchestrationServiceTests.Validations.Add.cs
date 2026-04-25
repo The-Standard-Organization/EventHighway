@@ -48,7 +48,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
                         Times.Once);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Never);
 
             this.eventArchiveV1ServiceMock.Verify(broker =>
@@ -97,7 +97,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
                         Times.Once);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
+                service.AddListenerEventArchiveAsync(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Never);
 
             this.eventArchiveV1ServiceMock.Verify(broker =>

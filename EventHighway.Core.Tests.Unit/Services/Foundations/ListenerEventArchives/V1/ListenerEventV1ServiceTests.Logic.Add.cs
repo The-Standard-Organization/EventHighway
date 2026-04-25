@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
             // when
             ListenerEventArchiveV1 actualListenerEventArchiveV1 =
                 await this.listenerEventArchiveV1Service
-                    .AddListenerEventArchiveV1Async(
+                    .AddListenerEventArchiveAsync(
                         inputListenerEventArchiveV1);
 
             // then

@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                 storageListenerEventV1Archive.DeepClone();
 
             this.listenerEventArchiveV1ServiceMock.Setup(broker =>
-                broker.AddListenerEventArchiveV1Async(inputListenerEventV1Archive))
+                broker.AddListenerEventArchiveAsync(inputListenerEventV1Archive))
                     .ReturnsAsync(storageListenerEventV1Archive);
 
             // when
@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
                 expectedListenerEventV1Archive);
 
             this.listenerEventArchiveV1ServiceMock.Verify(service =>
-                service.AddListenerEventArchiveV1Async(
+                service.AddListenerEventArchiveAsync(
                     inputListenerEventV1Archive),
                         Times.Once);
 

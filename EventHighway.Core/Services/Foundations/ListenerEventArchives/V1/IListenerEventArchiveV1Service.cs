@@ -9,7 +9,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
     internal interface IListenerEventArchiveV1Service
     {
-        ValueTask<ListenerEventArchiveV1> AddListenerEventArchiveV1Async(
-            ListenerEventArchiveV1 listenerEventArchiveV1);
+        ValueTask<ListenerEventArchiveV1> AddListenerEventArchiveAsync(
+            ListenerEventArchiveV1 listenerEventArchive);
     }
 }
