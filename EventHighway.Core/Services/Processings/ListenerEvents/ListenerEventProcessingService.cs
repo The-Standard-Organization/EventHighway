@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents;
-using EventHighway.Core.Services.Foundations.ListernEvents;
+using EventHighway.Core.Services.Foundations.ListenerEvents;
 
 namespace EventHighway.Core.Services.Processings.ListenerEvents
 {

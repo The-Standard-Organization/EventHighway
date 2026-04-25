@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -10,13 +10,13 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private static void ConfigureListenerEventV2Archives(EntityTypeBuilder<ListenerEventArchiveV2> model)
+        private static void ConfigureListenerEventArchiveV2s(EntityTypeBuilder<ListenerEventArchiveV2> model)
         {
             model
                 .ToTable("ListenerEventArchiveV2s");
 
-            model.HasKey(listenerEventV2Archive =>
-                listenerEventV2Archive.Id);
+            model.HasKey(listenerEventArchiveV2 =>
+                listenerEventArchiveV2.Id);
         }
     }
 }

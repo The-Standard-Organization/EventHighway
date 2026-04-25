@@ -5,14 +5,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.Events;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
@@ -47,10 +47,10 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureListenerEvents(modelBuilder.Entity<ListenerEvent>());
             ConfigureListenerEventV1s(modelBuilder.Entity<ListenerEventV1>());
             ConfigureListenerEventV2s(modelBuilder.Entity<ListenerEventV2>());
-            ConfigureEventV1Archives(modelBuilder.Entity<EventV1Archive>());
-            ConfigureListenerEventV1Archives(modelBuilder.Entity<ListenerEventV1Archive>());
+            ConfigureEventArchiveV1s(modelBuilder.Entity<EventArchiveV1>());
+            ConfigureListenerEventArchiveV1s(modelBuilder.Entity<ListenerEventArchiveV1>());
             ConfigureEventArchiveV2s(modelBuilder.Entity<EventArchiveV2>());
-            ConfigureListenerEventV2Archives(modelBuilder.Entity<ListenerEventArchiveV2>());
+            ConfigureListenerEventArchiveV2s(modelBuilder.Entity<ListenerEventArchiveV2>());
             ConfigureHandlerConfigurations(modelBuilder.Entity<HandlerConfiguration>());
         }
 

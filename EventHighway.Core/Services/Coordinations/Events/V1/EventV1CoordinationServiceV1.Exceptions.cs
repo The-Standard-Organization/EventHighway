@@ -5,7 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions;
-using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
+using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1.Exceptions;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using Xeptions;
 
@@ -33,13 +33,13 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyExceptionAsync(
                     eventV1OrchestrationServiceException);
             }
-            catch (EventV1ArchiveOrchestrationDependencyException
+            catch (EventArchiveV1OrchestrationDependencyException
                 eventV1ArchiveOrchestrationDependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
                     eventV1ArchiveOrchestrationDependencyException);
             }
-            catch (EventV1ArchiveOrchestrationServiceException
+            catch (EventArchiveV1OrchestrationServiceException
                 eventV1ArchiveOrchestrationServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
@@ -57,13 +57,13 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1OrchestrationDependencyValidationException);
             }
-            catch (EventV1ArchiveOrchestrationValidationException
+            catch (EventArchiveV1OrchestrationValidationException
                 eventV1ArchiveOrchestrationValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1ArchiveOrchestrationValidationException);
             }
-            catch (EventV1ArchiveOrchestrationDependencyValidationException
+            catch (EventArchiveV1OrchestrationDependencyValidationException
                 eventV1ArchiveOrchestrationDependencyValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(

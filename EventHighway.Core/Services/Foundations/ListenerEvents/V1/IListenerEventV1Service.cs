@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 
-namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
+namespace EventHighway.Core.Services.Foundations.ListenerEvents.V1
 {
     internal interface IListenerEventV1Service
     {

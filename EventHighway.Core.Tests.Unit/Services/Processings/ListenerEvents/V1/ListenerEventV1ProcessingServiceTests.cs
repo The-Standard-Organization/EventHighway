@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1.Exceptions;
-using EventHighway.Core.Services.Foundations.ListernEvents.V1;
+using EventHighway.Core.Services.Foundations.ListenerEvents.V1;
 using EventHighway.Core.Services.Processings.ListenerEvents.V1;
 using Moq;
 using Tynamix.ObjectFiller;

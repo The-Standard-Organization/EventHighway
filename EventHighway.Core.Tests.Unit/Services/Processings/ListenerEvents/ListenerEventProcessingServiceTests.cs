@@ -4,7 +4,7 @@
 
 using System;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents;
-using EventHighway.Core.Services.Foundations.ListernEvents;
+using EventHighway.Core.Services.Foundations.ListenerEvents;
 using EventHighway.Core.Services.Processings.ListenerEvents;
 using Moq;
 using Tynamix.ObjectFiller;

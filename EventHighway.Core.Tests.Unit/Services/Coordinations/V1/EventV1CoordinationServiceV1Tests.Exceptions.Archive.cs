@@ -5,8 +5,8 @@
 using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -58,8 +58,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
@@ -116,8 +116,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
@@ -178,8 +178,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     Times.Never);
 
             this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>

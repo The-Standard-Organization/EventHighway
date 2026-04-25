@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V1;
@@ -19,13 +19,13 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
     internal partial class EventV1CoordinationServiceV1 : IEventV1CoordinationServiceV1
     {
         private readonly IEventV1OrchestrationServiceV1 eventV1OrchestrationServiceV1;
-        private readonly IEventV1ArchiveOrchestrationService eventV1ArchiveOrchestrationService;
+        private readonly IEventArchiveV1OrchestrationService eventV1ArchiveOrchestrationService;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventV1CoordinationServiceV1(
             IEventV1OrchestrationServiceV1 eventV1OrchestrationServiceV1,
-            IEventV1ArchiveOrchestrationService eventV1ArchiveOrchestrationService,
+            IEventArchiveV1OrchestrationService eventV1ArchiveOrchestrationService,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
@@ -44,11 +44,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             foreach (EventV1 eventV1 in eventV1s)
             {
-                EventV1Archive eventV1Archive =
+                EventArchiveV1 eventV1Archive =
                     await MapToEventV1ArchiveAsync(eventV1);
 
                 await this.eventV1ArchiveOrchestrationService
-                    .AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
+                    .AddEventArchiveV1WithListenerEventArchiveV1sAsync(
                         eventV1Archive);
 
                 await this.eventV1OrchestrationServiceV1
@@ -57,24 +57,24 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             }
         });
 
-        private async ValueTask<EventV1Archive> MapToEventV1ArchiveAsync(
+        private async ValueTask<EventArchiveV1> MapToEventV1ArchiveAsync(
             EventV1 eventV1)
         {
             DateTimeOffset currentDateTime =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            return new EventV1Archive
+            return new EventArchiveV1
             {
                 Id = eventV1.Id,
                 Content = eventV1.Content,
-                Type = (EventV1ArchiveType)eventV1.Type,
+                Type = (EventArchiveV1Type)eventV1.Type,
                 CreatedDate = eventV1.CreatedDate,
                 UpdatedDate = eventV1.UpdatedDate,
                 ScheduledDate = eventV1.ScheduledDate,
                 ArchivedDate = currentDateTime,
                 EventAddressId = eventV1.EventAddressId,
 
-                ListenerEventV1Archives = eventV1.ListenerEvents
+                ListenerEventArchiveV1s = eventV1.ListenerEvents
                     ?.Select(listenerEvent =>
                         MapToListenerEventV1Archive(
                             listenerEvent,
@@ -83,14 +83,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             };
         }
 
-        private ListenerEventV1Archive MapToListenerEventV1Archive(
+        private ListenerEventArchiveV1 MapToListenerEventV1Archive(
             ListenerEventV1 listenerEventV1,
             DateTimeOffset currentDateTime)
         {
-            return new ListenerEventV1Archive
+            return new ListenerEventArchiveV1
             {
                 Id = listenerEventV1.Id,
-                Status = (ListenerEventV1ArchiveStatus)listenerEventV1.Status,
+                Status = (ListenerEventArchiveV1Status)listenerEventV1.Status,
                 Response = listenerEventV1.Response,
                 ResponseReasonPhrase = listenerEventV1.ResponseReasonPhrase,
                 CreatedDate = listenerEventV1.CreatedDate,

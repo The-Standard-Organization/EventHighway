@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -12,10 +12,10 @@ namespace EventHighway.Core.Brokers.Storages
     {
         public DbSet<ListenerEventArchiveV2> ListenerEventArchiveV2s { get; set; }
 
-        public async ValueTask<ListenerEventArchiveV2> InsertListenerEventV2ArchiveAsync(
-            ListenerEventArchiveV2 listenerEventV2Archive)
+        public async ValueTask<ListenerEventArchiveV2> InsertListenerEventArchiveV2Async(
+            ListenerEventArchiveV2 listenerEventArchiveV2)
         {
-            return await InsertAsync(listenerEventV2Archive);
+            return await InsertAsync(listenerEventArchiveV2);
         }
     }
 }

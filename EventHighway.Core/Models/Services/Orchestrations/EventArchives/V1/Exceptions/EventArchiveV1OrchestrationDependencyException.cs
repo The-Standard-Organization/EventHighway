@@ -1,0 +1,15 @@
+﻿// ---------------------------------------------------------------------------------- 
+// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+
+using Xeptions;
+
+namespace EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1.Exceptions
+{
+    public class EventArchiveV1OrchestrationDependencyException : Xeption
+    {
+        public EventArchiveV1OrchestrationDependencyException(string message, Xeption innerException)
+            : base(message, innerException)
+        { }
+    }
+}

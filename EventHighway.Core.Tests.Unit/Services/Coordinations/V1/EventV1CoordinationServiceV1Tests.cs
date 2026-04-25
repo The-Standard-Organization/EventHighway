@@ -8,10 +8,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
-using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
+using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1.Exceptions;
 using EventHighway.Core.Models.Services.Orchestrations.Events.V1.Exceptions;
 using EventHighway.Core.Services.Coordinations.Events.V1;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V1;
@@ -26,7 +26,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
     public partial class EventV1CoordinationServiceV1Tests
     {
         private readonly Mock<IEventV1OrchestrationServiceV1> eventV1OrchestrationServiceV1Mock;
-        private readonly Mock<IEventV1ArchiveOrchestrationService> eventV1ArchiveOrchestrationServiceMock;
+        private readonly Mock<IEventArchiveV1OrchestrationService> eventV1ArchiveOrchestrationServiceMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly ICompareLogic compareLogic;
@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     behavior: MockBehavior.Strict);
 
             this.eventV1ArchiveOrchestrationServiceMock =
-                new Mock<IEventV1ArchiveOrchestrationService>(
+                new Mock<IEventArchiveV1OrchestrationService>(
                     behavior: MockBehavior.Strict);
 
             this.dateTimeBrokerMock = new Mock<IDateTimeBroker>(
@@ -98,11 +98,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveOrchestrationValidationException(
+                new EventArchiveV1OrchestrationValidationException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveOrchestrationDependencyValidationException(
+                new EventArchiveV1OrchestrationDependencyValidationException(
                     someMessage,
                     someInnerException)
             };
@@ -115,11 +115,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveOrchestrationDependencyException(
+                new EventArchiveV1OrchestrationDependencyException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveOrchestrationServiceException(
+                new EventArchiveV1OrchestrationServiceException(
                     someMessage,
                     someInnerException),
             };
@@ -163,8 +163,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .AreEqual;
         }
 
-        private Expression<Func<EventV1Archive, bool>> SameEventV1ArchiveAs(
-           EventV1Archive expectedEventV1Archive)
+        private Expression<Func<EventArchiveV1, bool>> SameEventV1ArchiveAs(
+           EventArchiveV1 expectedEventV1Archive)
         {
             return actualEventV1Archive =>
                 this.compareLogic.Compare(
