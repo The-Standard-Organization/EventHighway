@@ -10,7 +10,7 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private static void ConfigureListenerEventArchiveV1s(EntityTypeBuilder<ListenerEventArchiveV1> model)
+        private static void ConfigureListenerEventArchivesV1(EntityTypeBuilder<ListenerEventArchiveV1> model)
         {
             model.ToTable("ListenerEventArchivesV1");
             model.HasKey(listenerEventArchive => listenerEventArchive.Id);
