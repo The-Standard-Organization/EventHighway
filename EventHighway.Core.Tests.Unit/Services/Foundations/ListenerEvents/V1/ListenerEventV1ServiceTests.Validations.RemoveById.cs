@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Never);
 
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: notFoundListenerEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()))
                     .ReturnsAsync(nullListenerEventV1);
 
             // when
@@ -93,7 +93,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ValidationException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 

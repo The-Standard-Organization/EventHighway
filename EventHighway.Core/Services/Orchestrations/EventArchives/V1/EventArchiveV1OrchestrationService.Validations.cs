@@ -26,7 +26,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 
         private static void ValidateListenerEventV1ArhivesAreNotNull(EventArchiveV1 eventV1Archive)
         {
-            if (eventV1Archive.ListenerEventArchiveV1s is null)
+            if (eventV1Archive.ListenerEventArchives is null)
             {
                 throw new NullListenerEventArchiveV1sOrchestrationException(
                     message: "Listener event archives are null.");

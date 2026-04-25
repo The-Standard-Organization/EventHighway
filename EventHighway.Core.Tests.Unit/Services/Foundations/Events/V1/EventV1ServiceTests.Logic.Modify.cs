@@ -57,7 +57,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                     .ReturnsAsync(randomDateTime);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventV1ByIdAsync(
+                broker.SelectEventByIdV1Async(
                     eventV1Id))
                         .ReturnsAsync(
                             storageEventV1);
@@ -82,7 +82,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventV1ByIdAsync(
+                broker.SelectEventByIdV1Async(
                     eventV1Id),
                         Times.Once);
 

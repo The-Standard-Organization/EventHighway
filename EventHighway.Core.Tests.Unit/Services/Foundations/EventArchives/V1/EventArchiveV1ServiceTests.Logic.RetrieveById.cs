@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                 selectedEventArchiveV1.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(
+                broker.SelectEventArchiveByIdV1Async(
                     inputEventArchiveV1Id))
                         .ReturnsAsync(selectedEventArchiveV1);
 
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                 .BeEquivalentTo(expectedEventArchiveV1);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(
+                broker.SelectEventArchiveByIdV1Async(
                     inputEventArchiveV1Id),
                         Times.Once());
 

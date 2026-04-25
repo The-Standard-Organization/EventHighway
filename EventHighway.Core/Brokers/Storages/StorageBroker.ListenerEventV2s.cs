@@ -1,5 +1,5 @@
-// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -12,21 +12,21 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        public DbSet<ListenerEventV2> ListenerEventV2s { get; set; }
+        public DbSet<ListenerEventV2> ListenerEventsV2 { get; set; }
 
-        public async ValueTask<ListenerEventV2> InsertListenerEventV2Async(ListenerEventV2 listenerEventV2) =>
-            await InsertAsync(listenerEventV2);
+        public async ValueTask<ListenerEventV2> InsertListenerEventV2Async(ListenerEventV2 listenerEvent) =>
+            await InsertAsync(listenerEvent);
 
-        public async ValueTask<IQueryable<ListenerEventV2>> SelectAllListenerEventV2sAsync() =>
+        public async ValueTask<IQueryable<ListenerEventV2>> SelectAllListenerEventsV2Async() =>
             SelectAll<ListenerEventV2>();
 
-        public async ValueTask<ListenerEventV2> SelectListenerEventV2ByIdAsync(Guid listenerEventV2Id) =>
-            await SelectAsync<ListenerEventV2>(listenerEventV2Id);
+        public async ValueTask<ListenerEventV2> SelectListenerEventByIdV2Async(Guid listenerEventId) =>
+            await SelectAsync<ListenerEventV2>(listenerEventId);
 
-        public async ValueTask<ListenerEventV2> UpdateListenerEventV2Async(ListenerEventV2 listenerEventV2) =>
-            await UpdateAsync(listenerEventV2);
+        public async ValueTask<ListenerEventV2> UpdateListenerEventV2Async(ListenerEventV2 listenerEvent) =>
+            await UpdateAsync(listenerEvent);
 
-        public async ValueTask<ListenerEventV2> DeleteListenerEventV2Async(ListenerEventV2 listenerEventV2) =>
-            await DeleteAsync(listenerEventV2);
+        public async ValueTask<ListenerEventV2> DeleteListenerEventV2Async(ListenerEventV2 listenerEvent) =>
+            await DeleteAsync(listenerEvent);
     }
 }

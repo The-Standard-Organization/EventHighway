@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -17,10 +17,10 @@ namespace EventHighway.Core.Brokers.Storages
         public async ValueTask<ListenerEventV1> InsertListenerEventV1Async(ListenerEventV1 listenerEventV1) =>
             await InsertAsync(listenerEventV1);
 
-        public async ValueTask<IQueryable<ListenerEventV1>> SelectAllListenerEventV1sAsync() =>
+        public async ValueTask<IQueryable<ListenerEventV1>> SelectAllListenerEventsV1Async() =>
             SelectAll<ListenerEventV1>();
 
-        public async ValueTask<ListenerEventV1> SelectListenerEventV1ByIdAsync(Guid listenerEventV1Id) =>
+        public async ValueTask<ListenerEventV1> SelectListenerEventByIdV1Async(Guid listenerEventV1Id) =>
             await SelectAsync<ListenerEventV1>(listenerEventV1Id);
 
         public async ValueTask<ListenerEventV1> UpdateListenerEventV1Async(ListenerEventV1 listenerEventV1) =>

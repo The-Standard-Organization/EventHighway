@@ -1,5 +1,5 @@
-// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -12,18 +12,18 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        public DbSet<EventListenerV2> EventListenerV2s { get; set; }
+        public DbSet<EventListenerV2> EventListenersV2 { get; set; }
 
-        public async ValueTask<EventListenerV2> InsertEventListenerV2Async(EventListenerV2 eventListenerV2) =>
-            await InsertAsync(eventListenerV2);
+        public async ValueTask<EventListenerV2> InsertEventListenerV2Async(EventListenerV2 eventListener) =>
+            await InsertAsync(eventListener);
 
-        public async ValueTask<IQueryable<EventListenerV2>> SelectAllEventListenerV2sAsync() =>
+        public async ValueTask<IQueryable<EventListenerV2>> SelectAllEventListenersV2Async() =>
             SelectAll<EventListenerV2>();
 
-        public async ValueTask<EventListenerV2> SelectEventListenerV2ByIdAsync(Guid eventListenerV2Id) =>
-            await SelectAsync<EventListenerV2>(eventListenerV2Id);
+        public async ValueTask<EventListenerV2> SelectEventListenerByIdV2Async(Guid eventListenerId) =>
+            await SelectAsync<EventListenerV2>(eventListenerId);
 
-        public async ValueTask<EventListenerV2> DeleteEventListenerV2Async(EventListenerV2 eventListenerV2) =>
-            await DeleteAsync(eventListenerV2);
+        public async ValueTask<EventListenerV2> DeleteEventListenerV2Async(EventListenerV2 eventListener) =>
+            await DeleteAsync(eventListener);
     }
 }

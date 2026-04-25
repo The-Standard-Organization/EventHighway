@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
@@ -66,7 +66,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
         {
             // given
             var invalidEventArchiveV1 = new EventArchiveV1();
-            invalidEventArchiveV1.ListenerEventArchiveV1s = null;
+            invalidEventArchiveV1.ListenerEventArchives = null;
 
             var nullEventArchiveV1OrchestrationException =
                 new NullListenerEventArchiveV1sOrchestrationException(

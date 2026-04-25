@@ -37,7 +37,7 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
         });
 
         public ValueTask<IQueryable<EventListenerV1>> RetrieveAllEventListenerV1sAsync() =>
-        TryCatch(async () => await storageBroker.SelectAllEventListenerV1sAsync());
+        TryCatch(async () => await storageBroker.SelectAllEventListenersV1Async());
 
         public ValueTask<EventListenerV1> RemoveEventListenerV1ByIdAsync(Guid eventListenerV1Id) =>
         TryCatch(async () =>
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
             ValidateEventListenerV1Id(eventListenerV1Id);
 
             EventListenerV1 maybeEventListenerV1 =
-                await this.storageBroker.SelectEventListenerV1ByIdAsync(eventListenerV1Id);
+                await this.storageBroker.SelectEventListenerByIdV1Async(eventListenerV1Id);
 
             ValidateEventListenerV1Exists(maybeEventListenerV1, eventListenerV1Id);
 

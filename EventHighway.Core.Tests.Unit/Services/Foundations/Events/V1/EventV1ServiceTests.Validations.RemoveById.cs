@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventV1ByIdAsync(
+                broker.SelectEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Never);
 
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                     innerException: notFoundEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventByIdV1Async(It.IsAny<Guid>()))
                     .ReturnsAsync(nullEventV1);
 
             // when
@@ -93,7 +93,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
                 .BeEquivalentTo(expectedEventV1ValidationException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventV1ByIdAsync(
+                broker.SelectEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 

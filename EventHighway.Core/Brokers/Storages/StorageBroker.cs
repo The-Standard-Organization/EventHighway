@@ -5,6 +5,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
 using EventHighway.Core.Models.Services.Foundations.EventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners;
@@ -38,20 +41,29 @@ namespace EventHighway.Core.Brokers.Storages
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            ConfigureEvents(modelBuilder.Entity<Event>());
-            ConfigureEventV1s(modelBuilder.Entity<EventV1>());
-            ConfigureEventV2s(modelBuilder.Entity<EventV2>());
+            ConfigureEventAddresses(modelBuilder.Entity<EventAddress>());
+            ConfigureEventAddressesV1(modelBuilder.Entity<EventAddressV1>());
+            ConfigureEventAddressesV2(modelBuilder.Entity<EventAddressV2>());
+
+            ConfigureEventArchivesV1(modelBuilder.Entity<EventArchiveV1>());
+            ConfigureEventArchivesV2(modelBuilder.Entity<EventArchiveV2>());
+
             ConfigureEventListeners(modelBuilder.Entity<EventListener>());
-            ConfigureEventListenerV1s(modelBuilder.Entity<EventListenerV1>());
-            ConfigureEventListenerV2s(modelBuilder.Entity<EventListenerV2>());
+            ConfigureEventListenersV1(modelBuilder.Entity<EventListenerV1>());
+            ConfigureEventListenersV2(modelBuilder.Entity<EventListenerV2>());
+
+            ConfigureEvents(modelBuilder.Entity<Event>());
+            ConfigureEventsV1(modelBuilder.Entity<EventV1>());
+            ConfigureEventsV2(modelBuilder.Entity<EventV2>());
+
+            ConfigureHandlerConfigurations(modelBuilder.Entity<HandlerConfiguration>());
+
             ConfigureListenerEvents(modelBuilder.Entity<ListenerEvent>());
             ConfigureListenerEventV1s(modelBuilder.Entity<ListenerEventV1>());
             ConfigureListenerEventV2s(modelBuilder.Entity<ListenerEventV2>());
-            ConfigureEventArchiveV1s(modelBuilder.Entity<EventArchiveV1>());
+
             ConfigureListenerEventArchiveV1s(modelBuilder.Entity<ListenerEventArchiveV1>());
-            ConfigureEventArchiveV2s(modelBuilder.Entity<EventArchiveV2>());
             ConfigureListenerEventArchiveV2s(modelBuilder.Entity<ListenerEventArchiveV2>());
-            ConfigureHandlerConfigurations(modelBuilder.Entity<HandlerConfiguration>());
         }
 
         private async ValueTask<T> InsertAsync<T>(T @object)

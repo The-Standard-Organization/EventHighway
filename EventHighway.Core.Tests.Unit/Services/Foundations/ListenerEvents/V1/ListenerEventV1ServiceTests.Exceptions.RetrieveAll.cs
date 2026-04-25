@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: failedListenerEventV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllListenerEventV1sAsync())
+                broker.SelectAllListenerEventsV1Async())
                     .ThrowsAsync(sqlException);
 
             // when
@@ -48,7 +48,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllListenerEventV1sAsync(),
+                broker.SelectAllListenerEventsV1Async(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -78,7 +78,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: failedListenerEventV1ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllListenerEventV1sAsync())
+                broker.SelectAllListenerEventsV1Async())
                     .ThrowsAsync(serviceException);
 
             // when
@@ -94,7 +94,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllListenerEventV1sAsync(),
+                broker.SelectAllListenerEventsV1Async(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

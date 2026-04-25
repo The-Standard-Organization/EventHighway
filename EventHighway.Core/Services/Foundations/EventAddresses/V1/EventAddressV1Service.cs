@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -37,14 +37,14 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
         });
 
         public ValueTask<IQueryable<EventAddressV1>> RetrieveAllEventAddressV1sAsync() =>
-        TryCatch(async () => await this.storageBroker.SelectAllEventAddressV1sAsync());
+        TryCatch(async () => await this.storageBroker.SelectAllEventAddressesV1Async());
 
         public ValueTask<EventAddressV1> RetrieveEventAddressV1ByIdAsync(Guid eventAddressV1Id) =>
         TryCatch(async () =>
         {
             ValidateEventAddressV1Id(eventAddressV1Id);
 
-            return await this.storageBroker.SelectEventAddressV1ByIdAsync(eventAddressV1Id);
+            return await this.storageBroker.SelectEventAddressByIdV1Async(eventAddressV1Id);
         });
 
         public ValueTask<EventAddressV1> RemoveEventAddressV1ByIdAsync(Guid eventAddressV1Id) =>
@@ -53,7 +53,7 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             ValidateEventAddressV1Id(eventAddressV1Id);
 
             EventAddressV1 maybeEventAddressV1 =
-                await this.storageBroker.SelectEventAddressV1ByIdAsync(eventAddressV1Id);
+                await this.storageBroker.SelectEventAddressByIdV1Async(eventAddressV1Id);
 
             ValidateEventAddressV1Exists(maybeEventAddressV1, eventAddressV1Id);
 

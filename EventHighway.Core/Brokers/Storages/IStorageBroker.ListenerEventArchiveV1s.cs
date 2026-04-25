@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
@@ -10,6 +10,6 @@ namespace EventHighway.Core.Brokers.Storages
     internal partial interface IStorageBroker
     {
         ValueTask<ListenerEventArchiveV1> InsertListenerEventArchiveV1Async(
-            ListenerEventArchiveV1 listenerEventArchiveV1);
+            ListenerEventArchiveV1 listenerEventArchive);
     }
 }

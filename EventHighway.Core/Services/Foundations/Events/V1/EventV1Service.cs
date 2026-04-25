@@ -37,10 +37,10 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
         });
 
         public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sAsync() =>
-        TryCatch(async () => await this.storageBroker.SelectAllEventV1sAsync());
+        TryCatch(async () => await this.storageBroker.SelectAllEventsV1Async());
 
         public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sWithListenerEventV1sAsync() =>
-        TryCatch(async () => await this.storageBroker.SelectAllEventV1sWithListenerEventV1sAsync());
+        TryCatch(async () => await this.storageBroker.SelectAllEventsWithListenerEventsV1Async());
 
         public ValueTask<EventV1> ModifyEventV1Async(EventV1 eventV1) =>
         TryCatch(async () =>
@@ -48,7 +48,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
             await ValidateEventV1OnModifyAsync(eventV1);
 
             EventV1 maybeEventV1 =
-                await this.storageBroker.SelectEventV1ByIdAsync(
+                await this.storageBroker.SelectEventByIdV1Async(
                     eventV1.Id);
 
             ValidateEventV1AgainstStorage(eventV1, maybeEventV1);
@@ -62,7 +62,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
             ValidateEventV1Id(eventV1Id);
 
             EventV1 maybeEventV1 =
-                await this.storageBroker.SelectEventV1ByIdAsync(eventV1Id);
+                await this.storageBroker.SelectEventByIdV1Async(eventV1Id);
 
             ValidateEventV1Exists(maybeEventV1, eventV1Id);
 

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -66,7 +66,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
         private async Task ShouldThrowValidationExceptionOnAddIfEventArchiveV1IsInvalidAndLogItAsync(
             string invalidText)
         {
-            EventArchiveV1Type invalidType = GetInvalidEnum<EventArchiveV1Type>();
+            EventArchiveTypeV1 invalidType = GetInvalidEnum<EventArchiveTypeV1>();
 
             var invalidEventArchiveV1 = new EventArchiveV1
             {

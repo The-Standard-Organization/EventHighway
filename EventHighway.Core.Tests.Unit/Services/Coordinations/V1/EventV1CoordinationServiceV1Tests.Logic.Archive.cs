@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -67,7 +67,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     new ListenerEventArchiveV1
                     {
                         Id = item.Id,
-                        Status = (ListenerEventArchiveV1Status)item.Status,
+                        Status = (ListenerEventArchiveStatusV1)item.Status,
                         Response = item.Response,
                         CreatedDate = item.CreatedDate,
                         UpdatedDate = item.UpdatedDate,
@@ -83,13 +83,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     {
                         Id = item.Id,
                         Content = item.Content,
-                        Type = (EventArchiveV1Type)item.Type,
+                        Type = (EventArchiveTypeV1)item.Type,
                         CreatedDate = item.CreatedDate,
                         UpdatedDate = item.UpdatedDate,
                         ScheduledDate = item.ScheduledDate,
                         EventAddressId = item.EventAddressId,
                         ArchivedDate = retrievedDateTimeOffset,
-                        ListenerEventArchiveV1s = mappedListenerEventV1Archives
+                        ListenerEventArchives = mappedListenerEventV1Archives
                     }).ToList();
 
             this.eventV1OrchestrationServiceV1Mock

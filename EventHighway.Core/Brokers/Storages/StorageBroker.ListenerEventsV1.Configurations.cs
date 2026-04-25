@@ -1,8 +1,8 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,14 +10,10 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private static void ConfigureListenerEventV2s(EntityTypeBuilder<ListenerEventV2> model)
+        private static void ConfigureListenerEventV1s(EntityTypeBuilder<ListenerEventV1> model)
         {
-            model.ToTable("ListenerEventsV2");
+            model.ToTable("ListenerEventV1s");
             model.HasKey(listenerEvent => listenerEvent.Id);
-
-            model
-                .Property(listenerEvent => listenerEvent.Id)
-                .IsRequired();
 
             model.HasOne(listenerEvent => listenerEvent.Event)
                 .WithMany(@event => @event.ListenerEvents)
@@ -25,12 +21,12 @@ namespace EventHighway.Core.Brokers.Storages
                 .OnDelete(DeleteBehavior.NoAction);
 
             model.HasOne(listenerEvent => listenerEvent.EventAddress)
-                .WithMany(eventAddressV2 => eventAddressV2.ListenerEvents)
+                .WithMany(eventAddress => eventAddress.ListenerEvents)
                 .HasForeignKey(listenerEvent => listenerEvent.EventAddressId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             model.HasOne(listenerEvent => listenerEvent.EventListener)
-                .WithMany(eventListenerV2 => eventListenerV2.ListenerEvents)
+                .WithMany(eventListener => eventListener.ListenerEvents)
                 .HasForeignKey(listenerEvent => listenerEvent.EventListenerId)
                 .OnDelete(DeleteBehavior.NoAction);
         }

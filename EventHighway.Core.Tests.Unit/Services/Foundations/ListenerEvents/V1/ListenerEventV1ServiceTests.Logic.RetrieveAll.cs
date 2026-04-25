@@ -27,7 +27,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 randomListenerEventV1s.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllListenerEventV1sAsync())
+                broker.SelectAllListenerEventsV1Async())
                     .ReturnsAsync(retrievedListenerEventV1s);
 
             // when
@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 expectedListenerEventV1s);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllListenerEventV1sAsync(),
+                broker.SelectAllListenerEventsV1Async(),
                     Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();

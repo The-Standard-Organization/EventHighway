@@ -39,7 +39,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         public ValueTask<IQueryable<EventArchiveV1>> RetrieveAllEventArchiveV1sAsync() =>
         TryCatch(async () =>
         {
-            return await this.storageBroker.SelectAllEventArchiveV1sAsync();
+            return await this.storageBroker.SelectAllEventArchivesV1Async();
         });
 
         public ValueTask<EventArchiveV1> RetrieveEventArchiveV1ByIdAsync(Guid eventArchiveV1Id) =>
@@ -47,7 +47,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         {
             ValidateEventArchiveV1Id(eventArchiveV1Id);
 
-            return await this.storageBroker.SelectEventArchiveV1ByIdAsync(eventArchiveV1Id);
+            return await this.storageBroker.SelectEventArchiveByIdV1Async(eventArchiveV1Id);
         });
     }
 }

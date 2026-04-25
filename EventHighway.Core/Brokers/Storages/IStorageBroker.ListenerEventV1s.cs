@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,10 +11,10 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial interface IStorageBroker
     {
-        ValueTask<ListenerEventV1> InsertListenerEventV1Async(ListenerEventV1 listenerEventV1);
-        ValueTask<IQueryable<ListenerEventV1>> SelectAllListenerEventV1sAsync();
-        ValueTask<ListenerEventV1> SelectListenerEventV1ByIdAsync(Guid listenerEventV1Id);
-        ValueTask<ListenerEventV1> UpdateListenerEventV1Async(ListenerEventV1 listenerEventV1);
-        ValueTask<ListenerEventV1> DeleteListenerEventV1Async(ListenerEventV1 listenerEventV1);
+        ValueTask<ListenerEventV1> InsertListenerEventV1Async(ListenerEventV1 listenerEvent);
+        ValueTask<IQueryable<ListenerEventV1>> SelectAllListenerEventsV1Async();
+        ValueTask<ListenerEventV1> SelectListenerEventByIdV1Async(Guid listenerEventId);
+        ValueTask<ListenerEventV1> UpdateListenerEventV1Async(ListenerEventV1 listenerEvent);
+        ValueTask<ListenerEventV1> DeleteListenerEventV1Async(ListenerEventV1 listenerEvent);
     }
 }

@@ -2,7 +2,6 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -13,14 +12,11 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureHandlerConfigurations(EntityTypeBuilder<HandlerConfiguration> model)
         {
-            model
-                .ToTable("HandlerConfigurations");
-
-            model.HasKey(handlerConfiguration =>
-                handlerConfiguration.Id);
+            model.ToTable("HandlerConfigurations");
+            model.HasKey(handlerConfiguration => handlerConfiguration.Id);
 
             model.HasOne(handlerConfiguration => handlerConfiguration.EventListener)
-                .WithMany(eventListenerV2 => eventListenerV2.HandlerConfigurations)
+                .WithMany(eventListener => eventListener.HandlerConfigurations)
                 .HasForeignKey(handlerConfiguration => handlerConfiguration.EventListenerId)
                 .OnDelete(DeleteBehavior.NoAction);
 

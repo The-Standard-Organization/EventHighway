@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             EventArchiveV1 inputEventV1Archive = randomEventV1Archive;
 
             List<ListenerEventArchiveV1> randomListenerEventV1Archives =
-                randomEventV1Archive.ListenerEventArchiveV1s.ToList();
+                randomEventV1Archive.ListenerEventArchives.ToList();
 
             List<ListenerEventArchiveV1> inputListenerEventV1Archives =
                 randomListenerEventV1Archives;

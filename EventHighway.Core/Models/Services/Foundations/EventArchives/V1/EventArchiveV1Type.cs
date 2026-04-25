@@ -4,7 +4,7 @@
 
 namespace EventHighway.Core.Models.Services.Foundations.EventArchives.V1
 {
-    public enum EventArchiveV1Type
+    public enum EventArchiveTypeV1
     {
         Immediate,
         Scheduled

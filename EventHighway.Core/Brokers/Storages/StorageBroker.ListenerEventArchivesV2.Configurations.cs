@@ -12,11 +12,8 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureListenerEventArchiveV2s(EntityTypeBuilder<ListenerEventArchiveV2> model)
         {
-            model
-                .ToTable("ListenerEventArchiveV2s");
-
-            model.HasKey(listenerEventArchiveV2 =>
-                listenerEventArchiveV2.Id);
+            model.ToTable("ListenerEventArchivesV2");
+            model.HasKey(listenerEventArchive => listenerEventArchive.Id);
         }
     }
 }

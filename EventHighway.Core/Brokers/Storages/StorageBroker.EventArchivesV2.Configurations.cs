@@ -10,13 +10,10 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private static void ConfigureEventArchiveV2s(EntityTypeBuilder<EventArchiveV2> model)
+        private static void ConfigureEventArchivesV2(EntityTypeBuilder<EventArchiveV2> model)
         {
-            model
-                .ToTable("EventArchiveV2s");
-
-            model.HasKey(eventArchiveV2 =>
-                eventArchiveV2.Id);
+            model.ToTable("EventArchivesV2");
+            model.HasKey(eventArchive => eventArchive.Id);
         }
     }
 }

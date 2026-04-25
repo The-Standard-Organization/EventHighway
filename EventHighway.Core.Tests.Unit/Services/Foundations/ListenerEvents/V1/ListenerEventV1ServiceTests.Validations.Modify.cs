@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Never);
 
             this.dateTimeBrokerMock.Verify(broker =>
@@ -150,7 +150,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Never);
 
             this.storageBrokerMock.Verify(broker =>
@@ -209,7 +209,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Never);
 
             this.storageBrokerMock.Verify(broker =>
@@ -276,7 +276,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Never);
 
             this.storageBrokerMock.Verify(broker =>
@@ -314,7 +314,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     .ReturnsAsync(randomDateTimeOffset);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(nonExistListenerEventV1Id))
+                broker.SelectListenerEventByIdV1Async(nonExistListenerEventV1Id))
                     .ReturnsAsync(nullListenerEventV1);
 
             // when
@@ -334,7 +334,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(nonExistListenerEventV1Id),
+                broker.SelectListenerEventByIdV1Async(nonExistListenerEventV1Id),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -383,7 +383,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     .ReturnsAsync(randomDateTimeOffset);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(invalidListenerEventV1Id))
+                broker.SelectListenerEventByIdV1Async(invalidListenerEventV1Id))
                     .ReturnsAsync(storageListenerEventV1);
 
             // when
@@ -403,7 +403,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(invalidListenerEventV1Id),
+                broker.SelectListenerEventByIdV1Async(invalidListenerEventV1Id),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -449,7 +449,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     .ReturnsAsync(randomDateTimeOffset);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(invalidListenerEventV1Id))
+                broker.SelectListenerEventByIdV1Async(invalidListenerEventV1Id))
                     .ReturnsAsync(storageListenerEventV1);
 
             // when
@@ -469,7 +469,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(invalidListenerEventV1Id),
+                broker.SelectListenerEventByIdV1Async(invalidListenerEventV1Id),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 deletedListenerEventV1.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     inputListenerEventV1Id))
                         .ReturnsAsync(retrievedListenerEventV1);
 
@@ -53,7 +53,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 expectedListenerEventV1);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     inputListenerEventV1Id),
                         Times.Once);
 

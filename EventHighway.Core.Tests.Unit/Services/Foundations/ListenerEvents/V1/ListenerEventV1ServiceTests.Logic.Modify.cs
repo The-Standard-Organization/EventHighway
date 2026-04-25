@@ -63,7 +63,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             this.storageBrokerMock
                 .InSequence(mockSequence).Setup(broker =>
-                    broker.SelectListenerEventV1ByIdAsync(
+                    broker.SelectListenerEventByIdV1Async(
                         inputListenerEventV1Id))
                             .ReturnsAsync(
                                 storageListenerEventV1);
@@ -89,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     inputListenerEventV1Id),
                         Times.Once);
 

@@ -10,17 +10,14 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        private static void ConfigureEventV2s(EntityTypeBuilder<EventV2> model)
+        private static void ConfigureEventsV2(EntityTypeBuilder<EventV2> model)
         {
-            model
-                .ToTable("EventV2s");
+            model.ToTable("EventsV2");
+            model.HasKey(@event => @event.Id);
 
-            model.HasKey(eventV2 =>
-                eventV2.Id);
-
-            model.HasOne(eventV2 => eventV2.EventAddress)
+            model.HasOne(@event => @event.EventAddress)
                 .WithMany(eventAddressV2 => eventAddressV2.Events)
-                .HasForeignKey(eventV2 => eventV2.EventAddressId)
+                .HasForeignKey(@event => @event.EventAddressId)
                 .OnDelete(DeleteBehavior.NoAction);
         }
     }

@@ -67,14 +67,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 Id = eventV1.Id,
                 Content = eventV1.Content,
-                Type = (EventArchiveV1Type)eventV1.Type,
+                Type = (EventArchiveTypeV1)eventV1.Type,
                 CreatedDate = eventV1.CreatedDate,
                 UpdatedDate = eventV1.UpdatedDate,
                 ScheduledDate = eventV1.ScheduledDate,
                 ArchivedDate = currentDateTime,
                 EventAddressId = eventV1.EventAddressId,
 
-                ListenerEventArchiveV1s = eventV1.ListenerEvents
+                ListenerEventArchives = eventV1.ListenerEvents
                     ?.Select(listenerEvent =>
                         MapToListenerEventV1Archive(
                             listenerEvent,
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             return new ListenerEventArchiveV1
             {
                 Id = listenerEventV1.Id,
-                Status = (ListenerEventArchiveV1Status)listenerEventV1.Status,
+                Status = (ListenerEventArchiveStatusV1)listenerEventV1.Status,
                 Response = listenerEventV1.Response,
                 ResponseReasonPhrase = listenerEventV1.ResponseReasonPhrase,
                 CreatedDate = listenerEventV1.CreatedDate,

@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                     innerException: failedEventArchiveV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventArchiveByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(sqlException);
 
             // when
@@ -49,7 +49,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                 .BeEquivalentTo(expectedEventArchiveV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectEventArchiveByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -80,7 +80,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                     innerException: failedEventArchiveV1ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventArchiveByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -97,7 +97,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
                 .BeEquivalentTo(expectedEventArchiveV1ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventArchiveV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectEventArchiveByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

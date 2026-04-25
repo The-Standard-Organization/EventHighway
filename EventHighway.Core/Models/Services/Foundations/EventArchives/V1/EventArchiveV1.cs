@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -12,7 +12,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventArchives.V1
     {
         public Guid Id { get; set; }
         public string Content { get; set; }
-        public EventArchiveV1Type Type { get; set; }
+        public EventArchiveTypeV1 Type { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
         public DateTimeOffset UpdatedDate { get; set; }
         public DateTimeOffset? ScheduledDate { get; set; }
@@ -20,6 +20,6 @@ namespace EventHighway.Core.Models.Services.Foundations.EventArchives.V1
 
         public Guid EventAddressId { get; set; }
 
-        public IEnumerable<ListenerEventArchiveV1> ListenerEventArchiveV1s { get; set; }
+        public IEnumerable<ListenerEventArchiveV1> ListenerEventArchives { get; set; }
     }
 }

@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: failedListenerEventV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(sqlException);
 
             // when
@@ -50,7 +50,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -81,7 +81,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: lockedListenerEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(dbUpdateConcurrencyException);
 
             // when
@@ -98,7 +98,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1DependencyValidationException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 
@@ -130,7 +130,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: failedListenerEventV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(dbUpdateException);
 
             // when
@@ -146,7 +146,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(
+                broker.SelectListenerEventByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 
@@ -178,7 +178,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                     innerException: failedListenerEventV1ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -195,7 +195,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
                 .BeEquivalentTo(expectedListenerEventV1ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectListenerEventByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
