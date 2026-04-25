@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------- 
+// ---------------------------------------------------------------------------------- 
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 randomEventAddressV1s.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventAddressV1sAsync())
+                broker.SelectAllEventAddressesV1Async())
                     .ReturnsAsync(retrievedEventAddressV1s);
 
             // when
@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 expectedEventAddressV1s);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventAddressV1sAsync(),
+                broker.SelectAllEventAddressesV1Async(),
                     Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();

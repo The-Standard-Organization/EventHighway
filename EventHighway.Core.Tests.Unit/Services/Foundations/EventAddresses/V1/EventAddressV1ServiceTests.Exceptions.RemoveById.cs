@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -25,7 +25,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1StorageException =
                 new FailedEventAddressV1StorageException(
                     message: "Failed event address storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
@@ -33,7 +34,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                     innerException: failedEventAddressV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(sqlException);
 
             // when
@@ -50,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -73,7 +74,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var lockedEventAddressV1Exception =
                 new LockedEventAddressV1Exception(
                     message: "Event address is locked, try again.",
-                    innerException: dbUpdateConcurrencyException);
+                    innerException: dbUpdateConcurrencyException,
+                    data: dbUpdateConcurrencyException.Data);
 
             var expectedEventAddressV1DependencyValidationException =
                 new EventAddressV1DependencyValidationException(
@@ -81,7 +83,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                     innerException: lockedEventAddressV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(dbUpdateConcurrencyException);
 
             // when
@@ -98,7 +100,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1DependencyValidationException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(
+                broker.SelectEventAddressByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 
@@ -122,7 +124,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1StorageException =
                 new FailedEventAddressV1StorageException(
                     message: "Failed event address storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
@@ -130,7 +133,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                     innerException: failedEventAddressV1StorageException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(dbUpdateException);
 
             // when
@@ -146,7 +149,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(
+                broker.SelectEventAddressByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 
@@ -170,7 +173,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1ServiceException =
                 new FailedEventAddressV1ServiceException(
                     message: "Failed event address service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventAddressV1ServiceException =
                 new EventAddressV1ServiceException(
@@ -178,7 +182,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                     innerException: failedEventAddressV1ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -195,7 +199,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()),
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

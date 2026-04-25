@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -112,7 +112,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             var failedListenerEventArchiveV1ProcessingServiceException =
                 new FailedListenerEventArchiveV1ProcessingServiceException(
                     message: "Failed listener event archive service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedListenerEventArchiveV1ProcessingExceptionException =
                 new ListenerEventArchiveV1ProcessingServiceException(

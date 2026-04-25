@@ -110,7 +110,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
             var failedEventArchiveV1ProcessingServiceException =
                 new FailedEventArchiveV1ProcessingServiceException(
                     message: "Failed event archive service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventArchiveV1ProcessingExceptionException =
                 new EventArchiveV1ProcessingServiceException(

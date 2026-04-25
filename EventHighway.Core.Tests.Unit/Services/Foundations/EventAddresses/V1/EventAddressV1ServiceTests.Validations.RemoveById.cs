@@ -1,4 +1,4 @@
-﻿// ---------------------------------------------------------------------------------- 
+// ---------------------------------------------------------------------------------- 
 // Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
 // ----------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                         Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(
+                broker.SelectEventAddressByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Never);
 
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                     innerException: notFoundEventAddressV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                broker.SelectEventAddressByIdV1Async(It.IsAny<Guid>()))
                     .ReturnsAsync(nullEventAddressV1);
 
             // when
@@ -93,7 +93,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ValidationException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectEventAddressV1ByIdAsync(
+                broker.SelectEventAddressByIdV1Async(
                     It.IsAny<Guid>()),
                         Times.Once);
 

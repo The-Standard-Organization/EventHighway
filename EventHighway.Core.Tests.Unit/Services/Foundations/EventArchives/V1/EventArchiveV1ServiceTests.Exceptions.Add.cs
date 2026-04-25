@@ -26,7 +26,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             var failedStorageEventArchiveV1Exception =
                 new FailedStorageEventArchiveV1Exception(
                     message: "Failed event archive storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedEventArchiveV1DependencyException =
                 new EventArchiveV1DependencyException(
@@ -78,7 +79,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             var alreadyExistsEventArchiveV1Exception =
                 new AlreadyExistsEventArchiveV1Exception(
                     message: "Event archive with the same id already exists.",
-                    innerException: duplicateKeyException);
+                    innerException: duplicateKeyException,
+                    data: duplicateKeyException.Data);
 
             var expectedEventArchiveV1DependencyValidationException =
                 new EventArchiveV1DependencyValidationException(
@@ -133,7 +135,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             var invalidEventArchiveV1ReferenceException =
                 new InvalidEventArchiveV1ReferenceException(
                     message: "Invalid event archive reference error occurred.",
-                    innerException: foreignKeyConstraintConflictException);
+                    innerException: foreignKeyConstraintConflictException,
+                    data: foreignKeyConstraintConflictException.Data);
 
             var expectedEventArchiveV1DependencyValidationException =
                 new EventArchiveV1DependencyValidationException(
@@ -185,7 +188,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             var failedEventArchiveV1StorageException =
                 new FailedStorageEventArchiveV1Exception(
                     message: "Failed event archive storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedEventArchiveV1DependencyException =
                 new EventArchiveV1DependencyException(
@@ -237,7 +241,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             var failedEventArchiveV1ServiceException =
                 new FailedEventArchiveV1ServiceException(
                     message: "Failed event archive service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventArchiveV1ServiceException =
                 new EventArchiveV1ServiceException(

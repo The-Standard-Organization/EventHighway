@@ -26,7 +26,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             var failedEventV1StorageException =
                 new FailedEventV1StorageException(
                     message: "Failed event storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedEventV1DependencyException =
                 new EventV1DependencyException(
@@ -78,7 +79,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             var alreadyExistsEventV1Exception =
                 new AlreadyExistsEventV1Exception(
                     message: "Event with the same id already exists.",
-                    innerException: duplicateKeyException);
+                    innerException: duplicateKeyException,
+                    data: duplicateKeyException.Data);
 
             var expectedEventV1DependencyValidationException =
                 new EventV1DependencyValidationException(
@@ -132,7 +134,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             var invalidEventV1ReferenceException =
                 new InvalidEventV1ReferenceException(
                     message: "Invalid event reference error occurred.",
-                    innerException: foreignKeyConstraintConflictException);
+                    innerException: foreignKeyConstraintConflictException,
+                    data: foreignKeyConstraintConflictException.Data);
 
             var expectedEventV1DependencyValidationException =
                 new EventV1DependencyValidationException(
@@ -183,7 +186,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             var failedEventV1StorageException =
                 new FailedEventV1StorageException(
                     message: "Failed event storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedEventV1DependencyException =
                 new EventV1DependencyException(
@@ -234,7 +238,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             var failedEventV1ServiceException =
                 new FailedEventV1ServiceException(
                     message: "Failed event service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventV1ServiceException =
                 new EventV1ServiceException(

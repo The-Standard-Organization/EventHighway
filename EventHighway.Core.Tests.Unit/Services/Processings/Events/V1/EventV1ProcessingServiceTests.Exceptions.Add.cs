@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -110,7 +110,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
             var failedEventV1ProcessingServiceException =
                 new FailedEventV1ProcessingServiceException(
                     message: "Failed event service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventV1ProcessingExceptionException =
                 new EventV1ProcessingServiceException(

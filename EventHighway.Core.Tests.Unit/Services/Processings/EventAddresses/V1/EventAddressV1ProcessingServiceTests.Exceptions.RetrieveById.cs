@@ -112,7 +112,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
             var failedEventAddressV1ProcessingServiceException =
                 new FailedEventAddressV1ProcessingServiceException(
                     message: "Failed event address service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventAddressV1ProcessingExceptionException =
                 new EventAddressV1ProcessingServiceException(

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -120,7 +120,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
             var failedEventListenerV1OrchestrationServiceException =
                 new FailedEventListenerV1OrchestrationServiceException(
                     message: "Failed event listener service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventListenerV1OrchestrationServiceException =
                 new EventListenerV1OrchestrationServiceException(
