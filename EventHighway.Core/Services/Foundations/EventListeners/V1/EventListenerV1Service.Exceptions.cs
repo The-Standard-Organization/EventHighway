@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -31,7 +31,8 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
                 var failedEventListenerV1StorageException =
                     new FailedEventListenerV1StorageException(
                         message: "Failed event listener storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventListenerV1StorageException);
@@ -41,7 +42,8 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
                 var failedEventListenerV1ServiceException =
                     new FailedEventListenerV1ServiceException(
                         message: "Failed event listener service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventListenerV1ServiceException);

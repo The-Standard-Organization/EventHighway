@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // when
             IQueryable<EventV1> actualEventV1s =
                 await this.eventV1Service
-                    .RetrieveAllEventV1sAsync();
+                    .RetrieveAllEventsAsync();
 
             // then
             actualEventV1s.Should().BeEquivalentTo(

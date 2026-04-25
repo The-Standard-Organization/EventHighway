@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 randomEventListenerV1s.AsQueryable();
 
             this.eventListenerV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventListenerV1sAsync())
+                service.RetrieveAllEventListenersAsync())
                     .ReturnsAsync(retrievedEventListenerV1s);
 
             // when
@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1s);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventListenerV1sAsync(),
+                service.RetrieveAllEventListenersAsync(),
                     Times.Once);
 
             this.eventListenerV1ServiceMock.VerifyNoOtherCalls();

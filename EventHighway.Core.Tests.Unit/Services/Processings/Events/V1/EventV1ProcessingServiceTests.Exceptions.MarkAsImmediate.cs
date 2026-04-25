@@ -54,7 +54,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                         Times.Once);
 
             this.eventV1ServiceMock.Verify(service =>
-                service.ModifyEventV1Async(It.IsAny<EventV1>()),
+                service.ModifyEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventV1ServiceMock.VerifyNoOtherCalls();
@@ -101,7 +101,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                         Times.Once);
 
             this.eventV1ServiceMock.Verify(service =>
-                service.ModifyEventV1Async(It.IsAny<EventV1>()),
+                service.ModifyEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventV1ServiceMock.VerifyNoOtherCalls();
@@ -153,7 +153,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                         Times.Once);
 
             this.eventV1ServiceMock.Verify(service =>
-                service.ModifyEventV1Async(It.IsAny<EventV1>()),
+                service.ModifyEventAsync(It.IsAny<EventV1>()),
                     Times.Never);
 
             this.eventV1ServiceMock.VerifyNoOtherCalls();

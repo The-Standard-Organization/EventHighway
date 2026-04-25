@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventListenerV1ServiceMock.Setup(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()))
+                service.AddEventListenerAsync(It.IsAny<EventListenerV1>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 expectedEventListenerV1ProcessingDependencyValidationException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()),
+                service.AddEventListenerAsync(It.IsAny<EventListenerV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -72,7 +72,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                     innerException: dependencyException.InnerException as Xeption);
 
             this.eventListenerV1ServiceMock.Setup(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()))
+                service.AddEventListenerAsync(It.IsAny<EventListenerV1>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -89,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 expectedEventListenerV1ProcessingDependencyException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()),
+                service.AddEventListenerAsync(It.IsAny<EventListenerV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -119,7 +119,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                     innerException: failedEventListenerV1ProcessingServiceException);
 
             this.eventListenerV1ServiceMock.Setup(service =>
-                service.AddEventListenerV1Async(It.IsAny<EventListenerV1>()))
+                service.AddEventListenerAsync(It.IsAny<EventListenerV1>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -137,7 +137,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                 .BeEquivalentTo(expectedEventListenerV1ProcessingExceptionException);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.AddEventListenerV1Async(
+                service.AddEventListenerAsync(
                     It.IsAny<EventListenerV1>()),
                         Times.Once);
 

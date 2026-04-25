@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(nullListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(nullListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -130,7 +130,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(invalidListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(invalidListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -189,7 +189,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(invalidListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(invalidListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -256,7 +256,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(invalidListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(invalidListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -319,7 +319,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(nonExistListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(nonExistListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -388,7 +388,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(invalidListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(invalidListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(
@@ -454,7 +454,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1Service.ModifyListenerEventV1Async(invalidListenerEventV1);
+                this.listenerEventV1Service.ModifyListenerEventAsync(invalidListenerEventV1);
 
             ListenerEventV1ValidationException actualListenerEventV1ValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1ValidationException>(

@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
-                this.listenerEventV1Service.AddListenerEventV1Async(someListenerEventV1);
+                this.listenerEventV1Service.AddListenerEventAsync(someListenerEventV1);
 
             ListenerEventV1DependencyException actualListenerEventV1DependencyException =
                 await Assert.ThrowsAsync<ListenerEventV1DependencyException>(
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
-                this.listenerEventV1Service.AddListenerEventV1Async(someListenerEventV1);
+                this.listenerEventV1Service.AddListenerEventAsync(someListenerEventV1);
 
             ListenerEventV1DependencyValidationException actualListenerEventV1DependencyValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1DependencyValidationException>(
@@ -145,7 +145,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
-                this.listenerEventV1Service.AddListenerEventV1Async(someListenerEventV1);
+                this.listenerEventV1Service.AddListenerEventAsync(someListenerEventV1);
 
             ListenerEventV1DependencyValidationException actualListenerEventV1DependencyValidationException =
                 await Assert.ThrowsAsync<ListenerEventV1DependencyValidationException>(
@@ -196,7 +196,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
-                this.listenerEventV1Service.AddListenerEventV1Async(someListenerEventV1);
+                this.listenerEventV1Service.AddListenerEventAsync(someListenerEventV1);
 
             ListenerEventV1DependencyException actualListenerEventV1DependencyException =
                 await Assert.ThrowsAsync<ListenerEventV1DependencyException>(
@@ -247,7 +247,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> addListenerEventV1Task =
-                this.listenerEventV1Service.AddListenerEventV1Async(someListenerEventV1);
+                this.listenerEventV1Service.AddListenerEventAsync(someListenerEventV1);
 
             ListenerEventV1ServiceException actualListenerEventV1ServiceException =
                 await Assert.ThrowsAsync<ListenerEventV1ServiceException>(

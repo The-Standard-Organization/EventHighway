@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -42,7 +42,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var failedEventV1StorageException =
                     new FailedEventV1StorageException(
                         message: "Failed event storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventV1StorageException);
@@ -52,7 +53,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var alreadyExistsEventV1Exception =
                     new AlreadyExistsEventV1Exception(
                         message: "Event with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventV1Exception);
@@ -62,7 +64,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var invalidEventV1ReferenceException =
                     new InvalidEventV1ReferenceException(
                         message: "Invalid event reference error occurred.",
-                        innerException: foreignKeyConstraintConflictException);
+                        innerException: foreignKeyConstraintConflictException,
+                        data: foreignKeyConstraintConflictException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(invalidEventV1ReferenceException);
             }
@@ -71,7 +74,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var lockedEventV1Exception =
                     new LockedEventV1Exception(
                         message: "Event is locked, try again.",
-                        innerException: dbUpdateConcurrencyException);
+                        innerException: dbUpdateConcurrencyException,
+                        data: dbUpdateConcurrencyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventV1Exception);
             }
@@ -80,7 +84,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var failedEventV1StorageException =
                     new FailedEventV1StorageException(
                         message: "Failed event storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedEventV1StorageException);
             }
@@ -89,7 +94,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var failedEventV1ServiceException =
                     new FailedEventV1ServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1ServiceException);
             }
@@ -106,7 +112,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var failedEventV1StorageException =
                     new FailedEventV1StorageException(
                         message: "Failed event storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(failedEventV1StorageException);
             }
@@ -115,7 +122,8 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
                 var failedEventV1ServiceException =
                     new FailedEventV1ServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1ServiceException);
             }

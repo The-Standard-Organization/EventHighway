@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
                 addedListenerEventV1.DeepClone();
 
             this.listenerEventV1ServiceMock.Setup(broker =>
-                broker.AddListenerEventV1Async(
+                broker.AddListenerEventAsync(
                     inputListenerEventV1))
                         .ReturnsAsync(addedListenerEventV1);
 
@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
                 expectedListenerEventV1);
 
             this.listenerEventV1ServiceMock.Verify(broker =>
-                broker.AddListenerEventV1Async(
+                broker.AddListenerEventAsync(
                     inputListenerEventV1),
                         Times.Once);
 

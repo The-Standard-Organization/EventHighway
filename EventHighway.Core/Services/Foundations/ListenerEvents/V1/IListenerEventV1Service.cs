@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,9 +11,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V1
 {
     internal interface IListenerEventV1Service
     {
-        ValueTask<ListenerEventV1> AddListenerEventV1Async(ListenerEventV1 listenerEventV1);
-        ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventV1sAsync();
-        ValueTask<ListenerEventV1> ModifyListenerEventV1Async(ListenerEventV1 listenerEventV1);
-        ValueTask<ListenerEventV1> RemoveListenerEventV1ByIdAsync(Guid listenerEventV1Id);
+        ValueTask<ListenerEventV1> AddListenerEventAsync(ListenerEventV1 listenerEvent);
+        ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventsAsync();
+        ValueTask<ListenerEventV1> ModifyListenerEventAsync(ListenerEventV1 listenerEvent);
+        ValueTask<ListenerEventV1> RemoveListenerEventByIdAsync(Guid listenerEventId);
     }
 }

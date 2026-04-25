@@ -27,7 +27,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     innerException: eventV1DependencyException.InnerException as Xeption);
 
             this.eventV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventV1sWithListenerEventV1sAsync())
+                service.RetrieveAllEventsWithListenerEventsAsync())
                     .ThrowsAsync(eventV1DependencyException);
 
             // when
@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                 .BeEquivalentTo(expectedEventV1ProcessingDependencyException);
 
             this.eventV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventV1sWithListenerEventV1sAsync(),
+                service.RetrieveAllEventsWithListenerEventsAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -73,7 +73,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     innerException: failedEventV1ProcessingServiceException);
 
             this.eventV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventV1sWithListenerEventV1sAsync())
+                service.RetrieveAllEventsWithListenerEventsAsync())
                     .ThrowsAsync(serviceException);
 
             // when
@@ -89,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                 .BeEquivalentTo(expectedEventV1ProcessingServiceException);
 
             this.eventV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventV1sWithListenerEventV1sAsync(),
+                service.RetrieveAllEventsWithListenerEventsAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

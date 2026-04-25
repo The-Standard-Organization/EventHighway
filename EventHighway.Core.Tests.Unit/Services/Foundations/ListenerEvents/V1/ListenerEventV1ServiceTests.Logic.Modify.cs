@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
             // when
             ListenerEventV1 actualListenerEventV1 =
                 await this.listenerEventV1Service
-                    .ModifyListenerEventV1Async(
+                    .ModifyListenerEventAsync(
                         inputListenerEventV1);
 
             // then

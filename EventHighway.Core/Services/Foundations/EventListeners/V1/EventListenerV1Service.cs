@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -28,26 +28,26 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventListenerV1> AddEventListenerV1Async(EventListenerV1 eventListenerV1) =>
+        public ValueTask<EventListenerV1> AddEventListenerAsync(EventListenerV1 eventListener) =>
         TryCatch(async () =>
         {
-            await ValidateEventListenerV1OnAddAsync(eventListenerV1);
+            await ValidateEventListenerV1OnAddAsync(eventListener);
 
-            return await this.storageBroker.InsertEventListenerV1Async(eventListenerV1);
+            return await this.storageBroker.InsertEventListenerV1Async(eventListener);
         });
 
-        public ValueTask<IQueryable<EventListenerV1>> RetrieveAllEventListenerV1sAsync() =>
+        public ValueTask<IQueryable<EventListenerV1>> RetrieveAllEventListenersAsync() =>
         TryCatch(async () => await storageBroker.SelectAllEventListenersV1Async());
 
-        public ValueTask<EventListenerV1> RemoveEventListenerV1ByIdAsync(Guid eventListenerV1Id) =>
+        public ValueTask<EventListenerV1> RemoveEventListenerByIdAsync(Guid eventListenerId) =>
         TryCatch(async () =>
         {
-            ValidateEventListenerV1Id(eventListenerV1Id);
+            ValidateEventListenerId(eventListenerId);
 
             EventListenerV1 maybeEventListenerV1 =
-                await this.storageBroker.SelectEventListenerByIdV1Async(eventListenerV1Id);
+                await this.storageBroker.SelectEventListenerByIdV1Async(eventListenerId);
 
-            ValidateEventListenerV1Exists(maybeEventListenerV1, eventListenerV1Id);
+            ValidateEventListenerExists(maybeEventListenerV1, eventListenerId);
 
             return await this.storageBroker.DeleteEventListenerV1Async(maybeEventListenerV1);
         });

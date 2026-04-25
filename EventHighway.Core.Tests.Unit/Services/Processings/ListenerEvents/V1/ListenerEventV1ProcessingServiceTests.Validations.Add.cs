@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
                         Times.Once);
 
             this.listenerEventV1ServiceMock.Verify(broker =>
-                broker.AddListenerEventV1Async(
+                broker.AddListenerEventAsync(
                     It.IsAny<ListenerEventV1>()),
                         Times.Never);
 

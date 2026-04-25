@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,112 +11,112 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
 {
     internal partial class EventV1Service
     {
-        private async ValueTask ValidateEventV1OnAddAsync(EventV1 eventV1)
+        private async ValueTask ValidateEventOnAddAsync(EventV1 @event)
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventV1IsNotNull(@event);
 
             Validate(
-                (Rule: IsInvalid(eventV1.Id),
+                (Rule: IsInvalid(@event.Id),
                 Parameter: nameof(EventV1.Id)),
 
-                (Rule: IsInvalid(eventV1.Content),
+                (Rule: IsInvalid(@event.Content),
                 Parameter: nameof(EventV1.Content)),
 
-                (Rule: IsInvalid(eventV1.EventAddressId),
+                (Rule: IsInvalid(@event.EventAddressId),
                 Parameter: nameof(EventV1.EventAddressId)),
 
-                (Rule: IsInvalid(eventV1.Type),
+                (Rule: IsInvalid(@event.Type),
                 Parameter: nameof(EventV1.Type)),
 
-                (Rule: IsInvalid(eventV1.CreatedDate),
+                (Rule: IsInvalid(@event.CreatedDate),
                 Parameter: nameof(EventV1.CreatedDate)),
 
-                (Rule: IsInvalid(eventV1.UpdatedDate),
+                (Rule: IsInvalid(@event.UpdatedDate),
                 Parameter: nameof(EventV1.UpdatedDate)),
 
                 (Rule: IsNotSameAs(
-                    firstDate: eventV1.CreatedDate,
-                    secondDate: eventV1.UpdatedDate,
+                    firstDate: @event.CreatedDate,
+                    secondDate: @event.UpdatedDate,
                     secondDateName: nameof(EventV1.UpdatedDate)),
 
                 Parameter: nameof(EventV1.CreatedDate)),
 
-                (Rule: await IsNotRecentAsync(eventV1.CreatedDate),
+                (Rule: await IsNotRecentAsync(@event.CreatedDate),
                 Parameter: nameof(EventV1.CreatedDate)));
         }
 
-        private async ValueTask ValidateEventV1OnModifyAsync(EventV1 eventV1)
+        private async ValueTask ValidateEventOnModifyAsync(EventV1 @event)
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventV1IsNotNull(@event);
 
             Validate(
-                (Rule: IsInvalid(eventV1.Id),
+                (Rule: IsInvalid(@event.Id),
                 Parameter: nameof(EventV1.Id)),
 
-                (Rule: IsInvalid(eventV1.Content),
+                (Rule: IsInvalid(@event.Content),
                 Parameter: nameof(EventV1.Content)),
 
-                (Rule: IsInvalid(eventV1.EventAddressId),
+                (Rule: IsInvalid(@event.EventAddressId),
                 Parameter: nameof(EventV1.EventAddressId)),
 
-                (Rule: IsInvalid(eventV1.Type),
+                (Rule: IsInvalid(@event.Type),
                 Parameter: nameof(EventV1.Type)),
 
-                (Rule: IsInvalid(eventV1.CreatedDate),
+                (Rule: IsInvalid(@event.CreatedDate),
                 Parameter: nameof(EventV1.CreatedDate)),
 
-                (Rule: IsInvalid(eventV1.UpdatedDate),
+                (Rule: IsInvalid(@event.UpdatedDate),
                 Parameter: nameof(EventV1.UpdatedDate)),
 
                 (Rule: IsSameAs(
-                    firstDate: eventV1.CreatedDate,
-                    secondDate: eventV1.UpdatedDate,
+                    firstDate: @event.CreatedDate,
+                    secondDate: @event.UpdatedDate,
                     secondDateName: nameof(EventV1.CreatedDate)),
 
                 Parameter: nameof(EventV1.UpdatedDate)),
 
-                (Rule: await IsNotRecentAsync(eventV1.UpdatedDate),
+                (Rule: await IsNotRecentAsync(@event.UpdatedDate),
                 Parameter: nameof(EventV1.UpdatedDate)));
         }
 
-        private static void ValidateEventV1Id(Guid eventV1Id)
+        private static void ValidateEventId(Guid eventId)
         {
             Validate(
-                (Rule: IsInvalid(eventV1Id),
+                (Rule: IsInvalid(eventId),
                 Parameter: nameof(EventV1.Id)));
         }
 
-        private static void ValidateEventV1IsNotNull(EventV1 eventV1)
+        private static void ValidateEventV1IsNotNull(EventV1 @event)
         {
-            if (eventV1 is null)
+            if (@event is null)
             {
                 throw new NullEventV1Exception(
                     message: "Event is null.");
             }
         }
 
-        private static void ValidateEventV1AgainstStorage(
-            EventV1 incomingEventV1,
-            EventV1 storageEventV1)
+        private static void ValidateEventAgainstStorage(
+            EventV1 incomingEvent,
+            EventV1 storageEvent)
         {
-            ValidateEventV1Exists(
-                eventV1: storageEventV1,
-                eventV1Id: incomingEventV1.Id);
+            ValidateEventExists(
+                eventV1: storageEvent,
+                eventV1Id: incomingEvent.Id);
 
             Validate(
                 (Rule: IsNotSameAsStorage(
-                    firstDate: incomingEventV1.CreatedDate,
-                    secondDate: storageEventV1.CreatedDate),
+                    firstDate: incomingEvent.CreatedDate,
+                    secondDate: storageEvent.CreatedDate),
                 Parameter: nameof(EventV1.CreatedDate)),
 
                 (Rule: IsEarlierThan(
-                    firstDate: incomingEventV1.UpdatedDate,
-                    secondDate: storageEventV1.UpdatedDate),
+                    firstDate: incomingEvent.UpdatedDate,
+                    secondDate: storageEvent.UpdatedDate),
 
                 Parameter: nameof(EventV1.UpdatedDate)));
         }
 
-        private static void ValidateEventV1Exists(
+        private static void ValidateEventExists(
             EventV1 eventV1,
             Guid eventV1Id)
         {

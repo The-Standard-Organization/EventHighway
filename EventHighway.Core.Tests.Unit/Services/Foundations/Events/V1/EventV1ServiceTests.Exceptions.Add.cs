@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1Service.AddEventV1Async(someEventV1);
+                this.eventV1Service.AddEventAsync(someEventV1);
 
             EventV1DependencyException actualEventV1DependencyException =
                 await Assert.ThrowsAsync<EventV1DependencyException>(
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1Service.AddEventV1Async(someEventV1);
+                this.eventV1Service.AddEventAsync(someEventV1);
 
             EventV1DependencyValidationException actualEventV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventV1DependencyValidationException>(
@@ -145,7 +145,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1Service.AddEventV1Async(someEventV1);
+                this.eventV1Service.AddEventAsync(someEventV1);
 
             EventV1DependencyValidationException actualEventV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventV1DependencyValidationException>(
@@ -196,7 +196,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1Service.AddEventV1Async(someEventV1);
+                this.eventV1Service.AddEventAsync(someEventV1);
 
             EventV1DependencyException actualEventV1DependencyException =
                 await Assert.ThrowsAsync<EventV1DependencyException>(
@@ -247,7 +247,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1Service.AddEventV1Async(someEventV1);
+                this.eventV1Service.AddEventAsync(someEventV1);
 
             EventV1ServiceException actualEventV1ServiceException =
                 await Assert.ThrowsAsync<EventV1ServiceException>(

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,63 +11,63 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V1
 {
     internal partial class EventListenerV1Service
     {
-        private async ValueTask ValidateEventListenerV1OnAddAsync(EventListenerV1 eventListenerV1)
+        private async ValueTask ValidateEventListenerV1OnAddAsync(EventListenerV1 eventListener)
         {
-            ValidateEventListenerV1IsNotNull(eventListenerV1);
+            ValidateEventListenerV1IsNotNull(eventListener);
 
             Validate(
-                (Rule: IsInvalid(eventListenerV1.Id),
+                (Rule: IsInvalid(eventListener.Id),
                 Parameter: nameof(EventListenerV1.Id)),
 
-                (Rule: IsInvalid(eventListenerV1.Name),
+                (Rule: IsInvalid(eventListener.Name),
                 Parameter: nameof(EventListenerV1.Name)),
 
-                (Rule: IsInvalid(eventListenerV1.Description),
+                (Rule: IsInvalid(eventListener.Description),
                 Parameter: nameof(EventListenerV1.Description)),
 
-                (Rule: IsInvalid(eventListenerV1.HeaderSecret),
+                (Rule: IsInvalid(eventListener.HeaderSecret),
                 Parameter: nameof(EventListenerV1.HeaderSecret)),
 
-                (Rule: IsInvalid(eventListenerV1.Endpoint),
+                (Rule: IsInvalid(eventListener.Endpoint),
                 Parameter: nameof(EventListenerV1.Endpoint)),
 
-                (Rule: IsInvalid(eventListenerV1.EventAddressId),
+                (Rule: IsInvalid(eventListener.EventAddressId),
                 Parameter: nameof(EventListenerV1.EventAddressId)),
 
-                (Rule: IsInvalid(eventListenerV1.CreatedDate),
+                (Rule: IsInvalid(eventListener.CreatedDate),
                 Parameter: nameof(EventListenerV1.CreatedDate)),
 
-                (Rule: IsInvalid(eventListenerV1.UpdatedDate),
+                (Rule: IsInvalid(eventListener.UpdatedDate),
                 Parameter: nameof(EventListenerV1.UpdatedDate)),
 
                 (Rule: IsNotSameAs(
-                    firstDate: eventListenerV1.CreatedDate,
-                    secondDate: eventListenerV1.UpdatedDate,
+                    firstDate: eventListener.CreatedDate,
+                    secondDate: eventListener.UpdatedDate,
                     secondDateName: nameof(EventListenerV1.UpdatedDate)),
 
                 Parameter: nameof(EventListenerV1.CreatedDate)),
 
-                (Rule: await IsNotRecentAsync(eventListenerV1.CreatedDate),
+                (Rule: await IsNotRecentAsync(eventListener.CreatedDate),
                 Parameter: nameof(EventListenerV1.CreatedDate)));
         }
 
-        private static void ValidateEventListenerV1Id(Guid eventListenerV1Id)
+        private static void ValidateEventListenerId(Guid eventListenerId)
         {
             Validate(
-                (Rule: IsInvalid(eventListenerV1Id),
+                (Rule: IsInvalid(eventListenerId),
                 Parameter: nameof(EventListenerV1.Id)));
         }
 
-        private static void ValidateEventListenerV1Exists(
-            EventListenerV1 eventListenerV1,
-            Guid eventListenerV1Id)
+        private static void ValidateEventListenerExists(
+            EventListenerV1 eventListener,
+            Guid eventListenerId)
         {
-            if (eventListenerV1 is null)
+            if (eventListener is null)
             {
                 throw new NotFoundEventListenerV1Exception(
 
                     message: $"Could not find event listener " +
-                        $"with id: {eventListenerV1Id}.");
+                        $"with id: {eventListenerId}.");
             }
         }
 

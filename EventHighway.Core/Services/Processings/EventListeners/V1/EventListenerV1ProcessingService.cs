@@ -29,7 +29,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
         {
             ValidateEventListenerV1IsNotNull(eventListenerV1);
 
-            return await this.eventListenerV1Service.AddEventListenerV1Async(eventListenerV1);
+            return await this.eventListenerV1Service.AddEventListenerAsync(eventListenerV1);
         });
 
         public ValueTask<IQueryable<EventListenerV1>> RetrieveEventListenerV1sByEventAddressIdAsync(
@@ -38,7 +38,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
             ValidateEventAddressId(eventAddressId);
 
             IQueryable<EventListenerV1> eventListenerV1s =
-                await this.eventListenerV1Service.RetrieveAllEventListenerV1sAsync();
+                await this.eventListenerV1Service.RetrieveAllEventListenersAsync();
 
             return eventListenerV1s.Where(eventListenerV1 =>
                 eventListenerV1.EventAddressId == eventAddressId);
@@ -49,7 +49,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
         {
             ValidateEventListenerV1Id(eventListenerV1Id);
 
-            return await this.eventListenerV1Service.RemoveEventListenerV1ByIdAsync(
+            return await this.eventListenerV1Service.RemoveEventListenerByIdAsync(
                 eventListenerV1Id);
         });
     }

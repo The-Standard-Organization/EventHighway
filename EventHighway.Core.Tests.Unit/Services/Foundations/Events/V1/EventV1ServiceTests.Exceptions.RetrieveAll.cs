@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllEventV1sTask =
-                this.eventV1Service.RetrieveAllEventV1sAsync();
+                this.eventV1Service.RetrieveAllEventsAsync();
 
             EventV1DependencyException actualEventV1DependencyException =
                 await Assert.ThrowsAsync<EventV1DependencyException>(
@@ -83,7 +83,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<IQueryable<EventV1>> retrieveAllEventV1sTask =
-                this.eventV1Service.RetrieveAllEventV1sAsync();
+                this.eventV1Service.RetrieveAllEventsAsync();
 
             EventV1ServiceException actualEventV1ServiceException =
                 await Assert.ThrowsAsync<EventV1ServiceException>(

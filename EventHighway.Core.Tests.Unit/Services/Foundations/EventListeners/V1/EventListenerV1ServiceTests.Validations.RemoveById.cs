@@ -34,7 +34,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> removeEventListenerV1ByIdTask =
-                this.eventListenerV1Service.RemoveEventListenerV1ByIdAsync(
+                this.eventListenerV1Service.RemoveEventListenerByIdAsync(
                     invalidEventListenerV1Id);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =
@@ -81,7 +81,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> removeEventListenerV1ByIdTask =
-                this.eventListenerV1Service.RemoveEventListenerV1ByIdAsync(
+                this.eventListenerV1Service.RemoveEventListenerByIdAsync(
                     nonExistingEventListenerV1Id);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =

@@ -38,7 +38,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.listenerEventV1Service.RemoveListenerEventV1ByIdAsync(
+                this.listenerEventV1Service.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             ListenerEventV1DependencyException actualListenerEventV1DependencyException =
@@ -86,7 +86,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.listenerEventV1Service.RemoveListenerEventV1ByIdAsync(
+                this.listenerEventV1Service.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             ListenerEventV1DependencyValidationException actualListenerEventV1DependencyValidationException =
@@ -135,7 +135,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.listenerEventV1Service.RemoveListenerEventV1ByIdAsync(someListenerEventV1Id);
+                this.listenerEventV1Service.RemoveListenerEventByIdAsync(someListenerEventV1Id);
 
             ListenerEventV1DependencyException actualListenerEventV1DependencyException =
                 await Assert.ThrowsAsync<ListenerEventV1DependencyException>(
@@ -183,7 +183,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> removeListenerEventV1ByIdTask =
-                this.listenerEventV1Service.RemoveListenerEventV1ByIdAsync(
+                this.listenerEventV1Service.RemoveListenerEventByIdAsync(
                     someListenerEventV1Id);
 
             ListenerEventV1ServiceException actualListenerEventV1ServiceException =

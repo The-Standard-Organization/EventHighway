@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1Service.AddEventListenerV1Async(nullEventListenerV1);
+                this.eventListenerV1Service.AddEventListenerAsync(nullEventListenerV1);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =
                 await Assert.ThrowsAsync<EventListenerV1ValidationException>(
@@ -117,7 +117,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1Service.AddEventListenerV1Async(invalidEventListenerV1);
+                this.eventListenerV1Service.AddEventListenerAsync(invalidEventListenerV1);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =
                 await Assert.ThrowsAsync<EventListenerV1ValidationException>(
@@ -174,7 +174,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1Service.AddEventListenerV1Async(invalidEventListenerV1);
+                this.eventListenerV1Service.AddEventListenerAsync(invalidEventListenerV1);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =
                 await Assert.ThrowsAsync<EventListenerV1ValidationException>(
@@ -235,7 +235,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1Service.AddEventListenerV1Async(invalidEventListenerV1);
+                this.eventListenerV1Service.AddEventListenerAsync(invalidEventListenerV1);
 
             EventListenerV1ValidationException actualEventListenerV1ValidationException =
                 await Assert.ThrowsAsync<EventListenerV1ValidationException>(

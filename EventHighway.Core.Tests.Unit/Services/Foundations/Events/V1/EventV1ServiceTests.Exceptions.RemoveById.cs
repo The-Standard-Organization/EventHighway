@@ -38,7 +38,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1Service.RemoveEventV1ByIdAsync(
+                this.eventV1Service.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1DependencyException actualEventV1DependencyException =
@@ -86,7 +86,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1Service.RemoveEventV1ByIdAsync(
+                this.eventV1Service.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1DependencyValidationException actualEventV1DependencyValidationException =
@@ -135,7 +135,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1Service.RemoveEventV1ByIdAsync(someEventV1Id);
+                this.eventV1Service.RemoveEventByIdAsync(someEventV1Id);
 
             EventV1DependencyException actualEventV1DependencyException =
                 await Assert.ThrowsAsync<EventV1DependencyException>(
@@ -183,7 +183,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1Service.RemoveEventV1ByIdAsync(
+                this.eventV1Service.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1ServiceException actualEventV1ServiceException =

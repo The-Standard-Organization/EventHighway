@@ -49,7 +49,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     Times.Never);
 
             this.eventV1ServiceMock.Verify(broker =>
-                broker.ModifyEventV1Async(
+                broker.ModifyEventAsync(
                     It.IsAny<EventV1>()),
                         Times.Never);
 

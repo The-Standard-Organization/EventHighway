@@ -52,7 +52,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
                         Times.Once);
 
             this.eventListenerV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventListenerV1sAsync(),
+                service.RetrieveAllEventListenersAsync(),
                     Times.Never);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();

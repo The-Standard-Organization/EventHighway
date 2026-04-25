@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -49,7 +49,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var failedListenerEventV1StorageException =
                     new FailedListenerEventV1StorageException(
                         message: "Failed listener event storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedListenerEventV1StorageException);
@@ -59,7 +60,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var alreadyExistsListenerEventV1Exception =
                     new AlreadyExistsListenerEventV1Exception(
                         message: "Listener event with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsListenerEventV1Exception);
@@ -70,7 +72,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var invalidListenerEventV1ReferenceException =
                     new InvalidListenerEventV1ReferenceException(
                         message: "Invalid listener event reference error occurred.",
-                        innerException: foreignKeyConstraintConflictException);
+                        innerException: foreignKeyConstraintConflictException,
+                        data: foreignKeyConstraintConflictException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidListenerEventV1ReferenceException);
@@ -80,7 +83,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var lockedListenerEventV1Exception =
                     new LockedListenerEventV1Exception(
                         message: "Listener event is locked, try again.",
-                        innerException: dbUpdateConcurrencyException);
+                        innerException: dbUpdateConcurrencyException,
+                        data: dbUpdateConcurrencyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     lockedListenerEventV1Exception);
@@ -90,7 +94,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var failedListenerEventV1StorageException =
                     new FailedListenerEventV1StorageException(
                         message: "Failed listener event storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(
                     failedListenerEventV1StorageException);
@@ -100,7 +105,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var failedListenerEventV1ServiceException =
                     new FailedListenerEventV1ServiceException(
                         message: "Failed listener event service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedListenerEventV1ServiceException);
@@ -119,7 +125,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var failedListenerEventV1StorageException =
                     new FailedListenerEventV1StorageException(
                         message: "Failed listener event storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedListenerEventV1StorageException);
@@ -129,7 +136,8 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 var failedListenerEventV1ServiceException =
                     new FailedListenerEventV1ServiceException(
                         message: "Failed listener event service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedListenerEventV1ServiceException);

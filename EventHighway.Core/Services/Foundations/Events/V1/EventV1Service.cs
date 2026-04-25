@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -28,45 +28,45 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1> AddEventV1Async(EventV1 eventV1) =>
+        public ValueTask<EventV1> AddEventAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            await ValidateEventV1OnAddAsync(eventV1);
+            await ValidateEventOnAddAsync(@event);
 
-            return await storageBroker.InsertEventV1Async(eventV1);
+            return await storageBroker.InsertEventV1Async(@event);
         });
 
-        public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sAsync() =>
+        public ValueTask<IQueryable<EventV1>> RetrieveAllEventsAsync() =>
         TryCatch(async () => await this.storageBroker.SelectAllEventsV1Async());
 
-        public ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sWithListenerEventV1sAsync() =>
+        public ValueTask<IQueryable<EventV1>> RetrieveAllEventsWithListenerEventsAsync() =>
         TryCatch(async () => await this.storageBroker.SelectAllEventsWithListenerEventsV1Async());
 
-        public ValueTask<EventV1> ModifyEventV1Async(EventV1 eventV1) =>
+        public ValueTask<EventV1> ModifyEventAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            await ValidateEventV1OnModifyAsync(eventV1);
+            await ValidateEventOnModifyAsync(@event);
 
-            EventV1 maybeEventV1 =
+            EventV1 maybeEvent =
                 await this.storageBroker.SelectEventByIdV1Async(
-                    eventV1.Id);
+                    @event.Id);
 
-            ValidateEventV1AgainstStorage(eventV1, maybeEventV1);
+            ValidateEventAgainstStorage(@event, maybeEvent);
 
-            return await storageBroker.UpdateEventV1Async(eventV1);
+            return await storageBroker.UpdateEventV1Async(@event);
         });
 
-        public ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id) =>
+        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventId) =>
         TryCatch(async () =>
         {
-            ValidateEventV1Id(eventV1Id);
+            ValidateEventId(eventId);
 
-            EventV1 maybeEventV1 =
-                await this.storageBroker.SelectEventByIdV1Async(eventV1Id);
+            EventV1 maybeEvent =
+                await this.storageBroker.SelectEventByIdV1Async(eventId);
 
-            ValidateEventV1Exists(maybeEventV1, eventV1Id);
+            ValidateEventExists(maybeEvent, eventId);
 
-            return await this.storageBroker.DeleteEventV1Async(maybeEventV1);
+            return await this.storageBroker.DeleteEventV1Async(maybeEvent);
         });
     }
 }

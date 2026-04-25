@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,88 +11,88 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
 {
     internal partial class ListenerEventV1Service
     {
-        private async ValueTask ValidateListenerEventV1OnAddAsync(ListenerEventV1 listenerEventV1)
+        private async ValueTask ValidateListenerEventOnAddAsync(ListenerEventV1 listenerEvent)
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEvent);
 
             Validate(
-                (Rule: IsInvalid(listenerEventV1.Id),
+                (Rule: IsInvalid(listenerEvent.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
-                (Rule: IsInvalid(listenerEventV1.EventId),
+                (Rule: IsInvalid(listenerEvent.EventId),
                 Parameter: nameof(ListenerEventV1.EventId)),
 
-                (Rule: IsInvalid(listenerEventV1.EventAddressId),
+                (Rule: IsInvalid(listenerEvent.EventAddressId),
                 Parameter: nameof(ListenerEventV1.EventAddressId)),
 
-                (Rule: IsInvalid(listenerEventV1.EventListenerId),
+                (Rule: IsInvalid(listenerEvent.EventListenerId),
                 Parameter: nameof(ListenerEventV1.EventListenerId)),
 
-                (Rule: IsInvalid(listenerEventV1.Status),
+                (Rule: IsInvalid(listenerEvent.Status),
                 Parameter: nameof(ListenerEventV1.Status)),
 
-                (Rule: IsInvalid(listenerEventV1.CreatedDate),
+                (Rule: IsInvalid(listenerEvent.CreatedDate),
                 Parameter: nameof(ListenerEventV1.CreatedDate)),
 
-                (Rule: IsInvalid(listenerEventV1.UpdatedDate),
+                (Rule: IsInvalid(listenerEvent.UpdatedDate),
                 Parameter: nameof(ListenerEventV1.UpdatedDate)),
 
                 (Rule: IsNotSameAs(
-                    firstDate: listenerEventV1.CreatedDate,
-                    secondDate: listenerEventV1.UpdatedDate,
+                    firstDate: listenerEvent.CreatedDate,
+                    secondDate: listenerEvent.UpdatedDate,
                     secondDateName: nameof(ListenerEventV1.UpdatedDate)),
 
                 Parameter: nameof(ListenerEventV1.CreatedDate)),
 
-                (Rule: await IsNotRecentAsync(listenerEventV1.CreatedDate),
+                (Rule: await IsNotRecentAsync(listenerEvent.CreatedDate),
                 Parameter: nameof(ListenerEventV1.CreatedDate)));
         }
 
-        private async ValueTask ValidateListenerEventV1OnModifyAsync(ListenerEventV1 listenerEventV1)
+        private async ValueTask ValidateListenerEventOnModifyAsync(ListenerEventV1 listenerEvent)
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEvent);
 
             Validate(
-                (Rule: IsInvalid(listenerEventV1.Id),
+                (Rule: IsInvalid(listenerEvent.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
-                (Rule: IsInvalid(listenerEventV1.Response),
+                (Rule: IsInvalid(listenerEvent.Response),
                 Parameter: nameof(ListenerEventV1.Response)),
 
-                (Rule: IsInvalid(listenerEventV1.EventId),
+                (Rule: IsInvalid(listenerEvent.EventId),
                 Parameter: nameof(ListenerEventV1.EventId)),
 
-                (Rule: IsInvalid(listenerEventV1.EventAddressId),
+                (Rule: IsInvalid(listenerEvent.EventAddressId),
                 Parameter: nameof(ListenerEventV1.EventAddressId)),
 
-                (Rule: IsInvalid(listenerEventV1.EventListenerId),
+                (Rule: IsInvalid(listenerEvent.EventListenerId),
                 Parameter: nameof(ListenerEventV1.EventListenerId)),
 
-                (Rule: IsInvalid(listenerEventV1.Status),
+                (Rule: IsInvalid(listenerEvent.Status),
                 Parameter: nameof(ListenerEventV1.Status)),
 
-                (Rule: IsInvalid(listenerEventV1.CreatedDate),
+                (Rule: IsInvalid(listenerEvent.CreatedDate),
                 Parameter: nameof(ListenerEventV1.CreatedDate)),
 
-                (Rule: IsInvalid(listenerEventV1.UpdatedDate),
+                (Rule: IsInvalid(listenerEvent.UpdatedDate),
                 Parameter: nameof(ListenerEventV1.UpdatedDate)),
 
                 (Rule: IsSameAs(
-                    firstDate: listenerEventV1.UpdatedDate,
-                    secondDate: listenerEventV1.CreatedDate,
+                    firstDate: listenerEvent.UpdatedDate,
+                    secondDate: listenerEvent.CreatedDate,
                     secondDateName: nameof(ListenerEventV1.CreatedDate)),
 
                 Parameter: nameof(ListenerEventV1.UpdatedDate)),
 
-                (Rule: await IsNotRecentAsync(listenerEventV1.UpdatedDate),
+                (Rule: await IsNotRecentAsync(listenerEvent.UpdatedDate),
                 Parameter: nameof(ListenerEventV1.UpdatedDate)));
         }
 
-        private static void ValidateListenerEventV1AgainstStorage(
+        private static void ValidateListenerEventAgainstStorage(
             ListenerEventV1 incomingListenerEventV1,
             ListenerEventV1 storageListenerEventV1)
         {
-            ValidateListenerEventV1Exists(
+            ValidateListenerEventExists(
                 listenerEventV1: storageListenerEventV1,
                 listenerEventV1Id: incomingListenerEventV1.Id);
 
@@ -110,14 +110,14 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 Parameter: nameof(ListenerEventV1.UpdatedDate)));
         }
 
-        private static void ValidateListenerEventV1Id(Guid listenerEventV1Id)
+        private static void ValidateListenerEventId(Guid listenerEventV1Id)
         {
             Validate(
                 (Rule: IsInvalid(listenerEventV1Id),
                 Parameter: nameof(ListenerEventV1.Id)));
         }
 
-        private static void ValidateListenerEventV1Exists(ListenerEventV1 listenerEventV1, Guid listenerEventV1Id)
+        private static void ValidateListenerEventExists(ListenerEventV1 listenerEventV1, Guid listenerEventV1Id)
         {
             if (listenerEventV1 is null)
             {
@@ -126,7 +126,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
             }
         }
 
-        private static void ValidateListenerEventV1IsNotNull(ListenerEventV1 listenerEventV1)
+        private static void ValidateListenerEventIsNotNull(ListenerEventV1 listenerEventV1)
         {
             if (listenerEventV1 is null)
             {

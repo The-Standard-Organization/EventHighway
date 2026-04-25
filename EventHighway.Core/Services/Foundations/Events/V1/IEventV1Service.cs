@@ -11,10 +11,10 @@ namespace EventHighway.Core.Services.Foundations.Events.V1
 {
     internal partial interface IEventV1Service
     {
-        ValueTask<EventV1> AddEventV1Async(EventV1 eventV1);
-        ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sAsync();
-        ValueTask<IQueryable<EventV1>> RetrieveAllEventV1sWithListenerEventV1sAsync();
-        ValueTask<EventV1> ModifyEventV1Async(EventV1 eventV1);
-        ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id);
+        ValueTask<EventV1> AddEventAsync(EventV1 eventV1);
+        ValueTask<IQueryable<EventV1>> RetrieveAllEventsAsync();
+        ValueTask<IQueryable<EventV1>> RetrieveAllEventsWithListenerEventsAsync();
+        ValueTask<EventV1> ModifyEventAsync(EventV1 eventV1);
+        ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id);
     }
 }

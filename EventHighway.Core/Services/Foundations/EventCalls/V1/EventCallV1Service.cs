@@ -23,51 +23,51 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCall) =>
         TryCatch(async () =>
         {
-            ValidateEventCallOnRun(eventCallV1);
+            ValidateEventCallOnRun(eventCall);
 
             string response =
                 await apiBroker.PostAsync(
-                    content: eventCallV1.Content,
-                    url: eventCallV1.Endpoint,
-                    secret: eventCallV1.Secret);
+                    content: eventCall.Content,
+                    url: eventCall.Endpoint,
+                    secret: eventCall.Secret);
 
-            eventCallV1.Response = response;
+            eventCall.Response = response;
 
-            return eventCallV1;
+            return eventCall;
         });
 
-        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCall) =>
         TryCatch(async () =>
         {
-            ValidateEventCallOnRun(eventCallV1);
+            ValidateEventCallOnRun(eventCall);
 
             HttpResponseMessage httpResponseMessage =
                 await apiBroker.PostAsyncV1(
-                    content: eventCallV1.Content,
-                    url: eventCallV1.Endpoint,
-                    secret: eventCallV1.Secret);
+                    content: eventCall.Content,
+                    url: eventCall.Endpoint,
+                    secret: eventCall.Secret);
 
             ValidateHttpResponseMessageIsNotNull(httpResponseMessage);
-            await MapToEventCallV1Async(eventCallV1, httpResponseMessage);
+            await MapToEventCallV1Async(eventCall, httpResponseMessage);
 
-            return eventCallV1;
+            return eventCall;
         });
 
         private static async ValueTask MapToEventCallV1Async(
-            EventCallV1 eventCallV1,
+            EventCallV1 eventCall,
             HttpResponseMessage httpResponseMessage)
         {
-            eventCallV1.Response =
+            eventCall.Response =
                 await httpResponseMessage.Content
                     .ReadAsStringAsync();
 
-            eventCallV1.ResponseReasonPhrase =
+            eventCall.ResponseReasonPhrase =
                 httpResponseMessage.ReasonPhrase;
 
-            eventCallV1.IsSuccess =
+            eventCall.IsSuccess =
                 httpResponseMessage.IsSuccessStatusCode;
         }
     }

@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     .ReturnsAsync(retrievedDateTimeOffset);
 
             this.eventV1ServiceMock.Setup(broker =>
-                broker.ModifyEventV1Async(
+                broker.ModifyEventAsync(
                     inputEventV1))
                         .ReturnsAsync(modifiedEventV1);
 
@@ -59,7 +59,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     Times.Once);
 
             this.eventV1ServiceMock.Verify(broker =>
-                broker.ModifyEventV1Async(
+                broker.ModifyEventAsync(
                     inputEventV1),
                         Times.Once);
 

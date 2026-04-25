@@ -70,7 +70,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1Service
-                    .ModifyEventV1Async(
+                    .ModifyEventAsync(
                         inputEventV1);
 
             // then

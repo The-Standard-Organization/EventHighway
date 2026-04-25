@@ -33,14 +33,14 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         {
             ValidateEventV1IsNotNull(eventV1);
 
-            return await this.eventV1Service.AddEventV1Async(eventV1);
+            return await this.eventV1Service.AddEventAsync(eventV1);
         });
 
         public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
-                await this.eventV1Service.RetrieveAllEventV1sAsync();
+                await this.eventV1Service.RetrieveAllEventsAsync();
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -54,7 +54,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
-                await this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
+                await this.eventV1Service.RetrieveAllEventsWithListenerEventsAsync();
 
             return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
         });
@@ -72,7 +72,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         {
             ValidateEventV1Id(eventV1Id);
 
-            return await this.eventV1Service.RemoveEventV1ByIdAsync(
+            return await this.eventV1Service.RemoveEventByIdAsync(
                 eventV1Id);
         });
 
@@ -84,7 +84,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             eventV1.Type = EventV1Type.Immediate;
             eventV1.UpdatedDate = now;
 
-            return await this.eventV1Service.ModifyEventV1Async(eventV1);
+            return await this.eventV1Service.ModifyEventAsync(eventV1);
         }
     }
 }

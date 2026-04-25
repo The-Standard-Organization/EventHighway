@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1Service
-                    .AddEventV1Async(inputEventV1);
+                    .AddEventAsync(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(
