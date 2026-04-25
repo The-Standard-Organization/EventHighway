@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -24,32 +24,32 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<ListenerEventV1> AddListenerEventV1Async(ListenerEventV1 listenerEventV1) =>
+        public ValueTask<ListenerEventV1> AddListenerEventAsync(ListenerEventV1 listenerEvent) =>
         TryCatch(async () =>
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEvent);
 
-            return await this.listenerEventV1Service.AddListenerEventAsync(listenerEventV1);
+            return await this.listenerEventV1Service.AddListenerEventAsync(listenerEvent);
         });
 
-        public ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventV1sAsync() =>
+        public ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventsAsync() =>
         TryCatch(async () => await this.listenerEventV1Service.RetrieveAllListenerEventsAsync());
 
-        public ValueTask<ListenerEventV1> ModifyListenerEventV1Async(ListenerEventV1 listenerEventV1) =>
+        public ValueTask<ListenerEventV1> ModifyListenerEventAsync(ListenerEventV1 listenerEvent) =>
         TryCatch(async () =>
         {
-            ValidateListenerEventV1IsNotNull(listenerEventV1);
+            ValidateListenerEventIsNotNull(listenerEvent);
 
-            return await this.listenerEventV1Service.ModifyListenerEventAsync(listenerEventV1);
+            return await this.listenerEventV1Service.ModifyListenerEventAsync(listenerEvent);
         });
 
         public ValueTask<ListenerEventV1> RemoveListenerEventByIdAsync(
-            Guid listenerEventV1Id) => TryCatch(async () =>
+            Guid listenerEventId) => TryCatch(async () =>
         {
-            ValidateListenerEventV1Id(listenerEventV1Id);
+            ValidateListenerEventId(listenerEventId);
 
             return await this.listenerEventV1Service
-                .RemoveListenerEventByIdAsync(listenerEventV1Id);
+                .RemoveListenerEventByIdAsync(listenerEventId);
         });
     }
 }

@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
 
             // when
             ValueTask<IQueryable<ListenerEventV1>> retrieveAllListenerEventV1sTask =
-                this.listenerEventV1ProcessingService.RetrieveAllListenerEventV1sAsync();
+                this.listenerEventV1ProcessingService.RetrieveAllListenerEventsAsync();
 
             ListenerEventV1ProcessingDependencyException
                 actualListenerEventV1ProcessingDependencyException =
@@ -78,7 +78,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
 
             // when
             ValueTask<IQueryable<ListenerEventV1>> retrieveAllListenerEventV1sTask =
-                this.listenerEventV1ProcessingService.RetrieveAllListenerEventV1sAsync();
+                this.listenerEventV1ProcessingService.RetrieveAllListenerEventsAsync();
 
             ListenerEventV1ProcessingServiceException
                 actualListenerEventV1ProcessingServiceException =

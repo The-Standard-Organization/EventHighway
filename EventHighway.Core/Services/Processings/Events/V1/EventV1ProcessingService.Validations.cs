@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -10,19 +10,19 @@ namespace EventHighway.Core.Services.Processings.Events.V1
 {
     internal partial class EventV1ProcessingService
     {
-        private static void ValidateEventV1IsNotNull(EventV1 listenerEventV1)
+        private static void ValidateEventIsNotNull(EventV1 listenerEvent)
         {
-            if (listenerEventV1 is null)
+            if (listenerEvent is null)
             {
                 throw new NullEventV1ProcessingException(
                     message: "Event is null.");
             }
         }
 
-        private static void ValidateEventV1Id(Guid eventV1Id)
+        private static void ValidateEventId(Guid eventId)
         {
             Validate(
-                (Rule: IsInvalid(eventV1Id),
+                (Rule: IsInvalid(eventId),
                 Parameter: nameof(EventV1.Id)));
         }
 

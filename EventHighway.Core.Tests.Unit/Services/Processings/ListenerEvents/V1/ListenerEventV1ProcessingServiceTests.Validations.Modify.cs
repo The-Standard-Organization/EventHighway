@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V1
 
             // when
             ValueTask<ListenerEventV1> modifyListenerEventV1Task =
-                this.listenerEventV1ProcessingService.ModifyListenerEventV1Async(
+                this.listenerEventV1ProcessingService.ModifyListenerEventAsync(
                     nullListenerEventV1);
 
             ListenerEventV1ProcessingValidationException

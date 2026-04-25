@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1ProcessingService.AddEventListenerV1Async(
+                this.eventListenerV1ProcessingService.AddEventListenerAsync(
                     someEventListenerV1);
 
             EventListenerV1ProcessingDependencyValidationException
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1ProcessingService.AddEventListenerV1Async(someEventListenerV1);
+                this.eventListenerV1ProcessingService.AddEventListenerAsync(someEventListenerV1);
 
             EventListenerV1ProcessingDependencyException
                 actualEventListenerV1ProcessingDependencyException =
@@ -124,7 +124,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
 
             // when
             ValueTask<EventListenerV1> addEventListenerV1Task =
-                this.eventListenerV1ProcessingService.AddEventListenerV1Async(
+                this.eventListenerV1ProcessingService.AddEventListenerAsync(
                     someEventListenerV1);
 
             EventListenerV1ProcessingServiceException

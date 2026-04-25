@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -48,14 +48,15 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
                 var failedListenerEventArchiveV1ProcessingServiceException =
                     new FailedListenerEventArchiveV1ProcessingServiceException(
                         message: "Failed listener event archive service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedListenerEventArchiveV1ProcessingServiceException);
             }
         }
 
         private async ValueTask<ListenerEvenArchiveV1ProcessingValidationException>
-            CreateAndLogValidationExceptionAsync( Xeption exception)
+            CreateAndLogValidationExceptionAsync(Xeption exception)
         {
             var ListenerEventArchiveV1ProcessingValidationException =
                 new ListenerEvenArchiveV1ProcessingValidationException(

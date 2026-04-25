@@ -17,14 +17,14 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
                 Parameter: nameof(EventListenerV1.EventAddressId)));
         }
 
-        private static void ValidateEventListenerV1Id(Guid eventListenerV1Id)
+        private static void ValidateEventListenerId(Guid eventListenerV1Id)
         {
             Validate(
                 (Rule: IsInvalid(eventListenerV1Id),
                 Parameter: nameof(EventListenerV1.Id)));
         }
 
-        private static void ValidateEventListenerV1IsNotNull(EventListenerV1 eventListenerV1)
+        private static void ValidateEventListenerIsNotNull(EventListenerV1 eventListenerV1)
         {
             if (eventListenerV1 is null)
             {

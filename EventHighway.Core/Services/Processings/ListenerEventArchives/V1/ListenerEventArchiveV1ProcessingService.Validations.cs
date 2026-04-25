@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
@@ -9,9 +9,9 @@ namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
 {
     internal partial class ListenerEventArchiveV1ProcessingService
     {
-        private void ValidateListenerEventArchiveV1(ListenerEventArchiveV1 listenerEventArchiveV1)
+        private void ValidateListenerEventArchive(ListenerEventArchiveV1 listenerEventArchive)
         {
-            if (listenerEventArchiveV1 is null)
+            if (listenerEventArchive is null)
             {
                 throw new NullListenerEventArchiveV1ProcessingException(
                     message: "Listener event archive is null.");

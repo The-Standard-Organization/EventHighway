@@ -53,7 +53,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventListeners.V1
                         Times.Once);
 
             this.eventListenerV1ProcessingServiceMock.Verify(broker =>
-                broker.RemoveEventListenerV1ByIdAsync(
+                broker.RemoveEventListenerByIdAsync(
                     It.IsAny<Guid>()),
                         Times.Never);
 

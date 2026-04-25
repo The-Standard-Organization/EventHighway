@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
             // when
             IQueryable<EventListenerV1> actualEventListenerV1s =
                 await this.eventListenerV1ProcessingService
-                    .RetrieveEventListenerV1sByEventAddressIdAsync(
+                    .RetrieveEventListenersByEventAddressIdAsync(
                         inputEventAddressId);
 
             // then

@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
 
             // when
             ValueTask<ListenerEventArchiveV1> addListenerEventArchiveV1Task =
-                this.listenerEventArchiveV1ProcessingService.AddListenerEventArchiveV1Async(
+                this.listenerEventArchiveV1ProcessingService.AddListenerEventArchiveAsync(
                     nullListenerEventArchiveV1);
 
             ListenerEvenArchiveV1ProcessingValidationException actualListenerEventArchiveV1ProcessingValidationException =

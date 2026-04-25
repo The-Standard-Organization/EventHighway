@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,10 +11,10 @@ namespace EventHighway.Core.Services.Processings.Events.V1
 {
     internal interface IEventV1ProcessingService
     {
-        ValueTask<EventV1> AddEventAsync(EventV1 eventV1);
+        ValueTask<EventV1> AddEventAsync(EventV1 @event);
         ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventsAsync();
         ValueTask<IQueryable<EventV1>> RetrieveAllDeadEventsWithListenersAsync();
-        ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 eventV1);
-        ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id);
+        ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 @event);
+        ValueTask<EventV1> RemoveEventByIdAsync(Guid eventId);
     }
 }

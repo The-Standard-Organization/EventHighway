@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -36,7 +36,8 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 var failedEventV1ProcessingServiceException =
                     new FailedEventV1ProcessingServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1ProcessingServiceException);
             }
@@ -81,7 +82,8 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 var failedEventV1ProcessingServiceException =
                     new FailedEventV1ProcessingServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1ProcessingServiceException);
             }

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -28,24 +28,24 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1> AddEventAsync(EventV1 eventV1) =>
+        public ValueTask<EventV1> AddEventAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(@event);
 
-            return await this.eventV1Service.AddEventAsync(eventV1);
+            return await this.eventV1Service.AddEventAsync(@event);
         });
 
         public ValueTask<IQueryable<EventV1>> RetrieveScheduledPendingEventsAsync() =>
         TryCatch(async () =>
         {
-            IQueryable<EventV1> eventV1s =
+            IQueryable<EventV1> events =
                 await this.eventV1Service.RetrieveAllEventsAsync();
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            return eventV1s.Where(eventV1 =>
+            return events.Where(eventV1 =>
                 eventV1.Type == EventV1Type.Scheduled &&
                 eventV1.ScheduledDate < now);
         });
@@ -59,32 +59,32 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
         });
 
-        public ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 eventV1) =>
+        public ValueTask<EventV1> MarkEventAsImmediateAsync(EventV1 @event) =>
         TryCatch(async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(@event);
 
-            return await SetEventV1AsImmediateAsync(eventV1);
+            return await SetEventAsImmediateAsync(@event);
         });
 
-        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id) =>
+        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventId) =>
         TryCatch(async () =>
         {
-            ValidateEventV1Id(eventV1Id);
+            ValidateEventId(eventId);
 
             return await this.eventV1Service.RemoveEventByIdAsync(
-                eventV1Id);
+                eventId);
         });
 
-        private async ValueTask<EventV1> SetEventV1AsImmediateAsync(EventV1 eventV1)
+        private async ValueTask<EventV1> SetEventAsImmediateAsync(EventV1 @event)
         {
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            eventV1.Type = EventV1Type.Immediate;
-            eventV1.UpdatedDate = now;
+            @event.Type = EventV1Type.Immediate;
+            @event.UpdatedDate = now;
 
-            return await this.eventV1Service.ModifyEventAsync(eventV1);
+            return await this.eventV1Service.ModifyEventAsync(@event);
         }
     }
 }

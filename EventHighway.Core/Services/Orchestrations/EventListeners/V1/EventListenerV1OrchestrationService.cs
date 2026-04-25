@@ -34,7 +34,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         {
             ValidateEventListenerIsNotNull(eventListenerV1);
 
-            return await this.eventListenerV1ProcessingService.AddEventListenerV1Async(
+            return await this.eventListenerV1ProcessingService.AddEventListenerAsync(
                 eventListenerV1);
         });
 
@@ -44,7 +44,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
             ValidateEventAddressId(eventAddressId);
 
             return await this.eventListenerV1ProcessingService
-                .RetrieveEventListenerV1sByEventAddressIdAsync(eventAddressId);
+                .RetrieveEventListenersByEventAddressIdAsync(eventAddressId);
         });
 
         public ValueTask<EventListenerV1> RemoveEventListenerByIdAsync(Guid eventListenerV1Id) =>
@@ -52,7 +52,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         {
             ValidateEventListenerId(eventListenerV1Id);
 
-            return await this.eventListenerV1ProcessingService.RemoveEventListenerV1ByIdAsync(
+            return await this.eventListenerV1ProcessingService.RemoveEventListenerByIdAsync(
                 eventListenerV1Id);
         });
 
@@ -61,7 +61,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         {
             ValidateListenerEventIsNotNull(listenerEventV1);
 
-            return await this.listenerEventV1ProcessingService.AddListenerEventV1Async(
+            return await this.listenerEventV1ProcessingService.AddListenerEventAsync(
                 listenerEventV1);
         });
 
@@ -69,7 +69,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         TryCatch(async () =>
         {
             return await this.listenerEventV1ProcessingService
-                .RetrieveAllListenerEventV1sAsync();
+                .RetrieveAllListenerEventsAsync();
         });
 
         public ValueTask<ListenerEventV1> ModifyListenerEventAsync(ListenerEventV1 listenerEventV1) =>
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         {
             ValidateListenerEventIsNotNull(listenerEventV1);
 
-            return await this.listenerEventV1ProcessingService.ModifyListenerEventV1Async(
+            return await this.listenerEventV1ProcessingService.ModifyListenerEventAsync(
                 listenerEventV1);
         });
 
