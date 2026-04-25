@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1Service.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1Service.RetrieveEventAddressByIdAsync(
                     someEventAddressV1Id);
 
             EventAddressV1DependencyException actualEventAddressV1DependencyException =
@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> retrieveEventAddressV1ByIdTask =
-                this.eventAddressV1Service.RetrieveEventAddressV1ByIdAsync(
+                this.eventAddressV1Service.RetrieveEventAddressByIdAsync(
                     someEventAddressV1Id);
 
             EventAddressV1ServiceException actualEventAddressV1ServiceException =

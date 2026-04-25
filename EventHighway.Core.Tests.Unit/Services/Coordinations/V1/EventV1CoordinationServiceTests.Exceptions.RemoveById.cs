@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1CoordinationService.RemoveEventV1ByIdAsync(
+                this.eventV1CoordinationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1CoordinationDependencyValidationException
@@ -78,7 +78,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> removeEventV1ByIdTask =
-                this.eventV1CoordinationService.RemoveEventV1ByIdAsync(
+                this.eventV1CoordinationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1CoordinationDependencyException
@@ -127,7 +127,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> addEventV1Task =
-                this.eventV1CoordinationService.RemoveEventV1ByIdAsync(
+                this.eventV1CoordinationService.RemoveEventByIdAsync(
                     someEventV1Id);
 
             EventV1CoordinationServiceException

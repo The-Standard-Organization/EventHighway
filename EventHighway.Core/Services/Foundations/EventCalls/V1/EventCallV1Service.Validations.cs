@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Net.Http;
@@ -10,21 +10,21 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
 {
     internal partial class EventCallV1Service
     {
-        private void ValidateEventCallV1OnRun(EventCallV1 eventCallV1)
+        private void ValidateEventCallOnRun(EventCallV1 eventCall)
         {
-            ValidateEventCallV1IsNotNull(eventCallV1);
+            ValidateEventCallIsNotNull(eventCall);
 
             Validate(
-                (Rule: IsInvalid(eventCallV1.Endpoint),
+                (Rule: IsInvalid(eventCall.Endpoint),
                 Parameter: nameof(EventCallV1.Endpoint)),
 
-                (Rule: IsInvalid(eventCallV1.Content),
+                (Rule: IsInvalid(eventCall.Content),
                 Parameter: nameof(EventCallV1.Content)));
         }
 
-        private static void ValidateEventCallV1IsNotNull(EventCallV1 eventCallV1)
+        private static void ValidateEventCallIsNotNull(EventCallV1 eventCall)
         {
-            if (eventCallV1 is null)
+            if (eventCall is null)
             {
                 throw new NullEventCallV1Exception(
                     message: "Event call is null.");

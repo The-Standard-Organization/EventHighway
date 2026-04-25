@@ -28,34 +28,34 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventAddressV1> AddEventAddressV1Async(EventAddressV1 eventAddressV1) =>
+        public ValueTask<EventAddressV1> AddEventAddressAsync(EventAddressV1 eventAddress) =>
         TryCatch(async () =>
         {
-            await ValidateEventAddressV1OnAddAsync(eventAddressV1);
+            await ValidateEventAddressOnAddAsync(eventAddress);
 
-            return await this.storageBroker.InsertEventAddressV1Async(eventAddressV1);
+            return await this.storageBroker.InsertEventAddressV1Async(eventAddress);
         });
 
-        public ValueTask<IQueryable<EventAddressV1>> RetrieveAllEventAddressV1sAsync() =>
+        public ValueTask<IQueryable<EventAddressV1>> RetrieveAllEventAddressesAsync() =>
         TryCatch(async () => await this.storageBroker.SelectAllEventAddressesV1Async());
 
-        public ValueTask<EventAddressV1> RetrieveEventAddressV1ByIdAsync(Guid eventAddressV1Id) =>
+        public ValueTask<EventAddressV1> RetrieveEventAddressByIdAsync(Guid eventAddressV1Id) =>
         TryCatch(async () =>
         {
-            ValidateEventAddressV1Id(eventAddressV1Id);
+            ValidateEventAddressId(eventAddressV1Id);
 
             return await this.storageBroker.SelectEventAddressByIdV1Async(eventAddressV1Id);
         });
 
-        public ValueTask<EventAddressV1> RemoveEventAddressV1ByIdAsync(Guid eventAddressV1Id) =>
+        public ValueTask<EventAddressV1> RemoveEventAddressByIdAsync(Guid eventAddressV1Id) =>
         TryCatch(async () =>
         {
-            ValidateEventAddressV1Id(eventAddressV1Id);
+            ValidateEventAddressId(eventAddressV1Id);
 
             EventAddressV1 maybeEventAddressV1 =
                 await this.storageBroker.SelectEventAddressByIdV1Async(eventAddressV1Id);
 
-            ValidateEventAddressV1Exists(maybeEventAddressV1, eventAddressV1Id);
+            ValidateEventAddressExists(maybeEventAddressV1, eventAddressV1Id);
 
             return await this.storageBroker.DeleteEventAddressV1Async(maybeEventAddressV1);
         });

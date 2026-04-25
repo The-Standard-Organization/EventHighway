@@ -31,7 +31,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> submitEventV1TaskV1 =
-                this.eventV1CoordinationService.SubmitEventV1AsyncV1(nullEventV1);
+                this.eventV1CoordinationService.SubmitEventV1Async(nullEventV1);
 
             EventV1CoordinationValidationException
                 actualEventV1CoordinationValidationException =

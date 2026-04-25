@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Net.Http;
@@ -23,10 +23,10 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCallV1) =>
         TryCatch(async () =>
         {
-            ValidateEventCallV1OnRun(eventCallV1);
+            ValidateEventCallOnRun(eventCallV1);
 
             string response =
                 await apiBroker.PostAsync(
@@ -39,10 +39,10 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
             return eventCallV1;
         });
 
-        public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
+        public ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCallV1) =>
         TryCatch(async () =>
         {
-            ValidateEventCallV1OnRun(eventCallV1);
+            ValidateEventCallOnRun(eventCallV1);
 
             HttpResponseMessage httpResponseMessage =
                 await apiBroker.PostAsyncV1(

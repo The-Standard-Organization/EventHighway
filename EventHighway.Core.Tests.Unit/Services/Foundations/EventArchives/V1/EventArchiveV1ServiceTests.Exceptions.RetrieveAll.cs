@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<IQueryable<EventArchiveV1>> retrieveAllEventArchiveV1sTask =
-                this.eventArchiveV1Service.RetrieveAllEventArchiveV1sAsync();
+                this.eventArchiveV1Service.RetrieveAllEventArchivesAsync();
 
             EventArchiveV1DependencyException actualEventArchiveV1DependencyException =
                 await Assert.ThrowsAsync<EventArchiveV1DependencyException>(
@@ -83,7 +83,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<IQueryable<EventArchiveV1>> retrieveAllEventArchiveV1sTask =
-                this.eventArchiveV1Service.RetrieveAllEventArchiveV1sAsync();
+                this.eventArchiveV1Service.RetrieveAllEventArchivesAsync();
 
             EventArchiveV1ServiceException actualEventArchiveV1ServiceException =
                 await Assert.ThrowsAsync<EventArchiveV1ServiceException>(

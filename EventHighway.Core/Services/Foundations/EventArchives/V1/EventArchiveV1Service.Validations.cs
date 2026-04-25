@@ -11,7 +11,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 {
     internal partial class EventArchiveV1Service
     {
-        private async ValueTask ValidateEventArchiveV1OnAddAsync(EventArchiveV1 eventV1Archive)
+        private async ValueTask ValidateEventArchiveOnAddAsync(EventArchiveV1 eventV1Archive)
         {
             ValidateEventV1ArchiveIsNotNull(eventV1Archive);
 

@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventV1CoordinationServiceMock.Setup(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()))
+                service.SubmitEventAsync(It.IsAny<EventV1>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientDependencyValidationException);
 
             this.eventV1CoordinationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Once);
 
             this.eventV1CoordinationServiceMock.VerifyNoOtherCalls();
@@ -71,7 +71,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                         .InnerException as Xeption);
 
             this.eventV1CoordinationServiceMock.Setup(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()))
+                service.SubmitEventAsync(It.IsAny<EventV1>()))
                     .ThrowsAsync(eventV1CoordinationDependencyException);
 
             // when
@@ -87,7 +87,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientDependencyException);
 
             this.eventV1CoordinationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Once);
 
             this.eventV1CoordinationServiceMock.VerifyNoOtherCalls();
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                         .InnerException as Xeption);
 
             this.eventV1CoordinationServiceMock.Setup(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()))
+                service.SubmitEventAsync(It.IsAny<EventV1>()))
                     .ThrowsAsync(eventV1CoordinationServiceException);
 
             // when
@@ -130,7 +130,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientServiceException);
 
             this.eventV1CoordinationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(It.IsAny<EventV1>()),
+                service.SubmitEventAsync(It.IsAny<EventV1>()),
                     Times.Once);
 
             this.eventV1CoordinationServiceMock.VerifyNoOtherCalls();

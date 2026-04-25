@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -28,26 +28,26 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventArchiveV1> AddEventArchiveV1Async(EventArchiveV1 eventArchiveV1) => 
+        public ValueTask<EventArchiveV1> AddEventArchiveAsync(EventArchiveV1 eventArchive) =>
         TryCatch(async () =>
         {
-            await ValidateEventArchiveV1OnAddAsync(eventArchiveV1);
+            await ValidateEventArchiveOnAddAsync(eventArchive);
 
-            return await this.storageBroker.InsertEventArchiveV1Async(eventArchiveV1);
+            return await this.storageBroker.InsertEventArchiveV1Async(eventArchive);
         });
 
-        public ValueTask<IQueryable<EventArchiveV1>> RetrieveAllEventArchiveV1sAsync() =>
+        public ValueTask<IQueryable<EventArchiveV1>> RetrieveAllEventArchivesAsync() =>
         TryCatch(async () =>
         {
             return await this.storageBroker.SelectAllEventArchivesV1Async();
         });
 
-        public ValueTask<EventArchiveV1> RetrieveEventArchiveV1ByIdAsync(Guid eventArchiveV1Id) =>
+        public ValueTask<EventArchiveV1> RetrieveEventArchiveByIdAsync(Guid eventArchiveId) =>
         TryCatch(async () =>
         {
-            ValidateEventArchiveV1Id(eventArchiveV1Id);
+            ValidateEventArchiveV1Id(eventArchiveId);
 
-            return await this.storageBroker.SelectEventArchiveByIdV1Async(eventArchiveV1Id);
+            return await this.storageBroker.SelectEventArchiveByIdV1Async(eventArchiveId);
         });
     }
 }

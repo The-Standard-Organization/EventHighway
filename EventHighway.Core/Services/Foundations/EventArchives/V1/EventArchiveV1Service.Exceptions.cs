@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -41,7 +41,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var failedEventV1ArchiveStorageException =
                     new FailedStorageEventArchiveV1Exception(
                         message: "Failed event archive storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventV1ArchiveStorageException);
@@ -51,7 +52,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var alreadyExistsEventV1ArchiveException =
                     new AlreadyExistsEventArchiveV1Exception(
                         message: "Event archive with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventV1ArchiveException);
@@ -62,7 +64,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var invalidEventV1ArchiveReferenceException =
                     new InvalidEventArchiveV1ReferenceException(
                         message: "Invalid event archive reference error occurred.",
-                        innerException: foreignKeyConstraintConflictException);
+                        innerException: foreignKeyConstraintConflictException,
+                        data: foreignKeyConstraintConflictException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidEventV1ArchiveReferenceException);
@@ -72,7 +75,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var failedEventV1ArchiveStorageException =
                     new FailedStorageEventArchiveV1Exception(
                         message: "Failed event archive storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedEventV1ArchiveStorageException);
             }
@@ -81,7 +85,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var failedEventV1ArchiveServiceException =
                     new FailedEventArchiveV1ServiceException(
                         message: "Failed event archive service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveServiceException);
@@ -100,7 +105,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var failedEventV1ArchiveStorageException =
                     new FailedStorageEventArchiveV1Exception(
                         message: "Failed event archive storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventV1ArchiveStorageException);
@@ -110,7 +116,8 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 var failedEventV1ArchiveServiceException =
                     new FailedEventArchiveV1ServiceException(
                         message: "Failed event archive service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveServiceException);

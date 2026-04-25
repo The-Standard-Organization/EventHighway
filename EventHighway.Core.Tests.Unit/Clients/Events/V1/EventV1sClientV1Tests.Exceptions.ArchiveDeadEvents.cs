@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                         .InnerException as Xeption);
 
             this.eventV1CoordinationServiceV1Mock.Setup(service =>
-                service.ArchiveDeadEventV1sAsync())
+                service.ArchiveDeadEventsAsync())
                     .ThrowsAsync(eventV1CoordinationDependencyValidationException);
 
             // when
@@ -49,7 +49,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientDependencyValidationException);
 
             this.eventV1CoordinationServiceV1Mock.Verify(service =>
-                service.ArchiveDeadEventV1sAsync(),
+                service.ArchiveDeadEventsAsync(),
                     Times.Once);
 
             this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();
@@ -75,7 +75,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                         .InnerException as Xeption);
 
             this.eventV1CoordinationServiceV1Mock.Setup(service =>
-                service.ArchiveDeadEventV1sAsync())
+                service.ArchiveDeadEventsAsync())
                     .ThrowsAsync(eventV1CoordinationDependencyException);
 
             // when
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientDependencyException);
 
             this.eventV1CoordinationServiceV1Mock.Verify(service =>
-                service.ArchiveDeadEventV1sAsync(),
+                service.ArchiveDeadEventsAsync(),
                     Times.Once);
 
             this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();
@@ -117,7 +117,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                         .InnerException as Xeption);
 
             this.eventV1CoordinationServiceV1Mock.Setup(service =>
-                service.ArchiveDeadEventV1sAsync())
+                service.ArchiveDeadEventsAsync())
                     .ThrowsAsync(eventV1CoordinationServiceException);
 
             // when
@@ -133,7 +133,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1ClientServiceException);
 
             this.eventV1CoordinationServiceV1Mock.Verify(service =>
-                service.ArchiveDeadEventV1sAsync(),
+                service.ArchiveDeadEventsAsync(),
                     Times.Once);
 
             this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();

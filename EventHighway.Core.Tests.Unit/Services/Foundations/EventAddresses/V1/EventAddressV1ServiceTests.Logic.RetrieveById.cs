@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             // when
             EventAddressV1 actualEventAddressV1 =
                 await this.eventAddressV1Service
-                    .RetrieveEventAddressV1ByIdAsync(
+                    .RetrieveEventAddressByIdAsync(
                         inputEventAddressV1Id);
 
             // then

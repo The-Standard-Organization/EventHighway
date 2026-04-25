@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask archiveDeadEventV1sTask =
-                this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
+                this.eventV1CoordinationServiceV1.ArchiveDeadEventsAsync();
 
             EventV1CoordinationDependencyValidationException
                 actualEventV1CoordinationDependencyValidationException =
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask archiveDeadEventV1sTask =
-                this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
+                this.eventV1CoordinationServiceV1.ArchiveDeadEventsAsync();
 
             EventV1CoordinationDependencyException
                 actualEventV1CoordinationDependencyException =
@@ -153,7 +153,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask archiveDeadEventV1sTask =
-                this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
+                this.eventV1CoordinationServiceV1.ArchiveDeadEventsAsync();
 
             EventV1CoordinationServiceException
                 actualEventV1CoordinationServiceException =

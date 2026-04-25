@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -11,54 +11,54 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
 {
     internal partial class EventAddressV1Service
     {
-        private async ValueTask ValidateEventAddressV1OnAddAsync(EventAddressV1 eventAddressV1)
+        private async ValueTask ValidateEventAddressOnAddAsync(EventAddressV1 eventAddress)
         {
-            ValidateEventAddressV1IsNotNull(eventAddressV1);
+            ValidateEventAddressIsNotNull(eventAddress);
 
             Validate(
-                (Rule: IsInvalid(eventAddressV1.Id),
+                (Rule: IsInvalid(eventAddress.Id),
                 Parameter: nameof(EventAddressV1.Id)),
 
-                (Rule: IsInvalid(eventAddressV1.Name),
+                (Rule: IsInvalid(eventAddress.Name),
                 Parameter: nameof(EventAddressV1.Name)),
 
-                (Rule: IsInvalid(eventAddressV1.Description),
+                (Rule: IsInvalid(eventAddress.Description),
                 Parameter: nameof(EventAddressV1.Description)),
 
-                (Rule: IsInvalid(eventAddressV1.CreatedDate),
+                (Rule: IsInvalid(eventAddress.CreatedDate),
                 Parameter: nameof(EventAddressV1.CreatedDate)),
 
-                (Rule: IsInvalid(eventAddressV1.UpdatedDate),
+                (Rule: IsInvalid(eventAddress.UpdatedDate),
                 Parameter: nameof(EventAddressV1.UpdatedDate)),
 
                 (Rule: IsNotSameAs(
-                    firstDate: eventAddressV1.CreatedDate,
-                    secondDate: eventAddressV1.UpdatedDate,
+                    firstDate: eventAddress.CreatedDate,
+                    secondDate: eventAddress.UpdatedDate,
                     secondDateName: nameof(EventAddressV1.UpdatedDate)),
 
                 Parameter: nameof(EventAddressV1.CreatedDate)),
 
-                (Rule: await IsNotRecentAsync(eventAddressV1.CreatedDate),
+                (Rule: await IsNotRecentAsync(eventAddress.CreatedDate),
                 Parameter: nameof(EventAddressV1.CreatedDate)));
         }
 
-        private static void ValidateEventAddressV1Id(Guid eventAddressV1Id)
+        private static void ValidateEventAddressId(Guid eventAddressId)
         {
             Validate(
-                (Rule: IsInvalid(eventAddressV1Id),
+                (Rule: IsInvalid(eventAddressId),
                 Parameter: nameof(EventAddressV1.Id)));
         }
 
-        private static void ValidateEventAddressV1IsNotNull(EventAddressV1 eventAddressV1)
+        private static void ValidateEventAddressIsNotNull(EventAddressV1 eventAddress)
         {
-            if (eventAddressV1 is null)
+            if (eventAddress is null)
             {
                 throw new NullEventAddressV1Exception(
                     message: "Event address is null.");
             }
         }
 
-        private static void ValidateEventAddressV1Exists(
+        private static void ValidateEventAddressExists(
             EventAddressV1 eventAddressV1,
             Guid eventAddressV1Id)
         {

@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
             // when
             EventArchiveV1 actualEventArchiveV1 =
                 await this.eventArchiveV1Service
-                    .RetrieveEventArchiveV1ByIdAsync(
+                    .RetrieveEventArchiveByIdAsync(
                         inputEventArchiveV1Id);
 
             // then

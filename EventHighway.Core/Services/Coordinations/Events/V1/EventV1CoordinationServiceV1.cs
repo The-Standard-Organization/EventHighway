@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -35,7 +35,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask ArchiveDeadEventV1sAsync() =>
+        public ValueTask ArchiveDeadEventsAsync() =>
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =

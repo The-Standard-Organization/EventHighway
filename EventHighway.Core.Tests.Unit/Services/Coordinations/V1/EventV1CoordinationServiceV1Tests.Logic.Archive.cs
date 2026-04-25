@@ -120,7 +120,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             }
 
             // when
-            await this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
+            await this.eventV1CoordinationServiceV1.ArchiveDeadEventsAsync();
 
             // then
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>

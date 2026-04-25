@@ -25,7 +25,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
         {
             try
             {
-                return await this.eventAddressV1Service.AddEventAddressV1Async(eventAddressV1);
+                return await this.eventAddressV1Service.AddEventAddressAsync(eventAddressV1);
             }
             catch (EventAddressV1ValidationException eventAddressV1ValidationException)
             {
@@ -58,7 +58,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
             try
             {
                 return await this.eventAddressV1Service
-                    .RetrieveAllEventAddressV1sAsync();
+                    .RetrieveAllEventAddressesAsync();
             }
             catch (EventListenerV1OrchestrationDependencyException
                 eventListenerV1OrchestrationDependencyException)
@@ -80,7 +80,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
         {
             try
             {
-                return await this.eventAddressV1Service.RemoveEventAddressV1ByIdAsync(
+                return await this.eventAddressV1Service.RemoveEventAddressByIdAsync(
                     eventAddressV1Id);
             }
             catch (EventAddressV1ValidationException eventAddressV1ValidationException)

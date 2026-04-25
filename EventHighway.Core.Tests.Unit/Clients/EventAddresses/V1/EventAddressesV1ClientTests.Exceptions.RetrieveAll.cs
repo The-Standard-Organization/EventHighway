@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                         .InnerException as Xeption);
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV1sAsync())
+                service.RetrieveAllEventAddressesAsync())
                     .ThrowsAsync(eventListenerV1OrchestrationDependencyException);
 
             // when
@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ClientDependencyException);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV1sAsync(),
+                service.RetrieveAllEventAddressesAsync(),
                     Times.Once);
 
             this.eventAddressV1ServiceMock.VerifyNoOtherCalls();
@@ -77,7 +77,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                         .InnerException as Xeption);
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV1sAsync())
+                service.RetrieveAllEventAddressesAsync())
                     .ThrowsAsync(EventListenerV1OrchestrationServiceException);
 
             // when
@@ -93,7 +93,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ClientServiceException);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV1sAsync(),
+                service.RetrieveAllEventAddressesAsync(),
                     Times.Once);
 
             this.eventAddressV1ServiceMock.VerifyNoOtherCalls();

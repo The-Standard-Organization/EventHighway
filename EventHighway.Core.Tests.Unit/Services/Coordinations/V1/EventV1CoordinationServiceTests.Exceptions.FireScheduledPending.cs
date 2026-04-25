@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask fireScheduledPendingEventV1sTask =
-                this.eventV1CoordinationService.FireScheduledPendingEventV1sAsync();
+                this.eventV1CoordinationService.FireScheduledPendingEventsAsync();
 
             EventV1CoordinationDependencyValidationException
                 actualEventV1CoordinationDependencyValidationException =
@@ -101,7 +101,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask fireScheduledPendingEventV1sTask =
-                this.eventV1CoordinationService.FireScheduledPendingEventV1sAsync();
+                this.eventV1CoordinationService.FireScheduledPendingEventsAsync();
 
             EventV1CoordinationDependencyException actualEventV1CoordinationDependencyException =
                 await Assert.ThrowsAsync<EventV1CoordinationDependencyException>(
@@ -172,7 +172,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask fireScheduledPendingEventV1sTask =
-                this.eventV1CoordinationService.FireScheduledPendingEventV1sAsync();
+                this.eventV1CoordinationService.FireScheduledPendingEventsAsync();
 
             EventV1CoordinationServiceException actualEventV1CoordinationServiceException =
                 await Assert.ThrowsAsync<EventV1CoordinationServiceException>(

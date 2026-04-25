@@ -124,7 +124,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             await this.eventV1CoordinationService
-                .FireScheduledPendingEventV1sAsync();
+                .FireScheduledPendingEventsAsync();
 
             // then
             this.eventV1OrchestrationServiceMock.Verify(service =>
@@ -293,7 +293,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             await this.eventV1CoordinationService
-                .FireScheduledPendingEventV1sAsync();
+                .FireScheduledPendingEventsAsync();
 
             // then
             this.eventV1OrchestrationServiceMock.Verify(service =>

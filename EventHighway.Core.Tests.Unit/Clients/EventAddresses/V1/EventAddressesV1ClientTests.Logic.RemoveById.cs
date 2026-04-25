@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 removedEventAddressV1.DeepClone();
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RemoveEventAddressV1ByIdAsync(
+                service.RemoveEventAddressByIdAsync(
                     inputEventAddressV1Id))
                         .ReturnsAsync(removedEventAddressV1);
 
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RemoveEventAddressV1ByIdAsync(
+                service.RemoveEventAddressByIdAsync(
                     inputEventAddressV1Id),
                         Times.Once);
 

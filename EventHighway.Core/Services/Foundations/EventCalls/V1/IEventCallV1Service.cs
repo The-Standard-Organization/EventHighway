@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V1
 {
     internal interface IEventCallV1Service
     {
-        ValueTask<EventCallV1> RunEventCallV1Async(EventCallV1 eventCallV1);
-        ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1);
+        ValueTask<EventCallV1> RunEventCallAsync(EventCallV1 eventCall);
+        ValueTask<EventCallV1> RunEventCallAsyncV1(EventCallV1 eventCall);
     }
 }

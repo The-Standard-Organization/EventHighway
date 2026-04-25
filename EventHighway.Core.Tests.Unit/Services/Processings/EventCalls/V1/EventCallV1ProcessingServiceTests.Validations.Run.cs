@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventCalls.V1
                         Times.Once);
 
             this.eventCallV1ServiceMock.Verify(broker =>
-                broker.RunEventCallV1Async(
+                broker.RunEventCallAsync(
                     It.IsAny<EventCallV1>()),
                         Times.Never);
 

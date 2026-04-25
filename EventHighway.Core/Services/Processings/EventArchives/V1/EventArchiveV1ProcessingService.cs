@@ -27,7 +27,7 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
         {
             ValidateEventArchiveV1IsNotNull(eventArchiveV1);
 
-            return await this.eventArchiveV1Service.AddEventArchiveV1Async(eventArchiveV1);
+            return await this.eventArchiveV1Service.AddEventArchiveAsync(eventArchiveV1);
         });
     }
 }

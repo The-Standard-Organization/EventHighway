@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(nullEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(nullEventArchiveV1);
 
             EventArchiveV1ValidationException actualEventArchiveV1ValidationException =
                 await Assert.ThrowsAsync<EventArchiveV1ValidationException>(
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(invalidEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(invalidEventArchiveV1);
 
             EventArchiveV1ValidationException actualEventArchiveV1ValidationException =
                 await Assert.ThrowsAsync<EventArchiveV1ValidationException>(
@@ -176,7 +176,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(invalidEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(invalidEventArchiveV1);
 
             EventArchiveV1ValidationException actualEventArchiveV1ValidationException =
                 await Assert.ThrowsAsync<EventArchiveV1ValidationException>(

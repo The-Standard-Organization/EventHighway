@@ -24,7 +24,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 submittedEventV1.DeepClone();
 
             this.eventV1CoordinationServiceMock.Setup(service =>
-                service.SubmitEventV1Async(inputEventV1))
+                service.SubmitEventAsync(inputEventV1))
                     .ReturnsAsync(submittedEventV1);
 
             // when
@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
                 .BeEquivalentTo(expectedEventV1);
 
             this.eventV1CoordinationServiceMock.Verify(service =>
-                service.SubmitEventV1Async(inputEventV1),
+                service.SubmitEventAsync(inputEventV1),
                     Times.Once);
 
             this.eventV1CoordinationServiceMock

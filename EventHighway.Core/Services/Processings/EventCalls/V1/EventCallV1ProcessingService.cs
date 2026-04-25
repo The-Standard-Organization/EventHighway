@@ -27,7 +27,7 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
         {
             ValidateEventCallV1IsNotNull(eventCallV1);
 
-            return await this.eventCallV1Service.RunEventCallV1Async(eventCallV1);
+            return await this.eventCallV1Service.RunEventCallAsync(eventCallV1);
         });
 
         public ValueTask<EventCallV1> RunEventCallV1AsyncV1(EventCallV1 eventCallV1) =>
@@ -35,7 +35,7 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V1
         {
             ValidateEventCallV1IsNotNull(eventCallV1);
 
-            return await this.eventCallV1Service.RunEventCallV1AsyncV1(eventCallV1);
+            return await this.eventCallV1Service.RunEventCallAsyncV1(eventCallV1);
         });
     }
 }

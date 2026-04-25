@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ProcessingDependencyValidationException);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()),
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -72,7 +72,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                     innerException: dependencyException.InnerException as Xeption);
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ProcessingDependencyException);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()),
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -120,7 +120,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                     innerException: failedEventAddressV1ProcessingServiceException);
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()))
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -138,7 +138,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V1
                 .BeEquivalentTo(expectedEventAddressV1ProcessingExceptionException);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveEventAddressV1ByIdAsync(It.IsAny<Guid>()),
+                service.RetrieveEventAddressByIdAsync(It.IsAny<Guid>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

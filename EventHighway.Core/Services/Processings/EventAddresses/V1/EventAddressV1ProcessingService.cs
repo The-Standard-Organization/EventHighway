@@ -28,7 +28,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
         {
             ValidateEventAddressV1Id(eventAddressV1Id);
 
-            return await this.eventAddressV1Service.RetrieveEventAddressV1ByIdAsync(
+            return await this.eventAddressV1Service.RetrieveEventAddressByIdAsync(
                 eventAddressV1Id);
         });
     }

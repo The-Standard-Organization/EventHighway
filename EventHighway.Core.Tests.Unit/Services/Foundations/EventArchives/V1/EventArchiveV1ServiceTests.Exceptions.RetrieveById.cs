@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -37,7 +37,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> retrieveEventArchiveV1ByIdTask =
-                this.eventArchiveV1Service.RetrieveEventArchiveV1ByIdAsync(
+                this.eventArchiveV1Service.RetrieveEventArchiveByIdAsync(
                     someEventArchiveV1Id);
 
             EventArchiveV1DependencyException actualEventArchiveV1DependencyException =
@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> retrieveEventArchiveV1ByIdTask =
-                this.eventArchiveV1Service.RetrieveEventArchiveV1ByIdAsync(
+                this.eventArchiveV1Service.RetrieveEventArchiveByIdAsync(
                     someEventArchiveV1Id);
 
             EventArchiveV1ServiceException actualEventArchiveV1ServiceException =

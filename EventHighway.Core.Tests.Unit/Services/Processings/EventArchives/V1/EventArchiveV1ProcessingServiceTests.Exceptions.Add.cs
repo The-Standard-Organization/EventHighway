@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                     innerException: validationException.InnerException as Xeption);
 
             this.eventArchiveV1ServiceMock.Setup(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()))
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                 expectedEventArchiveV1ProcessingDependencyValidationException);
 
             this.eventArchiveV1ServiceMock.Verify(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -71,7 +71,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                     innerException: dependencyException.InnerException as Xeption);
 
             this.eventArchiveV1ServiceMock.Setup(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()))
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -88,7 +88,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                 expectedEventArchiveV1ProcessingDependencyException);
 
             this.eventArchiveV1ServiceMock.Verify(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -118,7 +118,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                     innerException: failedEventArchiveV1ProcessingServiceException);
 
             this.eventArchiveV1ServiceMock.Setup(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()))
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -136,7 +136,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                 expectedEventArchiveV1ProcessingExceptionException);
 
             this.eventArchiveV1ServiceMock.Verify(service =>
-                service.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
+                service.AddEventArchiveAsync(It.IsAny<EventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

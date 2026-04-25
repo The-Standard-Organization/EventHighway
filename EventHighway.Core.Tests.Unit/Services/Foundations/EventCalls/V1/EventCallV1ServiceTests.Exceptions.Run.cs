@@ -42,7 +42,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyException actualEventCallV1DependencyException =
                 await Assert.ThrowsAsync<EventCallV1DependencyException>(
@@ -94,7 +94,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyValidationException actualEventCallV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventCallV1DependencyValidationException>(
@@ -149,7 +149,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyValidationException actualEventCallV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventCallV1DependencyValidationException>(
@@ -201,7 +201,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyValidationException actualEventCallV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventCallV1DependencyValidationException>(
@@ -255,7 +255,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyValidationException actualEventCallV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventCallV1DependencyValidationException>(
@@ -307,7 +307,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1DependencyException actualEventCallV1DependencyException =
                 await Assert.ThrowsAsync<EventCallV1DependencyException>(
@@ -359,7 +359,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V1
 
             // when
             ValueTask<EventCallV1> runEventCallV1Task =
-                this.eventCallV1Service.RunEventCallV1Async(someEventCallV1);
+                this.eventCallV1Service.RunEventCallAsync(someEventCallV1);
 
             EventCallV1ServiceException actualEventCallV1ServiceException =
                 await Assert.ThrowsAsync<EventCallV1ServiceException>(

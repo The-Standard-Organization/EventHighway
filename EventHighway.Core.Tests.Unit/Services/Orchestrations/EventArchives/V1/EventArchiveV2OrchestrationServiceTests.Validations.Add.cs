@@ -52,7 +52,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
                     Times.Never);
 
             this.eventArchiveV1ServiceMock.Verify(broker =>
-                broker.AddEventArchiveV1Async(
+                broker.AddEventArchiveAsync(
                     It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
@@ -101,7 +101,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
                     Times.Never);
 
             this.eventArchiveV1ServiceMock.Verify(broker =>
-                broker.AddEventArchiveV1Async(
+                broker.AddEventArchiveAsync(
                     It.IsAny<EventArchiveV1>()),
                         Times.Never);
 

@@ -24,7 +24,7 @@ namespace EventHighway.Core.Clients.Events.V1
             try
             {
                 return await this.eventV1CoordinationService
-                    .SubmitEventV1Async(eventV1);
+                    .SubmitEventAsync(eventV1);
             }
             catch (EventV1CoordinationValidationException
                 eventV1CoordinationValidationException)
@@ -61,7 +61,7 @@ namespace EventHighway.Core.Clients.Events.V1
             try
             {
                 return await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(eventV1);
+                    .SubmitEventV1Async(eventV1);
             }
             catch (EventV1CoordinationValidationException
                 eventV1CoordinationValidationException)
@@ -98,7 +98,7 @@ namespace EventHighway.Core.Clients.Events.V1
             try
             {
                 await this.eventV1CoordinationService
-                    .FireScheduledPendingEventV1sAsync();
+                    .FireScheduledPendingEventsAsync();
             }
             catch (EventV1CoordinationDependencyValidationException
                 eventV1CoordinationDependencyValidationException)
@@ -128,7 +128,7 @@ namespace EventHighway.Core.Clients.Events.V1
             try
             {
                 return await this.eventV1CoordinationService
-                    .RemoveEventV1ByIdAsync(eventV1Id);
+                    .RemoveEventByIdAsync(eventV1Id);
             }
             catch (EventV1CoordinationValidationException
                 eventV1CoordinationValidationException)

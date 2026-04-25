@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
             }
 
             this.eventArchiveV1ServiceMock.Verify(service =>
-                service.AddEventArchiveV1Async(inputEventV1Archive),
+                service.AddEventArchiveAsync(inputEventV1Archive),
                     Times.Once);
 
             this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();

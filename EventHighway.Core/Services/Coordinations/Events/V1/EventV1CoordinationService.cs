@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -36,10 +36,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
+        public ValueTask<EventV1> SubmitEventAsync(EventV1 eventV1) =>
         TryCatch(async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(eventV1);
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -64,10 +64,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             return submittedEventV1;
         });
 
-        public ValueTask<EventV1> SubmitEventV1AsyncV1(EventV1 eventV1) =>
+        public ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1) =>
         TryCatchWithRetryAsync(returningEventV1Function: async () =>
         {
-            ValidateEventV1IsNotNull(eventV1);
+            ValidateEventIsNotNull(eventV1);
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -98,13 +98,13 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             {
                 eventV1.RetryAttempts--;
 
-                return await SubmitEventV1AsyncV1(eventV1);
+                return await SubmitEventV1Async(eventV1);
             }
 
             return null;
         });
 
-        public ValueTask FireScheduledPendingEventV1sAsync() =>
+        public ValueTask FireScheduledPendingEventsAsync() =>
         TryCatch(async () =>
         {
             IQueryable<EventV1> eventV1s =
@@ -180,10 +180,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
             }
         }
 
-        public ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id) =>
+        public ValueTask<EventV1> RemoveEventByIdAsync(Guid eventV1Id) =>
         TryCatch(async () =>
         {
-            ValidateEventV1Id(eventV1Id);
+            ValidateEventId(eventV1Id);
 
             return await this.eventV1OrchestrationService
                 .RemoveEventV1ByIdAsync(eventV1Id);

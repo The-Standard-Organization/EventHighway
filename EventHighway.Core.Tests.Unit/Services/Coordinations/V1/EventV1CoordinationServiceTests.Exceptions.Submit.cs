@@ -36,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> submitEventV1Task =
-                this.eventV1CoordinationService.SubmitEventV1Async(someEventV1);
+                this.eventV1CoordinationService.SubmitEventAsync(someEventV1);
 
             EventV1CoordinationDependencyValidationException
                 actualEventV1CoordinationDependencyValidationException =
@@ -106,7 +106,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> submitEventV1Task =
-                this.eventV1CoordinationService.SubmitEventV1Async(someEventV1);
+                this.eventV1CoordinationService.SubmitEventAsync(someEventV1);
 
             EventV1CoordinationDependencyException
                 actualEventV1CoordinationDependencyException =
@@ -179,7 +179,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
 
             // when
             ValueTask<EventV1> submitEventV1Task =
-                this.eventV1CoordinationService.SubmitEventV1Async(someEventV1);
+                this.eventV1CoordinationService.SubmitEventAsync(someEventV1);
 
             EventV1CoordinationServiceException
                 actualEventV1CoordinationServiceException =

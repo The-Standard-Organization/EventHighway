@@ -47,7 +47,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(inputEventV1);
+                    .SubmitEventV1Async(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -123,7 +123,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(inputEventV1);
+                    .SubmitEventV1Async(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -283,7 +283,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(inputEventV1);
+                    .SubmitEventV1Async(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -461,7 +461,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(inputEventV1);
+                    .SubmitEventV1Async(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);
@@ -623,7 +623,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .SubmitEventV1AsyncV1(inputEventV1);
+                    .SubmitEventV1Async(inputEventV1);
 
             // then
             actualEventV1.Should().BeEquivalentTo(expectedEventV1);

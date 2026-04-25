@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System.Threading.Tasks;
@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                 addedEventArchiveV1.DeepClone();
 
             this.eventArchiveV1ServiceMock.Setup(service =>
-                service.AddEventArchiveV1Async(
+                service.AddEventArchiveAsync(
                     inputEventArchiveV1))
                         .ReturnsAsync(addedEventArchiveV1);
 
@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventArchives.V1
                 expectedEventArchiveV1);
 
             this.eventArchiveV1ServiceMock.Verify(service =>
-                service.AddEventArchiveV1Async(
+                service.AddEventArchiveAsync(
                     inputEventArchiveV1),
                         Times.Once);
 

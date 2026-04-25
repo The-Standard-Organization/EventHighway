@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             // when
             EventV1 actualEventV1 =
                 await this.eventV1CoordinationService
-                    .RemoveEventV1ByIdAsync(
+                    .RemoveEventByIdAsync(
                         inputEventV1Id);
 
             // then

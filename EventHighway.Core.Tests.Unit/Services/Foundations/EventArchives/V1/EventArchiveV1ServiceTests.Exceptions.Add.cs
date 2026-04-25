@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1DependencyException actualEventArchiveV1DependencyException =
                 await Assert.ThrowsAsync<EventArchiveV1DependencyException>(
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1DependencyValidationException actualEventArchiveV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventArchiveV1DependencyValidationException>(
@@ -146,7 +146,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1DependencyValidationException actualEventArchiveV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventArchiveV1DependencyValidationException>(
@@ -198,7 +198,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1DependencyException actualEventArchiveV1DependencyException =
                 await Assert.ThrowsAsync<EventArchiveV1DependencyException>(
@@ -250,7 +250,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V1
 
             // when
             ValueTask<EventArchiveV1> addEventArchiveV1Task =
-                this.eventArchiveV1Service.AddEventArchiveV1Async(someEventArchiveV1);
+                this.eventArchiveV1Service.AddEventArchiveAsync(someEventArchiveV1);
 
             EventArchiveV1ServiceException actualEventArchiveV1ServiceException =
                 await Assert.ThrowsAsync<EventArchiveV1ServiceException>(

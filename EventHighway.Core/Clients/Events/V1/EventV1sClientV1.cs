@@ -21,7 +21,7 @@ namespace EventHighway.Core.Clients.Events.V1
         {
             try
             {
-                await this.eventV1CoordinationServiceV1.ArchiveDeadEventV1sAsync();
+                await this.eventV1CoordinationServiceV1.ArchiveDeadEventsAsync();
             }
             catch (EventV1CoordinationDependencyValidationException
                 eventV1CoordinationDependencyValidationException)

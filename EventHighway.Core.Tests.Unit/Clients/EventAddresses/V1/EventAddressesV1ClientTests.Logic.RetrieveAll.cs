@@ -27,7 +27,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 retrievedEventAddressV1s.DeepClone();
 
             this.eventAddressV1ServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV1sAsync())
+                service.RetrieveAllEventAddressesAsync())
                     .ReturnsAsync(retrievedEventAddressV1s);
 
             // when
@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 expectedEventAddressV1s);
 
             this.eventAddressV1ServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV1sAsync(),
+                service.RetrieveAllEventAddressesAsync(),
                     Times.Once);
 
             this.eventAddressV1ServiceMock.VerifyNoOtherCalls();

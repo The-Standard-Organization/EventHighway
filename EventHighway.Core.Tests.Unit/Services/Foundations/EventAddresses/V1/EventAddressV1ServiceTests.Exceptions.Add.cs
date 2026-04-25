@@ -39,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> addEventAddressV1Task =
-                this.eventAddressV1Service.AddEventAddressV1Async(someEventAddressV1);
+                this.eventAddressV1Service.AddEventAddressAsync(someEventAddressV1);
 
             EventAddressV1DependencyException actualEventAddressV1DependencyException =
                 await Assert.ThrowsAsync<EventAddressV1DependencyException>(
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> addEventAddressV1Task =
-                this.eventAddressV1Service.AddEventAddressV1Async(someEventAddressV1);
+                this.eventAddressV1Service.AddEventAddressAsync(someEventAddressV1);
 
             EventAddressV1DependencyValidationException actualEventAddressV1DependencyValidationException =
                 await Assert.ThrowsAsync<EventAddressV1DependencyValidationException>(
@@ -142,7 +142,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> addEventAddressV1Task =
-                this.eventAddressV1Service.AddEventAddressV1Async(someEventAddressV1);
+                this.eventAddressV1Service.AddEventAddressAsync(someEventAddressV1);
 
             EventAddressV1DependencyException actualEventAddressV1DependencyException =
                 await Assert.ThrowsAsync<EventAddressV1DependencyException>(
@@ -193,7 +193,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
 
             // when
             ValueTask<EventAddressV1> addEventAddressV1Task =
-                this.eventAddressV1Service.AddEventAddressV1Async(someEventAddressV1);
+                this.eventAddressV1Service.AddEventAddressAsync(someEventAddressV1);
 
             EventAddressV1ServiceException actualEventAddressV1ServiceException =
                 await Assert.ThrowsAsync<EventAddressV1ServiceException>(

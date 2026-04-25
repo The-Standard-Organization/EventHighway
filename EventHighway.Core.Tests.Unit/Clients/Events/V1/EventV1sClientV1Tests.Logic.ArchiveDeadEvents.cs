@@ -18,7 +18,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
 
             // then
             this.eventV1CoordinationServiceV1Mock.Verify(service =>
-                service.ArchiveDeadEventV1sAsync(),
+                service.ArchiveDeadEventsAsync(),
                     Times.Once);
 
             this.eventV1CoordinationServiceV1Mock.VerifyNoOtherCalls();
