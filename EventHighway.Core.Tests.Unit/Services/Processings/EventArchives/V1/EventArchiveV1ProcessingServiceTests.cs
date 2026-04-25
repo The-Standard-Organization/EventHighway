@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventArchives.V1;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions;
+using EventHighway.Core.Models.Services.Foundations.EventArchives.V1.Exceptions;
 using EventHighway.Core.Services.Foundations.EventArchives.V1;
 using EventHighway.Core.Services.Processings.EventArchives.V1;
 using Moq;
