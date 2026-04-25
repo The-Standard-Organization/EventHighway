@@ -13,7 +13,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
     {
         private async ValueTask ValidateEventArchiveOnAddAsync(EventArchiveV1 eventV1Archive)
         {
-            ValidateEventV1ArchiveIsNotNull(eventV1Archive);
+            ValidateEventArchiveIsNotNull(eventV1Archive);
 
             Validate(
                 (Rule: IsInvalid(eventV1Archive.Id),
@@ -41,19 +41,19 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
                 Parameter: nameof(EventArchiveV1.EventAddressId)));
         }
 
-        private static void ValidateEventV1ArchiveIsNotNull(EventArchiveV1 eventV1Archive)
+        private static void ValidateEventArchiveIsNotNull(EventArchiveV1 eventArchive)
         {
-            if (eventV1Archive is null)
+            if (eventArchive is null)
             {
                 throw new NullEventArchiveV1Exception(
                     message: "Event archive is null.");
             }
         }
 
-        private static void ValidateEventArchiveV1Id(Guid eventArchiveV1Id)
+        private static void ValidateEventArchiveId(Guid eventArchiveId)
         {
             Validate(
-                (Rule: IsInvalid(eventArchiveV1Id),
+                (Rule: IsInvalid(eventArchiveId),
                 Parameter: nameof(EventArchiveV1.Id)));
         }
 

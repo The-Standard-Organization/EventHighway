@@ -20,11 +20,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         private delegate ValueTask<IQueryable<EventArchiveV1>> ReturningEventArchivesV1Function();
 
         private async ValueTask<EventArchiveV1> TryCatch(
-            ReturningEventArchiveV1Function returningEventArchiveV1Function)
+            ReturningEventArchiveV1Function returningEventArchiveFunction)
         {
             try
             {
-                return await returningEventArchiveV1Function();
+                return await returningEventArchiveFunction();
             }
             catch (NullEventArchiveV1Exception nullEventArchiveException)
             {
