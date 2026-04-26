@@ -11,11 +11,11 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
     {
         private static void ValidateEventArchive(EventArchiveV1 eventArchive)
         {
-            ValidateEventArhiveIsNotNull(eventArchive);
-            ValidateListenerEventArhivesAreNotNull(eventArchive);
+            ValidateEventArchiveIsNotNull(eventArchive);
+            ValidateListenerEventArchivesAreNotNull(eventArchive);
         }
 
-        private static void ValidateEventArhiveIsNotNull(EventArchiveV1 eventArchive)
+        private static void ValidateEventArchiveIsNotNull(EventArchiveV1 eventArchive)
         {
             if (eventArchive is null)
             {
@@ -24,7 +24,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             }
         }
 
-        private static void ValidateListenerEventArhivesAreNotNull(EventArchiveV1 eventArchive)
+        private static void ValidateListenerEventArchivesAreNotNull(EventArchiveV1 eventArchive)
         {
             if (eventArchive.ListenerEventArchives is null)
             {
