@@ -13,115 +13,115 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V1
 {
     internal partial class EventArchiveV1ProcessingService
     {
-        private delegate ValueTask<EventArchiveV1> ReturningEventV1ArchiveFunction();
+        private delegate ValueTask<EventArchiveV1> ReturningEventArchiveV1Function();
 
         private async ValueTask<EventArchiveV1> TryCatch(
-            ReturningEventV1ArchiveFunction returningEventV1ArchiveFunction)
+            ReturningEventArchiveV1Function returningEventArchiveV1Function)
         {
             try
             {
-                return await returningEventV1ArchiveFunction();
+                return await returningEventArchiveV1Function();
             }
             catch (NullEventArchiveV1ProcessingException
-                nullEventV1ArchiveProcessingException)
+                nullEventArchiveV1ProcessingException)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    nullEventV1ArchiveProcessingException);
+                    nullEventArchiveV1ProcessingException);
             }
             catch (InvalidEventArchiveV1ProcessingException
-                invalidEventV1ArchiveProcessingException)
+                invalidEventArchiveV1ProcessingException)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    invalidEventV1ArchiveProcessingException);
+                    invalidEventArchiveV1ProcessingException);
             }
             catch (EventArchiveV1ValidationException
-                eventV1ArchiveValidationException)
+                eventArchiveV1ValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveValidationException);
+                    eventArchiveV1ValidationException);
             }
             catch (EventArchiveV1DependencyValidationException
-                eventV1ArchiveDependencyValidationException)
+                eventArchiveV1DependencyValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveDependencyValidationException);
+                    eventArchiveV1DependencyValidationException);
             }
             catch (EventArchiveV1DependencyException
-                eventV1ArchiveDependencyException)
+                eventArchiveV1DependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveDependencyException);
+                    eventArchiveV1DependencyException);
             }
             catch (EventArchiveV1ServiceException
-                eventV1ArchiveServiceException)
+                eventArchiveV1ServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveServiceException);
+                    eventArchiveV1ServiceException);
             }
             catch (Exception exception)
             {
-                var failedEventV1ArchiveProcessingServiceException =
+                var failedEventArchiveV1ProcessingServiceException =
                     new FailedEventArchiveV1ProcessingServiceException(
                         message: "Failed event archive service error occurred, contact support.",
                         innerException: exception,
                         data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
-                    failedEventV1ArchiveProcessingServiceException);
+                    failedEventArchiveV1ProcessingServiceException);
             }
         }
 
         private async ValueTask<EventArchiveV1ProcessingValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveProcessingValidationException =
+            var eventArchiveV1ProcessingValidationException =
                 new EventArchiveV1ProcessingValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveProcessingValidationException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1ProcessingValidationException);
 
-            return eventV1ArchiveProcessingValidationException;
+            return eventArchiveV1ProcessingValidationException;
         }
 
         private async ValueTask<EventArchiveV1ProcessingDependencyValidationException>
             CreateAndLogDependencyValidationExceptionAsync(
                 Xeption exception)
         {
-            var eventV1ArchiveProcessingDependencyValidationException =
+            var eventArchiveV1ProcessingDependencyValidationException =
                 new EventArchiveV1ProcessingDependencyValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveProcessingDependencyValidationException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1ProcessingDependencyValidationException);
 
-            return eventV1ArchiveProcessingDependencyValidationException;
+            return eventArchiveV1ProcessingDependencyValidationException;
         }
 
         private async ValueTask<EventArchiveV1ProcessingDependencyException> CreateAndLogDependencyExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveProcessingDependencyException =
+            var eventArchiveV1ProcessingDependencyException =
                 new EventArchiveV1ProcessingDependencyException(
                     message: "Event archive dependency error occurred, contact support.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveProcessingDependencyException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1ProcessingDependencyException);
 
-            return eventV1ArchiveProcessingDependencyException;
+            return eventArchiveV1ProcessingDependencyException;
         }
 
         private async ValueTask<EventArchiveV1ProcessingServiceException> CreateAndLogServiceExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveProcessingServiceException =
+            var eventArchiveV1ProcessingServiceException =
                 new EventArchiveV1ProcessingServiceException(
                     message: "Event archive service error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveProcessingServiceException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1ProcessingServiceException);
 
-            return eventV1ArchiveProcessingServiceException;
+            return eventArchiveV1ProcessingServiceException;
         }
     }
 }
