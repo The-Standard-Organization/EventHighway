@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         public ValueTask<EventArchiveV1> RetrieveEventArchiveByIdAsync(Guid eventArchiveId) =>
         TryCatch(async () =>
         {
-            ValidateEventArchiveV1Id(eventArchiveId);
+            ValidateEventArchiveId(eventArchiveId);
 
             return await this.storageBroker.SelectEventArchiveByIdV1Async(eventArchiveId);
         });
