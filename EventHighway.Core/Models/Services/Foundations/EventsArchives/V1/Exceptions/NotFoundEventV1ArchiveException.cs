@@ -6,9 +6,9 @@ using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions
 {
-    public class NotFoundEventV1ArchiveException : Xeption
+    public class NotFoundEventArchiveV1Exception : Xeption
     {
-        public NotFoundEventV1ArchiveException(string message)
+        public NotFoundEventArchiveV1Exception(string message)
             : base(message)
         { }
     }

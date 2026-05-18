@@ -11,39 +11,39 @@ using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 {
-    public partial class EventV1ArchiveOrchestrationServiceTests
+    public partial class EventArchiveV1OrchestrationServiceTests
     {
         [Fact]
-        public async Task ShouldAddEventV1ArchiveWithListenerEventV1ArchivesAsync()
+        public async Task ShouldAddEventArchiveV1WithListenerEventArchiveV1sAsync()
         {
             // given
-            EventV1Archive randomEventV1Archive = CreateRandomEventV1Archive();
-            EventV1Archive inputEventV1Archive = randomEventV1Archive;
+            EventArchiveV1 randomEventArchiveV1 = CreateRandomEventArchiveV1();
+            EventArchiveV1 inputEventArchiveV1 = randomEventArchiveV1;
 
-            List<ListenerEventV1Archive> randomListenerEventV1Archives =
-                randomEventV1Archive.ListenerEventV1Archives.ToList();
+            List<ListenerEventArchiveV1> randomListenerEventArchiveV1s =
+                randomEventArchiveV1.ListenerEventArchiveV1s.ToList();
 
-            List<ListenerEventV1Archive> inputListenerEventV1Archives =
-                randomListenerEventV1Archives;
+            List<ListenerEventArchiveV1> inputListenerEventArchiveV1s =
+                randomListenerEventArchiveV1s;
 
             // when
-            await this.eventV1ArchiveOrchestrationService
-                .AddEventV1ArchiveWithListenerEventV1ArchivesAsync(inputEventV1Archive);
+            await this.eventArchiveV1OrchestrationService
+                .AddEventArchiveV1WithListenerEventArchiveV1sAsync(inputEventArchiveV1);
 
             // then
-            foreach (ListenerEventV1Archive listenerEventV1Archive in inputListenerEventV1Archives)
+            foreach (ListenerEventArchiveV1 listenerEventArchiveV1 in inputListenerEventArchiveV1s)
             {
-                this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                    service.AddListenerEventV1ArchiveAsync(listenerEventV1Archive),
+                this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                    service.AddListenerEventArchiveV1Async(listenerEventArchiveV1),
                         Times.Once);
             }
 
-            this.eventV1ArchiveServiceMock.Verify(service =>
-                service.AddEventV1ArchiveAsync(inputEventV1Archive),
+            this.eventArchiveV1ServiceMock.Verify(service =>
+                service.AddEventArchiveV1Async(inputEventArchiveV1),
                     Times.Once);
 
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
     }

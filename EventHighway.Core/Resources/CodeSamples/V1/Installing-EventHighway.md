@@ -236,7 +236,7 @@ host.Run();
 
 - EventHighway uses **Entity Framework Core** with **SQL Server** (`UseSqlServer`).
 - On first initialization, `StorageBroker` calls `Database.Migrate()` automatically — no manual migration step is needed.
-- Tables created include: `EventAddressV1s`, `EventListenerV1s`, `EventV1s`, `ListenerEventV1s`, `EventV1Archives`, `ListenerEventV1Archives`, and their legacy V0 counterparts.
+- Tables created include: `EventAddressV1s`, `EventListenerV1s`, `EventV1s`, `ListenerEventV1s`, `EventArchiveV1s`, `ListenerEventArchiveV1s`, and their legacy V0 counterparts.
 
 ---
 

@@ -11,103 +11,103 @@ using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 {
-    public partial class EventV1ArchiveOrchestrationServiceTests
+    public partial class EventArchiveV1OrchestrationServiceTests
     {
         [Fact]
-        public async Task ShouldThrowValidationExceptionOnAddIfEventV1ArchiveIsNullAndLogItAsync()
+        public async Task ShouldThrowValidationExceptionOnAddIfEventArchiveV1IsNullAndLogItAsync()
         {
             // given
-            EventV1Archive nullEventV1Archive = null;
+            EventArchiveV1 nullEventArchiveV1 = null;
 
-            var nullEventV1ArchiveOrchestrationException =
-                new NullEventV1ArchiveOrchestrationException(
+            var nullEventArchiveV1OrchestrationException =
+                new NullEventArchiveV1OrchestrationException(
                     message: "Event archive is null.");
 
-            var expectedEventV1ArchiveOrchestrationValidationException =
-                new EventV1ArchiveOrchestrationValidationException(
+            var expectedEventArchiveV1OrchestrationValidationException =
+                new EventArchiveV1OrchestrationValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
-                    innerException: nullEventV1ArchiveOrchestrationException);
+                    innerException: nullEventArchiveV1OrchestrationException);
 
             // when
-            ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    nullEventV1Archive);
+            ValueTask addEventArchiveV1Task =
+                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    nullEventArchiveV1);
 
-            EventV1ArchiveOrchestrationValidationException
-                actualEventV1ArchiveOrchestrationValidationException =
-                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationValidationException>(
-                        addEventV1ArchiveTask.AsTask);
+            EventArchiveV1OrchestrationValidationException
+                actualEventArchiveV1OrchestrationValidationException =
+                    await Assert.ThrowsAsync<EventArchiveV1OrchestrationValidationException>(
+                        addEventArchiveV1Task.AsTask);
 
             // then
-            actualEventV1ArchiveOrchestrationValidationException.Should().BeEquivalentTo(
-                expectedEventV1ArchiveOrchestrationValidationException);
+            actualEventArchiveV1OrchestrationValidationException.Should().BeEquivalentTo(
+                expectedEventArchiveV1OrchestrationValidationException);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveOrchestrationValidationException))),
+                    expectedEventArchiveV1OrchestrationValidationException))),
                         Times.Once);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+            this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Never);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(
-                    It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1ServiceMock.Verify(broker =>
+                broker.AddEventArchiveV1Async(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
-        public async Task ShouldThrowValidationExceptionOnAddIfListenerEventV1ArchivesAreNullAndLogItAsync()
+        public async Task ShouldThrowValidationExceptionOnAddIfListenerEventArchiveV1sAreNullAndLogItAsync()
         {
             // given
-            var invalidEventV1Archive = new EventV1Archive();
-            invalidEventV1Archive.ListenerEventV1Archives = null;
+            var invalidEventArchiveV1 = new EventArchiveV1();
+            invalidEventArchiveV1.ListenerEventArchiveV1s = null;
 
-            var nullEventV1ArchiveOrchestrationException =
-                new NullListenerEventV1ArchivesOrchestrationException(
+            var nullEventArchiveV1OrchestrationException =
+                new NullListenerEventArchiveV1sOrchestrationException(
                     message: "Listener event archives are null.");
 
-            var expectedEventV1ArchiveOrchestrationValidationException =
-                new EventV1ArchiveOrchestrationValidationException(
+            var expectedEventArchiveV1OrchestrationValidationException =
+                new EventArchiveV1OrchestrationValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
-                    innerException: nullEventV1ArchiveOrchestrationException);
+                    innerException: nullEventArchiveV1OrchestrationException);
 
             // when
-            ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    invalidEventV1Archive);
+            ValueTask addEventArchiveV1Task =
+                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    invalidEventArchiveV1);
 
-            EventV1ArchiveOrchestrationValidationException
-                actualEventV1ArchiveOrchestrationValidationException =
-                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationValidationException>(
-                        addEventV1ArchiveTask.AsTask);
+            EventArchiveV1OrchestrationValidationException
+                actualEventArchiveV1OrchestrationValidationException =
+                    await Assert.ThrowsAsync<EventArchiveV1OrchestrationValidationException>(
+                        addEventArchiveV1Task.AsTask);
 
             // then
-            actualEventV1ArchiveOrchestrationValidationException.Should().BeEquivalentTo(
-                expectedEventV1ArchiveOrchestrationValidationException);
+            actualEventArchiveV1OrchestrationValidationException.Should().BeEquivalentTo(
+                expectedEventArchiveV1OrchestrationValidationException);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveOrchestrationValidationException))),
+                    expectedEventArchiveV1OrchestrationValidationException))),
                         Times.Once);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+            this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Never);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(
-                    It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1ServiceMock.Verify(broker =>
+                broker.AddEventArchiveV1Async(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
         }
     }
 }

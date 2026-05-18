@@ -9,63 +9,63 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.Exceptions
 
 namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 {
-    internal partial class EventV1ArchiveService
+    internal partial class EventArchiveV1Service
     {
-        private async ValueTask ValidateEventV1ArchiveOnAddAsync(EventV1Archive eventV1Archive)
+        private async ValueTask ValidateEventArchiveV1OnAddAsync(EventArchiveV1 eventArchiveV1)
         {
-            ValidateEventV1ArchiveIsNotNull(eventV1Archive);
+            ValidateEventArchiveV1IsNotNull(eventArchiveV1);
 
             Validate(
-                (Rule: IsInvalid(eventV1Archive.Id),
-                Parameter: nameof(EventV1Archive.Id)),
+                (Rule: IsInvalid(eventArchiveV1.Id),
+                Parameter: nameof(EventArchiveV1.Id)),
 
-                (Rule: IsInvalid(eventV1Archive.Content),
-                Parameter: nameof(EventV1Archive.Content)),
+                (Rule: IsInvalid(eventArchiveV1.Content),
+                Parameter: nameof(EventArchiveV1.Content)),
 
-                (Rule: IsInvalid(eventV1Archive.Type),
-                Parameter: nameof(EventV1Archive.Type)),
+                (Rule: IsInvalid(eventArchiveV1.Type),
+                Parameter: nameof(EventArchiveV1.Type)),
 
-                (Rule: IsInvalid(eventV1Archive.CreatedDate),
-                Parameter: nameof(EventV1Archive.CreatedDate)),
+                (Rule: IsInvalid(eventArchiveV1.CreatedDate),
+                Parameter: nameof(EventArchiveV1.CreatedDate)),
 
-                (Rule: IsInvalid(eventV1Archive.UpdatedDate),
-                Parameter: nameof(EventV1Archive.UpdatedDate)),
+                (Rule: IsInvalid(eventArchiveV1.UpdatedDate),
+                Parameter: nameof(EventArchiveV1.UpdatedDate)),
 
-                (Rule: IsInvalid(eventV1Archive.ArchivedDate),
-                Parameter: nameof(EventV1Archive.ArchivedDate)),
+                (Rule: IsInvalid(eventArchiveV1.ArchivedDate),
+                Parameter: nameof(EventArchiveV1.ArchivedDate)),
 
-                (Rule: await IsNotRecentAsync(eventV1Archive.ArchivedDate),
-                Parameter: nameof(EventV1Archive.ArchivedDate)),
+                (Rule: await IsNotRecentAsync(eventArchiveV1.ArchivedDate),
+                Parameter: nameof(EventArchiveV1.ArchivedDate)),
 
-                (Rule: IsInvalid(eventV1Archive.EventAddressId),
-                Parameter: nameof(EventV1Archive.EventAddressId)));
+                (Rule: IsInvalid(eventArchiveV1.EventAddressId),
+                Parameter: nameof(EventArchiveV1.EventAddressId)));
         }
 
-        private static void ValidateEventV1ArchiveIsNotNull(EventV1Archive eventV1Archive)
+        private static void ValidateEventArchiveV1IsNotNull(EventArchiveV1 eventArchiveV1)
         {
-            if (eventV1Archive is null)
+            if (eventArchiveV1 is null)
             {
-                throw new NullEventV1ArchiveException(
+                throw new NullEventArchiveV1Exception(
                     message: "Event archive is null.");
             }
         }
 
-        private static void ValidateEventV1ArchiveId(Guid eventArchiveV1Id)
+        private static void ValidateEventArchiveV1Id(Guid eventArchiveV1Id)
         {
             Validate(
                 (Rule: IsInvalid(eventArchiveV1Id),
-                Parameter: nameof(EventV1Archive.Id)));
+                Parameter: nameof(EventArchiveV1.Id)));
         }
 
-        private static void ValidateEventV1ArchiveExists(
-            EventV1Archive eventV1Archive,
-            Guid eventV1ArchiveId)
+        private static void ValidateEventArchiveV1Exists(
+            EventArchiveV1 eventArchiveV1,
+            Guid eventArchiveV1Id)
         {
-            if (eventV1Archive is null)
+            if (eventArchiveV1 is null)
             {
-                throw new NotFoundEventV1ArchiveException(
+                throw new NotFoundEventArchiveV1Exception(
                     message: $"Could not find event archive " +
-                        $"with id: {eventV1ArchiveId}.");
+                        $"with id: {eventArchiveV1Id}.");
             }
         }
 
@@ -129,21 +129,21 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
-            var invalidEventV1ArchiveException =
-                new InvalidEventV1ArchiveException(
+            var invalidEventArchiveV1Exception =
+                new InvalidEventArchiveV1Exception(
                     message: "Event archive is invalid, fix the errors and try again.");
 
             foreach ((dynamic rule, string parameter) in validations)
             {
                 if (rule.Condition)
                 {
-                    invalidEventV1ArchiveException.UpsertDataList(
+                    invalidEventArchiveV1Exception.UpsertDataList(
                         key: parameter,
                         value: rule.Message);
                 }
             }
 
-            invalidEventV1ArchiveException.ThrowIfContainsErrors();
+            invalidEventArchiveV1Exception.ThrowIfContainsErrors();
         }
     }
 }

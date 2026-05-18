@@ -11,7 +11,7 @@ using Xeptions;
 
 namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 {
-    internal partial class EventV1ArchiveOrchestrationService
+    internal partial class EventArchiveV1OrchestrationService
     {
         private delegate ValueTask ReturningNothingFunction();
 
@@ -22,129 +22,129 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
             {
                 await returningNothingFunction();
             }
-            catch (NullEventV1ArchiveOrchestrationException
-                nullEventV1ArchiveOrchestrationException)
+            catch (NullEventArchiveV1OrchestrationException
+                nullEventArchiveV1OrchestrationException)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    nullEventV1ArchiveOrchestrationException);
+                    nullEventArchiveV1OrchestrationException);
             }
-            catch (NullListenerEventV1ArchivesOrchestrationException
-                nullListenerEventV1ArchivesOrchestrationException)
+            catch (NullListenerEventArchiveV1sOrchestrationException
+                nullListenerEventArchiveV1sOrchestrationException)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    nullListenerEventV1ArchivesOrchestrationException);
+                    nullListenerEventArchiveV1sOrchestrationException);
             }
-            catch (EventV1ArchiveValidationException
-                eventV1ArchiveValidationException)
+            catch (EventArchiveV1ValidationException
+                eventArchiveV1ValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveValidationException);
+                    eventArchiveV1ValidationException);
             }
-            catch (EventV1ArchiveDependencyValidationException
-                eventV1ArchiveDependencyValidationException)
+            catch (EventArchiveV1DependencyValidationException
+                eventArchiveV1DependencyValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveDependencyValidationException);
+                    eventArchiveV1DependencyValidationException);
             }
-            catch (ListenerEventV1ArchiveValidationException
-                listenerEventV1ArchiveValidationException)
+            catch (ListenerEventArchiveV1ValidationException
+                listenerEventArchiveV1ValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    listenerEventV1ArchiveValidationException);
+                    listenerEventArchiveV1ValidationException);
             }
-            catch (ListenerEventV1ArchiveDependencyValidationException
-                listenerEventV1ArchiveDependencyValidationException)
+            catch (ListenerEventArchiveV1DependencyValidationException
+                listenerEventArchiveV1DependencyValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    listenerEventV1ArchiveDependencyValidationException);
+                    listenerEventArchiveV1DependencyValidationException);
             }
-            catch (EventV1ArchiveDependencyException
-                eventV1ArchiveDependencyException)
+            catch (EventArchiveV1DependencyException
+                eventArchiveV1DependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveDependencyException);
+                    eventArchiveV1DependencyException);
             }
-            catch (EventV1ArchiveServiceException
-                eventV1ArchiveServiceException)
+            catch (EventArchiveV1ServiceException
+                eventArchiveV1ServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveServiceException);
+                    eventArchiveV1ServiceException);
             }
-            catch (ListenerEventV1ArchiveDependencyException
-                listenerListenerEventV1ArchiveDependencyException)
+            catch (ListenerEventArchiveV1DependencyException
+                listenerListenerEventArchiveV1DependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    listenerListenerEventV1ArchiveDependencyException);
+                    listenerListenerEventArchiveV1DependencyException);
             }
-            catch (ListenerEventV1ArchiveServiceException
-                listenerListenerEventV1ArchiveServiceException)
+            catch (ListenerEventArchiveV1ServiceException
+                listenerListenerEventArchiveV1ServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    listenerListenerEventV1ArchiveServiceException);
+                    listenerListenerEventArchiveV1ServiceException);
             }
             catch (Exception exception)
             {
-                var failedEventV1ArchiveOrchestrationServiceException =
-                    new FailedEventV1ArchiveOrchestrationServiceException(
+                var failedEventArchiveV1OrchestrationServiceException =
+                    new FailedEventArchiveV1OrchestrationServiceException(
                         message: "Failed event archive service error occurred, contact support.",
                         innerException: exception);
 
                 throw await CreateAndLogServiceExceptionAsync(
-                    failedEventV1ArchiveOrchestrationServiceException);
+                    failedEventArchiveV1OrchestrationServiceException);
             }
         }
 
-        private async ValueTask<EventV1ArchiveOrchestrationValidationException> CreateAndLogValidationExceptionAsync(
+        private async ValueTask<EventArchiveV1OrchestrationValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveOrchestrationValidationException =
-                new EventV1ArchiveOrchestrationValidationException(
+            var eventArchiveV1OrchestrationValidationException =
+                new EventArchiveV1OrchestrationValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveOrchestrationValidationException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1OrchestrationValidationException);
 
-            return eventV1ArchiveOrchestrationValidationException;
+            return eventArchiveV1OrchestrationValidationException;
         }
 
-        private async ValueTask<EventV1ArchiveOrchestrationDependencyValidationException>
+        private async ValueTask<EventArchiveV1OrchestrationDependencyValidationException>
             CreateAndLogDependencyValidationExceptionAsync(
                 Xeption exception)
         {
-            var eventV1ArchiveOrchestrationDependencyValidationException =
-                new EventV1ArchiveOrchestrationDependencyValidationException(
+            var eventArchiveV1OrchestrationDependencyValidationException =
+                new EventArchiveV1OrchestrationDependencyValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveOrchestrationDependencyValidationException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1OrchestrationDependencyValidationException);
 
-            return eventV1ArchiveOrchestrationDependencyValidationException;
+            return eventArchiveV1OrchestrationDependencyValidationException;
         }
 
-        private async ValueTask<EventV1ArchiveOrchestrationDependencyException> CreateAndLogDependencyExceptionAsync(
+        private async ValueTask<EventArchiveV1OrchestrationDependencyException> CreateAndLogDependencyExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveOrchestrationDependencyException =
-                new EventV1ArchiveOrchestrationDependencyException(
+            var eventArchiveV1OrchestrationDependencyException =
+                new EventArchiveV1OrchestrationDependencyException(
                     message: "Event archive dependency error occurred, contact support.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveOrchestrationDependencyException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1OrchestrationDependencyException);
 
-            return eventV1ArchiveOrchestrationDependencyException;
+            return eventArchiveV1OrchestrationDependencyException;
         }
 
-        private async ValueTask<EventV1ArchiveOrchestrationServiceException> CreateAndLogServiceExceptionAsync(
+        private async ValueTask<EventArchiveV1OrchestrationServiceException> CreateAndLogServiceExceptionAsync(
             Xeption exception)
         {
-            var eventV1ArchiveOrchestrationServiceException =
-                new EventV1ArchiveOrchestrationServiceException(
+            var eventArchiveV1OrchestrationServiceException =
+                new EventArchiveV1OrchestrationServiceException(
                     message: "Event archive service error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(eventV1ArchiveOrchestrationServiceException);
+            await this.loggingBroker.LogErrorAsync(eventArchiveV1OrchestrationServiceException);
 
-            return eventV1ArchiveOrchestrationServiceException;
+            return eventArchiveV1OrchestrationServiceException;
         }
     }
 }

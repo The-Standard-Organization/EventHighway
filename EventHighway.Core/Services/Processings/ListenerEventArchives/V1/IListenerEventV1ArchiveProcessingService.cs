@@ -7,9 +7,9 @@ using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 
 namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
 {
-    internal interface IListenerEventV1ArchiveProcessingService
+    internal interface IListenerEventArchiveV1ProcessingService
     {
-        ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive);
+        ValueTask<ListenerEventArchiveV1> AddListenerEventArchiveV1Async(
+            ListenerEventArchiveV1 listenerEventArchiveV1);
     }
 }

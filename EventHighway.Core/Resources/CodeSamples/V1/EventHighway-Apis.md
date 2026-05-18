@@ -196,7 +196,7 @@ Archive management for fully-processed events. Archiving moves completed events 
 
 | Method | Signature | Description |
 |---|---|---|
-| **Archive Dead Events** | `ArchiveDeadEventV1sAsync()` → `ValueTask` | Archive all fully-processed events and their listener results into `EventV1Archive` and `ListenerEventV1Archive`, then remove them from the active tables |
+| **Archive Dead Events** | `ArchiveDeadEventV1sAsync()` → `ValueTask` | Archive all fully-processed events and their listener results into `EventArchiveV1` and `ListenerEventArchiveV1`, then remove them from the active tables |
 
 ### How Archiving Works
 
@@ -204,36 +204,36 @@ When `ArchiveDeadEventV1sAsync()` is called, EventHighway:
 
 1. Retrieves all **dead events** — events where every registered listener has a terminal status (`Success` or `Error`).
 2. For each dead event, maps the `EventV1` and its `ListenerEventV1` records into their archive counterparts.
-3. Inserts each `ListenerEventV1Archive` record, then inserts the `EventV1Archive` record.
+3. Inserts each `ListenerEventArchiveV1` record, then inserts the `EventArchiveV1` record.
 4. Removes the original `ListenerEventV1` and `EventV1` records from the active tables.
 
 This keeps the active tables lean while preserving the full delivery history in the archive.
 
-### EventV1Archive Model
+### EventArchiveV1 Model
 
 ```csharp
-public class EventV1Archive
+public class EventArchiveV1
 {
     public Guid Id { get; set; }
     public string Content { get; set; }
-    public EventV1ArchiveType Type { get; set; }       // Immediate | Scheduled
+    public EventArchiveV1Type Type { get; set; }       // Immediate | Scheduled
     public DateTimeOffset CreatedDate { get; set; }
     public DateTimeOffset UpdatedDate { get; set; }
     public DateTimeOffset? ScheduledDate { get; set; }
     public DateTimeOffset ArchivedDate { get; set; }
     public Guid EventAddressId { get; set; }
 
-    public IEnumerable<ListenerEventV1Archive> ListenerEventV1Archives { get; set; }
+    public IEnumerable<ListenerEventArchiveV1> ListenerEventArchiveV1s { get; set; }
 }
 ```
 
-### ListenerEventV1Archive Model
+### ListenerEventArchiveV1 Model
 
 ```csharp
-public class ListenerEventV1Archive
+public class ListenerEventArchiveV1
 {
     public Guid Id { get; set; }
-    public ListenerEventV1ArchiveStatus Status { get; set; }  // Pending | Success | Error
+    public ListenerEventArchiveV1Status Status { get; set; }  // Pending | Success | Error
     public string Response { get; set; }
     public string ResponseReasonPhrase { get; set; }
     public DateTimeOffset CreatedDate { get; set; }

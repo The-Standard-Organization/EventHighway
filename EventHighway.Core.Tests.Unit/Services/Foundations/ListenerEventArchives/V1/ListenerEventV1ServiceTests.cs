@@ -17,14 +17,14 @@ using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchives.V1
 {
-    public partial class ListenerEventV1ArchiveServiceTests
+    public partial class ListenerEventArchiveV1ServiceTests
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
-        private readonly IListenerEventV1ArchiveService listenerEventV1ArchiveService;
+        private readonly IListenerEventArchiveV1Service listenerEventArchiveV1Service;
 
-        public ListenerEventV1ArchiveServiceTests()
+        public ListenerEventArchiveV1ServiceTests()
         {
             this.storageBrokerMock =
                 new Mock<IStorageBroker>();
@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
             this.dateTimeBrokerMock =
                 new Mock<IDateTimeBroker>();
 
-            this.listenerEventV1ArchiveService = new ListenerEventV1ArchiveService(
+            this.listenerEventArchiveV1Service = new ListenerEventArchiveV1Service(
                 storageBroker: this.storageBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
@@ -99,18 +99,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
-        private static ListenerEventV1Archive CreateRandomListenerEventV1Archive() =>
-            CreateListenerEventV1ArchiveFiller(dates: GetRandomDateTimeOffset()).Create();
+        private static ListenerEventArchiveV1 CreateRandomListenerEventArchiveV1() =>
+            CreateListenerEventArchiveV1Filler(dates: GetRandomDateTimeOffset()).Create();
 
-        private static ListenerEventV1Archive CreateRandomListenerEventV1Archive(DateTimeOffset dates) =>
-            CreateListenerEventV1ArchiveFiller(dates).Create();
+        private static ListenerEventArchiveV1 CreateRandomListenerEventArchiveV1(DateTimeOffset dates) =>
+            CreateListenerEventArchiveV1Filler(dates).Create();
 
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 
-        private static Filler<ListenerEventV1Archive> CreateListenerEventV1ArchiveFiller(DateTimeOffset dates)
+        private static Filler<ListenerEventArchiveV1> CreateListenerEventArchiveV1Filler(DateTimeOffset dates)
         {
-            var filler = new Filler<ListenerEventV1Archive>();
+            var filler = new Filler<ListenerEventArchiveV1>();
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(dates);

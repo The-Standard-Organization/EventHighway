@@ -11,100 +11,100 @@ using Xeptions;
 
 namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveProcessingService
+    internal partial class ListenerEventArchiveV1ProcessingService
     {
-        private delegate ValueTask<ListenerEventV1Archive> ReturningListenerEventV1ArchiveFunction();
+        private delegate ValueTask<ListenerEventArchiveV1> ReturningListenerEventArchiveV1Function();
 
-        private async ValueTask<ListenerEventV1Archive> TryCatch(
-            ReturningListenerEventV1ArchiveFunction returningListenerEventV1ArchiveFunction)
+        private async ValueTask<ListenerEventArchiveV1> TryCatch(
+            ReturningListenerEventArchiveV1Function returningListenerEventArchiveV1Function)
         {
             try
             {
-                return await returningListenerEventV1ArchiveFunction();
+                return await returningListenerEventArchiveV1Function();
             }
-            catch (NullListenerEventV1ArchiveProcessingException nullListenerEventV1ArchiveProcessingException)
+            catch (NullListenerEventArchiveV1ProcessingException nullListenerEventArchiveV1ProcessingException)
             {
-                throw await CreateAndLogValidationExceptionAsync(nullListenerEventV1ArchiveProcessingException);
+                throw await CreateAndLogValidationExceptionAsync(nullListenerEventArchiveV1ProcessingException);
             }
-            catch (ListenerEventV1ArchiveValidationException ListenerEventV1ArchiveValidationException)
+            catch (ListenerEventArchiveV1ValidationException ListenerEventArchiveV1ValidationException)
             {
-                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventV1ArchiveValidationException);
+                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventArchiveV1ValidationException);
             }
-            catch (ListenerEventV1ArchiveDependencyValidationException ListenerEventV1ArchiveDependencyValidationException)
+            catch (ListenerEventArchiveV1DependencyValidationException ListenerEventArchiveV1DependencyValidationException)
             {
-                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventV1ArchiveDependencyValidationException);
+                throw await CreateAndLogDependencyValidationExceptionAsync(ListenerEventArchiveV1DependencyValidationException);
             }
-            catch (ListenerEventV1ArchiveDependencyException listenerEventV1ArchiveDependencyException)
+            catch (ListenerEventArchiveV1DependencyException listenerEventArchiveV1DependencyException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ArchiveDependencyException);
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventArchiveV1DependencyException);
             }
-            catch (ListenerEventV1ArchiveServiceException listenerEventV1ArchiveServiceException)
+            catch (ListenerEventArchiveV1ServiceException listenerEventArchiveV1ServiceException)
             {
-                throw await CreateAndLogDependencyExceptionAsync(listenerEventV1ArchiveServiceException);
+                throw await CreateAndLogDependencyExceptionAsync(listenerEventArchiveV1ServiceException);
             }
             catch (Exception exception)
             {
-                var failedListenerEventV1ArchiveProcessingServiceException =
-                    new FailedListenerEventV1ArchiveProcessingServiceException(
+                var failedListenerEventArchiveV1ProcessingServiceException =
+                    new FailedListenerEventArchiveV1ProcessingServiceException(
                         message: "Failed listener event archive service error occurred, contact support.",
                         innerException: exception);
 
-                throw await CreateAndLogServiceExceptionAsync(failedListenerEventV1ArchiveProcessingServiceException);
+                throw await CreateAndLogServiceExceptionAsync(failedListenerEventArchiveV1ProcessingServiceException);
             }
         }
 
-        private async ValueTask<ListenerEventV1ArchiveProcessingValidationException>
+        private async ValueTask<ListenerEventArchiveV1ProcessingValidationException>
             CreateAndLogValidationExceptionAsync(
                 Xeption exception)
         {
-            var ListenerEventV1ArchiveProcessingValidationException =
-                new ListenerEventV1ArchiveProcessingValidationException(
+            var ListenerEventArchiveV1ProcessingValidationException =
+                new ListenerEventArchiveV1ProcessingValidationException(
                     message: "Listener event archive validation error occurred, fix the errors and try again.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(ListenerEventV1ArchiveProcessingValidationException);
+            await this.loggingBroker.LogErrorAsync(ListenerEventArchiveV1ProcessingValidationException);
 
-            return ListenerEventV1ArchiveProcessingValidationException;
+            return ListenerEventArchiveV1ProcessingValidationException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveProcessingDependencyValidationException>
+        private async ValueTask<ListenerEventArchiveV1ProcessingDependencyValidationException>
             CreateAndLogDependencyValidationExceptionAsync(
                 Xeption exception)
         {
-            var ListenerEventV1ArchiveProcessingDependencyValidationException =
-                new ListenerEventV1ArchiveProcessingDependencyValidationException(
+            var ListenerEventArchiveV1ProcessingDependencyValidationException =
+                new ListenerEventArchiveV1ProcessingDependencyValidationException(
                     message: "Listener event archive validation error occurred, fix the errors and try again.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(ListenerEventV1ArchiveProcessingDependencyValidationException);
+            await this.loggingBroker.LogErrorAsync(ListenerEventArchiveV1ProcessingDependencyValidationException);
 
-            return ListenerEventV1ArchiveProcessingDependencyValidationException;
+            return ListenerEventArchiveV1ProcessingDependencyValidationException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveProcessingDependencyException> CreateAndLogDependencyExceptionAsync(
+        private async ValueTask<ListenerEventArchiveV1ProcessingDependencyException> CreateAndLogDependencyExceptionAsync(
             Xeption exception)
         {
-            var ListenerEventV1ArchiveProcessingDependencyException =
-                new ListenerEventV1ArchiveProcessingDependencyException(
+            var ListenerEventArchiveV1ProcessingDependencyException =
+                new ListenerEventArchiveV1ProcessingDependencyException(
                     message: "Listener event archive dependency error occurred, contact support.",
                     innerException: exception.InnerException as Xeption);
 
-            await this.loggingBroker.LogErrorAsync(ListenerEventV1ArchiveProcessingDependencyException);
+            await this.loggingBroker.LogErrorAsync(ListenerEventArchiveV1ProcessingDependencyException);
 
-            return ListenerEventV1ArchiveProcessingDependencyException;
+            return ListenerEventArchiveV1ProcessingDependencyException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveProcessingServiceException> CreateAndLogServiceExceptionAsync(
+        private async ValueTask<ListenerEventArchiveV1ProcessingServiceException> CreateAndLogServiceExceptionAsync(
             Xeption exception)
         {
-            var ListenerEventV1ArchiveProcessingServiceException =
-                new ListenerEventV1ArchiveProcessingServiceException(
+            var ListenerEventArchiveV1ProcessingServiceException =
+                new ListenerEventArchiveV1ProcessingServiceException(
                     message: "Listener event archive service error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(ListenerEventV1ArchiveProcessingServiceException);
+            await this.loggingBroker.LogErrorAsync(ListenerEventArchiveV1ProcessingServiceException);
 
-            return ListenerEventV1ArchiveProcessingServiceException;
+            return ListenerEventArchiveV1ProcessingServiceException;
         }
     }
 }

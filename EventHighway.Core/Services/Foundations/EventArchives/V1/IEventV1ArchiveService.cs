@@ -9,12 +9,12 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 
 namespace EventHighway.Core.Services.Foundations.EventArchives.V1
 {
-    public partial interface IEventV1ArchiveService
+    public partial interface IEventArchiveV1Service
     {
-        ValueTask<EventV1Archive> AddEventV1ArchiveAsync(EventV1Archive eventV1Archive);
-        ValueTask<IQueryable<EventV1Archive>> RetrieveAllEventV1ArchivesAsync();
-        ValueTask<EventV1Archive> RetrieveEventV1ArchiveByIdAsync(Guid eventV1ArchiveId);
-        ValueTask<EventV1Archive> RemoveEventV1ArchiveByIdAsync(Guid eventArchiveV1Id);
+        ValueTask<EventArchiveV1> AddEventArchiveV1Async(EventArchiveV1 eventArchiveV1);
+        ValueTask<IQueryable<EventArchiveV1>> RetrieveAllEventArchiveV1sAsync();
+        ValueTask<EventArchiveV1> RetrieveEventArchiveV1ByIdAsync(Guid eventArchiveV1Id);
+        ValueTask<EventArchiveV1> RemoveEventArchiveV1ByIdAsync(Guid eventArchiveV1Id);
 
     }
 }

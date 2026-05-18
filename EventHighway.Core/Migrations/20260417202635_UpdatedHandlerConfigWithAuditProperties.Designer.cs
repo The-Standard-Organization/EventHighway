@@ -286,7 +286,7 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventV2s", (string)null);
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventArchiveV1", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,7 +315,7 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventV1Archives");
+                    b.ToTable("EventArchiveV1s");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.EventArchiveV2", b =>
@@ -383,7 +383,7 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("HandlerConfigurations", (string)null);
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventArchiveV1", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -404,7 +404,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventListenerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("EventV1ArchiveId")
+                    b.Property<Guid?>("EventArchiveV1Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Response")
@@ -421,9 +421,9 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventV1ArchiveId");
+                    b.HasIndex("EventArchiveV1Id");
 
-                    b.ToTable("ListenerEventV1Archives");
+                    b.ToTable("ListenerEventArchiveV1s");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.ListenerEventArchiveV2", b =>
@@ -666,11 +666,11 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("EventListener");
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventArchiveV1", b =>
                 {
-                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", null)
-                        .WithMany("ListenerEventV1Archives")
-                        .HasForeignKey("EventV1ArchiveId");
+                    b.HasOne("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventArchiveV1", null)
+                        .WithMany("ListenerEventArchiveV1s")
+                        .HasForeignKey("EventArchiveV1Id");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.ListenerEventArchiveV2", b =>
@@ -820,9 +820,9 @@ namespace EventHighway.Core.Migrations
                     b.Navigation("ListenerEvents");
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventArchiveV1", b =>
                 {
-                    b.Navigation("ListenerEventV1Archives");
+                    b.Navigation("ListenerEventArchiveV1s");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.EventArchiveV2", b =>

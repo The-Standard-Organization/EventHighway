@@ -6,9 +6,9 @@ using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Processings.ListenerEventArchives.V1.Exceptions
 {
-    public class ListenerEventV1ArchiveProcessingDependencyException : Xeption
+    public class ListenerEventArchiveV1ProcessingDependencyException : Xeption
     {
-        public ListenerEventV1ArchiveProcessingDependencyException(string message, Xeption innerException)
+        public ListenerEventArchiveV1ProcessingDependencyException(string message, Xeption innerException)
             : base(message, innerException)
         { }
     }

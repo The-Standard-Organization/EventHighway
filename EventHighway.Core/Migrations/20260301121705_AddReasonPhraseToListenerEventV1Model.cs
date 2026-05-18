@@ -22,21 +22,21 @@ namespace EventHighway.Core.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<Guid>(
-                name: "EventV1ArchiveId",
-                table: "ListenerEventV1Archives",
+                name: "EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s",
                 type: "uniqueidentifier",
                 nullable: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ListenerEventV1Archives_EventV1ArchiveId",
-                table: "ListenerEventV1Archives",
-                column: "EventV1ArchiveId");
+                name: "IX_ListenerEventArchiveV1s_EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s",
+                column: "EventArchiveV1Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_ListenerEventV1Archives_EventV1Archives_EventV1ArchiveId",
-                table: "ListenerEventV1Archives",
-                column: "EventV1ArchiveId",
-                principalTable: "EventV1Archives",
+                name: "FK_ListenerEventArchiveV1s_EventArchiveV1s_EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s",
+                column: "EventArchiveV1Id",
+                principalTable: "EventArchiveV1s",
                 principalColumn: "Id");
         }
 
@@ -44,20 +44,20 @@ namespace EventHighway.Core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_ListenerEventV1Archives_EventV1Archives_EventV1ArchiveId",
-                table: "ListenerEventV1Archives");
+                name: "FK_ListenerEventArchiveV1s_EventArchiveV1s_EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s");
 
             migrationBuilder.DropIndex(
-                name: "IX_ListenerEventV1Archives_EventV1ArchiveId",
-                table: "ListenerEventV1Archives");
+                name: "IX_ListenerEventArchiveV1s_EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s");
 
             migrationBuilder.DropColumn(
                 name: "ResponseReasonPhrase",
                 table: "ListenerEventV1s");
 
             migrationBuilder.DropColumn(
-                name: "EventV1ArchiveId",
-                table: "ListenerEventV1Archives");
+                name: "EventArchiveV1Id",
+                table: "ListenerEventArchiveV1s");
         }
     }
 }

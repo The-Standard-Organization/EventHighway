@@ -9,7 +9,7 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial interface IStorageBroker
     {
-        ValueTask<ListenerEventV1Archive> InsertListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive);
+        ValueTask<ListenerEventArchiveV1> InsertListenerEventArchiveV1Async(
+            ListenerEventArchiveV1 listenerEventArchiveV1);
     }
 }

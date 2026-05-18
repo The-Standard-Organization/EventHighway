@@ -7,9 +7,9 @@ using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1
 {
-    public class FailedEventV1ArchiveOrchestrationServiceException : Xeption
+    public class FailedEventArchiveV1OrchestrationServiceException : Xeption
     {
-        public FailedEventV1ArchiveOrchestrationServiceException(string message, Exception innerException)
+        public FailedEventArchiveV1OrchestrationServiceException(string message, Exception innerException)
             : base(message, innerException)
         { }
     }

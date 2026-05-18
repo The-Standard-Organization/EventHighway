@@ -6,9 +6,9 @@ using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1
 {
-    public partial class NullEventV1ArchiveOrchestrationException : Xeption
+    public partial class NullEventArchiveV1OrchestrationException : Xeption
     {
-        public NullEventV1ArchiveOrchestrationException(string message)
+        public NullEventArchiveV1OrchestrationException(string message)
             : base(message)
         { }
     }

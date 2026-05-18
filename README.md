@@ -153,7 +153,7 @@ Current V1 capabilities include:
 
 - **Immediate & Scheduled Events** — `EventV1Type.Immediate` for instant dispatch, `EventV1Type.Scheduled` for time-deferred delivery.
 - **Delivery Observability** — per-listener `ListenerEventV1` records with `Pending`, `Success`, and `Error` statuses plus response details.
-- **Automatic Archiving** — processed events and listener results are archived into `EventV1Archive` and `ListenerEventV1Archive` for audit and replay.
+- **Automatic Archiving** — processed events and listener results are archived into `EventArchiveV1` and `ListenerEventArchiveV1` for audit and replay.
 - **Retry Support** — configurable `RetryAttempts` on `EventV1` for resilient delivery.
 
 There are plans for further abstraction and customization, such as:

@@ -13,159 +13,159 @@ using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 {
-    public partial class EventV1ArchiveOrchestrationServiceTests
+    public partial class EventArchiveV1OrchestrationServiceTests
     {
         [Theory]
-        [MemberData(nameof(EventV1ArchiveValidationExceptions))]
-        [MemberData(nameof(ListenerEventV1ArchiveValidationExceptions))]
+        [MemberData(nameof(EventArchiveV1ValidationExceptions))]
+        [MemberData(nameof(ListenerEventArchiveV1ValidationExceptions))]
         public async Task ShouldThrowDependencyValidationExceptionOnAddIfValidationExceptionOccursAndLogItAsync(
             Xeption validationException)
         {
             // given
-            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            EventArchiveV1 someEventArchiveV1 = CreateRandomEventArchiveV1();
 
-            var expectedEventV1ArchiveOrchestrationDependencyValidationException =
-                new EventV1ArchiveOrchestrationDependencyValidationException(
+            var expectedEventArchiveV1OrchestrationDependencyValidationException =
+                new EventArchiveV1OrchestrationDependencyValidationException(
                     message: "Event archive validation error occurred, fix the errors and try again.",
                     innerException: validationException.InnerException as Xeption);
 
-            this.listenerEventV1ArchiveServiceMock.Setup(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()))
+            this.listenerEventArchiveV1ServiceMock.Setup(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()))
                     .ThrowsAsync(validationException);
 
             // when
-            ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    someEventV1Archive);
+            ValueTask addEventArchiveV1Task =
+                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    someEventArchiveV1);
 
-            EventV1ArchiveOrchestrationDependencyValidationException
-                actualEventV1ArchiveOrchestrationDependencyValidationException =
-                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationDependencyValidationException>(
-                        addEventV1ArchiveTask.AsTask);
+            EventArchiveV1OrchestrationDependencyValidationException
+                actualEventArchiveV1OrchestrationDependencyValidationException =
+                    await Assert.ThrowsAsync<EventArchiveV1OrchestrationDependencyValidationException>(
+                        addEventArchiveV1Task.AsTask);
 
             // then
-            actualEventV1ArchiveOrchestrationDependencyValidationException.Should()
-                .BeEquivalentTo(expectedEventV1ArchiveOrchestrationDependencyValidationException);
+            actualEventArchiveV1OrchestrationDependencyValidationException.Should()
+                .BeEquivalentTo(expectedEventArchiveV1OrchestrationDependencyValidationException);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+            this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveOrchestrationDependencyValidationException))),
+                    expectedEventArchiveV1OrchestrationDependencyValidationException))),
                         Times.Once);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1ServiceMock.Verify(broker =>
+                broker.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
                     Times.Never);
 
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
         }
 
         [Theory]
-        [MemberData(nameof(EventV1ArchiveDependencyExceptions))]
-        [MemberData(nameof(ListenerEventV1ArchiveDependencyExceptions))]
+        [MemberData(nameof(EventArchiveV1DependencyExceptions))]
+        [MemberData(nameof(ListenerEventArchiveV1DependencyExceptions))]
         public async Task ShouldThrowDependencyExceptionOnAddIfDependencyExceptionOccursAndLogItAsync(
             Xeption validationException)
         {
             // given
-            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            EventArchiveV1 someEventArchiveV1 = CreateRandomEventArchiveV1();
 
-            var expectedEventV1ArchiveOrchestrationDependencyException =
-                new EventV1ArchiveOrchestrationDependencyException(
+            var expectedEventArchiveV1OrchestrationDependencyException =
+                new EventArchiveV1OrchestrationDependencyException(
                     message: "Event archive dependency error occurred, contact support.",
                     innerException: validationException.InnerException as Xeption);
 
-            this.listenerEventV1ArchiveServiceMock.Setup(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()))
+            this.listenerEventArchiveV1ServiceMock.Setup(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()))
                     .ThrowsAsync(validationException);
 
             // when
-            ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    someEventV1Archive);
+            ValueTask addEventArchiveV1Task =
+                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    someEventArchiveV1);
 
-            EventV1ArchiveOrchestrationDependencyException
-                actualEventV1ArchiveOrchestrationDependencyException =
-                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationDependencyException>(
-                        addEventV1ArchiveTask.AsTask);
+            EventArchiveV1OrchestrationDependencyException
+                actualEventArchiveV1OrchestrationDependencyException =
+                    await Assert.ThrowsAsync<EventArchiveV1OrchestrationDependencyException>(
+                        addEventArchiveV1Task.AsTask);
 
             // then
-            actualEventV1ArchiveOrchestrationDependencyException.Should()
-                .BeEquivalentTo(expectedEventV1ArchiveOrchestrationDependencyException);
+            actualEventArchiveV1OrchestrationDependencyException.Should()
+                .BeEquivalentTo(expectedEventArchiveV1OrchestrationDependencyException);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+            this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveOrchestrationDependencyException))),
+                    expectedEventArchiveV1OrchestrationDependencyException))),
                         Times.Once);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1ServiceMock.Verify(broker =>
+                broker.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
                     Times.Never);
 
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
         public async Task ShouldThrowServiceExceptionOnAddIfExceptionOccursAndLogItAsync()
         {
             // given
-            EventV1Archive someEventV1Archive = CreateRandomEventV1Archive();
+            EventArchiveV1 someEventArchiveV1 = CreateRandomEventArchiveV1();
             var exception = new Exception();
 
-            var failedEventV1ArchiveOrchestrationServiceException =
-                new FailedEventV1ArchiveOrchestrationServiceException(
+            var failedEventArchiveV1OrchestrationServiceException =
+                new FailedEventArchiveV1OrchestrationServiceException(
                     message: "Failed event archive service error occurred, contact support.",
                     innerException: exception);
 
-            var expectedEventV1ArchiveOrchestrationServiceException =
-                new EventV1ArchiveOrchestrationServiceException(
+            var expectedEventArchiveV1OrchestrationServiceException =
+                new EventArchiveV1OrchestrationServiceException(
                     message: "Event archive service error occurred, contact support.",
-                    innerException: failedEventV1ArchiveOrchestrationServiceException);
+                    innerException: failedEventArchiveV1OrchestrationServiceException);
 
-            this.listenerEventV1ArchiveServiceMock.Setup(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()))
+            this.listenerEventArchiveV1ServiceMock.Setup(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()))
                     .ThrowsAsync(exception);
 
             // when
-            ValueTask addEventV1ArchiveTask =
-                this.eventV1ArchiveOrchestrationService.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    someEventV1Archive);
+            ValueTask addEventArchiveV1Task =
+                this.eventArchiveV1OrchestrationService.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    someEventArchiveV1);
 
-            EventV1ArchiveOrchestrationServiceException
-                actualEventV1ArchiveOrchestrationServiceException =
-                    await Assert.ThrowsAsync<EventV1ArchiveOrchestrationServiceException>(
-                        addEventV1ArchiveTask.AsTask);
+            EventArchiveV1OrchestrationServiceException
+                actualEventArchiveV1OrchestrationServiceException =
+                    await Assert.ThrowsAsync<EventArchiveV1OrchestrationServiceException>(
+                        addEventArchiveV1Task.AsTask);
 
             // then
-            actualEventV1ArchiveOrchestrationServiceException.Should()
-                .BeEquivalentTo(expectedEventV1ArchiveOrchestrationServiceException);
+            actualEventArchiveV1OrchestrationServiceException.Should()
+                .BeEquivalentTo(expectedEventArchiveV1OrchestrationServiceException);
 
-            this.listenerEventV1ArchiveServiceMock.Verify(service =>
-                service.AddListenerEventV1ArchiveAsync(It.IsAny<ListenerEventV1Archive>()),
+            this.listenerEventArchiveV1ServiceMock.Verify(service =>
+                service.AddListenerEventArchiveV1Async(It.IsAny<ListenerEventArchiveV1>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventV1ArchiveOrchestrationServiceException))),
+                    expectedEventArchiveV1OrchestrationServiceException))),
                         Times.Once);
 
-            this.eventV1ArchiveServiceMock.Verify(broker =>
-                broker.AddEventV1ArchiveAsync(It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1ServiceMock.Verify(broker =>
+                broker.AddEventArchiveV1Async(It.IsAny<EventArchiveV1>()),
                     Times.Never);
 
-            this.listenerEventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV1ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1ServiceMock.VerifyNoOtherCalls();
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventHighway.Core.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    [Migration("20260204022008_AddAndMigrateEventV1Archive")]
-    partial class AddAndMigrateEventV1Archive
+    [Migration("20260204022008_AddAndMigrateEventArchiveV1")]
+    partial class AddAndMigrateEventArchiveV1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -195,7 +195,7 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventV1s");
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventsArchives.V1.EventArchiveV1", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,10 +224,10 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventV1Archives");
+                    b.ToTable("EventArchiveV1s");
                 });
 
-            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventV1Archive", b =>
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.ListenerEventArchiveV1", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,7 +259,7 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ListenerEventV1Archives");
+                    b.ToTable("ListenerEventArchiveV1s");
                 });
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.ListenerEvents.ListenerEvent", b =>

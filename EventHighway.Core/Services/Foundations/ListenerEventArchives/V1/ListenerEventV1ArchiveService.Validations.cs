@@ -9,48 +9,48 @@ using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1.Exc
 
 namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveService
+    internal partial class ListenerEventArchiveV1Service
     {
-        private async ValueTask ValidateListenerEventV1ArchiveOnAddAsync(
-            ListenerEventV1Archive listenerEventV1Archive)
+        private async ValueTask ValidateListenerEventArchiveV1OnAddAsync(
+            ListenerEventArchiveV1 listenerEventArchiveV1)
         {
-            ValidateListenerEventV1ArchiveIsNotNull(listenerEventV1Archive);
+            ValidateListenerEventArchiveV1IsNotNull(listenerEventArchiveV1);
 
             Validate(
-                (Rule: IsInvalid(listenerEventV1Archive.Id),
-                Parameter: nameof(ListenerEventV1Archive.Id)),
+                (Rule: IsInvalid(listenerEventArchiveV1.Id),
+                Parameter: nameof(ListenerEventArchiveV1.Id)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.EventId),
-                Parameter: nameof(ListenerEventV1Archive.EventId)),
+                (Rule: IsInvalid(listenerEventArchiveV1.EventId),
+                Parameter: nameof(ListenerEventArchiveV1.EventId)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.EventAddressId),
-                Parameter: nameof(ListenerEventV1Archive.EventAddressId)),
+                (Rule: IsInvalid(listenerEventArchiveV1.EventAddressId),
+                Parameter: nameof(ListenerEventArchiveV1.EventAddressId)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.EventListenerId),
-                Parameter: nameof(ListenerEventV1Archive.EventListenerId)),
+                (Rule: IsInvalid(listenerEventArchiveV1.EventListenerId),
+                Parameter: nameof(ListenerEventArchiveV1.EventListenerId)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.Status),
-                Parameter: nameof(ListenerEventV1Archive.Status)),
+                (Rule: IsInvalid(listenerEventArchiveV1.Status),
+                Parameter: nameof(ListenerEventArchiveV1.Status)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.CreatedDate),
-                Parameter: nameof(ListenerEventV1Archive.CreatedDate)),
+                (Rule: IsInvalid(listenerEventArchiveV1.CreatedDate),
+                Parameter: nameof(ListenerEventArchiveV1.CreatedDate)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.UpdatedDate),
-                Parameter: nameof(ListenerEventV1Archive.UpdatedDate)),
+                (Rule: IsInvalid(listenerEventArchiveV1.UpdatedDate),
+                Parameter: nameof(ListenerEventArchiveV1.UpdatedDate)),
 
-                (Rule: IsInvalid(listenerEventV1Archive.ArchivedDate),
-                Parameter: nameof(ListenerEventV1Archive.ArchivedDate)),
+                (Rule: IsInvalid(listenerEventArchiveV1.ArchivedDate),
+                Parameter: nameof(ListenerEventArchiveV1.ArchivedDate)),
 
-                (Rule: await IsNotRecentAsync(listenerEventV1Archive.ArchivedDate),
-                Parameter: nameof(ListenerEventV1Archive.ArchivedDate)));
+                (Rule: await IsNotRecentAsync(listenerEventArchiveV1.ArchivedDate),
+                Parameter: nameof(ListenerEventArchiveV1.ArchivedDate)));
         }
 
-        private static void ValidateListenerEventV1ArchiveIsNotNull(
-            ListenerEventV1Archive listenerEventV1Archive)
+        private static void ValidateListenerEventArchiveV1IsNotNull(
+            ListenerEventArchiveV1 listenerEventArchiveV1)
         {
-            if (listenerEventV1Archive is null)
+            if (listenerEventArchiveV1 is null)
             {
-                throw new NullListenerEventV1ArchiveException(
+                throw new NullListenerEventArchiveV1Exception(
                     message: "Listener event archive is null.");
             }
         }
@@ -106,21 +106,21 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
-            var invalidListenerEventV1ArchiveException =
-                new InvalidListenerEventV1ArchiveException(
+            var invalidListenerEventArchiveV1Exception =
+                new InvalidListenerEventArchiveV1Exception(
                     message: "Listener event archive is invalid, fix the errors and try again.");
 
             foreach ((dynamic rule, string parameter) in validations)
             {
                 if (rule.Condition)
                 {
-                    invalidListenerEventV1ArchiveException.UpsertDataList(
+                    invalidListenerEventArchiveV1Exception.UpsertDataList(
                         key: parameter,
                         value: rule.Message);
                 }
             }
 
-            invalidListenerEventV1ArchiveException.ThrowIfContainsErrors();
+            invalidListenerEventArchiveV1Exception.ThrowIfContainsErrors();
         }
     }
 }

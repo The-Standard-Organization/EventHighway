@@ -17,88 +17,88 @@ using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
 {
-    public partial class EventV1ArchiveOrchestrationServiceTests
+    public partial class EventArchiveV1OrchestrationServiceTests
     {
-        private readonly Mock<IListenerEventV1ArchiveService> listenerEventV1ArchiveServiceMock;
-        private readonly Mock<IEventV1ArchiveService> eventV1ArchiveServiceMock;
+        private readonly Mock<IListenerEventArchiveV1Service> listenerEventArchiveV1ServiceMock;
+        private readonly Mock<IEventArchiveV1Service> eventArchiveV1ServiceMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
-        private readonly IEventV1ArchiveOrchestrationService eventV1ArchiveOrchestrationService;
+        private readonly IEventArchiveV1OrchestrationService eventArchiveV1OrchestrationService;
 
-        public EventV1ArchiveOrchestrationServiceTests()
+        public EventArchiveV1OrchestrationServiceTests()
         {
-            this.listenerEventV1ArchiveServiceMock = new Mock<IListenerEventV1ArchiveService>();
-            this.eventV1ArchiveServiceMock = new Mock<IEventV1ArchiveService>();
+            this.listenerEventArchiveV1ServiceMock = new Mock<IListenerEventArchiveV1Service>();
+            this.eventArchiveV1ServiceMock = new Mock<IEventArchiveV1Service>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
-            this.eventV1ArchiveOrchestrationService = new EventV1ArchiveOrchestrationService(
-                listenerEventV1ArchiveService: this.listenerEventV1ArchiveServiceMock.Object,
-                eventV1ArchiveService: this.eventV1ArchiveServiceMock.Object,
+            this.eventArchiveV1OrchestrationService = new EventArchiveV1OrchestrationService(
+                listenerEventArchiveV1Service: this.listenerEventArchiveV1ServiceMock.Object,
+                eventArchiveV1Service: this.eventArchiveV1ServiceMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
-        public static TheoryData<Xeption> EventV1ArchiveValidationExceptions()
+        public static TheoryData<Xeption> EventArchiveV1ValidationExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveValidationException(
+                new EventArchiveV1ValidationException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveDependencyValidationException(
+                new EventArchiveV1DependencyValidationException(
                     someMessage,
                     someInnerException),
             };
         }
 
-        public static TheoryData<Xeption> EventV1ArchiveDependencyExceptions()
+        public static TheoryData<Xeption> EventArchiveV1DependencyExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveDependencyException(
+                new EventArchiveV1DependencyException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveServiceException(
+                new EventArchiveV1ServiceException(
                     someMessage,
                     someInnerException),
             };
         }
 
-        public static TheoryData<Xeption> ListenerEventV1ArchiveValidationExceptions()
+        public static TheoryData<Xeption> ListenerEventArchiveV1ValidationExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new ListenerEventV1ArchiveValidationException(
+                new ListenerEventArchiveV1ValidationException(
                     someMessage,
                     someInnerException),
 
-                new ListenerEventV1ArchiveDependencyValidationException(
+                new ListenerEventArchiveV1DependencyValidationException(
                     someMessage,
                     someInnerException),
             };
         }
 
-        public static TheoryData<Xeption> ListenerEventV1ArchiveDependencyExceptions()
+        public static TheoryData<Xeption> ListenerEventArchiveV1DependencyExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new ListenerEventV1ArchiveDependencyException(
+                new ListenerEventArchiveV1DependencyException(
                     someMessage,
                     someInnerException),
 
-                new ListenerEventV1ArchiveServiceException(
+                new ListenerEventArchiveV1ServiceException(
                     someMessage,
                     someInnerException),
             };
@@ -113,12 +113,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V1
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 
-        private static EventV1Archive CreateRandomEventV1Archive() =>
-            CreateEventV1ArchiveFiller().Create();
+        private static EventArchiveV1 CreateRandomEventArchiveV1() =>
+            CreateEventArchiveV1Filler().Create();
 
-        private static Filler<EventV1Archive> CreateEventV1ArchiveFiller()
+        private static Filler<EventArchiveV1> CreateEventArchiveV1Filler()
         {
-            var filler = new Filler<EventV1Archive>();
+            var filler = new Filler<EventArchiveV1>();
 
             filler.Setup()
                 .OnType<DateTimeOffset>()

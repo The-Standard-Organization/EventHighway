@@ -6,9 +6,9 @@ using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1
 {
-    public class EventV1ArchiveOrchestrationDependencyValidationException : Xeption
+    public class EventArchiveV1OrchestrationDependencyValidationException : Xeption
     {
-        public EventV1ArchiveOrchestrationDependencyValidationException(string message, Xeption innerException)
+        public EventArchiveV1OrchestrationDependencyValidationException(string message, Xeption innerException)
             : base(message, innerException)
         { }
     }

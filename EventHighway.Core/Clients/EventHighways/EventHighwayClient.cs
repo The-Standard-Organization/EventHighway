@@ -134,8 +134,8 @@ namespace EventHighway.Core.Clients.EventHighways
             services.AddTransient<IListenerEventV1Service, ListenerEventV1Service>();
             services.AddTransient<IEventCallV1Service, EventCallV1Service>();
             services.AddTransient<IEventAddressV1Service, EventAddressV1Service>();
-            services.AddTransient<IEventV1ArchiveService, EventV1ArchiveService>();
-            services.AddTransient<IListenerEventV1ArchiveService, ListenerEventV1ArchiveService>();
+            services.AddTransient<IEventArchiveV1Service, EventArchiveV1Service>();
+            services.AddTransient<IListenerEventArchiveV1Service, ListenerEventArchiveV1Service>();
         }
 
         private static void RegisterProcessingServices(IServiceCollection services)
@@ -196,8 +196,8 @@ namespace EventHighway.Core.Clients.EventHighways
                 EventV1OrchestrationServiceV1>();
 
             services.AddTransient<
-                IEventV1ArchiveOrchestrationService,
-                EventV1ArchiveOrchestrationService>();
+                IEventArchiveV1OrchestrationService,
+                EventArchiveV1OrchestrationService>();
         }
 
         private static void RegisterCoordinationServices(IServiceCollection services)

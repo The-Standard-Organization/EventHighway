@@ -47,8 +47,8 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureListenerEvents(modelBuilder.Entity<ListenerEvent>());
             ConfigureListenerEventV1s(modelBuilder.Entity<ListenerEventV1>());
             ConfigureListenerEventV2s(modelBuilder.Entity<ListenerEventV2>());
-            ConfigureEventV1Archives(modelBuilder.Entity<EventV1Archive>());
-            ConfigureListenerEventV1Archives(modelBuilder.Entity<ListenerEventV1Archive>());
+            ConfigureEventArchiveV1s(modelBuilder.Entity<EventArchiveV1>());
+            ConfigureListenerEventArchiveV1s(modelBuilder.Entity<ListenerEventArchiveV1>());
             ConfigureEventArchiveV2s(modelBuilder.Entity<EventArchiveV2>());
             ConfigureListenerEventV2Archives(modelBuilder.Entity<ListenerEventArchiveV2>());
             ConfigureHandlerConfigurations(modelBuilder.Entity<HandlerConfiguration>());

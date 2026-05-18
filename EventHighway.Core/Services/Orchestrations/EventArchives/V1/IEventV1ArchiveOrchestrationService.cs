@@ -7,8 +7,8 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V1;
 
 namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 {
-    public interface IEventV1ArchiveOrchestrationService
+    public interface IEventArchiveV1OrchestrationService
     {
-        ValueTask AddEventV1ArchiveWithListenerEventV1ArchivesAsync(EventV1Archive eventV1Archive);
+        ValueTask AddEventArchiveV1WithListenerEventArchiveV1sAsync(EventArchiveV1 eventArchiveV1);
     }
 }

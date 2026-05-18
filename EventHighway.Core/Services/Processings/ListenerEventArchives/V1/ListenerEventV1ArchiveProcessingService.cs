@@ -9,26 +9,26 @@ using EventHighway.Core.Services.Foundations.ListenerEventArchives.V1;
 
 namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveProcessingService : IListenerEventV1ArchiveProcessingService
+    internal partial class ListenerEventArchiveV1ProcessingService : IListenerEventArchiveV1ProcessingService
     {
-        private readonly IListenerEventV1ArchiveService listenerEventV1ArchiveService;
+        private readonly IListenerEventArchiveV1Service listenerEventArchiveV1Service;
         private readonly ILoggingBroker loggingBroker;
 
-        public ListenerEventV1ArchiveProcessingService(
-            IListenerEventV1ArchiveService listenerEventV1ArchiveService,
+        public ListenerEventArchiveV1ProcessingService(
+            IListenerEventArchiveV1Service listenerEventArchiveV1Service,
             ILoggingBroker loggingBroker)
         {
-            this.listenerEventV1ArchiveService = listenerEventV1ArchiveService;
+            this.listenerEventArchiveV1Service = listenerEventArchiveV1Service;
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive) => TryCatch(async () =>
+        public ValueTask<ListenerEventArchiveV1> AddListenerEventArchiveV1Async(
+            ListenerEventArchiveV1 listenerEventArchiveV1) => TryCatch(async () =>
         {
-            ValidateListenerEventV1Archive(listenerEventV1Archive);
+            ValidateListenerEventArchiveV1(listenerEventArchiveV1);
 
-            return await this.listenerEventV1ArchiveService
-                .AddListenerEventV1ArchiveAsync(listenerEventV1Archive);
+            return await this.listenerEventArchiveV1Service
+                .AddListenerEventArchiveV1Async(listenerEventArchiveV1);
         });
     }
 }

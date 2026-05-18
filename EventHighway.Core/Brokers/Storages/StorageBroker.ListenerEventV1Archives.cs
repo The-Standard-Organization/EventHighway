@@ -10,12 +10,12 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker
     {
-        public DbSet<ListenerEventV1Archive> ListenerEventV1Archives { get; set; }
+        public DbSet<ListenerEventArchiveV1> ListenerEventArchiveV1s { get; set; }
 
-        public async ValueTask<ListenerEventV1Archive> InsertListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive)
+        public async ValueTask<ListenerEventArchiveV1> InsertListenerEventArchiveV1Async(
+            ListenerEventArchiveV1 listenerEventArchiveV1)
         {
-            return await InsertAsync(listenerEventV1Archive);
+            return await InsertAsync(listenerEventArchiveV1);
         }
     }
 }

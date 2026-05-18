@@ -12,9 +12,9 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial interface IStorageBroker
     {
-        ValueTask<EventV1Archive> InsertEventV1ArchiveAsync(EventV1Archive eventV1Archive);
-        ValueTask<IQueryable<EventV1Archive>> SelectAllEventV1ArchivesAsync();
-        ValueTask<EventV1Archive> SelectEventV1ArchiveByIdAsync(Guid eventV1ArchiveId);
-        ValueTask<EventV1Archive> DeleteEventV1ArchiveAsync(EventV1Archive eventV1ArchiveV1);
+        ValueTask<EventArchiveV1> InsertEventArchiveV1Async(EventArchiveV1 eventArchiveV1);
+        ValueTask<IQueryable<EventArchiveV1>> SelectAllEventArchiveV1sAsync();
+        ValueTask<EventArchiveV1> SelectEventArchiveV1ByIdAsync(Guid eventArchiveV1Id);
+        ValueTask<EventArchiveV1> DeleteEventArchiveV1Async(EventArchiveV1 eventArchiveV1V1);
     }
 }

@@ -10,13 +10,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EventHighway.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAndMigrateEventV1Archive : Migration
+    public partial class AddAndMigrateEventArchiveV1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "EventV1Archives",
+                name: "EventArchiveV1s",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -30,7 +30,7 @@ namespace EventHighway.Core.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventV1Archives", x => x.Id);
+                    table.PrimaryKey("PK_EventArchiveV1s", x => x.Id);
                 });
         }
 
@@ -38,7 +38,7 @@ namespace EventHighway.Core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "EventV1Archives");
+                name: "EventArchiveV1s");
         }
     }
 }

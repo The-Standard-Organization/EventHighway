@@ -7,28 +7,28 @@ using EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1;
 
 namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
 {
-    internal partial class EventV1ArchiveOrchestrationService
+    internal partial class EventArchiveV1OrchestrationService
     {
-        private static void ValidateEventV1Arhive(EventV1Archive eventV1Archive)
+        private static void ValidateEventV1Arhive(EventArchiveV1 eventArchiveV1)
         {
-            ValidateEventV1ArhiveIsNotNull(eventV1Archive);
-            ValidateListenerEventV1ArhivesAreNotNull(eventV1Archive);
+            ValidateEventV1ArhiveIsNotNull(eventArchiveV1);
+            ValidateListenerEventV1ArhivesAreNotNull(eventArchiveV1);
         }
 
-        private static void ValidateEventV1ArhiveIsNotNull(EventV1Archive eventV1Archive)
+        private static void ValidateEventV1ArhiveIsNotNull(EventArchiveV1 eventArchiveV1)
         {
-            if (eventV1Archive is null)
+            if (eventArchiveV1 is null)
             {
-                throw new NullEventV1ArchiveOrchestrationException(
+                throw new NullEventArchiveV1OrchestrationException(
                     message: "Event archive is null.");
             }
         }
 
-        private static void ValidateListenerEventV1ArhivesAreNotNull(EventV1Archive eventV1Archive)
+        private static void ValidateListenerEventV1ArhivesAreNotNull(EventArchiveV1 eventArchiveV1)
         {
-            if (eventV1Archive.ListenerEventV1Archives is null)
+            if (eventArchiveV1.ListenerEventArchiveV1s is null)
             {
-                throw new NullListenerEventV1ArchivesOrchestrationException(
+                throw new NullListenerEventArchiveV1sOrchestrationException(
                     message: "Listener event archives are null.");
             }
         }

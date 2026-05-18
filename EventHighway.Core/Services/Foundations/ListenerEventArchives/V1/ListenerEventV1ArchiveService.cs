@@ -10,13 +10,13 @@ using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V1;
 
 namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveService : IListenerEventV1ArchiveService
+    internal partial class ListenerEventArchiveV1Service : IListenerEventArchiveV1Service
     {
         private readonly IStorageBroker storageBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
-        public ListenerEventV1ArchiveService(
+        public ListenerEventArchiveV1Service(
             IStorageBroker storageBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
@@ -26,13 +26,13 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<ListenerEventV1Archive> AddListenerEventV1ArchiveAsync(
-            ListenerEventV1Archive listenerEventV1Archive) => TryCatch(async () =>
+        public ValueTask<ListenerEventArchiveV1> AddListenerEventArchiveV1Async(
+            ListenerEventArchiveV1 listenerEventArchiveV1) => TryCatch(async () =>
         {
-            await ValidateListenerEventV1ArchiveOnAddAsync(listenerEventV1Archive);
+            await ValidateListenerEventArchiveV1OnAddAsync(listenerEventArchiveV1);
 
-            return await storageBroker.InsertListenerEventV1ArchiveAsync(
-                listenerEventV1Archive);
+            return await storageBroker.InsertListenerEventArchiveV1Async(
+                listenerEventArchiveV1);
         });
     }
 }

@@ -13,134 +13,134 @@ using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveService
+    internal partial class ListenerEventArchiveV1Service
     {
-        private delegate ValueTask<ListenerEventV1Archive> ReturningListenerEventV1ArchiveFunction();
+        private delegate ValueTask<ListenerEventArchiveV1> ReturningListenerEventArchiveV1Function();
 
-        private async ValueTask<ListenerEventV1Archive> TryCatch(
-            ReturningListenerEventV1ArchiveFunction returningListenerEventV1ArchiveFunction)
+        private async ValueTask<ListenerEventArchiveV1> TryCatch(
+            ReturningListenerEventArchiveV1Function returningListenerEventArchiveV1Function)
         {
             try
             {
-                return await returningListenerEventV1ArchiveFunction();
+                return await returningListenerEventArchiveV1Function();
             }
-            catch (NullListenerEventV1ArchiveException
-                nullListenerEventV1ArchiveException)
+            catch (NullListenerEventArchiveV1Exception
+                nullListenerEventArchiveV1Exception)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    nullListenerEventV1ArchiveException);
+                    nullListenerEventArchiveV1Exception);
             }
-            catch (InvalidListenerEventV1ArchiveException
-                invalidListenerEventV1ArchiveException)
+            catch (InvalidListenerEventArchiveV1Exception
+                invalidListenerEventArchiveV1Exception)
             {
                 throw await CreateAndLogValidationExceptionAsync(
-                    invalidListenerEventV1ArchiveException);
+                    invalidListenerEventArchiveV1Exception);
             }
             catch (SqlException sqlException)
             {
-                var failedListenerEventV1ArchiveStorageException =
-                    new FailedListenerEventV1ArchiveStorageException(
+                var failedListenerEventArchiveV1StorageException =
+                    new FailedListenerEventArchiveV1StorageException(
                         message: "Failed listener event archive storage error occurred, contact support.",
                         innerException: sqlException);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
-                    failedListenerEventV1ArchiveStorageException);
+                    failedListenerEventArchiveV1StorageException);
             }
             catch (DuplicateKeyException duplicateKeyException)
             {
-                var alreadyExistsListenerEventV1ArchiveException =
-                    new AlreadyExistsListenerEventV1ArchiveException(
+                var alreadyExistsListenerEventArchiveV1Exception =
+                    new AlreadyExistsListenerEventArchiveV1Exception(
                         message: "Listener event archive with the same id already exists.",
                         innerException: duplicateKeyException);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    alreadyExistsListenerEventV1ArchiveException);
+                    alreadyExistsListenerEventArchiveV1Exception);
             }
             catch (DbUpdateException dbUpdateException)
             {
-                var failedListenerEventV1ArchiveStorageException =
-                    new FailedListenerEventV1ArchiveStorageException(
+                var failedListenerEventArchiveV1StorageException =
+                    new FailedListenerEventArchiveV1StorageException(
                         message: "Failed listener event archive storage error occurred, contact support.",
                         innerException: dbUpdateException);
 
                 throw await CreateAndLogDependencyExceptionAsync(
-                    failedListenerEventV1ArchiveStorageException);
+                    failedListenerEventArchiveV1StorageException);
             }
             catch (Exception serviceException)
             {
-                var failedListenerEventV1ArchiveServiceException =
-                    new FailedListenerEventV1ArchiveServiceException(
+                var failedListenerEventArchiveV1ServiceException =
+                    new FailedListenerEventArchiveV1ServiceException(
                         message: "Failed listener event archive service error occurred, contact support.",
                         innerException: serviceException);
 
                 throw await CreateAndLogServiceExceptionAsync(
-                    failedListenerEventV1ArchiveServiceException);
+                    failedListenerEventArchiveV1ServiceException);
             }
         }
 
-        private async ValueTask<ListenerEventV1ArchiveValidationException> CreateAndLogValidationExceptionAsync(
+        private async ValueTask<ListenerEventArchiveV1ValidationException> CreateAndLogValidationExceptionAsync(
             Xeption exception)
         {
-            var listenerEventV1ArchiveValidationException =
-                new ListenerEventV1ArchiveValidationException(
+            var listenerEventArchiveV1ValidationException =
+                new ListenerEventArchiveV1ValidationException(
                     message: "Listener event archive validation error occurred, fix the errors and try again.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(listenerEventV1ArchiveValidationException);
+            await this.loggingBroker.LogErrorAsync(listenerEventArchiveV1ValidationException);
 
-            return listenerEventV1ArchiveValidationException;
+            return listenerEventArchiveV1ValidationException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveDependencyException> CreateAndLogCriticalDependencyExceptionAsync(
+        private async ValueTask<ListenerEventArchiveV1DependencyException> CreateAndLogCriticalDependencyExceptionAsync(
             Xeption exception)
         {
-            var listenerEventV1ArchiveDependencyException =
-                new ListenerEventV1ArchiveDependencyException(
+            var listenerEventArchiveV1DependencyException =
+                new ListenerEventArchiveV1DependencyException(
                     message: "Listener event archive dependency error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogCriticalAsync(listenerEventV1ArchiveDependencyException);
+            await this.loggingBroker.LogCriticalAsync(listenerEventArchiveV1DependencyException);
 
-            return listenerEventV1ArchiveDependencyException;
+            return listenerEventArchiveV1DependencyException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveDependencyValidationException>
+        private async ValueTask<ListenerEventArchiveV1DependencyValidationException>
             CreateAndLogDependencyValidationExceptionAsync(
                 Xeption exception)
         {
-            var listenerEventV1ArchiveDependencyValidationException =
-                new ListenerEventV1ArchiveDependencyValidationException(
+            var listenerEventArchiveV1DependencyValidationException =
+                new ListenerEventArchiveV1DependencyValidationException(
                     message: "Listener event archive validation error occurred, fix the errors and try again.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(listenerEventV1ArchiveDependencyValidationException);
+            await this.loggingBroker.LogErrorAsync(listenerEventArchiveV1DependencyValidationException);
 
-            return listenerEventV1ArchiveDependencyValidationException;
+            return listenerEventArchiveV1DependencyValidationException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveDependencyException> CreateAndLogDependencyExceptionAsync(
+        private async ValueTask<ListenerEventArchiveV1DependencyException> CreateAndLogDependencyExceptionAsync(
             Xeption exception)
         {
-            var listenerEventV1ArchiveDependencyException =
-                new ListenerEventV1ArchiveDependencyException(
+            var listenerEventArchiveV1DependencyException =
+                new ListenerEventArchiveV1DependencyException(
                     message: "Listener event archive dependency error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(listenerEventV1ArchiveDependencyException);
+            await this.loggingBroker.LogErrorAsync(listenerEventArchiveV1DependencyException);
 
-            return listenerEventV1ArchiveDependencyException;
+            return listenerEventArchiveV1DependencyException;
         }
 
-        private async ValueTask<ListenerEventV1ArchiveServiceException> CreateAndLogServiceExceptionAsync(Xeption exception)
+        private async ValueTask<ListenerEventArchiveV1ServiceException> CreateAndLogServiceExceptionAsync(Xeption exception)
         {
-            var listenerEventV1ArchiveServiceException =
-                new ListenerEventV1ArchiveServiceException(
+            var listenerEventArchiveV1ServiceException =
+                new ListenerEventArchiveV1ServiceException(
                     message: "Listener event archive service error occurred, contact support.",
                     innerException: exception);
 
-            await this.loggingBroker.LogErrorAsync(listenerEventV1ArchiveServiceException);
+            await this.loggingBroker.LogErrorAsync(listenerEventArchiveV1ServiceException);
 
-            return listenerEventV1ArchiveServiceException;
+            return listenerEventArchiveV1ServiceException;
         }
     }
 }

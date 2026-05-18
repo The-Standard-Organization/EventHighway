@@ -7,13 +7,13 @@ using EventHighway.Core.Models.Services.Processings.ListenerEventArchives.V1.Exc
 
 namespace EventHighway.Core.Services.Processings.ListenerEventArchives.V1
 {
-    internal partial class ListenerEventV1ArchiveProcessingService
+    internal partial class ListenerEventArchiveV1ProcessingService
     {
-        private void ValidateListenerEventV1Archive(ListenerEventV1Archive listenerEventV1Archive)
+        private void ValidateListenerEventArchiveV1(ListenerEventArchiveV1 listenerEventArchiveV1)
         {
-            if (listenerEventV1Archive is null)
+            if (listenerEventArchiveV1 is null)
             {
-                throw new NullListenerEventV1ArchiveProcessingException(
+                throw new NullListenerEventArchiveV1ProcessingException(
                     message: "Listener event archive is null.");
             }
         }

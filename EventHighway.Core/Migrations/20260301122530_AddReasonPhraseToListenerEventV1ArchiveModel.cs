@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EventHighway.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class AddReasonPhraseToListenerEventV1ArchiveModel : Migration
+    public partial class AddReasonPhraseToListenerEventArchiveV1Model : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
                 name: "ResponseReasonPhrase",
-                table: "ListenerEventV1Archives",
+                table: "ListenerEventArchiveV1s",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -26,7 +26,7 @@ namespace EventHighway.Core.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "ResponseReasonPhrase",
-                table: "ListenerEventV1Archives");
+                table: "ListenerEventArchiveV1s");
         }
     }
 }
