@@ -16,6 +16,7 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             ValidateEventAddressV1IsNotNull(eventAddressV1);
 
             Validate(
+                message: "Event address is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(eventAddressV1.Id),
                 Parameter: nameof(EventAddressV1.Id)),
 
@@ -45,6 +46,7 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
         private static void ValidateEventAddressV1Id(Guid eventAddressV1Id)
         {
             Validate(
+                message: "Event address is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(eventAddressV1Id),
                 Parameter: nameof(EventAddressV1.Id)));
         }
@@ -115,11 +117,11 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
         }
 
 
-        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventAddressV1Exception =
                 new InvalidEventAddressV1Exception(
-                    message: "Event address is invalid, fix the errors and try again.");
+                    message: message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

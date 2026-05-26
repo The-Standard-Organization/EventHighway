@@ -16,6 +16,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             ValidateEventV1ArchiveIsNotNull(eventV1Archive);
 
             Validate(
+                message: "Event archive is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(eventV1Archive.Id),
                 Parameter: nameof(EventV1Archive.Id)),
 
@@ -53,6 +54,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
         private static void ValidateEventV1ArchiveId(Guid eventArchiveV1Id)
         {
             Validate(
+                message: "Event archive is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(eventArchiveV1Id),
                 Parameter: nameof(EventV1Archive.Id)));
         }
@@ -115,11 +117,11 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V1
             return timeDifference.TotalSeconds is > 60 or < 0;
         }
 
-        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventV1ArchiveException =
                 new InvalidEventV1ArchiveException(
-                    message: "Event archive is invalid, fix the errors and try again.");
+                    message: message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

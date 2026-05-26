@@ -22,6 +22,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         private static void ValidateEventV1Id(Guid eventV1Id)
         {
             Validate(
+                message: "Event is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(eventV1Id),
                 Parameter: nameof(EventV1.Id)));
         }
@@ -32,11 +33,11 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             Message = "Required"
         };
 
-        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventV1ProcessingException =
                 new InvalidEventV1ProcessingException(
-                    message: "Event is invalid, fix the errors and try again.");
+                    message: message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

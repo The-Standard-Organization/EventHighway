@@ -22,6 +22,7 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
         private static void ValidateListenerEventV1Id(Guid listenerEventV1Id)
         {
             Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(listenerEventV1Id),
                 Parameter: nameof(ListenerEventV1.Id)));
         }
@@ -32,11 +33,11 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
             Message = "Required"
         };
 
-        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidListenerEventV1ProcessingException =
                 new InvalidListenerEventV1ProcessingException(
-                    message: "Listener event is invalid, fix the errors and try again.");
+                    message: message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {
