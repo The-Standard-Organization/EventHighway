@@ -16,6 +16,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
             ValidateListenerEventV1IsNotNull(listenerEventV1);
 
             Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(listenerEventV1.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
@@ -53,6 +54,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
             ValidateListenerEventV1IsNotNull(listenerEventV1);
 
             Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(listenerEventV1.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
@@ -97,6 +99,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
                 listenerEventV1Id: incomingListenerEventV1.Id);
 
             Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
                 (Rule: IsNotSameAsStorage(
                     firstDate: incomingListenerEventV1.CreatedDate,
                     secondDate: storageListenerEventV1.CreatedDate),
@@ -113,6 +116,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
         private static void ValidateListenerEventV1Id(Guid listenerEventV1Id)
         {
             Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
                 (Rule: IsInvalid(listenerEventV1Id),
                 Parameter: nameof(ListenerEventV1.Id)));
         }
@@ -218,11 +222,11 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
             return isDefined is false;
         }
 
-        private static void Validate(params (dynamic Rule, string Parameter)[] validations)
+        private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidListenerEventV1Exception =
                 new InvalidListenerEventV1Exception(
-                    message: "Listener event is invalid, fix the errors and try again.");
+                    message: message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

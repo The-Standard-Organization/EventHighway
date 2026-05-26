@@ -62,93 +62,93 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
-            [Theory]
-            [InlineData(null)]
-            [InlineData("")]
-            [InlineData(" ")]
-            public async Task ShouldThrowValidationExceptionOnModifyIfHandlerConfigurationIsInvalidAndLogItAsync(
-                string invalidText)
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task ShouldThrowValidationExceptionOnModifyIfHandlerConfigurationIsInvalidAndLogItAsync(
+            string invalidText)
+        {
+            // given
+            var invalidHandlerConfiguration = new HandlerConfiguration
             {
-                // given
-                var invalidHandlerConfiguration = new HandlerConfiguration
-                {
-                    Id = Guid.Empty,
-                    Name = invalidText,
-                    Value = invalidText
-                };
+                Id = Guid.Empty,
+                Name = invalidText,
+                Value = invalidText
+            };
 
-                var invalidHandlerConfigurationException =
-                    new InvalidHandlerConfigurationException(
-                        message: "Handler configuration is invalid, fix the errors and try again.");
+            var invalidHandlerConfigurationException =
+                new InvalidHandlerConfigurationException(
+                    message: "Handler configuration is invalid, fix the errors and try again.");
 
-                invalidHandlerConfigurationException.AddData(
-                    key: nameof(HandlerConfiguration.Id),
-                    values: "Required");
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.Id),
+                values: "Required");
 
-                invalidHandlerConfigurationException.AddData(
-                    key: nameof(HandlerConfiguration.Name),
-                    values: "Required");
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.Name),
+                values: "Required");
 
-                invalidHandlerConfigurationException.AddData(
-                    key: nameof(HandlerConfiguration.Value),
-                    values: "Required");
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.Value),
+                values: "Required");
 
-                invalidHandlerConfigurationException.AddData(
-                    key: nameof(HandlerConfiguration.CreatedDate),
-                    values: "Required");
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.CreatedDate),
+                values: "Required");
 
-                invalidHandlerConfigurationException.AddData(
-                    key: nameof(HandlerConfiguration.UpdatedDate),
-                    values:
-                    [
-                        "Required",
+            invalidHandlerConfigurationException.AddData(
+                key: nameof(HandlerConfiguration.UpdatedDate),
+                values:
+                [
+                    "Required",
                         $"Date is the same as {nameof(HandlerConfiguration.CreatedDate)}",
                         "Date is not recent"
-                    ]);
+                ]);
 
-                var expectedHandlerConfigurationValidationException =
-                    new HandlerConfigurationValidationException(
-                        message: "Handler configuration validation error occurred, fix the errors and try again.",
-                        innerException: invalidHandlerConfigurationException);
+            var expectedHandlerConfigurationValidationException =
+                new HandlerConfigurationValidationException(
+                    message: "Handler configuration validation error occurred, fix the errors and try again.",
+                    innerException: invalidHandlerConfigurationException);
 
-                this.dateTimeBrokerMock.Setup(broker =>
-                    broker.GetDateTimeOffsetAsync())
-                        .ReturnsAsync(GetRandomDateTimeOffset());
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(GetRandomDateTimeOffset());
 
-                // when
-                ValueTask<HandlerConfiguration> modifyHandlerConfigurationTask =
-                    this.handlerConfigurationService.ModifyHandlerConfigurationAsync(
-                        invalidHandlerConfiguration);
+            // when
+            ValueTask<HandlerConfiguration> modifyHandlerConfigurationTask =
+                this.handlerConfigurationService.ModifyHandlerConfigurationAsync(
+                    invalidHandlerConfiguration);
 
-                HandlerConfigurationValidationException actualHandlerConfigurationValidationException =
-                    await Assert.ThrowsAsync<HandlerConfigurationValidationException>(
-                        modifyHandlerConfigurationTask.AsTask);
+            HandlerConfigurationValidationException actualHandlerConfigurationValidationException =
+                await Assert.ThrowsAsync<HandlerConfigurationValidationException>(
+                    modifyHandlerConfigurationTask.AsTask);
 
-                // then
-                actualHandlerConfigurationValidationException.Should()
-                    .BeEquivalentTo(expectedHandlerConfigurationValidationException);
+            // then
+            actualHandlerConfigurationValidationException.Should()
+                .BeEquivalentTo(expectedHandlerConfigurationValidationException);
 
-                this.dateTimeBrokerMock.Verify(broker =>
-                    broker.GetDateTimeOffsetAsync(),
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHandlerConfigurationValidationException))),
                         Times.Once);
 
-                this.loggingBrokerMock.Verify(broker =>
-                    broker.LogErrorAsync(It.Is(SameExceptionAs(
-                        expectedHandlerConfigurationValidationException))),
-                            Times.Once);
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectHandlerConfigurationByIdAsync(It.IsAny<Guid>()),
+                    Times.Never);
 
-                this.storageBrokerMock.Verify(broker =>
-                    broker.SelectHandlerConfigurationByIdAsync(It.IsAny<Guid>()),
-                        Times.Never);
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
+                    Times.Never);
 
-                this.storageBrokerMock.Verify(broker =>
-                    broker.UpdateHandlerConfigurationAsync(It.IsAny<HandlerConfiguration>()),
-                        Times.Never);
-
-                this.dateTimeBrokerMock.VerifyNoOtherCalls();
-                this.loggingBrokerMock.VerifyNoOtherCalls();
-                this.storageBrokerMock.VerifyNoOtherCalls();
-            }
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
 
         [Fact]
         public async Task ShouldThrowValidationExceptionOnModifyIfNameIsInvalidLengthAndLogItAsync()
