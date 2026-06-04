@@ -46,7 +46,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var failedEventAddressV1StorageException =
                     new FailedEventAddressV1StorageException(
                         message: "Failed event address storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventAddressV1StorageException);
@@ -56,7 +57,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var alreadyExistsEventAddressV1Exception =
                     new AlreadyExistsEventAddressV1Exception(
                         message: "Event address with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventAddressV1Exception);
@@ -66,7 +68,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var lockedEventAddressV1Exception =
                     new LockedEventAddressV1Exception(
                         message: "Event address is locked, try again.",
-                        innerException: dbUpdateConcurrencyException);
+                        innerException: dbUpdateConcurrencyException,
+                        data: dbUpdateConcurrencyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(lockedEventAddressV1Exception);
             }
@@ -75,7 +78,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var failedEventAddressV1StorageException =
                     new FailedEventAddressV1StorageException(
                         message: "Failed event address storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedEventAddressV1StorageException);
             }
@@ -84,7 +88,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var failedEventAddressV1ServiceException =
                     new FailedEventAddressV1ServiceException(
                         message: "Failed event address service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventAddressV1ServiceException);
@@ -103,7 +108,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var failedEventAddressV1StorageException =
                     new FailedEventAddressV1StorageException(
                         message: "Failed event address storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedEventAddressV1StorageException);
@@ -113,7 +119,8 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
                 var failedEventAddressV1ServiceException =
                     new FailedEventAddressV1ServiceException(
                         message: "Failed event address service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventAddressV1ServiceException);

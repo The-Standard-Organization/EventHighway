@@ -3,14 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.EventAddresses.V1.Exceptions
 {
     public class FailedEventAddressV1ServiceException : Xeption
     {
-        public FailedEventAddressV1ServiceException(string message, Exception innerException)
-            : base(message, innerException)
+        public FailedEventAddressV1ServiceException(string message, Exception innerException, IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }

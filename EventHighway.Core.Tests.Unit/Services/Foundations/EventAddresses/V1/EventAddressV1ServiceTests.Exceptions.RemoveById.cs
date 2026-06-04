@@ -25,7 +25,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1StorageException =
                 new FailedEventAddressV1StorageException(
                     message: "Failed event address storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException, 
+                    data: sqlException.Data);
 
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
@@ -73,7 +74,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var lockedEventAddressV1Exception =
                 new LockedEventAddressV1Exception(
                     message: "Event address is locked, try again.",
-                    innerException: dbUpdateConcurrencyException);
+                    innerException: dbUpdateConcurrencyException,
+                    data: dbUpdateConcurrencyException.Data);
 
             var expectedEventAddressV1DependencyValidationException =
                 new EventAddressV1DependencyValidationException(
@@ -122,7 +124,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1StorageException =
                 new FailedEventAddressV1StorageException(
                     message: "Failed event address storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
@@ -170,7 +173,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var failedEventAddressV1ServiceException =
                 new FailedEventAddressV1ServiceException(
                     message: "Failed event address service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventAddressV1ServiceException =
                 new EventAddressV1ServiceException(
