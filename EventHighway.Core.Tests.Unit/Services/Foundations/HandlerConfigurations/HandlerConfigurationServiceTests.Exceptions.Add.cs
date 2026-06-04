@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
@@ -27,7 +28,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             var failedStorageHandlerConfigurationException =
                 new FailedStorageHandlerConfigurationException(
                     message: "Failed handler configuration storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedHandlerConfigurationDependencyException =
                 new HandlerConfigurationDependencyException(
@@ -75,11 +77,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             string randomMessage = GetRandomString();
             HandlerConfiguration someHandlerConfiguration = CreateRandomHandlerConfiguration();
             var duplicateKeyException = new DuplicateKeyException(randomMessage);
+            duplicateKeyException.Data.Add("ErrorCode", new List<string> { "DuplicateError" });
 
             var alreadyExistsHandlerConfigurationException =
                 new AlreadyExistsHandlerConfigurationException(
                     message: "Handler configuration with the same id already exists.",
-                    innerException: duplicateKeyException);
+                    innerException: duplicateKeyException,
+                    data: duplicateKeyException.Data);
 
             var expectedHandlerConfigurationDependencyValidationException =
                 new HandlerConfigurationDependencyValidationException(
@@ -131,7 +135,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             var invalidReferenceHandlerConfigurationException =
                 new InvalidReferenceHandlerConfigurationException(
                     message: "Invalid handler configuration reference error occurred.",
-                    innerException: foreignKeyConstraintConflictException);
+                    innerException: foreignKeyConstraintConflictException,
+                    data: foreignKeyConstraintConflictException.Data);
 
             var expectedHandlerConfigurationDependencyValidationException =
                 new HandlerConfigurationDependencyValidationException(
@@ -178,11 +183,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             // given
             HandlerConfiguration someHandlerConfiguration = CreateRandomHandlerConfiguration();
             var dbUpdateException = new DbUpdateException();
+            dbUpdateException.Data.Add("ErrorCode", new List<string> { "UpdateError" });
 
             var failedStorageHandlerConfigurationException =
                 new FailedStorageHandlerConfigurationException(
                     message: "Failed handler configuration storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedHandlerConfigurationDependencyException =
                 new HandlerConfigurationDependencyException(
@@ -233,7 +240,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             var failedHandlerConfigurationServiceException =
                 new FailedHandlerConfigurationServiceException(
                     message: "Failed handler configuration service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedHandlerConfigurationServiceException =
                 new HandlerConfigurationServiceException(

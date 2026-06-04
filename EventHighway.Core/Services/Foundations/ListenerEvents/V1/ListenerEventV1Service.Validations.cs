@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -17,6 +17,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
 
             Validate(
                 message: "Listener event is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(listenerEventV1.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
@@ -55,6 +56,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
 
             Validate(
                 message: "Listener event is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(listenerEventV1.Id),
                 Parameter: nameof(ListenerEventV1.Id)),
 
@@ -100,6 +102,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
 
             Validate(
                 message: "Listener event is invalid, fix the errors and try again.",
+
                 (Rule: IsNotSameAsStorage(
                     firstDate: incomingListenerEventV1.CreatedDate,
                     secondDate: storageListenerEventV1.CreatedDate),
@@ -117,6 +120,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
         {
             Validate(
                 message: "Listener event is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(listenerEventV1Id),
                 Parameter: nameof(ListenerEventV1.Id)));
         }
@@ -224,9 +228,7 @@ namespace EventHighway.Core.Services.Foundations.ListernEvents.V1
 
         private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
-            var invalidListenerEventV1Exception =
-                new InvalidListenerEventV1Exception(
-                    message: message);
+            var invalidListenerEventV1Exception = new InvalidListenerEventV1Exception(message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

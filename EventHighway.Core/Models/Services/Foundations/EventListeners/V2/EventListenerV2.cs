@@ -21,8 +21,8 @@ namespace EventHighway.Core.Models.Services.Foundations.EventListeners.V2
         public DateTimeOffset UpdatedDate { get; set; }
 
         public Guid EventAddressId { get; set; }
-        public EventAddressV2 EventAddress { get; set; }
+        public EventAddressV2 EventAddressV2 { get; set; }
 
-        public IEnumerable<ListenerEventV2> ListenerEvents { get; set; }
+        public IEnumerable<ListenerEventV2> ListenerEventV2s { get; set; }
     }
 }

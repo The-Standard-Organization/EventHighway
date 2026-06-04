@@ -713,14 +713,14 @@ Listener: <expiration-tracker-id>   | Status: Error   | Response: 500
 
 ## Step 9 — Archive Processed Events
 
-Once events have been delivered to all listeners and delivery results have been observed, the active `EventV1` and `ListenerEventV1` records are no longer needed for day-to-day operations. Archiving moves them into `EventV1Archive` and `ListenerEventV1Archive` tables for long-term audit and replay, keeping the active tables lean.
+Once events have been delivered to all listeners and delivery results have been observed, the active `EventV1` and `ListenerEventV1` records are no longer needed for day-to-day operations. Archiving moves them into `EventArchiveV1` and `ListenerEventArchiveV1` tables for long-term audit and replay, keeping the active tables lean.
 
 ### How Archiving Works
 
 When `ArchiveProcessedEventsAsync()` is called (which delegates to `ArchiveDeadEventV1sAsync()`), EventHighway:
 
 1. Retrieves all **dead events** — events where every registered listener has a terminal status (`Success` or `Error`).
-2. Maps each `EventV1` and its `ListenerEventV1` records into `EventV1Archive` and `ListenerEventV1Archive`, stamping an `ArchivedDate`.
+2. Maps each `EventV1` and its `ListenerEventV1` records into `EventArchiveV1` and `ListenerEventArchiveV1`, stamping an `ArchivedDate`.
 3. Inserts the archive records.
 4. Removes the original records from the active tables.
 
@@ -784,8 +784,8 @@ public class ArchivalWorker : BackgroundService
 
 | Active Table | Archive Table | Key Fields Preserved |
 |---|---|---|
-| `EventV1` | `EventV1Archive` | `Id`, `Content`, `Type`, `CreatedDate`, `ScheduledDate` + `ArchivedDate` |
-| `ListenerEventV1` | `ListenerEventV1Archive` | `Id`, `Status`, `Response`, `ResponseReasonPhrase`, `EventId`, `EventListenerId` + `ArchivedDate` |
+| `EventV1` | `EventArchiveV1` | `Id`, `Content`, `Type`, `CreatedDate`, `ScheduledDate` + `ArchivedDate` |
+| `ListenerEventV1` | `ListenerEventArchiveV1` | `Id`, `Status`, `Response`, `ResponseReasonPhrase`, `EventId`, `EventListenerId` + `ArchivedDate` |
 
 After archival, the original `EventV1` and `ListenerEventV1` rows are **removed** from the active tables — they exist only in the archive from that point forward.
 
@@ -815,8 +815,8 @@ After archival, the original `EventV1` and `ListenerEventV1` rows are **removed*
 
   Archive         ──► ArchiveDeadEventV1sAsync()
   (periodic)              │
-                          ├── EventV1 ──► EventV1Archive
-                          └── ListenerEventV1 ──► ListenerEventV1Archive
+                          ├── EventV1 ──► EventArchiveV1
+                          └── ListenerEventV1 ──► ListenerEventArchiveV1
                           (originals removed from active tables)
 ```
 

@@ -3,14 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1.Exceptions
 {
     public class AlreadyExistsListenerEventV1Exception : Xeption
     {
-        public AlreadyExistsListenerEventV1Exception(string message, Exception innerException)
-            : base(message, innerException)
+        public AlreadyExistsListenerEventV1Exception(string message, Exception innerException, IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }

@@ -46,7 +46,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             return eventV1s.Where(eventV1 =>
-                eventV1.Type == EventV1Type.Scheduled &&
+                eventV1.Type == EventTypeV1.Scheduled &&
                 eventV1.ScheduledDate < now);
         });
 
@@ -56,7 +56,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             IQueryable<EventV1> eventV1s =
                 await this.eventV1Service.RetrieveAllEventV1sWithListenerEventV1sAsync();
 
-            return eventV1s.Where(eventV1 => eventV1.Type == EventV1Type.Immediate);
+            return eventV1s.Where(eventV1 => eventV1.Type == EventTypeV1.Immediate);
         });
 
         public ValueTask<EventV1> MarkEventV1AsImmediateAsync(EventV1 eventV1) =>
@@ -81,7 +81,7 @@ namespace EventHighway.Core.Services.Processings.Events.V1
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-            eventV1.Type = EventV1Type.Immediate;
+            eventV1.Type = EventTypeV1.Immediate;
             eventV1.UpdatedDate = now;
 
             return await this.eventV1Service.ModifyEventV1Async(eventV1);

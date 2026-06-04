@@ -1,8 +1,9 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
 using EventHighway.Core.Models.Services.Foundations.Events.V1.Exceptions;
@@ -21,16 +22,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // given
             Guid someEventV1Id = GetRandomId();
             SqlException sqlException = GetSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
-            var failedEventV1StorageException =
-                new FailedEventV1StorageException(
+            var failedStorageEventV1Exception =
+                new FailedStorageEventV1Exception(
                     message: "Failed event storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedEventV1DependencyException =
                 new EventV1DependencyException(
                     message: "Event dependency error occurred, contact support.",
-                    innerException: failedEventV1StorageException);
+                    innerException: failedStorageEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectEventV1ByIdAsync(It.IsAny<Guid>()))
@@ -69,11 +72,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // given
             Guid someEventV1Id = GetRandomId();
             var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
+            dbUpdateConcurrencyException.Data.Add("ErrorCode", new List<string> { "DbUpdateConcurrencyError" });
 
             var lockedEventV1Exception =
                 new LockedEventV1Exception(
                     message: "Event is locked, try again.",
-                    innerException: dbUpdateConcurrencyException);
+                    innerException: dbUpdateConcurrencyException,
+                    data: dbUpdateConcurrencyException.Data);
 
             var expectedEventV1DependencyValidationException =
                 new EventV1DependencyValidationException(
@@ -118,16 +123,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // given
             Guid someEventV1Id = GetRandomId();
             var dbUpdateException = new DbUpdateException();
+            dbUpdateException.Data.Add("ErrorCode", new List<string> { "DatabaseUpdateError" });
 
-            var failedEventV1StorageException =
-                new FailedEventV1StorageException(
+            var failedStorageEventV1Exception =
+                new FailedStorageEventV1Exception(
                     message: "Failed event storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedEventV1DependencyException =
                 new EventV1DependencyException(
                     message: "Event dependency error occurred, contact support.",
-                    innerException: failedEventV1StorageException);
+                    innerException: failedStorageEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectEventV1ByIdAsync(It.IsAny<Guid>()))
@@ -166,11 +173,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
             // given
             Guid someEventV1Id = GetRandomId();
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedEventV1ServiceException =
                 new FailedEventV1ServiceException(
                     message: "Failed event service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventV1ServiceException =
                 new EventV1ServiceException(

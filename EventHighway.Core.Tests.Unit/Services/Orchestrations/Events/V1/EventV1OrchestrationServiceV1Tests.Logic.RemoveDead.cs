@@ -20,7 +20,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.Events.V1
             EventV1 randomEventV1 = CreateRandomEventV1();
 
             var randomListenerEventV1s =
-                new List<ListenerEventV1>(randomEventV1.ListenerEvents);
+                new List<ListenerEventV1>(randomEventV1.ListenerEventV1s);
 
             EventV1 inputEventV1 = randomEventV1;
 

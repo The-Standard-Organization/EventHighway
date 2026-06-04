@@ -46,19 +46,19 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             eventV1.Type = eventV1.ScheduledDate switch
             {
-                null => EventV1Type.Immediate,
+                null => EventTypeV1.Immediate,
 
                 DateTimeOffset scheduledDate
-                    when scheduledDate < now => EventV1Type.Immediate,
+                    when scheduledDate < now => EventTypeV1.Immediate,
 
-                _ => EventV1Type.Scheduled,
+                _ => EventTypeV1.Scheduled,
             };
 
             EventV1 submittedEventV1 =
                 await this.eventV1OrchestrationService
                     .SubmitEventV1Async(eventV1);
 
-            if (submittedEventV1.Type is EventV1Type.Immediate)
+            if (submittedEventV1.Type is EventTypeV1.Immediate)
                 await ProcessEventListenerV1sAsync(submittedEventV1);
 
             return submittedEventV1;
@@ -74,19 +74,19 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
 
             eventV1.Type = eventV1.ScheduledDate switch
             {
-                null => EventV1Type.Immediate,
+                null => EventTypeV1.Immediate,
 
                 DateTimeOffset scheduledDate
-                    when scheduledDate < now => EventV1Type.Immediate,
+                    when scheduledDate < now => EventTypeV1.Immediate,
 
-                _ => EventV1Type.Scheduled,
+                _ => EventTypeV1.Scheduled,
             };
 
             EventV1 submittedEventV1 =
                 await this.eventV1OrchestrationService
                     .SubmitEventV1Async(eventV1);
 
-            if (submittedEventV1.Type is EventV1Type.Immediate)
+            if (submittedEventV1.Type is EventTypeV1.Immediate)
                 await ProcessEventListenerV1sAsyncV1(submittedEventV1);
 
             return submittedEventV1;
@@ -156,7 +156,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                     .RetrieveEventListenerV1sByEventAddressIdAsync(
                         eventV1.EventAddressId);
 
-            eventV1.ListenerEvents = new List<ListenerEventV1>();
+            eventV1.ListenerEventV1s = new List<ListenerEventV1>();
 
             foreach (EventListenerV1 eventListenerV1 in eventListenerV1s)
             {
@@ -209,12 +209,12 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                         .RunEventCallV1Async(eventCallV1);
 
                 listenerEventV1.Response = ranEventCallV1.Response;
-                listenerEventV1.Status = ListenerEventV1Status.Success;
+                listenerEventV1.Status = ListenerEventStatusV1.Success;
             }
             catch (Exception exception)
             {
                 listenerEventV1.Response = exception.Message;
-                listenerEventV1.Status = ListenerEventV1Status.Error;
+                listenerEventV1.Status = ListenerEventStatusV1.Error;
             }
 
             listenerEventV1.UpdatedDate =
@@ -259,8 +259,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 ranEventCallV1.ResponseReasonPhrase;
 
             listenerEventV1.Status = ranEventCallV1.IsSuccess
-                ? ListenerEventV1Status.Success
-                : ListenerEventV1Status.Error;
+                ? ListenerEventStatusV1.Success
+                : ListenerEventStatusV1.Error;
 
             listenerEventV1.UpdatedDate =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -269,7 +269,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 await this.eventListenerV1OrchestrationService
                     .ModifyListenerEventV1Async(listenerEventV1);
 
-            eventV1.ListenerEvents.Add(item: modifiedListenerEventV1);
+            eventV1.ListenerEventV1s.Add(item: modifiedListenerEventV1);
         }
 
         private static bool HasFailedAndCanRetry(EventCallV1 eventCallV1, EventV1 eventV1) =>
@@ -286,7 +286,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 EventId = eventV1.Id,
                 EventListenerId = eventListenerV1.Id,
                 EventAddressId = eventV1.EventAddressId,
-                Status = ListenerEventV1Status.Pending,
+                Status = ListenerEventStatusV1.Pending,
                 CreatedDate = now,
                 UpdatedDate = now,
             };

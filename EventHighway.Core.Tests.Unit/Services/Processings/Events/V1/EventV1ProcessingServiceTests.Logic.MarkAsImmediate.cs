@@ -25,10 +25,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             EventV1 randomEventV1 =
                 CreateRandomEventV1(
-                    eventV1Type: EventV1Type.Scheduled);
+                    eventV1Type: EventTypeV1.Scheduled);
 
             EventV1 inputEventV1 = randomEventV1;
-            inputEventV1.Type = EventV1Type.Immediate;
+            inputEventV1.Type = EventTypeV1.Immediate;
             inputEventV1.UpdatedDate = retrievedDateTimeOffset;
             EventV1 modifiedEventV1 = inputEventV1;
 

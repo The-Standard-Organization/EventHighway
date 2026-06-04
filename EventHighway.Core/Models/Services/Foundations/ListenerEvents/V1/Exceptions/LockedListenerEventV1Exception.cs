@@ -3,14 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1.Exceptions
 {
     public class LockedListenerEventV1Exception : Xeption
     {
-        public LockedListenerEventV1Exception(string message, Exception innerException)
-            : base(message, innerException)
+        public LockedListenerEventV1Exception(string message, Exception innerException, IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }

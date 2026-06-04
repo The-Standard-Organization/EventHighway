@@ -12,11 +12,8 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureHandlerConfigurations(EntityTypeBuilder<HandlerConfiguration> model)
         {
-            model
-                .ToTable("HandlerConfigurations");
-
-            model.HasKey(handlerConfiguration =>
-                handlerConfiguration.Id);
+            model.ToTable("HandlerConfigurations");
+            model.HasKey(handlerConfiguration => handlerConfiguration.Id);
 
             model.HasOne(handlerConfiguration => handlerConfiguration.EventListener)
                 .WithMany(eventListenerV2 => eventListenerV2.HandlerConfigurations)

@@ -11,54 +11,54 @@ using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchives.V1
 {
-    public partial class ListenerEventV1ArchiveServiceTests
+    public partial class ListenerEventArchiveV1ServiceTests
     {
         [Fact]
-        public async Task ShouldAddListenerEventV1ArchiveAsync()
+        public async Task ShouldAddListenerEventArchiveV1Async()
         {
             // given
             DateTimeOffset randomDateTimeOffset =
                 GetRandomDateTimeOffset();
 
-            ListenerEventV1Archive randomListenerEventV1Archive =
-                CreateRandomListenerEventV1Archive(
+            ListenerEventArchiveV1 randomListenerEventArchiveV1 =
+                CreateRandomListenerEventArchiveV1(
                     randomDateTimeOffset);
 
-            ListenerEventV1Archive inputListenerEventV1Archive =
-                randomListenerEventV1Archive;
+            ListenerEventArchiveV1 inputListenerEventArchiveV1 =
+                randomListenerEventArchiveV1;
 
-            ListenerEventV1Archive storageListenerEventV1Archive =
-                inputListenerEventV1Archive;
+            ListenerEventArchiveV1 storageListenerEventArchiveV1 =
+                inputListenerEventArchiveV1;
 
-            ListenerEventV1Archive expectedListenerEventV1Archive =
-                storageListenerEventV1Archive.DeepClone();
+            ListenerEventArchiveV1 expectedListenerEventArchiveV1 =
+                storageListenerEventArchiveV1.DeepClone();
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.InsertListenerEventV1ArchiveAsync(
-                    inputListenerEventV1Archive))
-                        .ReturnsAsync(storageListenerEventV1Archive);
+                broker.InsertListenerEventArchiveV1Async(
+                    inputListenerEventArchiveV1))
+                        .ReturnsAsync(storageListenerEventArchiveV1);
 
             // when
-            ListenerEventV1Archive actualListenerEventV1Archive =
-                await this.listenerEventV1ArchiveService
-                    .AddListenerEventV1ArchiveAsync(
-                        inputListenerEventV1Archive);
+            ListenerEventArchiveV1 actualListenerEventArchiveV1 =
+                await this.listenerEventArchiveV1Service
+                    .AddListenerEventArchiveV1Async(
+                        inputListenerEventArchiveV1);
 
             // then
-            actualListenerEventV1Archive.Should().BeEquivalentTo(
-                expectedListenerEventV1Archive);
+            actualListenerEventArchiveV1.Should().BeEquivalentTo(
+                expectedListenerEventArchiveV1);
 
             this.dateTimeBrokerMock.Verify(broker =>
                 broker.GetDateTimeOffsetAsync(),
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.InsertListenerEventV1ArchiveAsync(
-                    inputListenerEventV1Archive),
+                broker.InsertListenerEventArchiveV1Async(
+                    inputListenerEventArchiveV1),
                         Times.Once);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();

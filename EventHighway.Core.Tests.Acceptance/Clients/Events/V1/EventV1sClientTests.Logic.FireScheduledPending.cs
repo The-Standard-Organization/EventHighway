@@ -69,7 +69,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
                     .Where(listenerEventV1 =>
                         listenerEventV1.EventAddressId == inputEventAddressV1Id)
                             .Should().OnlyContain(listenerEventV1 =>
-                                listenerEventV1.Status == ListenerEventV1Status.Success);
+                                listenerEventV1.Status == ListenerEventStatusV1.Success);
 
                 await this.clientBroker.RemoveListenerEventV1ByIdAsync(
                     storageListenerEventV1.Id);

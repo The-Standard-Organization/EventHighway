@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         {
                             EventListenerId = eventListenerV1.Id,
                             EventId = eventV1.Id,
-                            Status = ListenerEventV1Status.Pending,
+                            Status = ListenerEventStatusV1.Pending,
                             EventAddressId = eventV1.EventAddressId,
                             CreatedDate = retrievedDateTimeOffset,
                             UpdatedDate = retrievedDateTimeOffset
@@ -109,7 +109,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             for (int index = 0; index < inputListenerEventV1s.Count; index++)
             {
                 expectedListenerEventV1s[index].UpdatedDate = retrievedDateTimeOffset;
-                expectedListenerEventV1s[index].Status = ListenerEventV1Status.Success;
+                expectedListenerEventV1s[index].Status = ListenerEventStatusV1.Success;
                 expectedListenerEventV1s[index].Response = ranEventCallV1s[index].Response;
 
                 this.dateTimeBrokerMock.Setup(broker =>
@@ -203,7 +203,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         {
                             EventListenerId = eventListenerV1.Id,
                             EventId = eventV1.Id,
-                            Status = ListenerEventV1Status.Pending,
+                            Status = ListenerEventStatusV1.Pending,
                             EventAddressId = eventV1.EventAddressId,
                             CreatedDate = retrievedDateTimeOffset,
                             UpdatedDate = retrievedDateTimeOffset
@@ -278,7 +278,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             for (int index = 0; index < expectedListenerEventV1s.Count; index++)
             {
                 expectedListenerEventV1sOnModify[index].UpdatedDate = retrievedDateTimeOffset;
-                expectedListenerEventV1sOnModify[index].Status = ListenerEventV1Status.Error;
+                expectedListenerEventV1sOnModify[index].Status = ListenerEventStatusV1.Error;
                 expectedListenerEventV1sOnModify[index].Response = ranEventCallV1s[index].Response;
 
                 this.eventV1OrchestrationServiceMock.Setup(service =>

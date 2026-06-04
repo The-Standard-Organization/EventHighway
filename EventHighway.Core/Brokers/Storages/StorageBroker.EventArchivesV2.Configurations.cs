@@ -12,11 +12,8 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureEventArchiveV2s(EntityTypeBuilder<EventArchiveV2> model)
         {
-            model
-                .ToTable("EventArchiveV2s");
-
-            model.HasKey(eventV2Archive =>
-                eventV2Archive.Id);
+            model.ToTable("EventArchiveV2s");
+            model.HasKey(eventArchiveV2 => eventArchiveV2.Id);
         }
     }
 }

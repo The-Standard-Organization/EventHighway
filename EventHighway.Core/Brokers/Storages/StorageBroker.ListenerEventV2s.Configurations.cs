@@ -1,5 +1,5 @@
-// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
@@ -12,25 +12,25 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureListenerEventV2s(EntityTypeBuilder<ListenerEventV2> model)
         {
-            model
-                .ToTable("ListenerEventV2s");
+            model.ToTable("ListenerEventV2s");
+            model.HasKey(listenerEventV2 => listenerEventV2.Id);
 
             model
                 .Property(listenerEventV2 => listenerEventV2.Id)
                 .IsRequired();
 
             model.HasOne(listenerEventV2 => listenerEventV2.Event)
-                .WithMany(eventV2 => eventV2.ListenerEvents)
+                .WithMany(eventV2 => eventV2.ListenerEventV2s)
                 .HasForeignKey(listenerEventV2 => listenerEventV2.EventId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             model.HasOne(listenerEventV2 => listenerEventV2.EventAddress)
-                .WithMany(eventAddressV2 => eventAddressV2.ListenerEvents)
+                .WithMany(eventAddressV2 => eventAddressV2.ListenerEventV2s)
                 .HasForeignKey(listenerEventV2 => listenerEventV2.EventAddressId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             model.HasOne(listenerEventV2 => listenerEventV2.EventListener)
-                .WithMany(eventListenerV2 => eventListenerV2.ListenerEvents)
+                .WithMany(eventListenerV2 => eventListenerV2.ListenerEventV2s)
                 .HasForeignKey(listenerEventV2 => listenerEventV2.EventListenerId)
                 .OnDelete(DeleteBehavior.NoAction);
         }

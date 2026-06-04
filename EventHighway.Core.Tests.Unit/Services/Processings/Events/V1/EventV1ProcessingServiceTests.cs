@@ -90,11 +90,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
         {
             return CreateEventV1Filler(
                 dates: GetRandomDateTimeOffset(),
-                eventV1Type: EventV1Type.Immediate)
+                eventV1Type: EventTypeV1.Immediate)
                     .Create();
         }
 
-        private static EventV1 CreateRandomEventV1(EventV1Type eventV1Type)
+        private static EventV1 CreateRandomEventV1(EventTypeV1 eventV1Type)
         {
             return CreateEventV1Filler(
                 dates: GetRandomDateTimeOffset(),
@@ -106,14 +106,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
         {
             return CreateEventV1Filler(
                 dates: GetRandomDateTimeOffset(),
-                eventV1Type: EventV1Type.Immediate)
+                eventV1Type: EventTypeV1.Immediate)
                     .Create(count: GetRandomNumber())
                         .AsQueryable();
         }
 
         private static IQueryable<EventV1> CreateRandomEventV1s(
             DateTimeOffset dates,
-            EventV1Type eventV1Type)
+            EventTypeV1 eventV1Type)
         {
             return CreateEventV1Filler(
                 dates,
@@ -131,7 +131,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
         private static Filler<EventV1> CreateEventV1Filler(
             DateTimeOffset dates,
-            EventV1Type eventV1Type)
+            EventTypeV1 eventV1Type)
         {
             var filler = new Filler<EventV1>();
 
@@ -141,7 +141,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                 .OnType<DateTimeOffset?>()
                     .Use(dates)
 
-                .OnType<EventV1Type>().Use(eventV1Type);
+                .OnType<EventTypeV1>().Use(eventV1Type);
 
             return filler;
         }

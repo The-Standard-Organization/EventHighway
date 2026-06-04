@@ -26,7 +26,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
     public partial class EventV1CoordinationServiceV1Tests
     {
         private readonly Mock<IEventV1OrchestrationServiceV1> eventV1OrchestrationServiceV1Mock;
-        private readonly Mock<IEventV1ArchiveOrchestrationService> eventV1ArchiveOrchestrationServiceMock;
+        private readonly Mock<IEventArchiveV1OrchestrationService> eventArchiveV1OrchestrationServiceMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly ICompareLogic compareLogic;
@@ -38,8 +38,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 new Mock<IEventV1OrchestrationServiceV1>(
                     behavior: MockBehavior.Strict);
 
-            this.eventV1ArchiveOrchestrationServiceMock =
-                new Mock<IEventV1ArchiveOrchestrationService>(
+            this.eventArchiveV1OrchestrationServiceMock =
+                new Mock<IEventArchiveV1OrchestrationService>(
                     behavior: MockBehavior.Strict);
 
             this.dateTimeBrokerMock = new Mock<IDateTimeBroker>(
@@ -52,7 +52,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.eventV1CoordinationServiceV1 =
                 new EventV1CoordinationServiceV1(
                     eventV1OrchestrationServiceV1: this.eventV1OrchestrationServiceV1Mock.Object,
-                    eventV1ArchiveOrchestrationService: this.eventV1ArchiveOrchestrationServiceMock.Object,
+                    eventArchiveV1OrchestrationService: this.eventArchiveV1OrchestrationServiceMock.Object,
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
@@ -91,35 +91,35 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             };
         }
 
-        public static TheoryData<Xeption> EventV1ArchiveValidationExceptions()
+        public static TheoryData<Xeption> EventArchiveV1ValidationExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveOrchestrationValidationException(
+                new EventArchiveV1OrchestrationValidationException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveOrchestrationDependencyValidationException(
+                new EventArchiveV1OrchestrationDependencyValidationException(
                     someMessage,
                     someInnerException)
             };
         }
 
-        public static TheoryData<Xeption> EventV1ArchiveDependencyExceptions()
+        public static TheoryData<Xeption> EventArchiveV1DependencyExceptions()
         {
             string someMessage = GetRandomString();
             var someInnerException = new Xeption();
 
             return new TheoryData<Xeption>
             {
-                new EventV1ArchiveOrchestrationDependencyException(
+                new EventArchiveV1OrchestrationDependencyException(
                     someMessage,
                     someInnerException),
 
-                new EventV1ArchiveOrchestrationServiceException(
+                new EventArchiveV1OrchestrationServiceException(
                     someMessage,
                     someInnerException),
             };
@@ -163,13 +163,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .AreEqual;
         }
 
-        private Expression<Func<EventV1Archive, bool>> SameEventV1ArchiveAs(
-           EventV1Archive expectedEventV1Archive)
+        private Expression<Func<EventArchiveV1, bool>> SameEventArchiveV1As(
+           EventArchiveV1 expectedEventArchiveV1)
         {
-            return actualEventV1Archive =>
+            return actualEventArchiveV1 =>
                 this.compareLogic.Compare(
-                    expectedEventV1Archive,
-                    actualEventV1Archive)
+                    expectedEventArchiveV1,
+                    actualEventArchiveV1)
                         .AreEqual;
         }
 
@@ -196,8 +196,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             Guid randomId = GetRandomId();
             string randomContent = GetRandomString();
 
-            EventV1Type randomType =
-                GetRandomEnum<EventV1Type>();
+            EventTypeV1 randomType =
+                GetRandomEnum<EventTypeV1>();
 
             DateTimeOffset randomCreatedDate =
                 GetRandomDateTimeOffset();
@@ -226,8 +226,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
         {
             Guid randomId = GetRandomId();
 
-            ListenerEventV1Status randomStatus =
-                GetRandomEnum<ListenerEventV1Status>();
+            ListenerEventStatusV1 randomStatus =
+                GetRandomEnum<ListenerEventStatusV1>();
 
             string randomResponse = GetRandomString();
 
@@ -276,10 +276,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     .Use(GetRandomDateTimeOffset())
 
                 .OnProperty(eventV1 =>
-                    eventV1.EventAddress).IgnoreIt()
+                    eventV1.EventAddressV1).IgnoreIt()
 
                 .OnProperty(eventV1 =>
-                    eventV1.ListenerEvents).IgnoreIt();
+                    eventV1.ListenerEventV1s).IgnoreIt();
 
             return filler;
         }

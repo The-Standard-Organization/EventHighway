@@ -21,6 +21,6 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
 
         public Guid EventAddressId { get; set; }
 
-        public IEnumerable<ListenerEventArchiveV2> ListenerEventArchives { get; set; }
+        public IEnumerable<ListenerEventArchiveV2> ListenerEventArchiveV2s { get; set; }
     }
 }

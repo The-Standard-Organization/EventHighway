@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -14,6 +14,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
         {
             Validate(
                 message: "Event address is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(eventAddressV1Id),
                 Parameter: nameof(EventAddressV1.Id)));
         }
@@ -27,8 +28,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
         private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventAddressV1ProcessingException =
-                new InvalidEventAddressV1ProcessingException(
-                    message: message);
+                new InvalidEventAddressV1ProcessingException(message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

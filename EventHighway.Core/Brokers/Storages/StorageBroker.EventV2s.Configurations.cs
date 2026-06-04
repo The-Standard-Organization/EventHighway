@@ -12,13 +12,10 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureEventV2s(EntityTypeBuilder<EventV2> model)
         {
-            model
-                .ToTable("EventV2s");
+            model.ToTable("EventV2s");
+            model.HasKey(eventV2 => eventV2.Id);
 
-            model.HasKey(eventV2 =>
-                eventV2.Id);
-
-            model.HasOne(eventV2 => eventV2.EventAddress)
+            model.HasOne(eventV2 => eventV2.EventAddressV2)
                 .WithMany(eventAddressV2 => eventAddressV2.Events)
                 .HasForeignKey(eventV2 => eventV2.EventAddressId)
                 .OnDelete(DeleteBehavior.NoAction);

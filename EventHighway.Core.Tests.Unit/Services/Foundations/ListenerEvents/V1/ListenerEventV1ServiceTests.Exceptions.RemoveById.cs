@@ -22,15 +22,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
             Guid someListenerEventV1Id = GetRandomId();
             SqlException sqlException = GetSqlException();
 
-            var failedListenerEventV1StorageException =
-                new FailedListenerEventV1StorageException(
+            var failedStorageListenerEventV1Exception =
+                new FailedStorageListenerEventV1Exception(
                     message: "Failed listener event storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedListenerEventV1DependencyException =
                 new ListenerEventV1DependencyException(
                     message: "Listener event dependency error occurred, contact support.",
-                    innerException: failedListenerEventV1StorageException);
+                    innerException: failedStorageListenerEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
@@ -73,7 +74,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
             var lockedListenerEventV1Exception =
                 new LockedListenerEventV1Exception(
                     message: "Listener event is locked, try again.",
-                    innerException: dbUpdateConcurrencyException);
+                    innerException: dbUpdateConcurrencyException,
+                    data: dbUpdateConcurrencyException.Data);
 
             var expectedListenerEventV1DependencyValidationException =
                 new ListenerEventV1DependencyValidationException(
@@ -119,15 +121,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
             Guid someListenerEventV1Id = GetRandomId();
             var dbUpdateException = new DbUpdateException();
 
-            var failedListenerEventV1StorageException =
-                new FailedListenerEventV1StorageException(
+            var failedStorageListenerEventV1Exception =
+                new FailedStorageListenerEventV1Exception(
                     message: "Failed listener event storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedListenerEventV1DependencyException =
                 new ListenerEventV1DependencyException(
                     message: "Listener event dependency error occurred, contact support.",
-                    innerException: failedListenerEventV1StorageException);
+                    innerException: failedStorageListenerEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectListenerEventV1ByIdAsync(It.IsAny<Guid>()))
@@ -170,7 +173,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
             var failedListenerEventV1ServiceException =
                 new FailedListenerEventV1ServiceException(
                     message: "Failed listener event service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedListenerEventV1ServiceException =
                 new ListenerEventV1ServiceException(

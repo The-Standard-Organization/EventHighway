@@ -71,10 +71,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
                     eventV1.Events).IgnoreIt()
 
                 .OnProperty(eventV1 =>
-                    eventV1.ListenerEvents).IgnoreIt()
+                    eventV1.ListenerEventV1s).IgnoreIt()
 
                 .OnProperty(eventV1 =>
-                    eventV1.EventListeners).IgnoreIt()
+                    eventV1.EventListenerV1s).IgnoreIt()
 
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 

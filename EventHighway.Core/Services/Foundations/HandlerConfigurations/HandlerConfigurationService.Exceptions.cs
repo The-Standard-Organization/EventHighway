@@ -43,7 +43,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var failedStorageHandlerConfigurationException =
                     new FailedStorageHandlerConfigurationException(
                         message: "Failed handler configuration storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(failedStorageHandlerConfigurationException);
             }
@@ -52,7 +53,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var alreadyExistsHandlerConfigurationException =
                     new AlreadyExistsHandlerConfigurationException(
                         message: "Handler configuration with the same id already exists.",
-                        innerException: duplicateKeyException);
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsHandlerConfigurationException);
@@ -62,7 +64,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var invalidReferenceHandlerConfigurationException =
                     new InvalidReferenceHandlerConfigurationException(
                         message: "Invalid handler configuration reference error occurred.",
-                        innerException: foreignKeyConstraintConflictException);
+                        innerException: foreignKeyConstraintConflictException,
+                        data: foreignKeyConstraintConflictException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(invalidReferenceHandlerConfigurationException);
             }
@@ -71,7 +74,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var lockedHandlerConfigurationException =
                     new LockedHandlerConfigurationException(
                         message: "Handler configuration is locked, try again.",
-                        innerException: dbUpdateConcurrencyException);
+                        innerException: dbUpdateConcurrencyException,
+                        data: dbUpdateConcurrencyException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     lockedHandlerConfigurationException);
@@ -81,7 +85,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var failedStorageHandlerConfigurationException =
                     new FailedStorageHandlerConfigurationException(
                         message: "Failed handler configuration storage error occurred, contact support.",
-                        innerException: dbUpdateException);
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedStorageHandlerConfigurationException);
             }
@@ -90,7 +95,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var failedHandlerConfigurationServiceException =
                     new FailedHandlerConfigurationServiceException(
                         message: "Failed handler configuration service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedHandlerConfigurationServiceException);
@@ -109,7 +115,8 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var failedStorageHandlerConfigurationException =
                     new FailedStorageHandlerConfigurationException(
                         message: "Failed handler configuration storage error occurred, contact support.",
-                        innerException: sqlException);
+                        innerException: sqlException,
+                        data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(failedStorageHandlerConfigurationException);
             }
@@ -118,10 +125,10 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
                 var failedHandlerConfigurationServiceException =
                     new FailedHandlerConfigurationServiceException(
                         message: "Failed handler configuration service error occurred, contact support.",
-                        innerException: serviceException);
+                        innerException: serviceException,
+                        data: serviceException.Data);
 
-                throw await CreateAndLogServiceExceptionAsync(
-                    failedHandlerConfigurationServiceException);
+                throw await CreateAndLogServiceExceptionAsync(failedHandlerConfigurationServiceException);
             }
         }
 

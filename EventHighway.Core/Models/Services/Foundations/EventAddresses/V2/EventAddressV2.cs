@@ -19,7 +19,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventAddresses.V2
         public DateTimeOffset UpdatedDate { get; set; }
 
         public IEnumerable<EventV2> Events { get; set; }
-        public IEnumerable<EventListenerV2> EventListeners { get; set; }
-        public IEnumerable<ListenerEventV2> ListenerEvents { get; set; }
+        public IEnumerable<EventListenerV2> EventListenerV2s { get; set; }
+        public IEnumerable<ListenerEventV2> ListenerEventV2s { get; set; }
     }
 }

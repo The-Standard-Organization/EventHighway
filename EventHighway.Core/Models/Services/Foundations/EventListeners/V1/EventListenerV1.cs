@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -20,8 +20,8 @@ namespace EventHighway.Core.Models.Services.Foundations.EventListeners.V1
         public DateTimeOffset UpdatedDate { get; set; }
 
         public Guid EventAddressId { get; set; }
-        public EventAddressV1 EventAddress { get; set; }
+        public EventAddressV1 EventAddressV1s { get; set; }
 
-        public IEnumerable<ListenerEventV1> ListenerEvents { get; set; }
+        public IEnumerable<ListenerEventV1> ListenerEventV1s { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 retrievedDateTimeOffset.AddDays(randomDays);
 
             EventV1 inputScheduledEventV1 = inputEventV1;
-            inputScheduledEventV1.Type = EventV1Type.Scheduled;
+            inputScheduledEventV1.Type = EventTypeV1.Scheduled;
             EventV1 submittedEventV1 = inputScheduledEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
 
@@ -98,7 +98,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             EventV1 inputEventV1 = randomEventV1;
             inputEventV1.ScheduledDate = scheduledDate;
             EventV1 inputImmediateEventV1 = inputEventV1;
-            inputImmediateEventV1.Type = EventV1Type.Immediate;
+            inputImmediateEventV1.Type = EventTypeV1.Immediate;
             EventV1 submittedEventV1 = inputImmediateEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
 
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     {
                         EventListenerId = eventListenerV1.Id,
                         EventId = inputImmediateEventV1.Id,
-                        Status = ListenerEventV1Status.Pending,
+                        Status = ListenerEventStatusV1.Pending,
                         EventAddressId = inputImmediateEventV1.EventAddressId,
                         CreatedDate = randomDateTimeOffset,
                         UpdatedDate = randomDateTimeOffset
@@ -192,7 +192,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .ReturnsAsync(randomDateTimeOffset);
 
                 addedListenerEventV1s[index].UpdatedDate = randomDateTimeOffset;
-                addedListenerEventV1s[index].Status = ListenerEventV1Status.Success;
+                addedListenerEventV1s[index].Status = ListenerEventStatusV1.Success;
                 addedListenerEventV1s[index].Response = ranEventCallV1s[index].Response;
 
                 this.eventListenerV1OrchestrationServiceMock

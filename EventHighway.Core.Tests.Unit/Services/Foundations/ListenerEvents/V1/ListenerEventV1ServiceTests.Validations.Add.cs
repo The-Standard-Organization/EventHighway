@@ -64,8 +64,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V1
         private async Task ShouldThrowValidationExceptionOnAddIfListenerEventV1IsInvalidAndLogItAsync(
             string invalidText)
         {
-            ListenerEventV1Status invalidListenerEventV1Status =
-                GetInvalidEnum<ListenerEventV1Status>();
+            ListenerEventStatusV1 invalidListenerEventV1Status =
+                GetInvalidEnum<ListenerEventStatusV1>();
 
             var invalidListenerEventV1 = new ListenerEventV1
             {

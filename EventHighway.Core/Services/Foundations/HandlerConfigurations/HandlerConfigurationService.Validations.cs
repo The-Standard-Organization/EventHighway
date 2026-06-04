@@ -21,6 +21,7 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
 
             Validate(
                 message: "Handler configuration is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(handlerConfiguration.Id),
                 Parameter: nameof(HandlerConfiguration.Id)),
 
@@ -61,6 +62,7 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
 
             Validate(
                 message: "Handler configuration is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(handlerConfiguration.Id),
                 Parameter: nameof(HandlerConfiguration.Id)),
 
@@ -173,20 +175,20 @@ namespace EventHighway.Core.Services.Foundations.HandlerConfigurations
         private static void ValidateHandlerConfigurationId(Guid handlerConfigurationId) =>
             Validate(
                 message: "Handler configuration is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(handlerConfigurationId),
                 Parameter: nameof(HandlerConfiguration.Id)));
 
         private static void ValidateHandlerConfigurationName(string handlerConfigurationName) =>
             Validate(
                 message: "Handler configuration is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(handlerConfigurationName),
                 Parameter: nameof(HandlerConfiguration.Name)));
 
         private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
-            var invalidHandlerConfigurationException =
-                new InvalidHandlerConfigurationException(
-                    message: "Handler configuration is invalid, fix the errors and try again.");
+            var invalidHandlerConfigurationException = new InvalidHandlerConfigurationException(message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

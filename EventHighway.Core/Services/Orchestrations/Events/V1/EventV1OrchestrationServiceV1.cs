@@ -33,7 +33,7 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
         {
             ValidateEventV1IsNotNull(eventV1);
 
-            foreach (ListenerEventV1 listenerEvent in eventV1.ListenerEvents)
+            foreach (ListenerEventV1 listenerEvent in eventV1.ListenerEventV1s)
             {
                 await this.listenerEventV1ProcessingService
                     .RemoveListenerEventV1ByIdAsync(listenerEvent.Id);

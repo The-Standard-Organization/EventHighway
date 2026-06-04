@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
@@ -20,11 +21,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         {
             // given
             SqlException sqlException = GetSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
             var failedStorageHandlerConfigurationException =
                 new FailedStorageHandlerConfigurationException(
                     message: "Failed handler configuration storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedHandlerConfigurationDependencyException =
                 new HandlerConfigurationDependencyException(
@@ -66,11 +69,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
         {
             // given
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedHandlerConfigurationServiceException =
                 new FailedHandlerConfigurationServiceException(
                     message: "Failed handler configuration service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedHandlerConfigurationServiceException =
                 new HandlerConfigurationServiceException(

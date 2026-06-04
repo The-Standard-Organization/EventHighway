@@ -33,17 +33,17 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyExceptionAsync(
                     eventV1OrchestrationServiceException);
             }
-            catch (EventV1ArchiveOrchestrationDependencyException
-                eventV1ArchiveOrchestrationDependencyException)
+            catch (EventArchiveV1OrchestrationDependencyException
+                eventArchiveV1OrchestrationDependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveOrchestrationDependencyException);
+                    eventArchiveV1OrchestrationDependencyException);
             }
-            catch (EventV1ArchiveOrchestrationServiceException
-                eventV1ArchiveOrchestrationServiceException)
+            catch (EventArchiveV1OrchestrationServiceException
+                eventArchiveV1OrchestrationServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(
-                    eventV1ArchiveOrchestrationServiceException);
+                    eventArchiveV1OrchestrationServiceException);
             }
             catch (EventV1OrchestrationValidationException
                 eventV1OrchestrationValidationException)
@@ -57,17 +57,17 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV1OrchestrationDependencyValidationException);
             }
-            catch (EventV1ArchiveOrchestrationValidationException
-                eventV1ArchiveOrchestrationValidationException)
+            catch (EventArchiveV1OrchestrationValidationException
+                eventArchiveV1OrchestrationValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveOrchestrationValidationException);
+                    eventArchiveV1OrchestrationValidationException);
             }
-            catch (EventV1ArchiveOrchestrationDependencyValidationException
-                eventV1ArchiveOrchestrationDependencyValidationException)
+            catch (EventArchiveV1OrchestrationDependencyValidationException
+                eventArchiveV1OrchestrationDependencyValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
-                    eventV1ArchiveOrchestrationDependencyValidationException);
+                    eventArchiveV1OrchestrationDependencyValidationException);
             }
             catch (Exception exception)
             {

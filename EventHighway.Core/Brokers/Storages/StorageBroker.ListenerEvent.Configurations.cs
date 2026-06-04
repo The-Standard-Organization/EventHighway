@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents;
@@ -12,6 +12,9 @@ namespace EventHighway.Core.Brokers.Storages
     {
         private static void ConfigureListenerEvents(EntityTypeBuilder<ListenerEvent> model)
         {
+            model.ToTable("ListenerEvents");
+            model.HasKey(listenerEvent => listenerEvent.Id);
+
             model.HasOne(listenerEvent => listenerEvent.Event)
                 .WithMany(@event => @event.ListenerEvents)
                 .HasForeignKey(listenerEvent => listenerEvent.EventId)

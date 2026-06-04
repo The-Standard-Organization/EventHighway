@@ -3,14 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions
 {
     public class AlreadyExistsHandlerConfigurationException : Xeption
     {
-        public AlreadyExistsHandlerConfigurationException(string message, Exception innerException)
-            : base(message, innerException)
+        public AlreadyExistsHandlerConfigurationException(string message, Exception innerException, IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }

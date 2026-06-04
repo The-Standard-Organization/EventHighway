@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
             List<EventV1> randomEventV1s =
                 CreateRandomEventV1s(
                     dates: scheduledDateTimeOffset,
-                    eventV1Type: EventV1Type.Scheduled)
+                    eventV1Type: EventTypeV1.Scheduled)
                         .ToList();
 
             List<EventV1> randomOtherEventV1s =

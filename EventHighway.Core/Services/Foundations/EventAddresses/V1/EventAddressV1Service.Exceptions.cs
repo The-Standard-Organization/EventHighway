@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -43,14 +43,14 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             }
             catch (SqlException sqlException)
             {
-                var failedEventAddressV1StorageException =
-                    new FailedEventAddressV1StorageException(
+                var failedStorageEventAddressV1Exception =
+                    new FailedStorageEventAddressV1Exception(
                         message: "Failed event address storage error occurred, contact support.",
                         innerException: sqlException,
                         data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
-                    failedEventAddressV1StorageException);
+                    failedStorageEventAddressV1Exception);
             }
             catch (DuplicateKeyException duplicateKeyException)
             {
@@ -75,13 +75,13 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             }
             catch (DbUpdateException dbUpdateException)
             {
-                var failedEventAddressV1StorageException =
-                    new FailedEventAddressV1StorageException(
+                var failedStorageEventAddressV1Exception =
+                    new FailedStorageEventAddressV1Exception(
                         message: "Failed event address storage error occurred, contact support.",
                         innerException: dbUpdateException,
                         data: dbUpdateException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(failedEventAddressV1StorageException);
+                throw await CreateAndLogDependencyExceptionAsync(failedStorageEventAddressV1Exception);
             }
             catch (Exception serviceException)
             {
@@ -105,14 +105,14 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V1
             }
             catch (SqlException sqlException)
             {
-                var failedEventAddressV1StorageException =
-                    new FailedEventAddressV1StorageException(
+                var failedStorageEventAddressV1Exception =
+                    new FailedStorageEventAddressV1Exception(
                         message: "Failed event address storage error occurred, contact support.",
                         innerException: sqlException,
                         data: sqlException.Data);
 
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
-                    failedEventAddressV1StorageException);
+                    failedStorageEventAddressV1Exception);
             }
             catch (Exception serviceException)
             {

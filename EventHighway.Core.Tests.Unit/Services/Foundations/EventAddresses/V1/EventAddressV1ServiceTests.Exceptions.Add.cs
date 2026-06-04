@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -23,6 +23,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             // given
             EventAddressV1 someEventAddressV1 = CreateRandomEventAddressV1();
             SqlException sqlException = CreateSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
             sqlException.Data.Add(
               key: sqlException.Number,
@@ -37,7 +38,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
                     message: "Event address dependency error occurred, contact support.",
-                    innerException: failedEventAddressV1StorageException);
+                    innerException: failedStorageEventAddressV1Exception);
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
@@ -80,6 +81,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             string someMessage = GetRandomString();
             EventAddressV1 someEventAddressV1 = CreateRandomEventAddressV1();
             var duplicateKeyException = new DuplicateKeyException(someMessage);
+            duplicateKeyException.Data.Add("ErrorCode", new List<string> { "DuplicateKeyError" });
 
             var alreadyExistsEventAddressV1Exception =
                 new AlreadyExistsEventAddressV1Exception(
@@ -132,9 +134,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             // given
             EventAddressV1 someEventAddressV1 = CreateRandomEventAddressV1();
             var dbUpdateException = new DbUpdateException();
+            dbUpdateException.Data.Add("ErrorCode", new List<string> { "DbUpdateError" });
 
-            var failedEventAddressV1StorageException =
-                new FailedEventAddressV1StorageException(
+            var failedStorageEventAddressV1Exception =
+                new FailedStorageEventAddressV1Exception(
                     message: "Failed event address storage error occurred, contact support.",
                     innerException: dbUpdateException,
                     data: dbUpdateException.Data);
@@ -142,7 +145,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
                     message: "Event address dependency error occurred, contact support.",
-                    innerException: failedEventAddressV1StorageException);
+                    innerException: failedStorageEventAddressV1Exception);
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
@@ -184,6 +187,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             // given
             EventAddressV1 someEventAddressV1 = CreateRandomEventAddressV1();
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedEventAddressV1ServiceException =
                 new FailedEventAddressV1ServiceException(

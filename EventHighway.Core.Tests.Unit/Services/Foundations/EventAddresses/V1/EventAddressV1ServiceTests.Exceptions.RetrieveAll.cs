@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -21,6 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
         {
             // given
             SqlException sqlException = CreateSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
             sqlException.Data.Add(
               key: sqlException.Number,
@@ -35,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
             var expectedEventAddressV1DependencyException =
                 new EventAddressV1DependencyException(
                     message: "Event address dependency error occurred, contact support.",
-                    innerException: failedEventAddressV1StorageException);
+                    innerException: failedStorageEventAddressV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectAllEventAddressV1sAsync())
@@ -72,6 +73,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
         {
             // given
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedEventAddressV1ServiceException =
                 new FailedEventAddressV1ServiceException(

@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations;
 using EventHighway.Core.Models.Services.Foundations.HandlerConfigurations.Exceptions;
@@ -21,11 +22,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             // given
             Guid someHandlerConfigurationId = Guid.NewGuid();
             SqlException sqlException = GetSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
             var failedStorageHandlerConfigurationException =
                 new FailedStorageHandlerConfigurationException(
                     message: "Failed handler configuration storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedHandlerConfigurationDependencyException =
                 new HandlerConfigurationDependencyException(
@@ -69,11 +72,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             // given
             Guid someHandlerConfigurationId = Guid.NewGuid();
             var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
+            dbUpdateConcurrencyException.Data.Add("ErrorCode", new List<string> { "DatabaseUpdateConcurrencyError" });
 
             var lockedHandlerConfigurationException =
                 new LockedHandlerConfigurationException(
                     message: "Handler configuration is locked, try again.",
-                    innerException: dbUpdateConcurrencyException);
+                    innerException: dbUpdateConcurrencyException,
+                    data: dbUpdateConcurrencyException.Data);
 
             var expectedHandlerConfigurationDependencyValidationException =
                 new HandlerConfigurationDependencyValidationException(
@@ -117,11 +122,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             // given
             Guid someHandlerConfigurationId = Guid.NewGuid();
             var dbUpdateException = new DbUpdateException();
+            dbUpdateException.Data.Add("ErrorCode", new List<string> { "DatabaseUpdateError" });
 
             var failedStorageHandlerConfigurationException =
                 new FailedStorageHandlerConfigurationException(
                     message: "Failed handler configuration storage error occurred, contact support.",
-                    innerException: dbUpdateException);
+                    innerException: dbUpdateException,
+                    data: dbUpdateException.Data);
 
             var expectedHandlerConfigurationDependencyException =
                 new HandlerConfigurationDependencyException(
@@ -165,11 +172,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.HandlerConfiguration
             // given
             Guid someHandlerConfigurationId = Guid.NewGuid();
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedHandlerConfigurationServiceException =
                 new FailedHandlerConfigurationServiceException(
                     message: "Failed handler configuration service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedHandlerConfigurationServiceException =
                 new HandlerConfigurationServiceException(

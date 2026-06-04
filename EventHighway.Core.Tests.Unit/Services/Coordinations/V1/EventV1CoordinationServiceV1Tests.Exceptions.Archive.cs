@@ -17,7 +17,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
     {
         [Theory]
         [MemberData(nameof(EventV1ValidationExceptions))]
-        [MemberData(nameof(EventV1ArchiveValidationExceptions))]
+        [MemberData(nameof(EventArchiveV1ValidationExceptions))]
         public async Task ShouldThrowDependencyValidationOnArchiveDeadEventV1sIfDependencyValidationErrorAndLogItAsync(
             Xeption validationException)
         {
@@ -57,9 +57,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 broker.GetDateTimeOffsetAsync(),
                     Times.Never);
 
-            this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1OrchestrationServiceMock.Verify(service =>
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
@@ -70,12 +70,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.eventV1OrchestrationServiceV1Mock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveOrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1OrchestrationServiceMock.VerifyNoOtherCalls();
         }
 
         [Theory]
         [MemberData(nameof(EventV1DependencyExceptions))]
-        [MemberData(nameof(EventV1ArchiveDependencyExceptions))]
+        [MemberData(nameof(EventArchiveV1DependencyExceptions))]
         public async Task ShouldThrowDependencyExceptionOnArchiveDeadEventV1sIfDependencyErrorOccursAndLogItAsync(
             Xeption dependencyException)
         {
@@ -115,9 +115,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 broker.GetDateTimeOffsetAsync(),
                     Times.Never);
 
-            this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1OrchestrationServiceMock.Verify(service =>
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
@@ -128,7 +128,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.eventV1OrchestrationServiceV1Mock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveOrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1OrchestrationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -177,9 +177,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 broker.GetDateTimeOffsetAsync(),
                     Times.Never);
 
-            this.eventV1ArchiveOrchestrationServiceMock.Verify(service =>
-                service.AddEventV1ArchiveWithListenerEventV1ArchivesAsync(
-                    It.IsAny<EventV1Archive>()),
+            this.eventArchiveV1OrchestrationServiceMock.Verify(service =>
+                service.AddEventArchiveV1WithListenerEventArchiveV1sAsync(
+                    It.IsAny<EventArchiveV1>()),
                         Times.Never);
 
             this.eventV1OrchestrationServiceV1Mock.Verify(service =>
@@ -190,7 +190,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             this.eventV1OrchestrationServiceV1Mock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.eventV1ArchiveOrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV1OrchestrationServiceMock.VerifyNoOtherCalls();
         }
     }
 }

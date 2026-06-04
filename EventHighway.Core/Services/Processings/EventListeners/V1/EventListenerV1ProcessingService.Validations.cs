@@ -1,5 +1,5 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
@@ -14,6 +14,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
         {
             Validate(
                 message: "Event listener is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(eventAddressId),
                 Parameter: nameof(EventListenerV1.EventAddressId)));
         }
@@ -22,6 +23,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
         {
             Validate(
                 message: "Event listener is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(eventListenerV1Id),
                 Parameter: nameof(EventListenerV1.Id)));
         }
@@ -44,8 +46,7 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V1
         private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventListenerV1ProcessingException =
-                new InvalidEventListenerV1ProcessingException(
-                    message: message);
+                new InvalidEventListenerV1ProcessingException(message);
 
             foreach ((dynamic rule, string parameter) in validations)
             {

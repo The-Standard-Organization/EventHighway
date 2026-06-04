@@ -1,8 +1,9 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V1;
 using EventHighway.Core.Models.Services.Processings.EventCalls.V1.Exceptions;
@@ -106,6 +107,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventCalls.V1
             // given
             EventCallV1 someEventCallV1 = CreateRandomEventCallV1();
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedEventCallV1ProcessingServiceException =
                 new FailedEventCallV1ProcessingServiceException(

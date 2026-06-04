@@ -1,8 +1,9 @@
-﻿// ---------------------------------------------------------------------------------- 
-// Copyright (c) The Standard Organization, a coalition of the Good-Hearted Engineers 
+﻿// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V1;
@@ -20,16 +21,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
         {
             // given
             SqlException sqlException = GetSqlException();
+            sqlException.Data.Add("ErrorCode", new List<string> { "SqlError" });
 
-            var failedEventV1StorageException =
-                new FailedEventV1StorageException(
+            var failedStorageEventV1Exception =
+                new FailedStorageEventV1Exception(
                     message: "Failed event storage error occurred, contact support.",
-                    innerException: sqlException);
+                    innerException: sqlException,
+                    data: sqlException.Data);
 
             var expectedEventV1DependencyException =
                 new EventV1DependencyException(
                     message: "Event dependency error occurred, contact support.",
-                    innerException: failedEventV1StorageException);
+                    innerException: failedStorageEventV1Exception);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectAllEventV1sAsync())
@@ -66,11 +69,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V1
         {
             // given
             var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
 
             var failedEventV1ServiceException =
                 new FailedEventV1ServiceException(
                     message: "Failed event service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventV1ServiceException =
                 new EventV1ServiceException(

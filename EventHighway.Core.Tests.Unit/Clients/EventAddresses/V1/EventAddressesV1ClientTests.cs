@@ -74,10 +74,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
                 .OnProperty(eventAddressV1 => eventAddressV1.Events)
                     .IgnoreIt()
 
-                .OnProperty(eventAddressV1 => eventAddressV1.EventListeners)
+                .OnProperty(eventAddressV1 => eventAddressV1.EventListenerV1s)
                     .IgnoreIt()
 
-                .OnProperty(eventAddressV1 => eventAddressV1.ListenerEvents)
+                .OnProperty(eventAddressV1 => eventAddressV1.ListenerEventV1s)
                     .IgnoreIt();
 
             return filler;

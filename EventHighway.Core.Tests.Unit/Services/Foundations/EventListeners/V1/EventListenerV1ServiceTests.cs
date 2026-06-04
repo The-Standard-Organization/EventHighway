@@ -98,10 +98,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V1
                 .OnType<DateTimeOffset>().Use(dates)
 
                 .OnProperty(eventListenerV1 =>
-                    eventListenerV1.EventAddress).IgnoreIt()
+                    eventListenerV1.EventAddressV1s).IgnoreIt()
 
                 .OnProperty(eventListenerV1 =>
-                    eventListenerV1.ListenerEvents).IgnoreIt();
+                    eventListenerV1.ListenerEventV1s).IgnoreIt();
 
             return filler;
         }

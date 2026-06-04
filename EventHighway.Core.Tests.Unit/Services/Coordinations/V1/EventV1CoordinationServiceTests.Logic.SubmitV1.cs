@@ -32,7 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 retrievedDateTimeOffset.AddDays(randomDays);
 
             EventV1 inputScheduledEventV1 = inputEventV1;
-            inputScheduledEventV1.Type = EventV1Type.Scheduled;
+            inputScheduledEventV1.Type = EventTypeV1.Scheduled;
             EventV1 submittedEventV1 = inputScheduledEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
 
@@ -106,7 +106,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                 retrievedDateTimeOffset.AddDays(randomDays);
 
             EventV1 inputScheduledEventV1 = inputEventV1;
-            inputScheduledEventV1.Type = EventV1Type.Scheduled;
+            inputScheduledEventV1.Type = EventTypeV1.Scheduled;
             EventV1 submittedEventV1 = inputScheduledEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
             expectedEventV1.RetryAttempts = randomRetryAttempts - 1;
@@ -174,7 +174,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             EventV1 inputEventV1 = randomEventV1;
             inputEventV1.ScheduledDate = scheduledDate;
             EventV1 inputImmediateEventV1 = inputEventV1;
-            inputImmediateEventV1.Type = EventV1Type.Immediate;
+            inputImmediateEventV1.Type = EventTypeV1.Immediate;
             EventV1 submittedEventV1 = inputImmediateEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
 
@@ -190,7 +190,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     {
                         EventListenerId = eventListenerV1.Id,
                         EventId = inputImmediateEventV1.Id,
-                        Status = ListenerEventV1Status.Pending,
+                        Status = ListenerEventStatusV1.Pending,
                         EventAddressId = inputImmediateEventV1.EventAddressId,
                         CreatedDate = randomDateTimeOffset,
                         UpdatedDate = randomDateTimeOffset
@@ -202,7 +202,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
-            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
+            expectedEventV1.ListenerEventV1s = modifiedListenerEventV1s;
 
             List<ListenerEventV1> expectedListenerEventV1s =
                 modifiedListenerEventV1s.DeepClone();
@@ -270,7 +270,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .ReturnsAsync(randomDateTimeOffset);
 
                 addedListenerEventV1s[index].UpdatedDate = randomDateTimeOffset;
-                addedListenerEventV1s[index].Status = ListenerEventV1Status.Success;
+                addedListenerEventV1s[index].Status = ListenerEventStatusV1.Success;
                 addedListenerEventV1s[index].Response = ranEventCallV1s[index].Response;
 
                 this.eventListenerV1OrchestrationServiceMock
@@ -342,7 +342,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             EventV1 inputEventV1 = randomEventV1;
             inputEventV1.ScheduledDate = null;
             EventV1 inputImmediateEventV1 = inputEventV1;
-            inputImmediateEventV1.Type = EventV1Type.Immediate;
+            inputImmediateEventV1.Type = EventTypeV1.Immediate;
             EventV1 submittedEventV1 = inputImmediateEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
             expectedEventV1.RetryAttempts = randomRetryAttempts - listenerCount;
@@ -356,7 +356,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     {
                         EventListenerId = eventListenerV1.Id,
                         EventId = inputImmediateEventV1.Id,
-                        Status = ListenerEventV1Status.Pending,
+                        Status = ListenerEventStatusV1.Pending,
                         EventAddressId = inputImmediateEventV1.EventAddressId,
                         CreatedDate = randomDateTimeOffset,
                         UpdatedDate = randomDateTimeOffset
@@ -368,7 +368,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
-            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
+            expectedEventV1.ListenerEventV1s = modifiedListenerEventV1s;
 
             List<EventCallV1> expectedInputCallEventV1s =
                 retrievedEventListenerV1s.Select(
@@ -445,7 +445,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .ReturnsAsync(randomDateTimeOffset);
 
                 addedListenerEventV1s[index].UpdatedDate = randomDateTimeOffset;
-                addedListenerEventV1s[index].Status = ListenerEventV1Status.Success;
+                addedListenerEventV1s[index].Status = ListenerEventStatusV1.Success;
                 addedListenerEventV1s[index].Response = succeededEventCallV1s[index].Response;
 
                 addedListenerEventV1s[index].ResponseReasonPhrase =
@@ -514,7 +514,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             inputEventV1.ScheduledDate = null;
             inputEventV1.RetryAttempts = 0;
             EventV1 inputImmediateEventV1 = inputEventV1;
-            inputImmediateEventV1.Type = EventV1Type.Immediate;
+            inputImmediateEventV1.Type = EventTypeV1.Immediate;
             EventV1 submittedEventV1 = inputImmediateEventV1;
             EventV1 expectedEventV1 = submittedEventV1.DeepClone();
 
@@ -530,7 +530,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                     {
                         EventListenerId = eventListenerV1.Id,
                         EventId = inputImmediateEventV1.Id,
-                        Status = ListenerEventV1Status.Pending,
+                        Status = ListenerEventStatusV1.Pending,
                         EventAddressId = inputImmediateEventV1.EventAddressId,
                         CreatedDate = randomDateTimeOffset,
                         UpdatedDate = randomDateTimeOffset
@@ -542,7 +542,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
             List<ListenerEventV1> modifiedListenerEventV1s =
                 addedListenerEventV1s;
 
-            expectedEventV1.ListenerEvents = modifiedListenerEventV1s;
+            expectedEventV1.ListenerEventV1s = modifiedListenerEventV1s;
 
             List<EventCallV1> expectedInputCallEventV1s =
                 retrievedEventListenerV1s.Select(
@@ -607,7 +607,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V1
                         .ReturnsAsync(randomDateTimeOffset);
 
                 addedListenerEventV1s[index].UpdatedDate = randomDateTimeOffset;
-                addedListenerEventV1s[index].Status = ListenerEventV1Status.Error;
+                addedListenerEventV1s[index].Status = ListenerEventStatusV1.Error;
                 addedListenerEventV1s[index].Response = failedEventCallV1s[index].Response;
 
                 addedListenerEventV1s[index].ResponseReasonPhrase =
