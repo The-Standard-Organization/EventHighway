@@ -57,7 +57,8 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V1
                 var failedEventAddressV1ProcessingServiceException =
                     new FailedEventAddressV1ProcessingServiceException(
                         message: "Failed event address service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventAddressV1ProcessingServiceException);

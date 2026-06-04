@@ -37,7 +37,8 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
                 var failedEventV1OrchestrationServiceException =
                     new FailedEventV1OrchestrationServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
             }
@@ -94,7 +95,8 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V1
                 var failedEventV1OrchestrationServiceException =
                     new FailedEventV1OrchestrationServiceException(
                         message: "Failed event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV1OrchestrationServiceException);
             }

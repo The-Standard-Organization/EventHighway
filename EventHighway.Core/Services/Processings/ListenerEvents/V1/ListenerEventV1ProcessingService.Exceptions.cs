@@ -65,7 +65,8 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
                 var failedListenerEventV1ProcessingServiceException =
                     new FailedListenerEventV1ProcessingServiceException(
                         message: "Failed listener event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedListenerEventV1ProcessingServiceException);
@@ -96,7 +97,8 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V1
                 var failedListenerEventV1ProcessingServiceException =
                     new FailedListenerEventV1ProcessingServiceException(
                         message: "Failed listener event service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedListenerEventV1ProcessingServiceException);

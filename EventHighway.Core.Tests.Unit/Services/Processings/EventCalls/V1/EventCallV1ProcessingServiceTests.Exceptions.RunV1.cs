@@ -110,7 +110,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventCalls.V1
             var failedEventCallV1ProcessingServiceException =
                 new FailedEventCallV1ProcessingServiceException(
                     message: "Failed event call service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventCallV1ProcessingExceptionException =
                 new EventCallV1ProcessingServiceException(

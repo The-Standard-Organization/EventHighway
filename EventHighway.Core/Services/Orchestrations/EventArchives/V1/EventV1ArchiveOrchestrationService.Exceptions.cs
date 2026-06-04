@@ -87,7 +87,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V1
                 var failedEventV1ArchiveOrchestrationServiceException =
                     new FailedEventV1ArchiveOrchestrationServiceException(
                         message: "Failed event archive service error occurred, contact support.",
-                        innerException: exception);
+                        innerException: exception,
+                        data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(
                     failedEventV1ArchiveOrchestrationServiceException);

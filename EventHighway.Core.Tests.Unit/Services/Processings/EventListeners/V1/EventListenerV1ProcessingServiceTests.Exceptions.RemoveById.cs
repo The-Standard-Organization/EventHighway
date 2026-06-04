@@ -112,7 +112,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V1
             var failedEventListenerV1ProcessingServiceException =
                 new FailedEventListenerV1ProcessingServiceException(
                     message: "Failed event listener service error occurred, contact support.",
-                    innerException: serviceException);
+                    innerException: serviceException,
+                    data: serviceException.Data);
 
             var expectedEventListenerV1ProcessingExceptionException =
                 new EventListenerV1ProcessingServiceException(
