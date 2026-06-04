@@ -9,8 +9,8 @@ namespace EventHighway.Core.Models.Services.Processings.Events.V1.Exceptions
 {
     public class FailedEventV1ProcessingServiceException : Xeption
     {
-        public FailedEventV1ProcessingServiceException(string message, Exception innerException)
-            : base(message, innerException)
+        public FailedEventV1ProcessingServiceException(string message, Exception innerException, IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }

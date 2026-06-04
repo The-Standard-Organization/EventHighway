@@ -3,14 +3,18 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Orchestrations.EventArchives.V1
 {
     public class FailedEventV1ArchiveOrchestrationServiceException : Xeption
     {
-        public FailedEventV1ArchiveOrchestrationServiceException(string message, Exception innerException)
-            : base(message, innerException)
+        public FailedEventV1ArchiveOrchestrationServiceException(
+            string message,
+            Exception innerException, 
+            IDictionary data)
+            : base(message, innerException, data)
         { }
     }
 }
