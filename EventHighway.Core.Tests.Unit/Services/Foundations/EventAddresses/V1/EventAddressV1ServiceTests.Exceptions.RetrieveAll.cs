@@ -27,8 +27,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
               key: sqlException.Number,
               value: new List<string> { "Some SQL error code" });
 
-            var failedEventAddressV1StorageException =
-                new FailedEventAddressV1StorageException(
+            var failedStorageEventAddressV1Exception =
+                new FailedStorageEventAddressV1Exception(
                     message: "Failed event address storage error occurred, contact support.",
                     innerException: sqlException,
                     data: sqlException.Data);

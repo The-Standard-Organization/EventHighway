@@ -23,6 +23,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V1
         private static void ValidateEventAddressId(Guid eventAddressId)
         {
             Validate(
+                message: "Event listener is invalid, fix the errors and try again.",
+
                 (Rule: IsInvalid(eventAddressId),
                 Parameter: nameof(EventListenerV1.EventAddressId)));
         }
