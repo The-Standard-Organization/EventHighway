@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
@@ -20,6 +21,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventAddresses.V1
         {
             // given
             SqlException sqlException = CreateSqlException();
+
+            sqlException.Data.Add(
+              key: sqlException.Number,
+              value: new List<string> { "Some SQL error code" });
 
             var failedEventAddressV1StorageException =
                 new FailedEventAddressV1StorageException(
