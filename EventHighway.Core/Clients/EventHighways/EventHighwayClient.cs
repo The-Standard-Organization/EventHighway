@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using EventHighway.Core.Clients.ArchivingEvents.V2;
 using EventHighway.Core.Brokers.Apis;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
@@ -39,6 +40,7 @@ using EventHighway.Core.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V1;
 using EventHighway.Core.Services.Foundations.ListernEvents;
 using EventHighway.Core.Services.Foundations.ListernEvents.V1;
+using EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V1;
 using EventHighway.Core.Services.Orchestrations.EventListeners;
 using EventHighway.Core.Services.Orchestrations.EventListeners.V1;
@@ -256,6 +258,10 @@ namespace EventHighway.Core.Clients.EventHighways
             services.AddTransient<
                 IEventListenerV2OrchestrationService,
                 EventListenerV2OrchestrationService>();
+
+            services.AddTransient<
+                IArchivingEvent2OrchestrationService,
+                ArchivingEvent2OrchestrationService>();
         }
 
         private static void RegisterCoordinationServices(IServiceCollection services)
@@ -326,6 +332,10 @@ namespace EventHighway.Core.Clients.EventHighways
             services.AddTransient<
                 IEventV2Client,
                 EventV2Client>();
+
+            services.AddTransient<
+                IArchivingEvent2Client,
+                ArchivingEvent2Client>();
 
             services.AddTransient<
                 IClientV2,
