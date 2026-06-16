@@ -63,11 +63,55 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
             await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
         });
 
-        public async ValueTask PurgeArchivedEventV2sAsync(
+        public ValueTask PurgeArchivedEventV2sAsync(
             DateTimeOffset olderThan,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
-            throw new NotImplementedException();
+            BatchConfiguration batchConfiguration = this.configurationBroker.GetBatchConfiguration();
+
+            while (true)
+            {
+                IQueryable<EventArchiveV2> eventArchiveV2Batch =
+                    await RetrieveNextPurgeBatchOfArchivedEventV2sAsync(
+                        olderThan, batchConfiguration.BatchSizeForBulkProcessing, cancellationToken);
+
+                List<EventArchiveV2> eventArchiveV2Batchs = eventArchiveV2Batch.ToList();
+
+                if (eventArchiveV2Batchs.Count == 0)
+                    break;
+
+                await this.eventArchiveV2Service
+                    .BulkRemoveEventArchiveV2sAsync(eventArchiveV2Batchs, cancellationToken);
+
+                if (eventArchiveV2Batchs.Count < batchConfiguration.BatchSizeForBulkProcessing)
+                    break;
+            }
+        });
+
+        private async ValueTask<IQueryable<EventArchiveV2>> RetrieveNextPurgeBatchOfArchivedEventV2sAsync(
+            DateTimeOffset olderThan,
+            int batchSizeForBulkProcessing,
+            CancellationToken cancellationToken)
+        {
+            IQueryable<EventArchiveV2> eventArchiveV2s =
+                  await eventArchiveV2Service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+
+            IQueryable<EventArchiveV2> filteredEventArchiveV2s = FilterEventArchiveV2sOlderThan(
+                olderThan, eventArchiveV2s)
+                    .Take(batchSizeForBulkProcessing);
+
+            return filteredEventArchiveV2s;
+        }
+
+        private static IQueryable<EventArchiveV2> FilterEventArchiveV2sOlderThan(
+            DateTimeOffset olderThan,
+            IQueryable<EventArchiveV2> eventArchiveV2s)
+        {
+            eventArchiveV2s = eventArchiveV2s.Where(
+                eventArchiveV2 => eventArchiveV2.ArchivedDate < olderThan);
+
+            return eventArchiveV2s;
         }
     }
 }
