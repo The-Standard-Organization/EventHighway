@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.Exceptions;
@@ -24,6 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
     {
         private readonly Mock<IListenerEventArchiveV2Service> listenerEventArchiveV2ServiceMock;
         private readonly Mock<IEventArchiveV2Service> eventArchiveV2ServiceMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventArchiveV2OrchestrationService eventArchiveV2OrchestrationService;
 
@@ -31,11 +33,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
         {
             this.listenerEventArchiveV2ServiceMock = new Mock<IListenerEventArchiveV2Service>();
             this.eventArchiveV2ServiceMock = new Mock<IEventArchiveV2Service>();
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.eventArchiveV2OrchestrationService = new EventArchiveV2OrchestrationService(
                 listenerEventArchiveV2Service: this.listenerEventArchiveV2ServiceMock.Object,
                 eventArchiveV2Service: this.eventArchiveV2ServiceMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
@@ -131,6 +135,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
 
         private static IQueryable<ListenerEventArchiveV2> CreateRandomListenerEventArchiveV2s() =>
             CreateListenerEventArchiveV2Filler().Create(count: GetRandomNumber()).AsQueryable();
+
+        private static List<EventArchiveV2> CreateRandomEventArchiveV2sOlderThan(
+            DateTimeOffset olderThan,
+            int count)
+        {
+            return CreateEventArchiveV2Filler()
+                .Create(count)
+                .Select(eventArchiveV2 =>
+                {
+                    eventArchiveV2.ArchivedDate = olderThan.AddDays(-GetRandomNumber());
+                    return eventArchiveV2;
+                })
+                .ToList();
+        }
 
         private static Filler<EventArchiveV2> CreateEventArchiveV2Filler()
         {

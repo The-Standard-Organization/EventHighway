@@ -2,14 +2,19 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
 {
@@ -17,15 +22,18 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
     {
         private readonly IListenerEventArchiveV2Service listenerEventArchiveV2Service;
         private readonly IEventArchiveV2Service eventArchiveV2Service;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventArchiveV2OrchestrationService(
             IListenerEventArchiveV2Service listenerEventArchiveV2Service,
             IEventArchiveV2Service eventArchiveV2Service,
+            IConfigurationBroker configurationBroker,
             ILoggingBroker loggingBroker)
         {
             this.listenerEventArchiveV2Service = listenerEventArchiveV2Service;
             this.eventArchiveV2Service = eventArchiveV2Service;
+            this.configurationBroker = configurationBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -54,5 +62,12 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
 
             await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
         });
+
+        public async ValueTask PurgeArchivedEventV2sAsync(
+            DateTimeOffset olderThan,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
