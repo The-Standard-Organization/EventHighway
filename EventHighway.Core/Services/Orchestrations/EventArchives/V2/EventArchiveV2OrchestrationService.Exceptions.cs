@@ -92,6 +92,12 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     nullListenerEventArchiveV2sOrchestrationException);
             }
+            catch (InvalidEventArchiveV2OrchestrationException
+                invalidEventArchiveV2OrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventArchiveV2OrchestrationException);
+            }
             catch (EventArchiveV2ValidationException
                 eventArchiveV2ValidationException)
             {

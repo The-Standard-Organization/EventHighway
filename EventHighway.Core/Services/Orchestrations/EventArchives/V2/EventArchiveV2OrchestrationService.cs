@@ -69,6 +69,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
         TryCatch(async () =>
         {
             BatchConfiguration batchConfiguration = this.configurationBroker.GetBatchConfiguration();
+            ValidateOnRetrieveNextPurgeBatchOfArchivedEventV2s(olderThan, batchConfiguration);
 
             while (true)
             {
