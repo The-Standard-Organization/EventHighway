@@ -53,14 +53,13 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
         TryCatch(async () =>
         {
             ValidateEventArchiveV2(eventArchiveV2);
+            await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
 
             foreach (ListenerEventArchiveV2 listenerEventArchiveV2 in eventArchiveV2.ListenerEventArchiveV2s)
             {
                 await this.listenerEventArchiveV2Service
                     .AddListenerEventArchiveV2Async(listenerEventArchiveV2, cancellationToken);
             }
-
-            await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
         });
 
         public ValueTask PurgeArchivedEventV2sAsync(
@@ -73,24 +72,40 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
 
             while (true)
             {
-                IQueryable<EventArchiveV2> eventArchiveV2Batch =
+                List<EventArchiveV2> eventArchiveV2Batch =
                     await RetrieveNextPurgeBatchOfArchivedEventV2sAsync(
                         olderThan, batchConfiguration.BatchSizeForBulkProcessing, cancellationToken);
 
-                List<EventArchiveV2> eventArchiveV2Batchs = eventArchiveV2Batch.ToList();
-
-                if (eventArchiveV2Batchs.Count == 0)
+                if (eventArchiveV2Batch.Count == 0)
                     break;
 
-                await this.eventArchiveV2Service
-                    .BulkRemoveEventArchiveV2sAsync(eventArchiveV2Batchs, cancellationToken);
+                IEnumerable<Guid> eventArchiveV2Ids = eventArchiveV2Batch.Select(e => e.Id);
 
-                if (eventArchiveV2Batchs.Count < batchConfiguration.BatchSizeForBulkProcessing)
+                while (true)
+                {
+                    List<ListenerEventArchiveV2> listenerEventArchiveV2Batch =
+                        await RetrieveNextPurgeBatchOfListenerEventArchiveV2sAsync(
+                            eventArchiveV2Ids, batchConfiguration.BatchSizeForBulkProcessing, cancellationToken);
+
+                    if (listenerEventArchiveV2Batch.Count == 0)
+                        break;
+
+                    await this.listenerEventArchiveV2Service
+                        .BulkRemoveListenerEventArchiveV2sAsync(listenerEventArchiveV2Batch, cancellationToken);
+
+                    if (listenerEventArchiveV2Batch.Count < batchConfiguration.BatchSizeForBulkProcessing)
+                        break;
+                }
+
+                await this.eventArchiveV2Service
+                    .BulkRemoveEventArchiveV2sAsync(eventArchiveV2Batch, cancellationToken);
+
+                if (eventArchiveV2Batch.Count < batchConfiguration.BatchSizeForBulkProcessing)
                     break;
             }
         });
 
-        private async ValueTask<IQueryable<EventArchiveV2>> RetrieveNextPurgeBatchOfArchivedEventV2sAsync(
+        private async ValueTask<List<EventArchiveV2>> RetrieveNextPurgeBatchOfArchivedEventV2sAsync(
             DateTimeOffset olderThan,
             int batchSizeForBulkProcessing,
             CancellationToken cancellationToken)
@@ -102,7 +117,21 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
                 olderThan, eventArchiveV2s)
                     .Take(batchSizeForBulkProcessing);
 
-            return filteredEventArchiveV2s;
+            return filteredEventArchiveV2s.ToList();
+        }
+        private async ValueTask<List<ListenerEventArchiveV2>> RetrieveNextPurgeBatchOfListenerEventArchiveV2sAsync(
+            IEnumerable<Guid> eventArchiveV2Ids,
+            int batchSizeForBulkProcessing,
+            CancellationToken cancellationToken)
+        {
+            IQueryable<EventArchiveV2> eventArchiveV2s =
+                    await eventArchiveV2Service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+
+            IQueryable<ListenerEventArchiveV2> filteredListenerEventArchiveV2s = FilterListenerEventArchiveV2sOlderThan(
+                eventArchiveV2Ids, eventArchiveV2s)
+                    .Take(batchSizeForBulkProcessing);
+
+            return filteredListenerEventArchiveV2s.ToList();
         }
 
         private static IQueryable<EventArchiveV2> FilterEventArchiveV2sOlderThan(
@@ -113,6 +142,17 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
                 eventArchiveV2 => eventArchiveV2.ArchivedDate < olderThan);
 
             return eventArchiveV2s;
+        }
+
+        private static IQueryable<ListenerEventArchiveV2> FilterListenerEventArchiveV2sOlderThan(
+           IEnumerable<Guid> eventArchiveV2Ids,
+           IQueryable<EventArchiveV2> eventArchiveV2s)
+        {
+            return eventArchiveV2s
+                .Where(eventArchiveV2 =>
+                    eventArchiveV2Ids.Contains(eventArchiveV2.Id))
+                        .SelectMany(eventArchiveV2 =>
+                            eventArchiveV2.ListenerEventArchiveV2s);
         }
     }
 }

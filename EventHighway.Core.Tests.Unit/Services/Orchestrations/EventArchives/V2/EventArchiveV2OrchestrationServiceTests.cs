@@ -145,6 +145,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
                 .Select(eventArchiveV2 =>
                 {
                     eventArchiveV2.ArchivedDate = olderThan.AddDays(-GetRandomNumber());
+                    eventArchiveV2.ListenerEventArchiveV2s = new List<ListenerEventArchiveV2>();
                     return eventArchiveV2;
                 })
                 .ToList();

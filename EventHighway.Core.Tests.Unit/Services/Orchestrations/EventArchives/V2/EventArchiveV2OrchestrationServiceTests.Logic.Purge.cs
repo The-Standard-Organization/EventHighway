@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
@@ -20,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
         {
             // given
             DateTimeOffset olderThan = GetRandomDateTimeOffset();
-            int batchSize = GetRandomNumber();
+            int batchSize = 2;
 
             var batchConfiguration = new BatchConfiguration
             {
@@ -28,12 +29,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
             };
 
             List<EventArchiveV2> firstBatch =
-                CreateRandomEventArchiveV2sOlderThan(
-                    olderThan, count: batchSize);
+                CreateRandomEventArchiveV2sOlderThan(olderThan, count: batchSize);
 
             List<EventArchiveV2> secondBatch =
-                CreateRandomEventArchiveV2sOlderThan(
-                    olderThan, count: batchSize - 1);
+                CreateRandomEventArchiveV2sOlderThan(olderThan, count: 1);
 
             this.configurationBrokerMock.Setup(broker =>
                 broker.GetBatchConfiguration())
@@ -41,7 +40,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
 
             this.eventArchiveV2ServiceMock.SetupSequence(service =>
                 service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync())
-                    .ReturnsAsync(firstBatch.AsQueryable())
+                    .ReturnsAsync(firstBatch.AsQueryable())   
+                    .ReturnsAsync(firstBatch.AsQueryable())   
+                    .ReturnsAsync(secondBatch.AsQueryable())  
                     .ReturnsAsync(secondBatch.AsQueryable());
 
             // when
@@ -55,14 +56,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
 
             this.eventArchiveV2ServiceMock.Verify(service =>
                 service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync(),
-                    Times.Exactly(2));
+                    Times.Exactly(4));
 
             this.eventArchiveV2ServiceMock.Verify(service =>
                 service.BulkRemoveEventArchiveV2sAsync(
                     It.Is<IEnumerable<EventArchiveV2>>(batch =>
                         batch.SequenceEqual(firstBatch)),
                             It.IsAny<CancellationToken>()),
-                            Times.Once);
+                                Times.Once);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
                 service.BulkRemoveEventArchiveV2sAsync(
