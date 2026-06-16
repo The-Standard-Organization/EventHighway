@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.Exceptions;
@@ -20,6 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
     public partial class ListenerEventArchiveV2ProcessingServiceTests
     {
         private readonly Mock<IListenerEventArchiveV2Service> listenerEventArchiveV2ServiceMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IListenerEventArchiveV2ProcessingService listenerEventArchiveV2ProcessingService;
 
@@ -31,8 +33,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEventArchive
             this.loggingBrokerMock =
                 new Mock<ILoggingBroker>();
 
+            this.configurationBrokerMock =
+                new Mock<IConfigurationBroker>();
+
             this.listenerEventArchiveV2ProcessingService = new ListenerEventArchiveV2ProcessingService(
                 listenerEventArchiveV2Service: this.listenerEventArchiveV2ServiceMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
