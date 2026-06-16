@@ -15,9 +15,6 @@ namespace EventHighway.Core.Brokers.Storages
             model.ToTable("EventV2s");
             model.HasKey(eventV2 => eventV2.Id);
 
-            model.HasIndex(eventV2 => eventV2.EventName)
-                .IsUnique();
-
             model.HasOne(eventV2 => eventV2.EventAddressV2)
                 .WithMany(eventAddressV2 => eventAddressV2.Events)
                 .HasForeignKey(eventV2 => eventV2.EventAddressId)

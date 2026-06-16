@@ -207,6 +207,45 @@ namespace EventHighway.Core.Clients.EventListeners.V2
             }
         }
 
+        public async ValueTask<EventListenerV2> RetrieveOrRegisterEventListenerV2Async(
+            EventListenerV2 eventListenerV2,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.eventListenerV2OrchestrationService
+                    .RetrieveOrRegisterEventListenerV2Async(eventListenerV2, cancellationToken);
+            }
+            catch (EventListenerV2OrchestrationValidationException
+                eventListenerV2OrchestrationValidationException)
+            {
+                throw CreateEventListenerV2ClientValidationException(
+                    eventListenerV2OrchestrationValidationException.InnerException as Xeption);
+            }
+            catch (EventListenerV2OrchestrationDependencyValidationException
+                eventListenerV2OrchestrationDependencyValidationException)
+            {
+                throw CreateEventListenerV2ClientValidationException(
+                    eventListenerV2OrchestrationDependencyValidationException.InnerException as Xeption);
+            }
+            catch (EventListenerV2OrchestrationDependencyException
+                eventListenerV2OrchestrationDependencyException)
+            {
+                throw CreateEventListenerV2ClientDependencyException(
+                    eventListenerV2OrchestrationDependencyException.InnerException as Xeption);
+            }
+            catch (EventListenerV2OrchestrationServiceException
+                eventListenerV2OrchestrationServiceException)
+            {
+                throw CreateEventListenerV2ClientDependencyException(
+                    eventListenerV2OrchestrationServiceException.InnerException as Xeption);
+            }
+            catch (Exception exception)
+            {
+                throw CreateEventListenerV2ClientServiceException(exception as Xeption);
+            }
+        }
+
         private static EventListenerV2ClientValidationException
             CreateEventListenerV2ClientValidationException(Xeption innerException)
         {

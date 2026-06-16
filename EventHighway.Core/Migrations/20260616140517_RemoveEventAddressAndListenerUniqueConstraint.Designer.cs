@@ -4,6 +4,7 @@ using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventHighway.Core.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    partial class StorageBrokerModelSnapshot : ModelSnapshot
+    [Migration("20260616140517_RemoveEventAddressAndListenerUniqueConstraint")]
+    partial class RemoveEventAddressAndListenerUniqueConstraint
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,7 +277,7 @@ namespace EventHighway.Core.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("RemainingRetryAttempts")
                         .HasColumnType("int");
@@ -291,6 +294,10 @@ namespace EventHighway.Core.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EventAddressId");
+
+                    b.HasIndex("EventName")
+                        .IsUnique()
+                        .HasFilter("[EventName] IS NOT NULL");
 
                     b.ToTable("EventV2s", (string)null);
                 });

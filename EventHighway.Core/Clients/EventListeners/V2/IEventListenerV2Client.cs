@@ -67,5 +67,9 @@ namespace EventHighway.Core.Clients.EventListeners.V2
         ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default);
+
+        ValueTask<EventListenerV2> RetrieveOrRegisterEventListenerV2Async(
+            EventListenerV2 eventListenerV2,
+            CancellationToken cancellationToken = default);
     }
 }
