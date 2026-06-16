@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             IQueryable<EventAddressV2> expectedEventAddressV2s =
                 retrievedEventAddressV2s.DeepClone();
 
-            this.eventAddressV2ServiceMock.Setup(service =>
+            this.eventAddressV2ProcessingServiceMock.Setup(service =>
                 service.RetrieveAllEventAddressV2sAsync())
                     .ReturnsAsync(retrievedEventAddressV2s);
 
@@ -43,11 +43,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             actualEventAddressV2s.Should().BeEquivalentTo(
                 expectedEventAddressV2s);
 
-            this.eventAddressV2ServiceMock.Verify(service =>
+            this.eventAddressV2ProcessingServiceMock.Verify(service =>
                 service.RetrieveAllEventAddressV2sAsync(),
                     Times.Once);
 
-            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
     }
 }

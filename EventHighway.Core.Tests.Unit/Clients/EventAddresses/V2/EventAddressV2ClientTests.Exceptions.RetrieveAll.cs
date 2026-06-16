@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.Exceptions;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -27,24 +27,20 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             var someInnerException = new Xeption(someMessage);
             someInnerException.AddData(GetRandomString(), GetRandomString());
 
-            var eventAddressV2DependencyException =
-                new EventAddressV2DependencyException(
+            var eventAddressV2ProcessingDependencyException =
+                new EventAddressV2ProcessingDependencyException(
                     someMessage,
                     someInnerException);
 
             var expectedEventAddressV2ClientDependencyException =
                 new EventAddressV2ClientDependencyException(
                     message: "Event address client dependency error occurred, contact support.",
+                    innerException: eventAddressV2ProcessingDependencyException.InnerException as Xeption,
+                    data: (eventAddressV2ProcessingDependencyException.InnerException as Xeption).Data);
 
-                    innerException: eventAddressV2DependencyException
-                        .InnerException as Xeption,
-
-                    data: (eventAddressV2DependencyException
-                        .InnerException as Xeption).Data);
-
-            this.eventAddressV2ServiceMock.Setup(service =>
+            this.eventAddressV2ProcessingServiceMock.Setup(service =>
                 service.RetrieveAllEventAddressV2sAsync())
-                    .ThrowsAsync(eventAddressV2DependencyException);
+                    .ThrowsAsync(eventAddressV2ProcessingDependencyException);
 
             // when
             ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
@@ -58,11 +54,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             actualEventAddressV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
-            this.eventAddressV2ServiceMock.Verify(service =>
+            this.eventAddressV2ProcessingServiceMock.Verify(service =>
                 service.RetrieveAllEventAddressV2sAsync(),
                     Times.Once);
 
-            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -76,24 +72,20 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             var someInnerException = new Xeption(someMessage);
             someInnerException.AddData(GetRandomString(), GetRandomString());
 
-            var eventAddressV2ServiceException =
-                new EventAddressV2ServiceException(
+            var eventAddressV2ProcessingServiceException =
+                new EventAddressV2ProcessingServiceException(
                     someMessage,
                     someInnerException);
 
             var expectedEventAddressV2ClientDependencyException =
                 new EventAddressV2ClientDependencyException(
                     message: "Event address client dependency error occurred, contact support.",
+                    innerException: eventAddressV2ProcessingServiceException.InnerException as Xeption,
+                    data: (eventAddressV2ProcessingServiceException.InnerException as Xeption).Data);
 
-                    innerException: eventAddressV2ServiceException
-                        .InnerException as Xeption,
-
-                    data: (eventAddressV2ServiceException
-                        .InnerException as Xeption).Data);
-
-            this.eventAddressV2ServiceMock.Setup(service =>
+            this.eventAddressV2ProcessingServiceMock.Setup(service =>
                 service.RetrieveAllEventAddressV2sAsync())
-                    .ThrowsAsync(eventAddressV2ServiceException);
+                    .ThrowsAsync(eventAddressV2ProcessingServiceException);
 
             // when
             ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
@@ -107,11 +99,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             actualEventAddressV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
-            this.eventAddressV2ServiceMock.Verify(service =>
+            this.eventAddressV2ProcessingServiceMock.Verify(service =>
                 service.RetrieveAllEventAddressV2sAsync(),
                     Times.Once);
 
-            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
     }
 }

@@ -52,6 +52,12 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             {
                 return await returningEventAddressV2Function();
             }
+            catch (NullEventAddressV2ProcessingException
+                nullEventAddressV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventAddressV2ProcessingException);
+            }
             catch (InvalidEventAddressV2ProcessingException
                 invalidEventAddressV2ProcessingException)
             {

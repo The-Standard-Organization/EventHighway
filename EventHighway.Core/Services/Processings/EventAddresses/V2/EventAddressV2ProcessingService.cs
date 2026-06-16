@@ -42,5 +42,50 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
                 eventAddressV2Id,
                 cancellationToken);
         });
+
+        public ValueTask<EventAddressV2> RemoveEventAddressV2ByIdAsync(
+            Guid eventAddressV2Id,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            ValidateOnRemoveEventAddressV2ById(eventAddressV2Id);
+
+            return await this.eventAddressV2Service.RemoveEventAddressV2ByIdAsync(
+                eventAddressV2Id,
+                cancellationToken);
+        });
+
+        public ValueTask<EventAddressV2> RegisterEventAddressV2Async(
+            EventAddressV2 eventAddressV2,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            ValidateOnRegisterEventAddressV2(eventAddressV2);
+
+            return await this.eventAddressV2Service.AddEventAddressV2Async(
+                eventAddressV2,
+                cancellationToken);
+        });
+
+        public ValueTask<EventAddressV2> RetrieveOrRegisterEventAddressV2Async(
+            EventAddressV2 eventAddressV2,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            ValidateOnRetrieveOrRegisterEventAddressV2(eventAddressV2);
+
+            IQueryable<EventAddressV2> allEventAddressV2s =
+                await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync();
+
+            EventAddressV2 maybeEventAddressV2 =
+                allEventAddressV2s.FirstOrDefault(address => address.Id == eventAddressV2.Id);
+
+            if (maybeEventAddressV2 is not null)
+                return maybeEventAddressV2;
+
+            return await this.eventAddressV2Service.AddEventAddressV2Async(
+                eventAddressV2,
+                cancellationToken);
+        });
     }
 }

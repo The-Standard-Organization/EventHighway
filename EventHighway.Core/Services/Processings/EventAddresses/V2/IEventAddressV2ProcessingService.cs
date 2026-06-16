@@ -17,5 +17,17 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
         ValueTask<EventAddressV2> RetrieveEventAddressV2ByIdAsync(
             Guid eventAddressV2Id,
             CancellationToken cancellationToken = default);
+
+        ValueTask<EventAddressV2> RetrieveOrRegisterEventAddressV2Async(
+            EventAddressV2 eventAddressV2,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<EventAddressV2> RegisterEventAddressV2Async(
+            EventAddressV2 eventAddressV2,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<EventAddressV2> RemoveEventAddressV2ByIdAsync(
+            Guid eventAddressV2Id,
+            CancellationToken cancellationToken = default);
     }
 }

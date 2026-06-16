@@ -17,7 +17,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
     {
         [Theory]
         [MemberData(nameof(ValidationExceptions))]
-        public async Task ShouldThrowValidationExceptionOnRegisterIfValidationErrorOccursAsync(
+        public async Task ShouldThrowValidationExceptionOnRetrieveOrRegisterIfValidationErrorOccursAsync(
             Xeption validationException)
         {
             // given
@@ -33,27 +33,27 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: (validationException.InnerException as Xeption).Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(validationException);
 
             // when
-            ValueTask<EventAddressV2> registerEventAddressV2Task =
-                this.eventAddressV2Client.RegisterEventAddressV2Async(
+            ValueTask<EventAddressV2> retrieveOrRegisterEventAddressV2Task =
+                this.eventAddressV2Client.RetrieveOrRegisterEventAddressV2Async(
                     someEventAddressV2,
                     randomCancellationToken);
 
             EventAddressV2ClientValidationException actualEventAddressV2ClientValidationException =
                 await Assert.ThrowsAsync<EventAddressV2ClientValidationException>(
-                    registerEventAddressV2Task.AsTask);
+                    retrieveOrRegisterEventAddressV2Task.AsTask);
 
             // then
             actualEventAddressV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedEventAddressV2ClientValidationException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
@@ -62,7 +62,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
         }
 
         [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRegisterIfDependencyErrorOccursAsync()
+        public async Task ShouldThrowDependencyExceptionOnRetrieveOrRegisterIfDependencyErrorOccursAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -85,27 +85,27 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: (eventAddressV2ProcessingDependencyException.InnerException as Xeption).Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventAddressV2ProcessingDependencyException);
 
             // when
-            ValueTask<EventAddressV2> registerEventAddressV2Task =
-                this.eventAddressV2Client.RegisterEventAddressV2Async(
+            ValueTask<EventAddressV2> retrieveOrRegisterEventAddressV2Task =
+                this.eventAddressV2Client.RetrieveOrRegisterEventAddressV2Async(
                     someEventAddressV2,
                     randomCancellationToken);
 
             EventAddressV2ClientDependencyException actualEventAddressV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventAddressV2ClientDependencyException>(
-                    registerEventAddressV2Task.AsTask);
+                    retrieveOrRegisterEventAddressV2Task.AsTask);
 
             // then
             actualEventAddressV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
         }
 
         [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRegisterIfServiceErrorOccursAsync()
+        public async Task ShouldThrowDependencyExceptionOnRetrieveOrRegisterIfServiceErrorOccursAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -137,27 +137,27 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: (eventAddressV2ProcessingServiceException.InnerException as Xeption).Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventAddressV2ProcessingServiceException);
 
             // when
-            ValueTask<EventAddressV2> registerEventAddressV2Task =
-                this.eventAddressV2Client.RegisterEventAddressV2Async(
+            ValueTask<EventAddressV2> retrieveOrRegisterEventAddressV2Task =
+                this.eventAddressV2Client.RetrieveOrRegisterEventAddressV2Async(
                     someEventAddressV2,
                     randomCancellationToken);
 
             EventAddressV2ClientDependencyException actualEventAddressV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventAddressV2ClientDependencyException>(
-                    registerEventAddressV2Task.AsTask);
+                    retrieveOrRegisterEventAddressV2Task.AsTask);
 
             // then
             actualEventAddressV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     It.IsAny<EventAddressV2>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);

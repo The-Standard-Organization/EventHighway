@@ -14,7 +14,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
     public partial class EventAddressV2ClientTests
     {
         [Fact]
-        public async Task ShouldRegisterEventAddressV2Async()
+        public async Task ShouldRetrieveOrRegisterEventAddressV2Async()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -26,31 +26,31 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             EventAddressV2 inputEventAddressV2 =
                 randomEventAddressV2;
 
-            EventAddressV2 registeredEventAddressV2 =
+            EventAddressV2 retrievedOrRegisteredEventAddressV2 =
                 inputEventAddressV2;
 
             EventAddressV2 expectedEventAddressV2 =
-                registeredEventAddressV2.DeepClone();
+                retrievedOrRegisteredEventAddressV2.DeepClone();
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     inputEventAddressV2,
                     randomCancellationToken))
-                        .ReturnsAsync(registeredEventAddressV2);
+                        .ReturnsAsync(retrievedOrRegisteredEventAddressV2);
 
             // when
             EventAddressV2 actualEventAddressV2 =
                 await this.eventAddressV2Client
-                    .RegisterEventAddressV2Async(
+                    .RetrieveOrRegisterEventAddressV2Async(
                         inputEventAddressV2,
                         randomCancellationToken);
 
             // then
-            actualEventAddressV2.Should()
-                .BeEquivalentTo(expectedEventAddressV2);
+            actualEventAddressV2.Should().BeEquivalentTo(
+                expectedEventAddressV2);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RegisterEventAddressV2Async(
+                service.RetrieveOrRegisterEventAddressV2Async(
                     inputEventAddressV2,
                     randomCancellationToken),
                         Times.Once);

@@ -6,8 +6,8 @@ using System;
 using System.Linq;
 using EventHighway.Core.Clients.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.Exceptions;
-using EventHighway.Core.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
+using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -16,31 +16,33 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
 {
     public partial class EventAddressV2ClientTests
     {
-        private readonly Mock<IEventAddressV2Service> eventAddressV2ServiceMock;
+        private readonly Mock<IEventAddressV2ProcessingService> eventAddressV2ProcessingServiceMock;
         private readonly IEventAddressV2Client eventAddressV2Client;
 
         public EventAddressV2ClientTests()
         {
-            this.eventAddressV2ServiceMock =
-                new Mock<IEventAddressV2Service>();
+            this.eventAddressV2ProcessingServiceMock =
+                new Mock<IEventAddressV2ProcessingService>();
 
             this.eventAddressV2Client =
                 new EventAddressV2Client(
-                    eventAddressV2Service: this.eventAddressV2ServiceMock.Object);
+                    eventAddressV2ProcessingService:
+                        this.eventAddressV2ProcessingServiceMock.Object);
         }
 
         public static TheoryData<Xeption> ValidationExceptions()
         {
             string someMessage = GetRandomString();
-            var someInnerException = new Xeption();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.AddData(GetRandomString(), GetRandomString());
 
             return new TheoryData<Xeption>
             {
-                new EventAddressV2ValidationException(
+                new EventAddressV2ProcessingValidationException(
                     someMessage,
                     someInnerException),
 
-                new EventAddressV2DependencyValidationException(
+                new EventAddressV2ProcessingDependencyValidationException(
                     someMessage,
                     someInnerException),
             };

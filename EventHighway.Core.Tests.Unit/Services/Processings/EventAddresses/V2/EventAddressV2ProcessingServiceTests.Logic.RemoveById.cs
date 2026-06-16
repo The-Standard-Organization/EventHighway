@@ -10,9 +10,9 @@ using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
 
-namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
+namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V2
 {
-    public partial class EventAddressV2ClientTests
+    public partial class EventAddressV2ProcessingServiceTests
     {
         [Fact]
         public async Task ShouldRemoveEventAddressV2ByIdAsync()
@@ -33,7 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             EventAddressV2 expectedEventAddressV2 =
                 removedEventAddressV2.DeepClone();
 
-            this.eventAddressV2ProcessingServiceMock.Setup(service =>
+            this.eventAddressV2ServiceMock.Setup(service =>
                 service.RemoveEventAddressV2ByIdAsync(
                     inputEventAddressV2Id,
                     randomCancellationToken))
@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
 
             // when
             EventAddressV2 actualEventAddressV2 =
-                await this.eventAddressV2Client
+                await this.eventAddressV2ProcessingService
                     .RemoveEventAddressV2ByIdAsync(
                         inputEventAddressV2Id,
                         randomCancellationToken);
@@ -50,13 +50,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             actualEventAddressV2.Should().BeEquivalentTo(
                 expectedEventAddressV2);
 
-            this.eventAddressV2ProcessingServiceMock.Verify(service =>
+            this.eventAddressV2ServiceMock.Verify(service =>
                 service.RemoveEventAddressV2ByIdAsync(
                     inputEventAddressV2Id,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
         }
     }
 }

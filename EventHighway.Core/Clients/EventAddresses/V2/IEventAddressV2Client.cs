@@ -33,6 +33,13 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Retrieves an existing event address or registers a new one asynchronously.
+        /// </summary>
+        ValueTask<EventAddressV2> RetrieveOrRegisterEventAddressV2Async(
+            EventAddressV2 eventAddressV2,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Retrieves all event addresses asynchronously.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
