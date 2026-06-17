@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,5 +25,20 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
         ValueTask ArchiveDeadEventV2sAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Purges archived events that are older than the specified date asynchronously. This
+        /// operation removes events from the archive that are no longer needed.
+        /// </summary>
+        /// <param name="olderThan">The date and time that determines which events to purge.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        ValueTask PurgeArchivedEventV2sAsync(
+            DateTimeOffset olderThan,
+            CancellationToken cancellationToken = default);
     }
 }

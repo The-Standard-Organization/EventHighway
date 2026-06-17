@@ -84,6 +84,29 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
         }
 
+        /// <summary>
+        /// Purges archived events asynchronously that are older than the specified date and time.
+        /// </summary>
+        /// <param name="olderThan">The date and time that determines which events to purge.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+        /// <exception cref="ArchivingEventV2ClientValidationException">Thrown when validation
+        /// errors occur in the coordination service.</exception>
+        /// <exception cref="ArchivingEventV2ClientDependencyException">Thrown when dependency
+        /// or service errors occur in the coordination service.</exception>
+        /// <exception cref="ArchivingEventV2ClientServiceException">Thrown when an unexpected
+        /// error occurs during archiving.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        public async ValueTask PurgeArchivedEventV2sAsync(
+            DateTimeOffset olderThan, 
+            CancellationToken cancellationToken = default)
+        {
+           throw new NotImplementedException();
+        }
+
         private static ArchivingEventV2ClientValidationException
             CreateArchivingEventV2ClientValidationException(Xeption innerException)
         {
