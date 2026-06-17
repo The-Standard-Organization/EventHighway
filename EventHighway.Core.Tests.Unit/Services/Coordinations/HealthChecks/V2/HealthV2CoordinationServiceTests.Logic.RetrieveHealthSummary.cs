@@ -775,7 +775,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 TestContext.Current.CancellationToken;
 
             var configWithoutErrorRate = new HealthConfiguration();
-            
+
             configWithoutErrorRate.Thresholds.RemoveAll(
                 t => t.Metric == HealthMetric.ErrorRate);
 
@@ -871,7 +871,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             this.configurationBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
-        
+
         [Fact]
         public async Task ShouldReturnNAForHandlerCountWhenNoThresholdIsConfiguredAsync()
         {
@@ -880,7 +880,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 TestContext.Current.CancellationToken;
 
             var configWithoutHandlerCount = new HealthConfiguration();
-            
+
             configWithoutHandlerCount.Thresholds.RemoveAll(
                 t => t.Metric == HealthMetric.HandlerCount);
 

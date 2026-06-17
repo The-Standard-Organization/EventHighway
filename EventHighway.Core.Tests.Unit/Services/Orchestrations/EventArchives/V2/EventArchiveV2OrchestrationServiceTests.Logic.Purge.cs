@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
-using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
@@ -40,9 +39,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
 
             this.eventArchiveV2ServiceMock.SetupSequence(service =>
                 service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync())
-                    .ReturnsAsync(firstBatch.AsQueryable())   
-                    .ReturnsAsync(firstBatch.AsQueryable())   
-                    .ReturnsAsync(secondBatch.AsQueryable())  
+                    .ReturnsAsync(firstBatch.AsQueryable())
+                    .ReturnsAsync(firstBatch.AsQueryable())
+                    .ReturnsAsync(secondBatch.AsQueryable())
                     .ReturnsAsync(secondBatch.AsQueryable());
 
             // when

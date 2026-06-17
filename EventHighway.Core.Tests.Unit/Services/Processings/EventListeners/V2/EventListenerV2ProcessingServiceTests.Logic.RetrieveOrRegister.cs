@@ -2,13 +2,13 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace EventHighway.Core.Tests.Unit.Services.Processings.EventListeners.V2
 {

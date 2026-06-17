@@ -101,7 +101,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
         public async ValueTask PurgeArchivedEventV2sAsync(
-            DateTimeOffset olderThan, 
+            DateTimeOffset olderThan,
             CancellationToken cancellationToken = default)
         {
             try

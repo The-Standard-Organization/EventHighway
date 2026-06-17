@@ -38,20 +38,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
                 broker.GetBatchConfiguration())
                     .Returns(batchConfiguration);
 
-        // when
-        ValueTask purgeTask =
-            this.eventArchiveV2OrchestrationService
-                .PurgeArchivedEventV2sAsync(
-                    DateTimeOffset.UtcNow,
-                    CancellationToken.None);
+            // when
+            ValueTask purgeTask =
+                this.eventArchiveV2OrchestrationService
+                    .PurgeArchivedEventV2sAsync(
+                        DateTimeOffset.UtcNow,
+                        CancellationToken.None);
 
-        // then
-        EventArchiveV2OrchestrationValidationException actualException =
-            await Assert.ThrowsAsync<
-                EventArchiveV2OrchestrationValidationException>(
-                    purgeTask.AsTask);
+            // then
+            EventArchiveV2OrchestrationValidationException actualException =
+                await Assert.ThrowsAsync<
+                    EventArchiveV2OrchestrationValidationException>(
+                        purgeTask.AsTask);
 
-        actualException.Should().BeEquivalentTo(expectedException);
+            actualException.Should().BeEquivalentTo(expectedException);
 
             this.configurationBrokerMock.Verify(broker =>
                 broker.GetBatchConfiguration(),

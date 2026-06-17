@@ -110,7 +110,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeArchivedEventV2sAsync(
-                    It.IsAny<DateTimeOffset>(), 
+                    It.IsAny<DateTimeOffset>(),
                         It.IsAny<CancellationToken>()),
                             Times.Once);
 

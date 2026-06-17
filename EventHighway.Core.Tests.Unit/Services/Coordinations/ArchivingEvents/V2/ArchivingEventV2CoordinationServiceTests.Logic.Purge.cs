@@ -16,7 +16,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
         {
             // given
             DateTimeOffset olderThan = GetRandomDateTimeOffset();
-            CancellationToken cancellationToken = 
+            CancellationToken cancellationToken =
                 TestContext.Current.CancellationToken;
 
             this.eventArchiveV2OrchestrationServiceMock.Setup(service =>
