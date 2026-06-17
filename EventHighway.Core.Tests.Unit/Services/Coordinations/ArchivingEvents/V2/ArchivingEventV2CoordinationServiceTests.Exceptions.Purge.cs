@@ -125,5 +125,66 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventArchiveV2OrchestrationServiceMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnPurgeArchivedEventV2sIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            DateTimeOffset someDateTime = GetRandomDateTimeOffset();
+            var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "UnexpectedError" });
+
+            var failedArchivingEventV2CoordinationServiceException =
+                new FailedArchivingEventV2CoordinationServiceException(
+                    message: "Failed archiving event service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedArchivingEventV2CoordinationServiceException =
+                new ArchivingEventV2CoordinationServiceException(
+                    message: "Archiving event service error occurred, contact support.",
+                    innerException: failedArchivingEventV2CoordinationServiceException);
+
+            this.eventArchiveV2OrchestrationServiceMock
+                .Setup(service => service.PurgeArchivedEventV2sAsync(
+                    It.IsAny<DateTimeOffset>(),
+                        It.IsAny<CancellationToken>()))
+                            .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask purgeArchiveEventsTask =
+                this.archivingEventV2CoordinationService
+                    .PurgeArchivedEventV2sAsync(
+                        someDateTime,
+                        TestContext.Current.CancellationToken);
+
+            ArchivingEventV2CoordinationServiceException
+                actualArchivingEventV2CoordinationServiceException =
+                    await Assert.ThrowsAsync<ArchivingEventV2CoordinationServiceException>(
+                        purgeArchiveEventsTask.AsTask);
+
+            // then
+            actualArchivingEventV2CoordinationServiceException.Should()
+                .BeEquivalentTo(expectedArchivingEventV2CoordinationServiceException);
+
+            this.eventArchiveV2OrchestrationServiceMock.Verify(service =>
+                service.PurgeArchivedEventV2sAsync(
+                    It.IsAny<DateTimeOffset>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedArchivingEventV2CoordinationServiceException))),
+                        Times.Once);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.eventArchiveV2OrchestrationServiceMock.VerifyNoOtherCalls();
+        }
     }
 }
