@@ -116,5 +116,60 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnPurgeArchivedEventV2sIfServiceErrorOccursAsync()
+        {
+            // given
+            DateTimeOffset someDateTime = GetRandomDateTimeOffset();
+
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.AddData(GetRandomString(), GetRandomString());
+
+            var archivingEventV2CoordinationServiceException =
+                new ArchivingEventV2CoordinationServiceException(
+                    someMessage,
+                    someInnerException);
+
+            var expectedArchivingEventV2ClientDependencyException =
+                new ArchivingEventV2ClientDependencyException(
+                    message: "Archiving event client dependency error occurred, contact support.",
+
+                    innerException: archivingEventV2CoordinationServiceException
+                        .InnerException as Xeption,
+
+                    data: (archivingEventV2CoordinationServiceException
+                        .InnerException as Xeption).Data);
+
+            this.archivingEventV2CoordinationServiceMock.Setup(service =>
+                service.PurgeArchivedEventV2sAsync(
+                    It.IsAny<DateTimeOffset>(),
+                        It.IsAny<CancellationToken>()))
+                            .ThrowsAsync(archivingEventV2CoordinationServiceException);
+
+            // when
+            ValueTask purgeArchivedEventV2sTask =
+                this.archivingEventV2Client.PurgeArchivedEventV2sAsync(
+                    olderThan: someDateTime,
+                    cancellationToken: randomCancellationToken);
+
+            ArchivingEventV2ClientDependencyException actualArchivingEventV2ClientDependencyException =
+                await Assert.ThrowsAsync<ArchivingEventV2ClientDependencyException>(
+                    purgeArchivedEventV2sTask.AsTask);
+
+            // then
+            actualArchivingEventV2ClientDependencyException.Should()
+                .BeEquivalentTo(expectedArchivingEventV2ClientDependencyException);
+
+            this.archivingEventV2CoordinationServiceMock.Verify(service =>
+                service.PurgeArchivedEventV2sAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                    Times.Once);
+
+            this.archivingEventV2CoordinationServiceMock.VerifyNoOtherCalls();
+        }
     }
 }
