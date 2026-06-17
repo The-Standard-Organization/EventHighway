@@ -104,7 +104,8 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             DateTimeOffset olderThan, 
             CancellationToken cancellationToken = default)
         {
-           throw new NotImplementedException();
+            await this.archivingEventV2CoordinationService
+                .PurgeArchivedEventV2sAsync(olderThan, cancellationToken);
         }
 
         private static ArchivingEventV2ClientValidationException
