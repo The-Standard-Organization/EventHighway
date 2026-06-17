@@ -58,6 +58,13 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             }
         });
 
+        public async ValueTask PurgeArchivedEventV2sAsync(
+            DateTimeOffset olderThan,
+            CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         private async ValueTask<EventArchiveV2> MapToEventArchiveV2Async(EventV2 eventV2)
         {
             DateTimeOffset currentDateTime =
