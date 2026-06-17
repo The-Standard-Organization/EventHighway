@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.ClientV2.App.Brokers.EventSubstrates;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
@@ -130,9 +131,10 @@ public partial class Program
         var restBearerHandler = new RestBearerEventHandler(Guid.NewGuid());
 
         // =========================================================
-        // 1) Initialise the client
+        // 1) Initialise the client and broker
         // =========================================================
         var client = new EventHighwayClient(connectionString);
+        var broker = new EventSubstrateBroker(client);
 
         // =========================================================
         // 2) Register event handlers
@@ -148,22 +150,20 @@ public partial class Program
         // 3) Register Event Address 1: Student Enrolled
         // =========================================================
 
-        var studentEnrolledAddress = new EventAddressV2
+        await broker.RegisterStudentEnrolledAddressAsync(new EventAddressV2
         {
             Id = Guid.NewGuid(),
             Name = "Student Enrolled",
             Description = "Raised when a new student enrols in the system.",
             CreatedDate = now,
             UpdatedDate = now
-        };
-
-        await client.V2.EventAddressV2Client.RegisterEventAddressV2Async(studentEnrolledAddress);
+        });
 
         // =========================================================
         // 4) Register Event Listeners for Event Address 1: Student Enrolled
         // =========================================================
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterStudentEnrolledListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "Sum Numbers Listener",
@@ -171,12 +171,11 @@ public partial class Program
             HandlerId = delegateHandler1.Id,
             HandlerName = delegateHandler1.Name,
             HandlerConfigurations = new List<HandlerConfiguration>(),
-            EventAddressId = studentEnrolledAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterStudentEnrolledListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "REST Notification Listener",
@@ -185,12 +184,11 @@ public partial class Program
             HandlerName = restBearerHandler.Name,
             HandlerConfigurations =
                 CreateRestBearerConfigurations(wireMock.Url ?? string.Empty, scope: "enrollment", now),
-            EventAddressId = studentEnrolledAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterStudentEnrolledListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "REST via Delegate Listener",
@@ -198,7 +196,6 @@ public partial class Program
             HandlerId = delegateHandler3.Id,
             HandlerName = delegateHandler3.Name,
             HandlerConfigurations = new List<HandlerConfiguration>(),
-            EventAddressId = studentEnrolledAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
@@ -207,38 +204,27 @@ public partial class Program
         // 5) Submit an event for Event Address 1: Student Enrolled
         // =========================================================
 
-        var studentEvent = new EventV2
-        {
-            Id = Guid.NewGuid(),
-            Content = "42,17,85",
-            EventAddressId = studentEnrolledAddress.Id,
-            ScheduledDate = DateTimeOffset.UtcNow.AddSeconds(-1),
-            CreatedDate = now,
-            UpdatedDate = now
-        };
-
-        await client.V2.EventV2Client.SubmitEventV2Async(studentEvent);
+        EventV2 studentEvent =
+            await broker.RaiseStudentEnrolledAsync("42,17,85");
 
         // =========================================================
         // 6) Register Event Address 2: Course Completed
         // =========================================================
 
-        var courseCompletedAddress = new EventAddressV2
+        await broker.RegisterCourseCompletedAddressAsync(new EventAddressV2
         {
             Id = Guid.NewGuid(),
             Name = "Course Completed",
             Description = "Raised when a student completes a course.",
             CreatedDate = now,
             UpdatedDate = now
-        };
-
-        await client.V2.EventAddressV2Client.RegisterEventAddressV2Async(courseCompletedAddress);
+        });
 
         // =========================================================
         // 7) Register Event Listeners for Event Address 2: Course Completed
         // =========================================================
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterCourseCompletedListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "Failing REST Listener",
@@ -247,12 +233,11 @@ public partial class Program
             HandlerName = restBearerHandler.Name,
             HandlerConfigurations =
                 CreateRestBearerConfigurations("http://localhost:19999", scope: "courses", now),
-            EventAddressId = courseCompletedAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterCourseCompletedListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "Grade Calculator Listener",
@@ -260,12 +245,11 @@ public partial class Program
             HandlerId = delegateHandler2.Id,
             HandlerName = delegateHandler2.Name,
             HandlerConfigurations = new List<HandlerConfiguration>(),
-            EventAddressId = courseCompletedAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
 
-        await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
+        await broker.RegisterCourseCompletedListenerAsync(new EventListenerV2
         {
             Id = Guid.NewGuid(),
             Name = "REST via Delegate Method Listener",
@@ -273,7 +257,6 @@ public partial class Program
             HandlerId = delegateHandler4.Id,
             HandlerName = delegateHandler4.Name,
             HandlerConfigurations = new List<HandlerConfiguration>(),
-            EventAddressId = courseCompletedAddress.Id,
             CreatedDate = now,
             UpdatedDate = now
         });
@@ -282,23 +265,14 @@ public partial class Program
         // 8) Submit an event for Event Address 2: Course Completed
         // =========================================================
 
-        var courseEvent = new EventV2
-        {
-            Id = Guid.NewGuid(),
-            Content = "88,92,75,95,83",
-            EventAddressId = courseCompletedAddress.Id,
-            ScheduledDate = DateTimeOffset.UtcNow.AddSeconds(-1),
-            CreatedDate = now,
-            UpdatedDate = now
-        };
-
-        await client.V2.EventV2Client.SubmitEventV2Async(courseEvent);
+        EventV2 courseEvent =
+            await broker.RaiseCourseCompletedAsync("88,92,75,95,83");
 
         // =========================================================
         // Fire all pending immediate events
         // =========================================================
 
-        await client.V2.EventV2Client.FireScheduledPendingEventV2sAsync();
+        await broker.FirePendingEventsAsync();
 
         await PrintListenerEventResultsAsync(
             client,
@@ -372,7 +346,16 @@ public partial class Program
                 Console.WriteLine($"\n  {currentGrouping}");
             }
 
+            Console.ForegroundColor = item.Status switch
+            {
+                nameof(HealthStatusV2.Green) => ConsoleColor.Green,
+                nameof(HealthStatusV2.Amber) => ConsoleColor.Yellow,
+                nameof(HealthStatusV2.Red) => ConsoleColor.Red,
+                _ => ConsoleColor.Gray,
+            };
+
             Console.WriteLine($"    [{item.Status,-6}] {item.Item}: {item.Value}");
+            Console.ResetColor();
         }
 
         Console.WriteLine();

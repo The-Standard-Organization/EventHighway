@@ -83,6 +83,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
                 cancellationToken);
         });
 
+        public ValueTask<EventListenerV2> RetrieveOrRegisterEventListenerV2Async(
+            EventListenerV2 eventListenerV2,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+            await this.eventListenerV2ProcessingService.RetrieveOrRegisterEventListenerV2Async(
+                eventListenerV2,
+                cancellationToken));
+
         public ValueTask<ListenerEventV2> AddListenerEventV2Async(
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken = default) =>

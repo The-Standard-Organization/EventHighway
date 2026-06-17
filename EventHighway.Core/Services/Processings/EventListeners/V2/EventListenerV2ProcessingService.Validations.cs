@@ -10,6 +10,17 @@ namespace EventHighway.Core.Services.Processings.EventListeners.V2
 {
     internal partial class EventListenerV2ProcessingService
     {
+        private static void ValidateOnRetrieveOrRegisterEventListenerV2(EventListenerV2 eventListenerV2)
+        {
+            ValidateEventListenerV2IsNotNull(eventListenerV2);
+
+            Validate(
+                message: "Event listener is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventListenerV2.Id),
+                Parameter: nameof(EventListenerV2.Id)));
+        }
+
         private static void ValidateEventAddressId(Guid eventAddressId)
         {
             Validate(
