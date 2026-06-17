@@ -21,6 +21,12 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             {
                 await returningNothingFunction();
             }
+            catch (InvalidArchivingEventV2CoordinationException
+                invalidArchivingEventV2CoordinationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidArchivingEventV2CoordinationException);
+            }
             catch (ArchivingEventV2OrchestrationValidationException
                 archivingEventV2OrchestrationValidationException)
             {
@@ -80,6 +86,19 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 throw await CreateAndLogServiceExceptionAsync(
                     failedArchivingEventV2CoordinationServiceException);
             }
+        }
+
+        private async ValueTask<ArchivingEventV2CoordinationValidationException>
+            CreateAndLogValidationExceptionAsync(Xeption exception)
+        {
+            var archivingEventV2CoordinationValidationException =
+                new ArchivingEventV2CoordinationValidationException(
+                    message: "Archiving event validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(archivingEventV2CoordinationValidationException);
+
+            return archivingEventV2CoordinationValidationException;
         }
 
         private async ValueTask<ArchivingEventV2CoordinationDependencyValidationException>
