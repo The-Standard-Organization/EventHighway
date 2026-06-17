@@ -58,12 +58,16 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             }
         });
 
-        public async ValueTask PurgeArchivedEventV2sAsync(
+        public ValueTask PurgeArchivedEventV2sAsync(
             DateTimeOffset olderThan,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
-            throw new NotImplementedException();
-        }
+            ValidateIsOlderThan(olderThan);
+
+            await this.eventArchiveV2OrchestrationService
+                .PurgeArchivedEventV2sAsync(olderThan, cancellationToken);
+        });
 
         private async ValueTask<EventArchiveV2> MapToEventArchiveV2Async(EventV2 eventV2)
         {
