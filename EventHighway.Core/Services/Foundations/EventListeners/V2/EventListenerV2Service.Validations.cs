@@ -32,6 +32,9 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V2
                 (Rule: IsInvalid(eventListenerV2.Description),
                 Parameter: nameof(EventListenerV2.Description)),
 
+                (Rule: IsInvalid(eventListenerV2.HandlerId),
+                Parameter: nameof(EventListenerV2.HandlerId)),
+
                 (Rule: IsInvalid(eventListenerV2.HandlerName),
                 Parameter: nameof(EventListenerV2.HandlerName)),
 

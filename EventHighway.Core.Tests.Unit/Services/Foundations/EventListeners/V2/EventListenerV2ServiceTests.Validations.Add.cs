@@ -97,6 +97,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListeners.V2
                 values: "Required");
 
             invalidEventListenerV2Exception.AddData(
+                key: nameof(EventListenerV2.HandlerId),
+                values: "Required");
+
+            invalidEventListenerV2Exception.AddData(
                 key: nameof(EventListenerV2.HandlerName),
                 values: "Required");
 

@@ -20,8 +20,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListenerArchive
             CancellationToken cancellationToken =
                 TestContext.Current.CancellationToken;
 
+            System.DateTimeOffset randomDateTimeOffset =
+                GetRandomDateTimeOffset();
+
             EventListenerArchiveV2 randomEventListenerArchiveV2 =
-                CreateRandomEventListenerArchiveV2();
+                CreateRandomEventListenerArchiveV2(date: randomDateTimeOffset);
 
             EventListenerArchiveV2 inputEventListenerArchiveV2 =
                 randomEventListenerArchiveV2;
@@ -31,6 +34,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListenerArchive
 
             EventListenerArchiveV2 expectedEventListenerArchiveV2 =
                 insertedEventListenerArchiveV2.DeepClone();
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertEventListenerArchiveV2Async(
@@ -48,6 +55,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListenerArchive
             // then
             actualEventListenerArchiveV2.Should().BeEquivalentTo(
                 expectedEventListenerArchiveV2);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
                 broker.InsertEventListenerArchiveV2Async(

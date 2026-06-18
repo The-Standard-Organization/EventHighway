@@ -131,10 +131,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventListenerArchive
                     message: "Event listener archive validation error occurred, fix the errors and try again.",
                     innerException: invalidEventListenerArchiveV2Exception);
 
-            this.dateTimeBrokerMock.Setup(broker =>
-                broker.GetDateTimeOffsetAsync())
-                    .ReturnsAsync(GetRandomDateTimeOffset());
-
             // when
             ValueTask<EventListenerArchiveV2> addEventListenerArchiveV2Task =
                 this.eventListenerArchiveV2Service.AddEventListenerArchiveV2Async(
