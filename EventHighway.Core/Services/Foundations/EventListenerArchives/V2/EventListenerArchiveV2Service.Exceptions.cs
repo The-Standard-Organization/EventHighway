@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
+using Microsoft.Data.SqlClient;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
@@ -30,6 +31,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventListenerArchiveV2Exception);
             }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventListenerArchiveV2Exception =
+                    new FailedStorageEventListenerArchiveV2Exception(
+                        message: "Failed event listener archive storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventListenerArchiveV2Exception);
+            }
         }
 
         private async ValueTask<EventListenerArchiveV2ValidationException> CreateAndLogValidationExceptionAsync(
@@ -43,6 +55,19 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2ValidationException);
 
             return eventListenerArchiveV2ValidationException;
+        }
+
+        private async ValueTask<EventListenerArchiveV2DependencyException> CreateAndLogCriticalDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventListenerArchiveV2DependencyException =
+                new EventListenerArchiveV2DependencyException(
+                    message: "Event listener archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogCriticalAsync(eventListenerArchiveV2DependencyException);
+
+            return eventListenerArchiveV2DependencyException;
         }
     }
 }
