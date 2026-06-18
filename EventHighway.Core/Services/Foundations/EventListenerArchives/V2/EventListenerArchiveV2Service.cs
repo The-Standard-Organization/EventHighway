@@ -43,8 +43,7 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
         });
 
         public ValueTask<IQueryable<EventListenerArchiveV2>> RetrieveAllEventListenerArchiveV2sAsync() =>
-            TryCatch(async () =>
-                await this.storageBroker.SelectAllEventListenerArchiveV2sAsync());
+            TryCatch(async () => await this.storageBroker.SelectAllEventListenerArchiveV2sAsync());
 
         public ValueTask<IEnumerable<EventListenerArchiveV2>> BulkAddEventListenerArchiveV2sAsync(
             IEnumerable<EventListenerArchiveV2> eventListenerArchiveV2s,
