@@ -77,6 +77,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     lockedEventListenerArchiveV2Exception);
             }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedStorageEventListenerArchiveV2Exception =
+                    new FailedStorageEventListenerArchiveV2Exception(
+                        message: "Failed event listener archive storage error occurred, contact support.",
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
+
+                throw await CreateAndLogDependencyExceptionAsync(
+                    failedStorageEventListenerArchiveV2Exception);
+            }
         }
 
         private async ValueTask<EventListenerArchiveV2ValidationException> CreateAndLogValidationExceptionAsync(
@@ -103,6 +114,19 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2DependencyValidationException);
 
             return eventListenerArchiveV2DependencyValidationException;
+        }
+
+        private async ValueTask<EventListenerArchiveV2DependencyException> CreateAndLogDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventListenerArchiveV2DependencyException =
+                new EventListenerArchiveV2DependencyException(
+                    message: "Event listener archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2DependencyException);
+
+            return eventListenerArchiveV2DependencyException;
         }
 
         private async ValueTask<EventListenerArchiveV2DependencyException> CreateAndLogCriticalDependencyExceptionAsync(
