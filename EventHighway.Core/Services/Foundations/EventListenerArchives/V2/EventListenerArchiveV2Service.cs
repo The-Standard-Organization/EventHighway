@@ -30,10 +30,12 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<EventListenerArchiveV2> AddEventListenerArchiveV2Async(
+        public async ValueTask<EventListenerArchiveV2> AddEventListenerArchiveV2Async(
             EventListenerArchiveV2 eventListenerArchiveV2,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.storageBroker.InsertEventListenerArchiveV2Async(
+                eventListenerArchiveV2,
+                cancellationToken);
 
         public ValueTask<IQueryable<EventListenerArchiveV2>> RetrieveAllEventListenerArchiveV2sAsync() =>
             throw new NotImplementedException();
