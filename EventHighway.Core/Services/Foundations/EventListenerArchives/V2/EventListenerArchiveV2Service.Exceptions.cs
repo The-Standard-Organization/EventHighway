@@ -7,6 +7,7 @@ using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
 using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
@@ -64,6 +65,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     invalidReferenceEventListenerArchiveV2Exception);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedEventListenerArchiveV2Exception =
+                    new LockedEventListenerArchiveV2Exception(
+                        message: "Event listener archive is locked, try again.",
+                        innerException: dbUpdateConcurrencyException,
+                        data: dbUpdateConcurrencyException.Data);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    lockedEventListenerArchiveV2Exception);
             }
         }
 
