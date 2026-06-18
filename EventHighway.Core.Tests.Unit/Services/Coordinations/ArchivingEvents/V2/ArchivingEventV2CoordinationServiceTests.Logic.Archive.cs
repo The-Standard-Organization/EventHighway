@@ -81,7 +81,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         ArchivedDate = retrievedDateTimeOffset,
                         EventId = item.EventId,
                         EventAddressId = item.EventAddressId,
-                        EventListenerId = item.EventListenerId
+                        EventListenerId = item.EventListenerId,
+                        EventArchiveV2Id = item.EventId
                     }).ToList();
 
             List<EventArchiveV2> mappedEventArchiveV2s =

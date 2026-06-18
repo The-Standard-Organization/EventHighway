@@ -101,7 +101,8 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 ArchivedDate = currentDateTime,
                 EventId = listenerEventV2.EventId,
                 EventAddressId = listenerEventV2.EventAddressId,
-                EventListenerId = listenerEventV2.EventListenerId
+                EventListenerId = listenerEventV2.EventListenerId,
+                EventArchiveV2Id = listenerEventV2.EventId
             };
         }
     }
