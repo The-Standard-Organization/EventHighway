@@ -48,7 +48,31 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
         public ValueTask<IEnumerable<EventListenerArchiveV2>> BulkAddEventListenerArchiveV2sAsync(
             IEnumerable<EventListenerArchiveV2> eventListenerArchiveV2s,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            ValidateEventListenerArchiveV2sIsNotNull(eventListenerArchiveV2s);
+            List<EventListenerArchiveV2> validItems = new List<EventListenerArchiveV2>();
+
+            DateTimeOffset archivedDate =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            foreach (EventListenerArchiveV2 item in eventListenerArchiveV2s)
+            {
+                item.ArchivedDate = archivedDate;
+
+                try
+                {
+                    await ValidateEventListenerArchiveV2OnAddAsync(item);
+                    validItems.Add(item);
+                }
+                catch (Exception)
+                { }
+            }
+
+            await this.storageBroker.InsertBulkEventListenerArchiveV2sAsync(validItems, cancellationToken);
+
+            return validItems;
+        });
 
         public ValueTask BulkRemoveEventListenerArchiveV2sAsync(
             IEnumerable<EventListenerArchiveV2> eventListenerArchiveV2s,

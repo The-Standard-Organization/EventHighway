@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
@@ -51,6 +52,16 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
 
                 (Rule: await IsNotRecentAsync(eventListenerArchiveV2.ArchivedDate),
                 Parameter: nameof(EventListenerArchiveV2.ArchivedDate)));
+        }
+
+        private static void ValidateEventListenerArchiveV2sIsNotNull(
+            IEnumerable<EventListenerArchiveV2> eventListenerArchiveV2s)
+        {
+            if (eventListenerArchiveV2s is null)
+            {
+                throw new NullEventListenerArchiveV2Exception(
+                    message: "Event listener archive is null.");
+            }
         }
 
         private static void ValidateEventListenerArchiveV2IsNotNull(
