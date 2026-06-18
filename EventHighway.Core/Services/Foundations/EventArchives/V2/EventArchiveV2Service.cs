@@ -46,10 +46,12 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             return await this.storageBroker.SelectAllEventArchiveV2sAsync();
         });
 
-        public ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync() =>
+        public ValueTask<IQueryable<EventArchiveV2>>
+            RetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync() =>
         TryCatch(async () =>
         {
-            return await this.storageBroker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+            return await this.storageBroker
+                .SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync();
         });
 
         public ValueTask<EventArchiveV2> RetrieveEventArchiveV2ByIdAsync(

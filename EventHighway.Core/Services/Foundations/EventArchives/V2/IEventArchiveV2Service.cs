@@ -18,7 +18,9 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             CancellationToken cancellationToken = default);
 
         ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync();
-        ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+
+        ValueTask<IQueryable<EventArchiveV2>>
+            RetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync();
 
         ValueTask<EventArchiveV2> RetrieveEventArchiveV2ByIdAsync(
             Guid eventArchiveV2Id,

@@ -10,6 +10,7 @@ using EFxceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -56,6 +57,7 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureEventAddresses(modelBuilder.Entity<EventAddress>());
             ConfigureEventArchiveV1s(modelBuilder.Entity<EventArchiveV1>());
             ConfigureEventArchiveV2s(modelBuilder.Entity<EventArchiveV2>());
+            ConfigureEventListenerArchiveV2s(modelBuilder.Entity<EventListenerArchiveV2>());
             ConfigureEventListenerV1s(modelBuilder.Entity<EventListenerV1>());
             ConfigureEventListenerV2s(modelBuilder.Entity<EventListenerV2>());
             ConfigureEventListeners(modelBuilder.Entity<EventListener>());

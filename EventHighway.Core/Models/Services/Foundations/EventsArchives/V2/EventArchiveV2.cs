@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 
 namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
@@ -22,6 +23,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
 
         public Guid EventAddressId { get; set; }
 
+        public IEnumerable<EventListenerArchiveV2> EventListenerArchiveV2s { get; set; }
         public IEnumerable<ListenerEventArchiveV2> ListenerEventArchiveV2s { get; set; }
     }
 }

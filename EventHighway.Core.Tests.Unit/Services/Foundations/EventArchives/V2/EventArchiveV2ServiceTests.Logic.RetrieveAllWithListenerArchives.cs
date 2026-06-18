@@ -14,7 +14,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
     public partial class EventArchiveV2ServiceTests
     {
         [Fact]
-        public async Task ShouldRetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync()
+        public async Task ShouldRetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync()
         {
             // given
             IQueryable<EventArchiveV2> randomEventArchiveV2s =
@@ -27,20 +27,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
                 retrievedEventArchiveV2s.DeepClone();
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync())
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync())
                     .ReturnsAsync(retrievedEventArchiveV2s);
 
             // when
             IQueryable<EventArchiveV2> actualEventArchiveV2s =
                 await this.eventArchiveV2Service
-                    .RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+                    .RetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync();
 
             // then
             actualEventArchiveV2s.Should().BeEquivalentTo(
                 expectedEventArchiveV2s);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync(),
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync(),
                     Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();

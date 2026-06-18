@@ -35,12 +35,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
                     innerException: failedStorageEventArchiveV2Exception);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync())
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync())
                     .ThrowsAsync(sqlException);
 
             // when
             ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
-                this.eventArchiveV2Service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+                this.eventArchiveV2Service.RetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync();
 
             EventArchiveV2DependencyException actualEventArchiveV2DependencyException =
                 await Assert.ThrowsAsync<EventArchiveV2DependencyException>(
@@ -51,7 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2DependencyException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync(),
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -83,12 +83,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
                     innerException: failedEventArchiveV2ServiceException);
 
             this.storageBrokerMock.Setup(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync())
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync())
                     .ThrowsAsync(serviceException);
 
             // when
             ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
-                this.eventArchiveV2Service.RetrieveAllEventArchiveV2sWithListenerEventArchiveV2sAsync();
+                this.eventArchiveV2Service.RetrieveAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync();
 
             EventArchiveV2ServiceException actualEventArchiveV2ServiceException =
                 await Assert.ThrowsAsync<EventArchiveV2ServiceException>(
@@ -99,7 +99,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2ServiceException);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAllEventArchiveV2sWithListenerEventArchiveV2sAsync(),
+                broker.SelectAllEventArchiveV2sWithEventListenerArchiveV2sAndListenerEventArchiveV2sAsync(),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
