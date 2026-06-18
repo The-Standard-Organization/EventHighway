@@ -54,6 +54,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     alreadyExistsEventListenerArchiveV2Exception);
             }
+            catch (ForeignKeyConstraintConflictException foreignKeyConstraintConflictException)
+            {
+                var invalidReferenceEventListenerArchiveV2Exception =
+                    new InvalidReferenceEventListenerArchiveV2Exception(
+                        message: "Invalid event listener archive reference error occurred.",
+                        innerException: foreignKeyConstraintConflictException,
+                        data: foreignKeyConstraintConflictException.Data);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    invalidReferenceEventListenerArchiveV2Exception);
+            }
         }
 
         private async ValueTask<EventListenerArchiveV2ValidationException> CreateAndLogValidationExceptionAsync(
