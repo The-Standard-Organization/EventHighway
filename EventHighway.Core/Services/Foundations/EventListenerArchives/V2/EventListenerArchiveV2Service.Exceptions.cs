@@ -20,6 +20,7 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
         private delegate ValueTask<IQueryable<EventListenerArchiveV2>> ReturningEventListenerArchiveV2sFunction();
         private delegate ValueTask<EventListenerArchiveV2> ReturningEventListenerArchiveV2Function();
         private delegate ValueTask<IEnumerable<EventListenerArchiveV2>> ReturningEnumerableEventListenerArchiveV2sFunction();
+        private delegate ValueTask ReturningNothingFunction();
 
         private async ValueTask<IQueryable<EventListenerArchiveV2>> TryCatch(
             ReturningEventListenerArchiveV2sFunction returningEventListenerArchiveV2sFunction)
@@ -27,6 +28,41 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             try
             {
                 return await returningEventListenerArchiveV2sFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventListenerArchiveV2Exception =
+                    new FailedStorageEventListenerArchiveV2Exception(
+                        message: "Failed event listener archive storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventListenerArchiveV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventListenerArchiveV2ServiceException =
+                    new FailedEventListenerArchiveV2ServiceException(
+                        message: "Failed event listener archive service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventListenerArchiveV2ServiceException);
+            }
+        }
+
+        private async ValueTask TryCatch(ReturningNothingFunction returningNothingFunction)
+        {
+            try
+            {
+                await returningNothingFunction();
+            }
+            catch (NullEventListenerArchiveV2Exception nullEventListenerArchiveV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventListenerArchiveV2Exception);
             }
             catch (SqlException sqlException)
             {

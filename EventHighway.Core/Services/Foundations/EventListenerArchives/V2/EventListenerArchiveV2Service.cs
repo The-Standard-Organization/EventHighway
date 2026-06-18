@@ -77,6 +77,12 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
         public ValueTask BulkRemoveEventListenerArchiveV2sAsync(
             IEnumerable<EventListenerArchiveV2> eventListenerArchiveV2s,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            ValidateEventListenerArchiveV2sIsNotNull(eventListenerArchiveV2s);
+
+            await this.storageBroker.DeleteBulkEventListenerArchiveV2sAsync(
+                eventListenerArchiveV2s, cancellationToken);
+        });
     }
 }
