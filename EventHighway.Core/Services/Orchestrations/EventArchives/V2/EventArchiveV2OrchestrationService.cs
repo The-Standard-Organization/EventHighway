@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
         public ValueTask<IQueryable<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sAsync(
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
+
             await this.listenerEventArchiveV2Service.RetrieveAllListenerEventArchiveV2sAsync());
 
         public ValueTask AddEventArchiveV2WithListenerEventArchiveV2sAsync(
@@ -45,14 +46,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventArchives.V2
         TryCatch(async () =>
         {
             ValidateEventArchiveV2(eventArchiveV2);
+            
+            await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
 
             foreach (ListenerEventArchiveV2 listenerEventArchiveV2 in eventArchiveV2.ListenerEventArchiveV2s)
             {
                 await this.listenerEventArchiveV2Service
                     .AddListenerEventArchiveV2Async(listenerEventArchiveV2, cancellationToken);
             }
-
-            await this.eventArchiveV2Service.AddEventArchiveV2Async(eventArchiveV2, cancellationToken);
         });
     }
 }

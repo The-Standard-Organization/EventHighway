@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -68,7 +68,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
                 broker.AddEventArchiveV2Async(
                     It.IsAny<EventArchiveV2>(),
                     It.IsAny<CancellationToken>()),
-                        Times.Never);
+                        Times.Once);
 
             this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
@@ -126,7 +126,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
                 broker.AddEventArchiveV2Async(
                     It.IsAny<EventArchiveV2>(),
                     It.IsAny<CancellationToken>()),
-                        Times.Never);
+                        Times.Once);
 
             this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
@@ -189,7 +189,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventArchives.V2
                 broker.AddEventArchiveV2Async(
                     It.IsAny<EventArchiveV2>(),
                     It.IsAny<CancellationToken>()),
-                        Times.Never);
+                        Times.Once);
 
             this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
