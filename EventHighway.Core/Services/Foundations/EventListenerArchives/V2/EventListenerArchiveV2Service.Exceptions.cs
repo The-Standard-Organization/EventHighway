@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
@@ -88,6 +89,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
                 throw await CreateAndLogDependencyExceptionAsync(
                     failedStorageEventListenerArchiveV2Exception);
             }
+            catch (Exception serviceException)
+            {
+                var failedEventListenerArchiveV2ServiceException =
+                    new FailedEventListenerArchiveV2ServiceException(
+                        message: "Failed event listener archive service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventListenerArchiveV2ServiceException);
+            }
         }
 
         private async ValueTask<EventListenerArchiveV2ValidationException> CreateAndLogValidationExceptionAsync(
@@ -114,6 +126,19 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2DependencyValidationException);
 
             return eventListenerArchiveV2DependencyValidationException;
+        }
+
+        private async ValueTask<EventListenerArchiveV2ServiceException> CreateAndLogServiceExceptionAsync(
+            Xeption exception)
+        {
+            var eventListenerArchiveV2ServiceException =
+                new EventListenerArchiveV2ServiceException(
+                    message: "Event listener archive service error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2ServiceException);
+
+            return eventListenerArchiveV2ServiceException;
         }
 
         private async ValueTask<EventListenerArchiveV2DependencyException> CreateAndLogDependencyExceptionAsync(
