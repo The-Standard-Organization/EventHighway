@@ -72,7 +72,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
                 { }
             }
 
-            await this.storageBroker.InsertBulkListenerEventArchiveV2sAsync(validItems, cancellationToken);
+            await this.storageBroker.BulkInsertListenerEventArchiveV2sAsync(validItems, cancellationToken);
 
             return validItems;
         });
@@ -84,7 +84,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
         {
             ValidateListenerEventArchiveV2sIsNotNull(listenerEventArchiveV2s);
 
-            await this.storageBroker.DeleteBulkListenerEventArchiveV2sAsync(
+            await this.storageBroker.BulkDeleteListenerEventArchiveV2sAsync(
                 listenerEventArchiveV2s, cancellationToken);
         });
     }

@@ -102,7 +102,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                 { }
             }
 
-            await this.storageBroker.InsertBulkEventArchiveV2sAsync(validItems, cancellationToken);
+            await this.storageBroker.BulkInsertEventArchiveV2sAsync(validItems, cancellationToken);
 
             return validItems;
         });
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
         {
             ValidateEventArchiveV2sIsNotNull(eventArchiveV2s);
 
-            await this.storageBroker.DeleteBulkEventArchiveV2sAsync(eventArchiveV2s, cancellationToken);
+            await this.storageBroker.BulkDeleteEventArchiveV2sAsync(eventArchiveV2s, cancellationToken);
         });
     }
 }

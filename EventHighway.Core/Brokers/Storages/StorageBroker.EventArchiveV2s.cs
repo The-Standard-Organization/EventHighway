@@ -41,12 +41,12 @@ namespace EventHighway.Core.Brokers.Storages
             CancellationToken cancellationToken = default) =>
             await DeleteAsync(eventArchiveV2, cancellationToken);
 
-        public async ValueTask InsertBulkEventArchiveV2sAsync(
+        public async ValueTask BulkInsertEventArchiveV2sAsync(
             IEnumerable<EventArchiveV2> eventArchiveV2s,
             CancellationToken cancellationToken = default) =>
             await BulkInsertAsync(eventArchiveV2s, true, cancellationToken);
 
-        public async ValueTask DeleteBulkEventArchiveV2sAsync(
+        public async ValueTask BulkDeleteEventArchiveV2sAsync(
             IEnumerable<EventArchiveV2> eventArchiveV2s,
             CancellationToken cancellationToken = default) =>
             await BulkDeleteAsync(eventArchiveV2s, true, cancellationToken);

@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,14 @@ namespace EventHighway.Core.Brokers.Storages
 
         ValueTask<ListenerEventV2> DeleteListenerEventV2Async(
             ListenerEventV2 listenerEventV2,
+            CancellationToken cancellationToken = default);
+
+        ValueTask InsertBulkListenerEventV2sAsync(
+            IEnumerable<ListenerEventV2> listenerEventV2s,
+            CancellationToken cancellationToken = default);
+
+        ValueTask DeleteBulkListenerEventV2sAsync(
+            IEnumerable<ListenerEventV2> listenerEventV2s,
             CancellationToken cancellationToken = default);
     }
 }

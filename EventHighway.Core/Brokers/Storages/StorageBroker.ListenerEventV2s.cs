@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,5 +39,15 @@ namespace EventHighway.Core.Brokers.Storages
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken = default) =>
             await DeleteAsync(listenerEventV2, cancellationToken);
+
+        public async ValueTask InsertBulkListenerEventV2sAsync(
+            IEnumerable<ListenerEventV2> listenerEventV2s,
+            CancellationToken cancellationToken = default) =>
+            await BulkInsertAsync(listenerEventV2s, true, cancellationToken);
+
+        public async ValueTask DeleteBulkListenerEventV2sAsync(
+            IEnumerable<ListenerEventV2> listenerEventV2s,
+            CancellationToken cancellationToken = default) =>
+            await BulkDeleteAsync(listenerEventV2s, true, cancellationToken);
     }
 }
