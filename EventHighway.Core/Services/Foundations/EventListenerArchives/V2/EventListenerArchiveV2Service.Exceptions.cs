@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
@@ -15,7 +16,39 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
 {
     internal partial class EventListenerArchiveV2Service
     {
+        private delegate ValueTask<IQueryable<EventListenerArchiveV2>> ReturningEventListenerArchiveV2sFunction();
         private delegate ValueTask<EventListenerArchiveV2> ReturningEventListenerArchiveV2Function();
+
+        private async ValueTask<IQueryable<EventListenerArchiveV2>> TryCatch(
+            ReturningEventListenerArchiveV2sFunction returningEventListenerArchiveV2sFunction)
+        {
+            try
+            {
+                return await returningEventListenerArchiveV2sFunction();
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventListenerArchiveV2Exception =
+                    new FailedStorageEventListenerArchiveV2Exception(
+                        message: "Failed event listener archive storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventListenerArchiveV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventListenerArchiveV2ServiceException =
+                    new FailedEventListenerArchiveV2ServiceException(
+                        message: "Failed event listener archive service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventListenerArchiveV2ServiceException);
+            }
+        }
 
         private async ValueTask<EventListenerArchiveV2> TryCatch(
             ReturningEventListenerArchiveV2Function returningEventListenerArchiveV2Function)
