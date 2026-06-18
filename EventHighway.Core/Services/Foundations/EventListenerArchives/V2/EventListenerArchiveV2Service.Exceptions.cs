@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListenerArchives.V2.Exceptions;
+using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
 using Xeptions;
 
@@ -42,6 +43,17 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
                 throw await CreateAndLogCriticalDependencyExceptionAsync(
                     failedStorageEventListenerArchiveV2Exception);
             }
+            catch (DuplicateKeyException duplicateKeyException)
+            {
+                var alreadyExistsEventListenerArchiveV2Exception =
+                    new AlreadyExistsEventListenerArchiveV2Exception(
+                        message: "Event listener archive with the same id already exists.",
+                        innerException: duplicateKeyException,
+                        data: duplicateKeyException.Data);
+
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    alreadyExistsEventListenerArchiveV2Exception);
+            }
         }
 
         private async ValueTask<EventListenerArchiveV2ValidationException> CreateAndLogValidationExceptionAsync(
@@ -55,6 +67,19 @@ namespace EventHighway.Core.Services.Foundations.EventListenerArchives.V2
             await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2ValidationException);
 
             return eventListenerArchiveV2ValidationException;
+        }
+
+        private async ValueTask<EventListenerArchiveV2DependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(Xeption exception)
+        {
+            var eventListenerArchiveV2DependencyValidationException =
+                new EventListenerArchiveV2DependencyValidationException(
+                    message: "Event listener archive validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventListenerArchiveV2DependencyValidationException);
+
+            return eventListenerArchiveV2DependencyValidationException;
         }
 
         private async ValueTask<EventListenerArchiveV2DependencyException> CreateAndLogCriticalDependencyExceptionAsync(
