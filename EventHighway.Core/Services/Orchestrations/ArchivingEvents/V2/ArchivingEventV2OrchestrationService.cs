@@ -105,6 +105,15 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
         public ValueTask<IEnumerable<ListenerEventV2>> RetrieveBatchOfListenerEventV2sAsync(
             IEnumerable<Guid> eventV2Ids,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            BatchConfiguration batchConfiguration =
+                this.configurationBroker.GetBatchConfiguration();
+
+            int take = batchConfiguration.BatchSizeForBulkProcessing;
+
+            return await this.listenerEventV2ProcessingService
+                .RetrieveBatchOfListenerEventV2sByEventIdsAsync(eventV2Ids, take);
+        });
     }
 }
