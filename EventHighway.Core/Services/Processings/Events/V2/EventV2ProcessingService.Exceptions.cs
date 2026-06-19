@@ -69,6 +69,14 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(invalidEventV2ProcessingException);
             }
+            catch (EventV2ValidationException eventV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV2ValidationException);
+            }
+            catch (EventV2DependencyValidationException eventV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV2DependencyValidationException);
+            }
             catch (EventV2DependencyException eventV2DependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(eventV2DependencyException);
