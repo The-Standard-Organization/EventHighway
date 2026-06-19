@@ -110,6 +110,8 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
             BatchConfiguration batchConfiguration =
                 this.configurationBroker.GetBatchConfiguration();
 
+            ValidateOnRetrieveBatchOfListenerEventV2s(eventV2Ids, batchConfiguration);
+
             int take = batchConfiguration.BatchSizeForBulkProcessing;
 
             return await this.listenerEventV2ProcessingService
