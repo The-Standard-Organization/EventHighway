@@ -89,5 +89,13 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
 
             await this.eventV2ProcessingService.RemoveEventV2ByIdAsync(eventV2.Id, cancellationToken);
         });
+
+        public ValueTask<IEnumerable<EventV2>> RetrieveBatchOfDeadEventV2sAsync() =>
+            throw new NotImplementedException();
+
+        public ValueTask<IEnumerable<ListenerEventV2>> RetrieveBatchOfListenerEventV2sAsync(
+            IEnumerable<Guid> eventV2Ids,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
