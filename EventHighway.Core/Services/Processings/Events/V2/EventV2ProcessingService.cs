@@ -91,6 +91,9 @@ namespace EventHighway.Core.Services.Processings.Events.V2
                 : deadEventV2s.Take(take).AsEnumerable();
         });
 
+        public ValueTask<IEnumerable<EventV2>> RetrieveBatchOfDeadEventV2sAsync(int take) =>
+            throw new NotImplementedException();
+
         public ValueTask<EventV2> MarkEventV2AsImmediateAsync(
             EventV2 eventV2, CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
