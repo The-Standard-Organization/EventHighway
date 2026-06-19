@@ -48,7 +48,7 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
             ValidateOnRetrieveAllDeadEventV2sWithListeners(batchConfiguration);
 
             return await this.eventV2ProcessingService
-                .RetrieveAllDeadEventV2sWithListenersAsync(
+                .RetrieveBatchOfDeadEventV2sAsync(
                     batchConfiguration.BatchSizeForBulkProcessing);
         });
 

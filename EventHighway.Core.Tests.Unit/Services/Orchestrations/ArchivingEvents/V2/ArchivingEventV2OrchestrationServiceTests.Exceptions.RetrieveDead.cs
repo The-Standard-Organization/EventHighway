@@ -35,7 +35,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake))
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake))
                     .ThrowsAsync(eventV2ValidationException);
 
             // when
@@ -57,7 +57,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake),
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -90,7 +90,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake))
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake))
                     .ThrowsAsync(eventV2DependencyException);
 
             // when
@@ -112,7 +112,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake),
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -152,7 +152,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake))
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -174,7 +174,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake),
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

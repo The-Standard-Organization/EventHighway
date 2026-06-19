@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(retrievedBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake))
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake))
                     .ReturnsAsync(retrievedEventV2s);
 
             // when
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(inputTake),
+                service.RetrieveBatchOfDeadEventV2sAsync(inputTake),
                     Times.Once);
 
             this.configurationBrokerMock.VerifyNoOtherCalls();
