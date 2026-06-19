@@ -68,12 +68,6 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             Message = "Required"
         };
 
-        private static dynamic IsInvalid(int take) => new
-        {
-            Condition = take < 0,
-            Message = "Value must be greater than or equal to 0"
-        };
-
         private static void Validate(string message, params (dynamic Rule, string Parameter)[] validations)
         {
             var invalidEventV2ProcessingException =
