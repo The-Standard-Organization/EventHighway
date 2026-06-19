@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
