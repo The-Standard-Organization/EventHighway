@@ -22,6 +22,16 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
                 Parameter: nameof(BatchConfiguration.BatchSizeForBulkProcessing)));
         }
 
+        private static void ValidateOnRetrieveBatchOfDeadEventV2s(
+            BatchConfiguration batchConfiguration)
+        {
+            Validate(
+                message: "Event is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(batchConfiguration.BatchSizeForBulkProcessing),
+                Parameter: nameof(BatchConfiguration.BatchSizeForBulkProcessing)));
+        }
+
         private static void ValidateOnRetrieveBatchOfListenerEventV2s(
             IEnumerable<Guid> eventV2Ids,
             BatchConfiguration batchConfiguration)
