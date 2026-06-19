@@ -12,6 +12,7 @@ using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Processings.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Processings.ListenerEvents.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2;
@@ -107,6 +108,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                 BatchSizeForBulkProcessing = GetRandomNumber()
             };
 
+        private static IEnumerable<ListenerEventV2> CreateRandomListenerEventV2s() =>
+            CreateListenerEventV2Filler()
+                .Create(count: GetRandomNumber())
+                    .ToList();
+
         private static Filler<EventV2> CreateEventV2Filler()
         {
             var filler = new Filler<EventV2>();
@@ -123,6 +129,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
 
                 .OnType<EventAddressV2>().IgnoreIt()
                 .OnType<EventListenerV2>().IgnoreIt();
+
+            return filler;
+        }
+
+        private static Filler<ListenerEventV2> CreateListenerEventV2Filler()
+        {
+            var filler = new Filler<ListenerEventV2>();
+
+            filler.Setup()
+                .OnType<DateTimeOffset>()
+                    .Use(GetRandomDateTimeOffset)
+
+                .OnProperty(listenerEventV2 => listenerEventV2.Event)
+                    .IgnoreIt()
+
+                .OnProperty(listenerEventV2 => listenerEventV2.EventAddress)
+                    .IgnoreIt()
+
+                .OnProperty(listenerEventV2 => listenerEventV2.EventListener)
+                    .IgnoreIt();
 
             return filler;
         }
