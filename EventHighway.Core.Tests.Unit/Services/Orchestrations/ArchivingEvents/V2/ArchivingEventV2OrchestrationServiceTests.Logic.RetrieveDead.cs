@@ -22,15 +22,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
             int inputTake = retrievedBatchConfiguration.BatchSizeForBulkProcessing;
 
             List<EventV2> randomEventV2s = CreateRandomEventV2List();
-            IEnumerable<EventV2> retrievedEventV2s = randomEventV2s;
-            IEnumerable<EventV2> expectedEventV2s = retrievedEventV2s;
+            IQueryable<EventV2> retrievedEventV2s = randomEventV2s.AsQueryable();
+            IEnumerable<EventV2> expectedEventV2s = randomEventV2s.Take(inputTake);
 
             this.configurationBrokerMock.Setup(broker =>
                 broker.GetBatchConfiguration())
                     .Returns(retrievedBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveBatchOfDeadEventV2sAsync(inputTake))
+                service.RetrieveAllDeadEventV2sWithListenersAsync())
                     .ReturnsAsync(retrievedEventV2s);
 
             // when
@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveBatchOfDeadEventV2sAsync(inputTake),
+                service.RetrieveAllDeadEventV2sWithListenersAsync(),
                     Times.Once);
 
             this.configurationBrokerMock.VerifyNoOtherCalls();
