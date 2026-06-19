@@ -56,5 +56,50 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(DependencyValidationExceptions))]
+        public async Task ShouldThrowDependencyValidationExceptionOnRetrieveBatchOfDeadIfValidationErrorOccursAndLogItAsync(
+            Xeption eventV2ValidationException)
+        {
+            // given
+            int randomTake = GetRandomNumber();
+            int inputTake = randomTake;
+
+            var expectedEventV2ProcessingDependencyValidationException =
+                new EventV2ProcessingDependencyValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: eventV2ValidationException.InnerException as Xeption);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync())
+                    .ThrowsAsync(eventV2ValidationException);
+
+            // when
+            var retrieveBatchOfDeadTask =
+                this.eventV2ProcessingService
+                    .RetrieveBatchOfDeadEventV2sAsync(inputTake);
+
+            EventV2ProcessingDependencyValidationException actualEventV2ProcessingDependencyValidationException =
+                await Assert.ThrowsAsync<EventV2ProcessingDependencyValidationException>(
+                    retrieveBatchOfDeadTask.AsTask);
+
+            // then
+            actualEventV2ProcessingDependencyValidationException.Should()
+                .BeEquivalentTo(expectedEventV2ProcessingDependencyValidationException);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2ProcessingDependencyValidationException))),
+                        Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
