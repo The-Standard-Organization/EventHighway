@@ -85,6 +85,16 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 throw await CreateAndLogDependencyExceptionAsync(eventV2ServiceException);
             }
+            catch (Exception exception)
+            {
+                var failedEventV2ProcessingServiceException =
+                    new FailedEventV2ProcessingServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV2ProcessingServiceException);
+            }
         }
 
         private async ValueTask<IQueryable<EventV2>> TryCatch(ReturningEventV2sFunction returningEventV2sFunction)
