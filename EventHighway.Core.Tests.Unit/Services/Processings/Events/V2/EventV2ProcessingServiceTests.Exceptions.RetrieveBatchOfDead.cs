@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Processings.Events.V2.Exceptions;
 using FluentAssertions;
@@ -95,6 +96,56 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedEventV2ProcessingDependencyValidationException))),
+                        Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRetrieveBatchOfDeadIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            int randomTake = GetRandomNumber();
+            int inputTake = randomTake;
+            var serviceException = new Exception();
+
+            var failedEventV2ProcessingServiceException =
+                new FailedEventV2ProcessingServiceException(
+                    message: "Failed event service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedEventV2ProcessingServiceException =
+                new EventV2ProcessingServiceException(
+                    message: "Event service error occurred, contact support.",
+                    innerException: failedEventV2ProcessingServiceException);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync())
+                    .ThrowsAsync(serviceException);
+
+            // when
+            var retrieveBatchOfDeadTask =
+                this.eventV2ProcessingService
+                    .RetrieveBatchOfDeadEventV2sAsync(inputTake);
+
+            EventV2ProcessingServiceException actualEventV2ProcessingServiceException =
+                await Assert.ThrowsAsync<EventV2ProcessingServiceException>(
+                    retrieveBatchOfDeadTask.AsTask);
+
+            // then
+            actualEventV2ProcessingServiceException.Should()
+                .BeEquivalentTo(expectedEventV2ProcessingServiceException);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2ProcessingServiceException))),
                         Times.Once);
 
             this.eventV2ServiceMock.VerifyNoOtherCalls();
