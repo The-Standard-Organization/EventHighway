@@ -91,8 +91,11 @@ namespace EventHighway.Core.Services.Processings.Events.V2
                 : deadEventV2s.Take(take).AsEnumerable();
         });
 
-        public async ValueTask<IEnumerable<EventV2>> RetrieveBatchOfDeadEventV2sAsync(int take)
+        public ValueTask<IEnumerable<EventV2>> RetrieveBatchOfDeadEventV2sAsync(int take) =>
+        TryCatch(async () =>
         {
+            ValidateOnRetrieveBatchOfDeadEventV2s(take);
+
             IQueryable<EventV2> eventV2s =
                 await this.eventV2Service.RetrieveAllEventV2sAsync();
 
@@ -105,7 +108,7 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             return take == 0
                 ? deadEventV2s.AsEnumerable()
                 : deadEventV2s.Take(take).AsEnumerable();
-        }
+        });
 
         public ValueTask<EventV2> MarkEventV2AsImmediateAsync(
             EventV2 eventV2, CancellationToken cancellationToken = default) =>

@@ -58,6 +58,19 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             }
         }
 
+        private async ValueTask<IEnumerable<EventV2>> TryCatch(
+            ReturningEventV2EnumerableFunction returningEventV2EnumerableFunction)
+        {
+            try
+            {
+                return await returningEventV2EnumerableFunction();
+            }
+            catch (InvalidEventV2ProcessingException invalidEventV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(invalidEventV2ProcessingException);
+            }
+        }
+
         private async ValueTask<IQueryable<EventV2>> TryCatch(ReturningEventV2sFunction returningEventV2sFunction)
         {
             try
