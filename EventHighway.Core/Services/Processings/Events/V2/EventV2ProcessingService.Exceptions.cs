@@ -69,6 +69,14 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(invalidEventV2ProcessingException);
             }
+            catch (EventV2DependencyException eventV2DependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV2DependencyException);
+            }
+            catch (EventV2ServiceException eventV2ServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventV2ServiceException);
+            }
         }
 
         private async ValueTask<IQueryable<EventV2>> TryCatch(ReturningEventV2sFunction returningEventV2sFunction)
