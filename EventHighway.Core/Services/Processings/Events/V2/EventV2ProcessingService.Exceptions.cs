@@ -3,9 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2.Exceptions;
@@ -17,6 +15,7 @@ namespace EventHighway.Core.Services.Processings.Events.V2
     internal partial class EventV2ProcessingService
     {
         private delegate ValueTask ReturningNothingFunction();
+        private delegate ValueTask<string> ReturningStringFunction();
         private delegate ValueTask<IQueryable<EventV2>> ReturningEventV2sFunction();
         private delegate ValueTask<EventV2> ReturningEventV2Function();
 
@@ -80,6 +79,18 @@ namespace EventHighway.Core.Services.Processings.Events.V2
                         data: exception.Data);
 
                 throw await CreateAndLogServiceExceptionAsync(failedEventV2ProcessingServiceException);
+            }
+        }
+
+        private async ValueTask<string> TryCatch(ReturningStringFunction returningStringFunction)
+        {
+            try
+            {
+                return await returningStringFunction();
+            }
+            catch (NullEventV2ProcessingException nullEventV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(nullEventV2ProcessingException);
             }
         }
 
