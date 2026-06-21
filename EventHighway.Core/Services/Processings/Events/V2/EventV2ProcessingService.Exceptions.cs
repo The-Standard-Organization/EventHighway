@@ -129,6 +129,10 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 throw await CreateAndLogDependencyExceptionAsync(eventV2ServiceException);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 var failedEventV2ProcessingServiceException =
