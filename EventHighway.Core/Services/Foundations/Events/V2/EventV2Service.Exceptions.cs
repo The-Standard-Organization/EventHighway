@@ -57,13 +57,13 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             }
             catch (JsonException jsonException)
             {
-                var failedEventV2ServiceException =
-                    new FailedEventV2ServiceException(
-                        message: "Failed event service error occurred, contact support.",
+                var failedJsonEventV2Exception =
+                    new FailedJsonEventV2Exception(
+                        message: "Failed json event error occurred, contact support.",
                         innerException: jsonException,
                         data: jsonException.Data);
 
-                throw await CreateAndLogServiceExceptionAsync(failedEventV2ServiceException);
+                throw await CreateAndLogDependencyValidationExceptionAsync(failedJsonEventV2Exception);
             }
             catch (Exception serviceException)
             {
