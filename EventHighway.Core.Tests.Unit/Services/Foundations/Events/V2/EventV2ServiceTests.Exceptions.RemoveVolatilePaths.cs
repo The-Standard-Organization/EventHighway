@@ -18,6 +18,63 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
     public partial class EventV2ServiceTests
     {
         [Fact]
+        public async Task ShouldThrowDependencyExceptionOnRemoveVolatilePathsWhenTimeoutOccursAndLogItAsync()
+        {
+            // given
+            EventV2 someEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            var operationCanceledException = new OperationCanceledException();
+
+            var timeoutException =
+                new TimeoutException("The dependency operation timed out.");
+
+            var timeoutEventV2Exception =
+                new TimeoutEventV2Exception(
+                    message: "Failed event timeout error occurred, contact support.",
+                    innerException: timeoutException,
+                    data: timeoutException.Data);
+
+            var expectedEventV2DependencyException =
+                new EventV2DependencyException(
+                    message: "Event dependency error occurred, contact support.",
+                    innerException: timeoutEventV2Exception);
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                .Throws(operationCanceledException);
+
+            // when
+            ValueTask<string> removeVolatilePathsTask =
+                this.eventV2Service.RemoveVolatilePathsAsync(
+                    someEventV2,
+                    TestContext.Current.CancellationToken);
+
+            EventV2DependencyException actualEventV2DependencyException =
+                await Assert.ThrowsAsync<EventV2DependencyException>(
+                    removeVolatilePathsTask.AsTask);
+
+            // then
+            actualEventV2DependencyException.Should().BeEquivalentTo(
+                expectedEventV2DependencyException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2DependencyException))),
+                        Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
+
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task
             ShouldThrowDependencyValidationExceptionOnRemoveVolatilePathsWhenJsonExceptionOccursAndLogItAsync()
         {
@@ -180,6 +237,47 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.jsonBrokerMock.Verify(broker =>
                 broker.IsValidJson(someJsonContent),
                     Times.Once);
+
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRemoveVolatilePathsAsync()
+        {
+            // given
+            EventV2 someEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            CancellationToken cancelledToken = cancellationTokenSource.Token;
+
+            // when
+            ValueTask<string> removeVolatilePathsTask =
+                this.eventV2Service.RemoveVolatilePathsAsync(
+                    someEventV2,
+                    cancelledToken);
+
+            // then
+            OperationCanceledException actualException =
+                await Assert.ThrowsAsync<OperationCanceledException>(
+                    removeVolatilePathsTask.AsTask);
+
+            actualException.Should().NotBeOfType<EventV2DependencyException>();
+            actualException.Should().NotBeOfType<EventV2ServiceException>();
+            actualException.CancellationToken.IsCancellationRequested.Should().BeTrue();
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.IsAny<Xeptions.Xeption>()),
+                    Times.Never);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCriticalAsync(It.IsAny<Xeptions.Xeption>()),
+                    Times.Never);
 
             this.configurationBrokerMock.VerifyNoOtherCalls();
             this.jsonBrokerMock.VerifyNoOtherCalls();
