@@ -26,7 +26,14 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
 
         private async ValueTask<int> TryCatch(ReturningIntFunction returningIntFunction)
         {
-            return await returningIntFunction();
+            try
+            {
+                return await returningIntFunction();
+            }
+            catch (NullEventV2Exception nullEventV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(nullEventV2Exception);
+            }
         }
 
         private async ValueTask<string> TryCatch(ReturningStringFunction returningStringFunction)

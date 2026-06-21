@@ -137,6 +137,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRetrieveEventV2CountBySignature(eventV2);
 
             IQueryable<EventV2> eventV2s =
                 await this.storageBroker.SelectAllEventV2sAsync(cancellationToken);

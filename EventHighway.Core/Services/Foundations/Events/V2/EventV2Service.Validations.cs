@@ -106,6 +106,11 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 Parameter: nameof(EventV2.Id)));
         }
 
+        private static void ValidateOnRetrieveEventV2CountBySignature(EventV2 eventV2)
+        {
+            ValidateEventV2IsNotNull(eventV2);
+        }
+
         private static void ValidateOnRemoveVolatilePaths(EventV2 eventV2)
         {
             ValidateEventV2IsNotNull(eventV2);
