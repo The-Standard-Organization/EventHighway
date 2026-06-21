@@ -16,6 +16,59 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
     public partial class EventV2ServiceTests
     {
         [Fact]
+        public async Task ShouldCanonicalizeOnlyWhenNoVolatilePathsConfiguredForEventAddressOnRemoveVolatilePathsAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 randomEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            EventV2 inputEventV2 = randomEventV2;
+            string someJsonContent = "{\"a\":1}";
+            inputEventV2.Content = someJsonContent;
+
+            var loopDetectionConfiguration = new LoopDetection
+            {
+                VolatilePaths = new List<VolatilePaths>()
+            };
+
+            string expectedContent = someJsonContent;
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                .Returns(loopDetectionConfiguration);
+
+            this.jsonBrokerMock
+                .Setup(broker => broker.IsValidJson(someJsonContent))
+                .Returns(true);
+
+            // when
+            string actualContent =
+                await this.eventV2Service.RemoveVolatilePathsAsync(
+                    inputEventV2,
+                    randomCancellationToken);
+
+            // then
+            actualContent.Should().Be(expectedContent);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
+
+            this.jsonBrokerMock.Verify(broker =>
+                broker.IsValidJson(someJsonContent),
+                    Times.Once);
+
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldReturnContentAsIsWhenContentIsNotValidJsonOnRemoveVolatilePathsAsync()
         {
             // given
