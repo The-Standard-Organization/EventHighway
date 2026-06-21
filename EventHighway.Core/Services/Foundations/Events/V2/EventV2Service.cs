@@ -7,10 +7,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Nodes;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.LoopDetections;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 
 namespace EventHighway.Core.Services.Foundations.Events.V2
@@ -20,17 +25,20 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         private readonly IStorageBroker storageBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly IJsonBroker jsonBroker;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventV2Service(
             IStorageBroker storageBroker,
             IDateTimeBroker dateTimeBroker,
             IJsonBroker jsonBroker,
+            IConfigurationBroker configurationBroker,
             ILoggingBroker loggingBroker)
         {
             this.storageBroker = storageBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.jsonBroker = jsonBroker;
+            this.configurationBroker = configurationBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -95,8 +103,59 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         });
 
         public ValueTask<string> RemoveVolatilePathsAsync(
-            string content,
-            string[] volatileContentPaths) =>
-                throw new System.NotImplementedException();
+            EventV2 eventV2,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            LoopDetection config =
+                this.configurationBroker.GetLoopDetectionConfiguration();
+
+            string[] volatilePaths =
+                config?.VolatilePaths
+                    ?.FirstOrDefault(vp => vp.EventAddressId == eventV2.EventAddressId)
+                    ?.VolatileContentPaths
+                ?? System.Array.Empty<string>();
+
+            string content = eventV2.Content;
+
+            if (!this.jsonBroker.IsValidJson(content))
+                return content;
+
+            foreach (string path in volatilePaths)
+                content = this.jsonBroker.RemoveNode(content, path);
+
+            return Canonicalize(content);
+        });
+
+        private static string Canonicalize(string json)
+        {
+            JsonNode node = JsonNode.Parse(json);
+            return SerializeSorted(node);
+        }
+
+        private static string SerializeSorted(JsonNode node)
+        {
+            if (node is JsonObject obj)
+            {
+                var sorted = new SortedDictionary<string, JsonNode>();
+                foreach (var property in obj) sorted[property.Key] = property.Value;
+                var result = new JsonObject();
+                foreach (var kvp in sorted)
+                    result[kvp.Key] = JsonNode.Parse(SerializeSorted(kvp.Value));
+                return result.ToJsonString();
+            }
+
+            if (node is JsonArray arr)
+            {
+                var resultArr = new JsonArray();
+                foreach (JsonNode item in arr)
+                    resultArr.Add(JsonNode.Parse(SerializeSorted(item)));
+                return resultArr.ToJsonString();
+            }
+
+            return node?.ToJsonString() ?? "null";
+        }
     }
 }

@@ -3,13 +3,16 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.LoopDetections;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
@@ -26,6 +29,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<IJsonBroker> jsonBrokerMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventV2Service eventV2Service;
 
@@ -43,10 +47,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.jsonBrokerMock =
                 new Mock<IJsonBroker>();
 
+            this.configurationBrokerMock =
+                new Mock<IConfigurationBroker>();
+
             this.eventV2Service = new EventV2Service(
                 storageBroker: this.storageBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
                 jsonBroker: this.jsonBrokerMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 

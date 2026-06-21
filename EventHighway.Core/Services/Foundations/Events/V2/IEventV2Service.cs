@@ -23,8 +23,6 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             IEnumerable<EventV2> eventV2s,
             CancellationToken cancellationToken = default);
 
-        ValueTask<string> RemoveVolatilePathsAsync(
-            string content,
-            string[] volatileContentPaths);
+        ValueTask<string> RemoveVolatilePathsAsync(EventV2 eventV2, CancellationToken cancellationToken = default);
     }
 }
