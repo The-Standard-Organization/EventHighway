@@ -88,6 +88,27 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 return await returningStringFunction();
             }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventV2ProcessingException =
+                    new TimeoutEventV2ProcessingException(
+                        message: "Failed event processing timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                var eventV2ProcessingDependencyException =
+                    new EventV2ProcessingDependencyException(
+                        message: "Event dependency error occurred, contact support.",
+                        innerException: timeoutEventV2ProcessingException);
+
+                await this.loggingBroker.LogErrorAsync(eventV2ProcessingDependencyException);
+
+                throw eventV2ProcessingDependencyException;
+            }
             catch (NullEventV2ProcessingException nullEventV2ProcessingException)
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventV2ProcessingException);
