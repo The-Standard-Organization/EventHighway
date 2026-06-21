@@ -105,6 +105,11 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 Parameter: nameof(EventV2.Id)));
         }
 
+        private static void ValidateOnRemoveVolatilePaths(EventV2 eventV2)
+        {
+            ValidateEventV2IsNotNull(eventV2);
+        }
+
         private static void ValidateEventV2IsNotNull(EventV2 eventV2)
         {
             if (eventV2 is null)

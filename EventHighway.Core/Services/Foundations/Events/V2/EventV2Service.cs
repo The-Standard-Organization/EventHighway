@@ -108,6 +108,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRemoveVolatilePaths(eventV2);
 
             LoopDetection config =
                 this.configurationBroker.GetLoopDetectionConfiguration();
