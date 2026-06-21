@@ -28,7 +28,8 @@ namespace EventHighway.Core.Services.Foundations.VolatilePaths
                 var failedJsonVolatilePathServiceException =
                     new FailedJsonVolatilePathServiceException(
                         message: "Failed jsonvolatile path service error occurred, contact support.",
-                        innerException: jsonException);
+                        innerException: jsonException,
+                        data: jsonException.Data);
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(failedJsonVolatilePathServiceException);
             }

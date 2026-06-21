@@ -3,15 +3,14 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using Xeptions;
 
 namespace EventHighway.Core.Models.Services.Foundations.VolatilePaths.Exceptions
 {
-    internal class FailedJsonVolatilePathServiceException : Xeption
+    internal class FailedVolatilePathServiceException : Xeption
     {
-        public FailedJsonVolatilePathServiceException(string message, Exception innerException, IDictionary data)
-            : base(message, innerException, data)
+        public FailedVolatilePathServiceException(string message, Exception innerException)
+            : base(message, innerException)
         { }
     }
 }
