@@ -92,6 +92,14 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventV2ProcessingException);
             }
+            catch (EventV2ValidationException eventV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV2ValidationException);
+            }
+            catch (EventV2DependencyValidationException eventV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventV2DependencyValidationException);
+            }
         }
 
         private async ValueTask<IQueryable<EventV2>> TryCatch(ReturningEventV2sFunction returningEventV2sFunction)
