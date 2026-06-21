@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace EventHighway.Core.Models.Configurations.LoopDetections
 {
@@ -28,5 +29,9 @@ namespace EventHighway.Core.Models.Configurations.LoopDetections
         /// Defaults to 60 seconds.
         /// </summary>
         public TimeSpan Window { get; set; } = TimeSpan.FromSeconds(60);
+
+        /// <summary>Per-event-address volatile content paths. Only addresses listed here have
+        /// fields stripped before hashing.</summary>
+        public List<VolatilePaths> VolatilePaths { get; set; } = new List<VolatilePaths>();
     }
 }

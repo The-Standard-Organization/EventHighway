@@ -14,6 +14,7 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
         public string Content { get; set; }
         public string EventName { get; set; }
         public EventArchiveTypeV2 Type { get; set; }
+        public EventArchiveStatusV2 Status { get; set; } = EventArchiveStatusV2.Active;
         public DateTimeOffset CreatedDate { get; set; }
         public DateTimeOffset UpdatedDate { get; set; }
         public DateTimeOffset? ScheduledDate { get; set; }

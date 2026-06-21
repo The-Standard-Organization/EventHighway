@@ -42,6 +42,11 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V2
         public EventTypeV2 Type { get; set; }
 
         /// <summary>
+        /// Gets or sets the status of this event. Defaults to Active.
+        /// </summary>
+        public EventStatusV2 Status { get; set; } = EventStatusV2.Active;
+
+        /// <summary>
         /// Gets or sets the date and time when this event was created.
         /// </summary>
         public DateTimeOffset CreatedDate { get; set; }
