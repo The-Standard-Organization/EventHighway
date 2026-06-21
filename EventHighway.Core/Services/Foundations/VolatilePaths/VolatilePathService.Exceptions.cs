@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.VolatilePaths.Exceptions;
@@ -33,6 +34,27 @@ namespace EventHighway.Core.Services.Foundations.VolatilePaths
 
                 throw await CreateAndLogDependencyValidationExceptionAsync(failedJsonVolatilePathServiceException);
             }
+            catch (Exception exception)
+            {
+                var failedVolatilePathServiceException =
+                    new FailedVolatilePathServiceException(
+                        message: "Failed volatile path service error occurred, contact support.",
+                        innerException: exception);
+
+                throw await CreateAndLogServiceExceptionAsync(failedVolatilePathServiceException);
+            }
+        }
+
+        private async ValueTask<VolatilePathServiceException> CreateAndLogServiceExceptionAsync(Xeption exception)
+        {
+            var volatilePathServiceException =
+                new VolatilePathServiceException(
+                    message: "Volatile path service error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(volatilePathServiceException);
+
+            return volatilePathServiceException;
         }
 
         private async ValueTask<VolatilePathServiceDependencyValidationException>
