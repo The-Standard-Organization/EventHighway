@@ -19,9 +19,15 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
     internal partial class EventV2Service
     {
         private delegate ValueTask ReturningNothingFunction();
+        private delegate ValueTask<int> ReturningIntFunction();
         private delegate ValueTask<string> ReturningStringFunction();
         private delegate ValueTask<EventV2> ReturningEventV2Function();
         private delegate ValueTask<IQueryable<EventV2>> ReturningEventV2sFunction();
+
+        private async ValueTask<int> TryCatch(ReturningIntFunction returningIntFunction)
+        {
+            return await returningIntFunction();
+        }
 
         private async ValueTask<string> TryCatch(ReturningStringFunction returningStringFunction)
         {

@@ -131,6 +131,31 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             return Canonicalize(content);
         });
 
+        public ValueTask<int> RetrieveEventV2CountBySignatureAsync(
+            EventV2 eventV2,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IQueryable<EventV2> eventV2s =
+                await this.storageBroker.SelectAllEventV2sAsync(cancellationToken);
+
+            LoopDetection config =
+                this.configurationBroker.GetLoopDetectionConfiguration();
+
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            DateTimeOffset createdAfter = now - config.Window;
+
+            return eventV2s.Count(ev =>
+                ev.EventAddressId == eventV2.EventAddressId
+                    && ev.EventName == eventV2.EventName
+                    && ev.ContentHash == eventV2.ContentHash
+                    && ev.CreatedDate > createdAfter);
+        });
+
         private static string Canonicalize(string json)
         {
             JsonNode node = JsonNode.Parse(json);

@@ -24,5 +24,9 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             CancellationToken cancellationToken = default);
 
         ValueTask<string> RemoveVolatilePathsAsync(EventV2 eventV2, CancellationToken cancellationToken = default);
+
+        ValueTask<int> RetrieveEventV2CountBySignatureAsync(
+            EventV2 eventV2,
+            CancellationToken cancellationToken = default);
     }
 }
