@@ -51,6 +51,10 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventV2Exception);
             }
+            catch (InvalidEventV2Exception invalidEventV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(invalidEventV2Exception);
+            }
             catch (JsonException jsonException)
             {
                 var failedEventV2ServiceException =

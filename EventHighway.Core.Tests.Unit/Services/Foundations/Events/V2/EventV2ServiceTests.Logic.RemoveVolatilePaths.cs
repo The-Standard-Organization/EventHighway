@@ -31,7 +31,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
 
             var loopDetectionConfiguration = new LoopDetection
             {
-                VolatilePaths = new List<VolatilePaths>()
+                VolatilePaths = new List<VolatilePaths>
+                {
+                    new VolatilePaths
+                    {
+                        EventAddressId = inputEventV2.EventAddressId,
+                        VolatileContentPaths = System.Array.Empty<string>()
+                    }
+                }
             };
 
             string expectedContent = someJsonContent;
