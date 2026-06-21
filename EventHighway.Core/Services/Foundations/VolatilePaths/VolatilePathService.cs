@@ -26,16 +26,17 @@ namespace EventHighway.Core.Services.Foundations.VolatilePaths
 
         public ValueTask<string> RemoveVolatilePathsAsync(
             string content,
-            string[] volatileContentPaths)
+            string[] volatileContentPaths) =>
+        TryCatch(async () =>
         {
             if (!this.jsonBroker.IsValidJson(content))
-                return ValueTask.FromResult(content);
+                return content;
 
             foreach (string path in volatileContentPaths)
                 content = this.jsonBroker.RemoveNode(content, path);
 
-            return ValueTask.FromResult(Canonicalize(content));
-        }
+            return Canonicalize(content);
+        });
 
         private static string Canonicalize(string json)
         {
