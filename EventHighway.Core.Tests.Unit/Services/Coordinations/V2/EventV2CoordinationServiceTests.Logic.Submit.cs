@@ -99,7 +99,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV2OrchestrationServiceMock.VerifyNoOtherCalls();
-            this.jsonSerializationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
@@ -285,7 +285,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV2OrchestrationServiceMock.VerifyNoOtherCalls();
-            this.jsonSerializationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
@@ -396,25 +396,25 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         randomCancellationToken))
                             .ReturnsAsync(addedListenerEventV2);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1))
                         .Returns(true);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1))
                         .Returns(promotedPropertyValue1);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2))
                         .Returns(true);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2))
@@ -476,25 +476,25 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     randomCancellationToken),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2),
@@ -515,7 +515,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV2OrchestrationServiceMock.VerifyNoOtherCalls();
-            this.jsonSerializationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
         [Theory]
@@ -623,19 +623,19 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         randomCancellationToken))
                             .ReturnsAsync(addedListenerEventV2);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1))
                         .Returns(true);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1))
                         .Returns(promotedPropertyValue1);
 
-            this.jsonSerializationBrokerMock.Setup(broker =>
+            this.jsonBrokerMock.Setup(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2))
@@ -697,19 +697,19 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     randomCancellationToken),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.GetJsonPropertyValue(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey1),
                         Times.Once);
 
-            this.jsonSerializationBrokerMock.Verify(broker =>
+            this.jsonBrokerMock.Verify(broker =>
                 broker.CheckIfPropertyExist(
                     inputImmediateEventV2.Content,
                     promotedPropertyKey2),
@@ -730,7 +730,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV2OrchestrationServiceMock.VerifyNoOtherCalls();
-            this.jsonSerializationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
@@ -836,7 +836,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
 
             if (invalidContent != null)
             {
-                this.jsonSerializationBrokerMock.Setup(broker =>
+                this.jsonBrokerMock.Setup(broker =>
                     broker.CheckIfPropertyExist(invalidContent, It.IsAny<string>()))
                         .Throws<JsonException>();
             }
@@ -911,7 +911,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
 
             if (invalidContent != null)
             {
-                this.jsonSerializationBrokerMock.Verify(broker =>
+                this.jsonBrokerMock.Verify(broker =>
                     broker.CheckIfPropertyExist(invalidContent, promotedPropertyKey),
                         Times.Once);
             }
@@ -919,7 +919,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
             this.eventListenerV2OrchestrationServiceMock.VerifyNoOtherCalls();
-            this.jsonSerializationBrokerMock.VerifyNoOtherCalls();
+            this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
     }

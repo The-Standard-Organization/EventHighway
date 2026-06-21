@@ -7,7 +7,7 @@ using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
-using EventHighway.Core.Brokers.Serializations.Jsons;
+using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Configurations;
@@ -168,7 +168,7 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         {
             services.AddLogging();
             services.AddTransient<ILoggingBroker, LoggingBroker>();
-            services.AddTransient<IJsonSerializationBroker, JsonSerializationBroker>();
+            services.AddTransient<IJsonBroker, JsonBroker>();
             services.AddTransient<IDateTimeBroker, DateTimeBroker>();
 
             services.AddTransient<

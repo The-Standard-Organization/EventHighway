@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
-using EventHighway.Core.Brokers.Serializations.Jsons;
+using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -24,20 +24,20 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
     {
         private readonly IEventV2OrchestrationService eventV2OrchestrationService;
         private readonly IEventListenerV2OrchestrationService eventListenerV2OrchestrationService;
-        private readonly IJsonSerializationBroker jsonSerializationBroker;
+        private readonly IJsonBroker jsonBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventV2CoordinationService(
             IEventV2OrchestrationService eventV2OrchestrationService,
             IEventListenerV2OrchestrationService eventListenerV2OrchestrationService,
-            IJsonSerializationBroker jsonSerializationBroker,
+            IJsonBroker jsonBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventV2OrchestrationService = eventV2OrchestrationService;
             this.eventListenerV2OrchestrationService = eventListenerV2OrchestrationService;
-            this.jsonSerializationBroker = jsonSerializationBroker;
+            this.jsonBroker = jsonBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
@@ -202,12 +202,12 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             {
                 foreach (string key in keys)
                 {
-                    if (this.jsonSerializationBroker.CheckIfPropertyExist(content, key))
+                    if (this.jsonBroker.CheckIfPropertyExist(content, key))
                     {
                         result.Add(new PromotedProperty
                         {
                             Name = key,
-                            Value = this.jsonSerializationBroker.GetJsonPropertyValue(content, key)
+                            Value = this.jsonBroker.GetJsonPropertyValue(content, key)
                         });
                     }
                 }
