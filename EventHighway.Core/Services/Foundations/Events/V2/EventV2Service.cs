@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
@@ -18,15 +19,18 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
     {
         private readonly IStorageBroker storageBroker;
         private readonly IDateTimeBroker dateTimeBroker;
+        private readonly IJsonBroker jsonBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventV2Service(
             IStorageBroker storageBroker,
             IDateTimeBroker dateTimeBroker,
+            IJsonBroker jsonBroker,
             ILoggingBroker loggingBroker)
         {
             this.storageBroker = storageBroker;
             this.dateTimeBroker = dateTimeBroker;
+            this.jsonBroker = jsonBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -89,5 +93,10 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
 
             await this.storageBroker.BulkDeleteEventV2sAsync(eventV2s, cancellationToken);
         });
+
+        public ValueTask<string> RemoveVolatilePathsAsync(
+            string content,
+            string[] volatileContentPaths) =>
+                throw new System.NotImplementedException();
     }
 }

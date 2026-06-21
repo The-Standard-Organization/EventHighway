@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
@@ -24,6 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
+        private readonly Mock<IJsonBroker> jsonBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventV2Service eventV2Service;
 
@@ -38,9 +40,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.dateTimeBrokerMock =
                 new Mock<IDateTimeBroker>();
 
+            this.jsonBrokerMock =
+                new Mock<IJsonBroker>();
+
             this.eventV2Service = new EventV2Service(
                 storageBroker: this.storageBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
+                jsonBroker: this.jsonBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
