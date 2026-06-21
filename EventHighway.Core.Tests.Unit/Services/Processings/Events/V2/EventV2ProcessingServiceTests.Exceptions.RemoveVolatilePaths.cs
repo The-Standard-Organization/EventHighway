@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -173,6 +174,64 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedEventV2ProcessingDependencyException))),
+                        Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRemoveVolatilePathsIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 someEventV2 = CreateRandomEventV2();
+            var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
+
+            var failedEventV2ProcessingServiceException =
+                new FailedEventV2ProcessingServiceException(
+                    message: "Failed event service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedEventV2ProcessingServiceException =
+                new EventV2ProcessingServiceException(
+                    message: "Event service error occurred, contact support.",
+                    innerException: failedEventV2ProcessingServiceException);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RemoveVolatilePathsAsync(
+                    It.IsAny<EventV2>(),
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<string> removeVolatilePathsTask =
+                this.eventV2ProcessingService.RemoveVolatilePathsAsync(
+                    someEventV2,
+                    randomCancellationToken);
+
+            EventV2ProcessingServiceException actualEventV2ProcessingServiceException =
+                await Assert.ThrowsAsync<EventV2ProcessingServiceException>(
+                    removeVolatilePathsTask.AsTask);
+
+            // then
+            actualEventV2ProcessingServiceException.Should().BeEquivalentTo(
+                expectedEventV2ProcessingServiceException);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RemoveVolatilePathsAsync(
+                    It.IsAny<EventV2>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2ProcessingServiceException))),
                         Times.Once);
 
             this.eventV2ServiceMock.VerifyNoOtherCalls();
