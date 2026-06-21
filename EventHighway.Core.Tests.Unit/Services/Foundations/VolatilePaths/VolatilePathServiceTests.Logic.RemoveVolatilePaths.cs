@@ -93,5 +93,34 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.VolatilePaths
             this.jsonBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldCanonicalizeOnlyWhenVolatilePathsAreEmptyAsync()
+        {
+            // given
+            string inputContent = "{\"z\":3,\"a\":1}";
+            string[] inputPaths = new string[0];
+            string expectedContent = "{\"a\":1,\"z\":3}";
+
+            this.jsonBrokerMock
+                .Setup(broker => broker.IsValidJson(inputContent))
+                .Returns(true);
+
+            // when
+            string actualContent =
+                await this.volatilePathService.RemoveVolatilePathsAsync(
+                    inputContent,
+                    inputPaths);
+
+            // then
+            actualContent.Should().Be(expectedContent);
+
+            this.jsonBrokerMock.Verify(
+                broker => broker.IsValidJson(inputContent),
+                Times.Once);
+
+            this.jsonBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
