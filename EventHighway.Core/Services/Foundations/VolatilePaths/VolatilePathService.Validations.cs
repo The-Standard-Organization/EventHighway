@@ -8,7 +8,7 @@ namespace EventHighway.Core.Services.Foundations.VolatilePaths
 {
     internal partial class VolatilePathService
     {
-        private static void ValidateRemoveVolatilePaths(string content, string[] volatileContentPaths)
+        private static void ValidateOnRemoveVolatilePaths(string content, string[] volatileContentPaths)
         {
             Validate(
                 (Rule: IsInvalid(content), Parameter: nameof(content)),

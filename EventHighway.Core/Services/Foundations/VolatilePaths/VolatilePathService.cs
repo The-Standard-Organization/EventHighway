@@ -3,7 +3,6 @@
 // ----------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Jsons;
@@ -29,6 +28,8 @@ namespace EventHighway.Core.Services.Foundations.VolatilePaths
             string[] volatileContentPaths) =>
         TryCatch(async () =>
         {
+            ValidateOnRemoveVolatilePaths(content, volatileContentPaths);
+
             if (!this.jsonBroker.IsValidJson(content))
                 return content;
 
