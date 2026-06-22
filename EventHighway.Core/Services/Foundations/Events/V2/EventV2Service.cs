@@ -5,11 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Nodes;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Jsons;
 using EventHighway.Core.Brokers.Loggings;
@@ -138,17 +136,15 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
             ValidateOnRetrieveEventV2CountBySignature(eventV2);
+            LoopDetection config = this.configurationBroker.GetLoopDetectionConfiguration();
+            TimeSpan window = config?.Window ?? default;
+            ValidateOnRetrieveEventV2CountBySignatureWithConfig(eventV2, window);
 
             IQueryable<EventV2> eventV2s =
                 await this.storageBroker.SelectAllEventV2sAsync(cancellationToken);
 
-            LoopDetection config =
-                this.configurationBroker.GetLoopDetectionConfiguration();
-
-            DateTimeOffset now =
-                await this.dateTimeBroker.GetDateTimeOffsetAsync();
-
-            DateTimeOffset createdAfter = now - config.Window;
+            DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
+            DateTimeOffset createdAfter = now - window;
 
             return eventV2s.Count(ev =>
                 ev.EventAddressId == eventV2.EventAddressId

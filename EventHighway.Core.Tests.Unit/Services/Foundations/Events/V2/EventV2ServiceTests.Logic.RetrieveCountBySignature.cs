@@ -90,5 +90,46 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.configurationBrokerMock.VerifyNoOtherCalls();
         }
+        [Fact]
+        public async Task ShouldReturnZeroOnRetrieveEventV2CountBySignatureWhenLoopDetectionIsDisabledAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 randomEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            EventV2 inputEventV2 = randomEventV2;
+            int expectedCount = 0;
+
+            var loopDetectionConfig = new LoopDetection
+            {
+                Enabled = false,
+                Window = TimeSpan.FromSeconds(GetRandomNumber())
+            };
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                    .Returns(loopDetectionConfig);
+
+            // when
+            int actualCount =
+                await this.eventV2Service.RetrieveEventV2CountBySignatureAsync(
+                    inputEventV2,
+                    randomCancellationToken);
+
+            // then
+            actualCount.Should().Be(expectedCount);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }

@@ -111,6 +111,26 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             ValidateEventV2IsNotNull(eventV2);
         }
 
+        private static void ValidateOnRetrieveEventV2CountBySignatureWithConfig(
+            EventV2 eventV2,
+            TimeSpan window)
+        {
+            Validate(
+                message: "Event is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventV2.EventAddressId),
+                Parameter: nameof(EventV2.EventAddressId)),
+
+                (Rule: IsInvalid(eventV2.EventName),
+                Parameter: nameof(EventV2.EventName)),
+
+                (Rule: IsInvalid(eventV2.ContentHash),
+                Parameter: nameof(EventV2.ContentHash)),
+
+                (Rule: IsInvalid(window),
+                Parameter: nameof(LoopDetection.Window)));
+        }
+
         private static void ValidateOnRemoveVolatilePaths(EventV2 eventV2)
         {
             ValidateEventV2IsNotNull(eventV2);
@@ -230,6 +250,12 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         private static dynamic IsInvalid(DateTimeOffset date) => new
         {
             Condition = date == default,
+            Message = "Required"
+        };
+
+        private static dynamic IsInvalid(TimeSpan timeSpan) => new
+        {
+            Condition = timeSpan == default,
             Message = "Required"
         };
 
