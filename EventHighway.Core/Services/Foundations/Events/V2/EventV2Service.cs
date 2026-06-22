@@ -135,16 +135,17 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveEventV2CountBySignature(eventV2);
             LoopDetection config = this.configurationBroker.GetLoopDetectionConfiguration();
-            TimeSpan window = config?.Window ?? default;
-            ValidateOnRetrieveEventV2CountBySignatureWithConfig(eventV2, window);
+            ValidateOnRetrieveEventV2CountBySignature(eventV2, config);
+
+            if (config.Enabled is false)
+                return 0;
 
             IQueryable<EventV2> eventV2s =
                 await this.storageBroker.SelectAllEventV2sAsync(cancellationToken);
 
             DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
-            DateTimeOffset createdAfter = now - window;
+            DateTimeOffset createdAfter = now - config.Window;
 
             return eventV2s.Count(ev =>
                 ev.EventAddressId == eventV2.EventAddressId

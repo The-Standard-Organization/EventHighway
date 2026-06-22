@@ -106,17 +106,21 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 Parameter: nameof(EventV2.Id)));
         }
 
-        private static void ValidateOnRetrieveEventV2CountBySignature(EventV2 eventV2)
-        {
-            ValidateEventV2IsNotNull(eventV2);
-        }
-
-        private static void ValidateOnRetrieveEventV2CountBySignatureWithConfig(
+        private static void ValidateOnRetrieveEventV2CountBySignature(
             EventV2 eventV2,
-            TimeSpan window)
+            LoopDetection config)
         {
             Validate(
-                message: "Event is invalid, fix the errors and try again.",
+                message: "Arguments are invalid, fix the errors and try again.",
+
+                (Rule: IsNull(eventV2),
+                Parameter: nameof(EventV2)),
+
+                (Rule: IsNull(config),
+                Parameter: nameof(LoopDetection)));
+
+            Validate(
+                message: "Arguments are invalid, fix the errors and try again.",
 
                 (Rule: IsInvalid(eventV2.EventAddressId),
                 Parameter: nameof(EventV2.EventAddressId)),
@@ -127,7 +131,7 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 (Rule: IsInvalid(eventV2.ContentHash),
                 Parameter: nameof(EventV2.ContentHash)),
 
-                (Rule: IsInvalid(window),
+                (Rule: IsInvalid(config.Window),
                 Parameter: nameof(LoopDetection.Window)));
         }
 
@@ -228,6 +232,12 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
 
         private static bool IsExceedingLength(string text, int maxLength) =>
             (text ?? string.Empty).Length > maxLength;
+
+        private static dynamic IsNull(object value) => new
+        {
+            Condition = value is null,
+            Message = "Required"
+        };
 
         private static dynamic IsInvalid(Guid id) => new
         {

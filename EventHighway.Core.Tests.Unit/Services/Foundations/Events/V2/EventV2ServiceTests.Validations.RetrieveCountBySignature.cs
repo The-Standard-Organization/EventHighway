@@ -24,13 +24,27 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
 
             EventV2 nullEventV2 = null;
 
-            var nullEventV2Exception =
-                new NullEventV2Exception(message: "Event is null.");
+            var loopDetectionConfig = new LoopDetection
+            {
+                Window = TimeSpan.FromSeconds(GetRandomNumber())
+            };
+
+            var invalidEventV2Exception =
+                new InvalidEventV2Exception(
+                    message: "Arguments are invalid, fix the errors and try again.");
+
+            invalidEventV2Exception.UpsertDataList(
+                key: nameof(EventV2),
+                value: "Required");
 
             var expectedEventV2ValidationException =
                 new EventV2ValidationException(
                     message: "Event validation error occurred, fix the errors and try again.",
-                    innerException: nullEventV2Exception);
+                    innerException: invalidEventV2Exception);
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                    .Returns(loopDetectionConfig);
 
             // when
             ValueTask<int> retrieveCountTask =
@@ -50,6 +64,68 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedEventV2ValidationException))),
                         Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
+
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRetrieveCountBySignatureIfConfigIsNullAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 someEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            LoopDetection nullLoopDetectionConfig = null;
+
+            var invalidEventV2Exception =
+                new InvalidEventV2Exception(
+                    message: "Arguments are invalid, fix the errors and try again.");
+
+            invalidEventV2Exception.UpsertDataList(
+                key: nameof(LoopDetection),
+                value: "Required");
+
+            var expectedEventV2ValidationException =
+                new EventV2ValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventV2Exception);
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                    .Returns(nullLoopDetectionConfig);
+
+            // when
+            ValueTask<int> retrieveCountTask =
+                this.eventV2Service.RetrieveEventV2CountBySignatureAsync(
+                    someEventV2,
+                    randomCancellationToken);
+
+            EventV2ValidationException actualEventV2ValidationException =
+                await Assert.ThrowsAsync<EventV2ValidationException>(
+                    retrieveCountTask.AsTask);
+
+            // then
+            actualEventV2ValidationException.Should().BeEquivalentTo(
+                expectedEventV2ValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2ValidationException))),
+                        Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
 
             this.configurationBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
@@ -71,11 +147,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
                 ContentHash = string.Empty
             };
 
-            LoopDetection nullLoopDetectionConfig = null;
+            var loopDetectionConfig = new LoopDetection
+            {
+                Window = default
+            };
 
             var invalidEventV2Exception =
                 new InvalidEventV2Exception(
-                    message: "Event is invalid, fix the errors and try again.");
+                    message: "Arguments are invalid, fix the errors and try again.");
 
             invalidEventV2Exception.UpsertDataList(
                 key: nameof(EventV2.EventAddressId),
@@ -100,7 +179,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
 
             this.configurationBrokerMock
                 .Setup(broker => broker.GetLoopDetectionConfiguration())
-                    .Returns(nullLoopDetectionConfig);
+                    .Returns(loopDetectionConfig);
 
             // when
             ValueTask<int> retrieveCountTask =
