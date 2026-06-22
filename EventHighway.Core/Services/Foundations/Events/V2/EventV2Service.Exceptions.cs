@@ -5,7 +5,6 @@
 using System;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -44,6 +43,10 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
 
                 throw await CreateAndLogDependencyExceptionAsync(timeoutEventV2Exception);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (NullEventV2Exception nullEventV2Exception)
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventV2Exception);
@@ -61,6 +64,16 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                         data: sqlException.Data);
 
                 throw await CreateAndLogDependencyExceptionAsync(failedStorageEventV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventV2ServiceException =
+                    new FailedEventV2ServiceException(
+                        message: "Failed event service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(failedEventV2ServiceException);
             }
         }
 
