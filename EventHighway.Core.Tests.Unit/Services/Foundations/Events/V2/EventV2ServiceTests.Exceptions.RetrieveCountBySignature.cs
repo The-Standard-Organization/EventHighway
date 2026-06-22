@@ -84,5 +84,44 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.configurationBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+        [Fact]
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRetrieveCountBySignatureAsync()
+        {
+            // given
+            EventV2 someEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            CancellationToken cancelledToken = cancellationTokenSource.Token;
+
+            // when
+            ValueTask<int> retrieveCountTask =
+                this.eventV2Service.RetrieveEventV2CountBySignatureAsync(
+                    someEventV2,
+                    cancelledToken);
+
+            // then
+            OperationCanceledException actualException =
+                await Assert.ThrowsAsync<OperationCanceledException>(
+                    retrieveCountTask.AsTask);
+
+            actualException.Should().NotBeOfType<EventV2DependencyException>();
+            actualException.Should().NotBeOfType<EventV2ServiceException>();
+            actualException.CancellationToken.IsCancellationRequested.Should().BeTrue();
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.IsAny<Xeptions.Xeption>()),
+                    Times.Never);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCriticalAsync(It.IsAny<Xeptions.Xeption>()),
+                    Times.Never);
+
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
