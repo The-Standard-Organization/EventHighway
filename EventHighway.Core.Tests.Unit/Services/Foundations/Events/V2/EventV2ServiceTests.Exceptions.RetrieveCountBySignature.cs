@@ -190,5 +190,71 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
             this.configurationBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRetrieveCountBySignatureIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            EventV2 someEventV2 =
+                CreateRandomEventV2(dates: GetRandomDateTimeOffset());
+
+            var loopDetectionConfig = new LoopDetection
+            {
+                Window = TimeSpan.FromSeconds(GetRandomNumber())
+            };
+
+            var serviceException = new Exception();
+
+            var failedEventV2ServiceException =
+                new FailedEventV2ServiceException(
+                    message: "Failed event service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedEventV2ServiceException =
+                new EventV2ServiceException(
+                    message: "Event service error occurred, contact support.",
+                    innerException: failedEventV2ServiceException);
+
+            this.configurationBrokerMock
+                .Setup(broker => broker.GetLoopDetectionConfiguration())
+                    .Returns(loopDetectionConfig);
+
+            this.storageBrokerMock
+                .Setup(broker => broker.SelectAllEventV2sAsync(
+                    TestContext.Current.CancellationToken))
+                        .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<int> retrieveCountTask =
+                this.eventV2Service.RetrieveEventV2CountBySignatureAsync(
+                    someEventV2,
+                    TestContext.Current.CancellationToken);
+
+            EventV2ServiceException actualEventV2ServiceException =
+                await Assert.ThrowsAsync<EventV2ServiceException>(
+                    retrieveCountTask.AsTask);
+
+            // then
+            actualEventV2ServiceException.Should().BeEquivalentTo(
+                expectedEventV2ServiceException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2ServiceException))),
+                        Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetLoopDetectionConfiguration(),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAllEventV2sAsync(TestContext.Current.CancellationToken),
+                    Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
