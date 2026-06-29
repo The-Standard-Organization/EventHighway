@@ -22,10 +22,6 @@
     <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
   </Folder>
   <Project Path="EventHighway.Infrastructure/EventHighway.Infrastructure.csproj" />
-  <Project Path="EventHighway.PostgreSql/EventHighway.PostgreSql.csproj" Id="21468357-7977-4754-97d1-2cb1539b7182">
-    <Build Solution="Debug|*" Project="false" />
-  </Project>
-  <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" Id="3c7fb518-492a-4d23-8b78-28ed432eb092">
-    <Build Solution="Debug|*" Project="false" />
-  </Project>
+  <Project Path="EventHighway.PostgreSql/EventHighway.PostgreSql.csproj" Id="21468357-7977-4754-97d1-2cb1539b7182" />
+  <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" Id="3c7fb518-492a-4d23-8b78-28ed432eb092" />
 </Solution>
