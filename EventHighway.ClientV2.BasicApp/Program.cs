@@ -14,6 +14,7 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
+using EventHighway.SqlServer.Brokers;
 
 public partial class Program
 {
@@ -31,6 +32,9 @@ public partial class Program
             "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
             "Trusted_Connection=True;MultipleActiveResultSets=true");
 
+        SqlServerStorageBrokerProvider storageProvider =
+            new SqlServerStorageBrokerProvider(connectionString);
+
         // =========================================================
         // 1) Configure loop detection: only allow 1 identical item per minute
         // =========================================================
@@ -39,7 +43,7 @@ public partial class Program
         configuration.LoopDetection.Threshold = 0;
         configuration.LoopDetection.Window = TimeSpan.FromMinutes(1);
 
-        var client = new EventHighwayClient(connectionString, configuration);
+        var client = new EventHighwayClient(storageProvider, configuration);
 
         // =========================================================
         // 2) Create and register the handlers

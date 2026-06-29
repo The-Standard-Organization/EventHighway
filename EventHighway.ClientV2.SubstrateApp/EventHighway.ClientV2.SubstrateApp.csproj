@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EventHighway.Core\EventHighway.Core.csproj" />
     <ProjectReference Include="..\EventHighway.EventHandlers\EventHighway.EventHandlers.csproj" />
+    <ProjectReference Include="..\EventHighway.SqlServer\EventHighway.SqlServer.csproj" />
   </ItemGroup>
 
   <ItemGroup>

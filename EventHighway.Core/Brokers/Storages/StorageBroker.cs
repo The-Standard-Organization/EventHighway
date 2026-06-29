@@ -31,19 +31,19 @@ namespace EventHighway.Core.Brokers.Storages
 {
     internal partial class StorageBroker : EFxceptionsContext, IStorageBroker
     {
-        private readonly string connectionString;
+        private readonly IStorageBrokerProvider provider;
         private readonly IEFCoreClient efCoreClient;
 
-        public StorageBroker(string connectionString)
+        public StorageBroker(IStorageBrokerProvider provider)
         {
-            this.connectionString = connectionString;
+            this.provider = provider;
             efCoreClient = new EFCoreClient(this);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            optionsBuilder.UseSqlServer(this.connectionString);
+            this.provider.Configure(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -66,6 +66,8 @@ namespace EventHighway.Core.Brokers.Storages
             ConfigureListenerEventArchiveV1s(modelBuilder.Entity<ListenerEventArchiveV1>());
             ConfigureListenerEventArchiveV2s(modelBuilder.Entity<ListenerEventArchiveV2>());
             ConfigureListenerEvents(modelBuilder.Entity<ListenerEvent>());
+
+            this.provider.ConfigureModel(modelBuilder);
         }
 
         private async ValueTask<T> InsertAsync<T>(T @object, CancellationToken cancellationToken = default)
