@@ -63,30 +63,43 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 Response = null
             };
 
-            eventCallV2.PromotedProperties =
-                string.IsNullOrWhiteSpace(listenerEventV2.EventV2.Content)
-                    || string.IsNullOrWhiteSpace(listenerEventV2.EventListenerV2.PromotedProperties)
-                ? new List<PromotedProperty>()
-                : await this.eventCallV2ProcessingService
-                    .PromotePropertiesAsync(
-                        listenerEventV2.EventV2.Content,
-                        listenerEventV2.EventListenerV2.PromotedProperties,
-                        cancellationToken);
+            bool isSuccess;
 
-            EventCallV2 ranEventCallV2 =
-                await this.eventCallV2ProcessingService
-                    .RunEventCallV2Async(eventCallV2, cancellationToken);
+            try
+            {
+                eventCallV2.PromotedProperties =
+                    string.IsNullOrWhiteSpace(listenerEventV2.EventV2.Content)
+                        || string.IsNullOrWhiteSpace(listenerEventV2.EventListenerV2.PromotedProperties)
+                    ? new List<PromotedProperty>()
+                    : await this.eventCallV2ProcessingService
+                        .PromotePropertiesAsync(
+                            listenerEventV2.EventV2.Content,
+                            listenerEventV2.EventListenerV2.PromotedProperties,
+                            cancellationToken);
 
-            listenerEventV2.Response = ranEventCallV2.Response;
-            listenerEventV2.ResponseCode = ranEventCallV2.ResponseCode;
-            listenerEventV2.ResponseMessage = ranEventCallV2.ResponseMessage;
+                EventCallV2 ranEventCallV2 =
+                    await this.eventCallV2ProcessingService
+                        .RunEventCallV2Async(eventCallV2, cancellationToken);
+
+                listenerEventV2.Response = ranEventCallV2.Response;
+                listenerEventV2.ResponseCode = ranEventCallV2.ResponseCode;
+                listenerEventV2.ResponseMessage = ranEventCallV2.ResponseMessage;
+
+                isSuccess = ranEventCallV2.IsSuccess;
+            }
+            catch (Exception exception)
+            {
+                await this.loggingBroker.LogErrorAsync(exception);
+                listenerEventV2.Response = exception.Message;
+                isSuccess = false;
+            }
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             listenerEventV2.DispatchedDate = now;
 
-            if (ranEventCallV2.IsSuccess)
+            if (isSuccess)
             {
                 listenerEventV2.Status = ListenerEventStatusV2.Success;
                 listenerEventV2.NextRetryAttemptNotBefore = null;
