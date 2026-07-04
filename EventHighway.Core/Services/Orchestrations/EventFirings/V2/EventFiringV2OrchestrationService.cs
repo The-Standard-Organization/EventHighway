@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -152,11 +153,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
         }
 
-        private static ListenerEventV2 CreateListenerEventV2(
+        private ListenerEventV2 CreateListenerEventV2(
             EventV2 eventV2,
             EventListenerV2 eventListenerV2,
             DateTimeOffset now)
         {
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
             return new ListenerEventV2
             {
                 Id = Guid.NewGuid(),
@@ -164,6 +168,10 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 EventListenerV2Id = eventListenerV2.Id,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
                 Status = ListenerEventStatusV2.Pending,
+                RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = now,
                 CreatedDate = now,
                 UpdatedDate = now,
             };

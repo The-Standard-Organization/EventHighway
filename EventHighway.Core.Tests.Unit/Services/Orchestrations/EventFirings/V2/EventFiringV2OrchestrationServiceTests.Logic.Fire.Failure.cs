@@ -49,6 +49,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
                     EventV2Id = inputEventV2.Id,
                     Status = ListenerEventStatusV2.Pending,
                     EventAddressV2Id = inputEventV2.EventAddressV2Id,
+                    RemainingRetryAttempts = this.retryConfiguration.RetryAttemptsAllowed,
+                    RetryAttemptsAllowed = this.retryConfiguration.RetryAttemptsAllowed,
+                    NextRetryAttemptNotBefore = null,
+                    DispatchedDate = randomDateTimeOffset,
                     CreatedDate = randomDateTimeOffset,
                     UpdatedDate = randomDateTimeOffset
                 };
