@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
@@ -141,6 +142,77 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedRetryingListenerEventV2OrchestrationDependencyException))),
+                        Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRetryIfServiceErrorOccursAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            ListenerEventV2 someListenerEventV2 =
+                CreateRandomListenerEventV2WithNavProps();
+
+            someListenerEventV2.EventListenerV2.PromotedProperties = null;
+
+            var serviceException = new Exception();
+
+            var failedRetryingListenerEventV2OrchestrationServiceException =
+                new FailedRetryingListenerEventV2OrchestrationServiceException(
+                    message: "Failed retrying listener event orchestration service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedRetryingListenerEventV2OrchestrationServiceException =
+                new RetryingListenerEventV2OrchestrationServiceException(
+                    message: "Retrying listener event service error occurred, contact support.",
+                    innerException: failedRetryingListenerEventV2OrchestrationServiceException);
+
+            this.eventCallV2ProcessingServiceMock.Setup(service =>
+                service.RunEventCallV2Async(
+                    It.IsAny<EventCallV2>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new EventCallV2 { IsSuccess = true });
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                .ReturnsAsync(GetRandomDateTimeOffset());
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.ModifyListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    randomCancellationToken))
+                .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<ListenerEventV2> retryTask =
+                this.retryingListenerEventV2OrchestrationService
+                    .RetryListenerEventV2Async(
+                        someListenerEventV2,
+                        randomCancellationToken);
+
+            RetryingListenerEventV2OrchestrationServiceException actualException =
+                await Assert.ThrowsAsync<RetryingListenerEventV2OrchestrationServiceException>(
+                    retryTask.AsTask);
+
+            // then
+            actualException.Should().BeEquivalentTo(
+                expectedRetryingListenerEventV2OrchestrationServiceException);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.ModifyListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedRetryingListenerEventV2OrchestrationServiceException))),
                         Times.Once);
 
             this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
