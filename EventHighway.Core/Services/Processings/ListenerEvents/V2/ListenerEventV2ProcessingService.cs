@@ -211,5 +211,10 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
             return await this.listenerEventV2Service
                 .ModifyListenerEventV2Async(maybeListenerEventV2, cancellationToken);
         });
+
+        public ValueTask ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
+            Guid eventListenerV2Id,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
