@@ -41,10 +41,13 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<ListenerEventV2> RetryListenerEventV2Async(
+        public ValueTask<ListenerEventV2> RetryListenerEventV2Async(
             ListenerEventV2 listenerEventV2,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
+            ValidateListenerEventV2IsNotNull(listenerEventV2);
+
             IEnumerable<string> requiredKeys =
                 string.IsNullOrWhiteSpace(listenerEventV2.EventListenerV2.PromotedProperties)
                     ? Array.Empty<string>()
@@ -128,7 +131,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
             return await this.listenerEventV2ProcessingService
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
-        }
+        });
 
         private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
         {
