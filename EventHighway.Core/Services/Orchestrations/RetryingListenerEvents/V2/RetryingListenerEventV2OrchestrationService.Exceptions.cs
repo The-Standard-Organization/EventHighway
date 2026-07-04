@@ -5,6 +5,8 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.RetryingListenerEvents.V2.Exceptions;
+using EventHighway.Core.Models.Services.Processings.EventCalls.V2.Exceptions;
+using EventHighway.Core.Models.Services.Processings.ListenerEvents.V2.Exceptions;
 using Xeptions;
 
 namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
@@ -26,6 +28,30 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     nullRetryingListenerEventV2OrchestrationException);
             }
+            catch (EventCallV2ProcessingValidationException
+                eventCallV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventCallV2ProcessingValidationException);
+            }
+            catch (EventCallV2ProcessingDependencyValidationException
+                eventCallV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventCallV2ProcessingDependencyValidationException);
+            }
+            catch (ListenerEventV2ProcessingValidationException
+                listenerEventV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV2ProcessingValidationException);
+            }
+            catch (ListenerEventV2ProcessingDependencyValidationException
+                listenerEventV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV2ProcessingDependencyValidationException);
+            }
         }
 
         private async ValueTask<RetryingListenerEventV2OrchestrationValidationException>
@@ -40,6 +66,20 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 retryingListenerEventV2OrchestrationValidationException);
 
             return retryingListenerEventV2OrchestrationValidationException;
+        }
+
+        private async ValueTask<RetryingListenerEventV2OrchestrationDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(Xeption exception)
+        {
+            var retryingListenerEventV2OrchestrationDependencyValidationException =
+                new RetryingListenerEventV2OrchestrationDependencyValidationException(
+                    message: "Retrying listener event validation error occurred, fix the errors and try again.",
+                    innerException: exception.InnerException as Xeption);
+
+            await this.loggingBroker.LogErrorAsync(
+                retryingListenerEventV2OrchestrationDependencyValidationException);
+
+            return retryingListenerEventV2OrchestrationDependencyValidationException;
         }
     }
 }
