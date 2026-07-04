@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EventHighway V2 — How It Works</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2933; --muted: #52606d; --line: #e4e7eb;
+    --accent: #2563eb; --accent-soft: #eff4ff; --code-bg: #f5f7fa;
+    --ok: #0f7b3f; --ok-bg: #e7f6ec; --err: #b42318; --err-bg: #fdecea;
+    --warn: #92400e; --warn-bg: #fef6e7;
+    --max: 960px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 40px 24px 120px; }
+  header.doc {
+    border-bottom: 2px solid var(--line); padding-bottom: 20px; margin-bottom: 8px;
+  }
+  header.doc h1 { font-size: 2.1rem; margin: 0 0 6px; letter-spacing: -0.02em; }
+  header.doc .sub { color: var(--muted); font-size: 1.02rem; }
+  h2 {
+    font-size: 1.5rem; margin: 52px 0 14px; padding-top: 10px;
+    border-top: 1px solid var(--line); letter-spacing: -0.01em;
+  }
+  h3 { font-size: 1.18rem; margin: 32px 0 10px; }
+  h4 { font-size: 1.02rem; margin: 22px 0 8px; color: var(--muted); text-transform: none; }
+  p { margin: 12px 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    background: var(--code-bg); padding: 1px 6px; border-radius: 5px;
+    font: 0.86em/1.4 "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    color: #0b3d91;
+  }
+  blockquote {
+    margin: 18px 0; padding: 12px 18px; background: var(--accent-soft);
+    border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; color: #29406b;
+  }
+  blockquote p { margin: 6px 0; }
+  table {
+    border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 0.93rem;
+    display: block; overflow-x: auto;
+  }
+  th, td { border: 1px solid var(--line); padding: 8px 11px; text-align: left; vertical-align: top; }
+  th { background: #f0f4f8; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  ul, ol { padding-left: 24px; }
+  li { margin: 5px 0; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+  .toc {
+    background: #fbfcfe; border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 22px; margin: 26px 0;
+  }
+  .toc h2 { border: 0; margin: 0 0 10px; padding: 0; font-size: 1.1rem; }
+  .toc ol { margin: 0; }
+  .toc ol ol { margin: 4px 0 4px; }
+  .toc a { color: var(--fg); }
+  .toc a:hover { color: var(--accent); }
+  .note {
+    display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 1px 8px;
+    border-radius: 999px; vertical-align: middle;
+  }
+  .ok  { color: var(--ok);  background: var(--ok-bg); }
+  .err { color: var(--err); background: var(--err-bg); }
+  .warn{ color: var(--warn);background: var(--warn-bg); }
+  pre.mermaid {
+    background: #fbfcfe; border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; margin: 20px 0; overflow-x: auto; text-align: center; min-height: 40px;
+  }
+  .callout {
+    background: var(--warn-bg); border-left: 4px solid #d9a441; border-radius: 0 8px 8px 0;
+    padding: 12px 18px; margin: 18px 0; color: #5c4413;
+  }
+  .lead { font-size: 1.05rem; color: var(--muted); }
+  footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>EventHighway V2 — How It Works</h1>
+  <div class="sub">A plain-language walkthrough of the V2 event flow: publishing, dispatch, filtering, retries, archiving, and replay.</div>
+</header>
+
+<blockquote>
+  <p><strong>Scope of this document:</strong> it describes the <em>target</em> V2 design — how the system
+  works once the retry work in <a href="./RetryChanges.md">RetryChanges.md</a> is in place. Submit,
+  dispatch, filtering, archiving and replay are what exists today; the retry behaviour (Fibonacci
+  backoff, listener-level budgets) is the new design, implemented per <code>RetryChanges.md</code>.</p>
+</blockquote>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s0">The mental model</a></li>
+    <li><a href="#s1">Submitting an event</a>
+      <ol>
+        <li><a href="#s11">Immediate events</a></li>
+        <li><a href="#s12">Scheduled events</a></li>
+        <li><a href="#s13">How listeners respond to a dispatched event</a>
+          <ol>
+            <li><a href="#s131">Normal (unfiltered) listeners</a></li>
+            <li><a href="#s132">Filtered listeners — match vs no-match</a></li>
+          </ol>
+        </li>
+        <li><a href="#s14">Loop detection &amp; quarantine</a></li>
+      </ol>
+    </li>
+    <li><a href="#s2">Retries</a>
+      <ol>
+        <li><a href="#s21">The scheduling process</a></li>
+        <li><a href="#s22">When a retry is in scope (and when not)</a></li>
+        <li><a href="#s23">The incremental (Fibonacci) delay</a></li>
+        <li><a href="#s24">Extending retries on a dead delivery</a></li>
+      </ol>
+    </li>
+    <li><a href="#s3">Archiving</a>
+      <ol>
+        <li><a href="#s31">What is in scope for archiving</a></li>
+        <li><a href="#s32">The dual-paged concept</a></li>
+      </ol>
+    </li>
+    <li><a href="#s4">Replay</a>
+      <ol>
+        <li><a href="#s41">How replay works &amp; targeted replay</a></li>
+        <li><a href="#s42">Replay copies listener events for history</a></li>
+      </ol>
+    </li>
+    <li><a href="#s5">The maintenance jobs a consumer must schedule</a></li>
+    <li><a href="#s6">The ListenerEventV2 lifecycle (one picture)</a></li>
+    <li><a href="#s7">Configuration reference</a></li>
+  </ol>
+</nav>
+
+<h2 id="s0">0. The mental model</h2>
+<p>EventHighway is an <strong>in-process event bus with durable delivery records</strong>. Five nouns carry the whole system:</p>
+<table>
+  <tr><th>Term</th><th>What it is</th></tr>
+  <tr><td><strong>Event Address</strong> (<code>EventAddressV2</code>)</td><td>A named channel/topic. Everything is organised around an address.</td></tr>
+  <tr><td><strong>Event Listener</strong> (<code>EventListenerV2</code>)</td><td>A subscription on an address. Points at a <strong>handler</strong>, and optionally carries <em>promoted properties</em> and a <em>filter</em>.</td></tr>
+  <tr><td><strong>Event Handler</strong> (<code>IEventHandler</code>)</td><td>Your in-process code, registered with the client (<code>RegisterEventHandler</code>) and identified by a <code>HandlerId</code>. Its <code>HandleAsync(content)</code> returns success/failure + a response.</td></tr>
+  <tr><td><strong>Event</strong> (<code>EventV2</code>)</td><td>Something that happened: JSON <code>Content</code>, an <code>EventName</code>, the target <code>EventAddressV2Id</code>, a <code>Type</code> (Immediate/Scheduled) and a <code>Status</code> (Active/Quarantined).</td></tr>
+  <tr><td><strong>Listener Event</strong> (<code>ListenerEventV2</code>)</td><td><strong>One delivery record per (event × listener).</strong> The durable receipt: its <code>Status</code> (Pending / Success / Error / Replay), the handler's response, and the retry bookkeeping.</td></tr>
+</table>
+<p>The golden rule: <strong>an <code>EventV2</code> is published once, but produces one <code>ListenerEventV2</code> per matching listener.</strong> All the interesting lifecycle (dispatch, retry, archive, replay) happens on the <code>ListenerEventV2</code> records — the fan-out — not on the event itself.</p>
+
+<pre class="mermaid">
+flowchart LR
+    P[Publisher] --&gt;|Submit EventV2| A["Event Address"]
+    A --&gt; L1[Listener 1 → Handler A]
+    A --&gt; L2[Listener 2 → Handler B]
+    A --&gt; L3[Listener 3 → Handler C]
+    L1 --&gt; LE1[(ListenerEventV2 #1)]
+    L2 --&gt; LE2[(ListenerEventV2 #2)]
+    L3 --&gt; LE3[(ListenerEventV2 #3)]
+</pre>
+
+<h2 id="s1">1. Submitting an event</h2>
+<p>You submit an event with <code>EventV2Client.SubmitEventV2Async(eventV2)</code>. The coordination service runs a fixed sequence before anything is dispatched:</p>
+<ol>
+  <li><strong>Validate</strong> the event isn't null.</li>
+  <li><strong>Validate participants</strong> — if the event/listeners are owned by a participant, the participant secret is checked.</li>
+  <li><strong>Decide the type</strong> from <code>ScheduledDate</code>:
+    <ul>
+      <li><code>ScheduledDate == null</code> → <strong>Immediate</strong></li>
+      <li><code>ScheduledDate &lt; now</code> → <strong>Immediate</strong> (a past schedule means "send now")</li>
+      <li>otherwise → <strong>Scheduled</strong></li>
+    </ul>
+  </li>
+  <li><strong>Stamp a content hash</strong> (volatile fields stripped first) — used for loop/duplicate detection.</li>
+  <li><strong>Loop detection</strong> — see <a href="#s14">§1.4</a>.</li>
+  <li><strong>Persist</strong> the event.</li>
+  <li><strong>Dispatch</strong> — if <strong>Immediate</strong> (and not quarantined), fire now (§1.1). If <strong>Scheduled</strong>, it waits (§1.2).</li>
+</ol>
+
+<pre class="mermaid">
+sequenceDiagram
+    participant Pub as Publisher
+    participant Client as EventV2Client
+    participant Coord as Coordination
+    participant DB as Storage
+    participant Fire as Firing
+    Pub-&gt;&gt;Client: SubmitEventV2Async(event)
+    Client-&gt;&gt;Coord: SubmitEventV2Async
+    Coord-&gt;&gt;Coord: validate + validate participants
+    Coord-&gt;&gt;Coord: decide Type (Immediate / Scheduled)
+    Coord-&gt;&gt;Coord: stamp content hash
+    Coord-&gt;&gt;Coord: loop detection → maybe Quarantined
+    Coord-&gt;&gt;DB: persist EventV2
+    alt Immediate &amp; not quarantined
+        Coord-&gt;&gt;Fire: FireEventV2Async(event)
+        Fire--&gt;&gt;Coord: event with ListenerEventV2s
+    else Scheduled
+        Note over Coord: nothing dispatched now — waits for the scheduler
+    end
+    Coord--&gt;&gt;Pub: submitted event
+</pre>
+
+<h3 id="s11">1.1 Immediate events</h3>
+<p>An <strong>Immediate</strong> event is dispatched synchronously inside the submit call. Firing (<code>FireEventV2Async</code>) does this:</p>
+<ol>
+  <li>Look up <strong>all listeners</strong> registered on the event's address.</li>
+  <li>For <strong>each</strong> listener:
+    <ol>
+      <li>Create a <code>ListenerEventV2</code> in <strong>Pending</strong> status (the delivery receipt) and insert it.</li>
+      <li><strong>Run the event call</strong> against that listener's handler (§1.3).</li>
+      <li>Record the outcome — <strong>Success</strong> or <strong>Error</strong> — with the handler's response, and update it.</li>
+    </ol>
+  </li>
+</ol>
+<p>By the time <code>SubmitEventV2Async</code> returns for an Immediate event, every listener has been attempted once and has a durable receipt. Failures are <strong>not</strong> retried inside the submit call — they're left as <code>Error</code> for the retry sweep (§2).</p>
+
+<h3 id="s12">1.2 Scheduled events</h3>
+<p>A <strong>Scheduled</strong> event (<code>ScheduledDate</code> in the future) is persisted with <code>Type = Scheduled</code> and then… nothing happens immediately. No listener events are created yet.</p>
+<p>A separate, consumer-scheduled job — <code>FireScheduledPendingEventV2sAsync</code> — is what actually fires them:</p>
+<ol>
+  <li>Retrieve every event where <code>Type == Scheduled</code> <strong>and</strong> <code>ScheduledDate &lt; now</code>.</li>
+  <li>Skip any that are <code>Quarantined</code>.</li>
+  <li>For each due event, run the <strong>same</strong> <code>FireEventV2Async</code> as above (create listener events, dispatch).</li>
+  <li><strong>Mark the event Immediate</strong> so it is never picked up again.</li>
+</ol>
+
+<pre class="mermaid">
+sequenceDiagram
+    participant Cron as External scheduler (CRON)
+    participant Client as EventV2Client
+    participant Coord as Coordination
+    participant DB as Storage
+    participant Fire as Firing
+    Cron-&gt;&gt;Client: FireScheduledPendingEventV2sAsync()
+    Client-&gt;&gt;Coord: retrieve due scheduled events (ScheduledDate &lt; now)
+    loop each due, non-quarantined event
+        Coord-&gt;&gt;Fire: FireEventV2Async(event)
+        Fire-&gt;&gt;DB: create + dispatch ListenerEventV2s
+        Coord-&gt;&gt;DB: mark event Immediate (so it won't re-fire)
+    end
+</pre>
+
+<blockquote><p><strong>The library does the work; the consumer owns the clock.</strong> EventHighway never runs its own timers. You call <code>FireScheduledPendingEventV2sAsync</code> on whatever cadence you like; the library processes everything due at that moment and returns.</p></blockquote>
+
+<h3 id="s13">1.3 How listeners respond to a dispatched event</h3>
+<p>Whether an event is Immediate or Scheduled, the actual dispatch to a listener is identical. Two optional listener features shape what happens: <strong>promoted properties</strong> and a <strong>filter</strong>.</p>
+<ul>
+  <li><strong>Promoted properties</strong> — a comma-separated list of JSON property names on the listener. Before dispatch, the engine extracts those named values from the event's <code>Content</code> (case-sensitive) into a small metadata bag. These feed the filter and can be required.</li>
+  <li><strong>Filter criteria</strong> — a boolean expression (DynamicExpresso syntax) that decides whether this listener should handle the event, using <code>meta("PropertyName")</code> to read promoted values, e.g. <code>meta("Genre") == "Action" &amp;&amp; meta("ReleaseYear") &gt; "2020"</code>.</li>
+</ul>
+
+<pre class="mermaid">
+flowchart TD
+    Start([Dispatch to a listener]) --&gt; Promote[Extract promoted properties from Content]
+    Promote --&gt; Missing{Required promoted<br/>properties missing?}
+    Missing -- yes --&gt; ErrMeta[Status = Error<br/>code: MissingRequiredMetadata]
+    Missing -- no --&gt; HasFilter{Listener has a filter?}
+    HasFilter -- no --&gt; Handle[Invoke handler.HandleAsync content]
+    HasFilter -- yes --&gt; Eval{Filter expression}
+    Eval -- invalid --&gt; ErrFilter[Status = Error<br/>code: BadFilterCriteria]
+    Eval -- did NOT match --&gt; Skip[Status = Success<br/>code: SkippedNotMatchingFilter]
+    Eval -- matched --&gt; Handle
+    Handle --&gt; Result{Handler result}
+    Result -- IsSuccess --&gt; Ok[Status = Success]
+    Result -- failure/exception --&gt; Err[Status = Error]
+</pre>
+
+<h4 id="s131">1.3.1 Normal (unfiltered) listeners</h4>
+<p>A listener with <strong>no filter</strong> simply receives every event on its address. The engine:</p>
+<ol>
+  <li>Extracts any promoted properties (used only if some are marked required).</li>
+  <li>Invokes the registered handler's <code>HandleAsync(content)</code>.</li>
+  <li>Records the result:
+    <ul>
+      <li>handler returns success → <code>Status = Success</code></li>
+      <li>handler returns failure, or throws → <code>Status = Error</code> (eligible for retry, §2)</li>
+    </ul>
+  </li>
+</ol>
+<p>That's the whole path for the common case: <strong>event in → handler runs → success/error recorded.</strong></p>
+
+<h4 id="s132">1.3.2 Filtered listeners — match vs no-match</h4>
+<p>A listener with a <code>FilterCriteria</code> expression only handles events that match. The important, slightly surprising detail is <strong>what a non-match counts as</strong>:</p>
+<table>
+  <tr><th>Situation</th><th>Status</th><th>Response code</th><th>Retried?</th><th>Archivable?</th></tr>
+  <tr><td>Required promoted property missing</td><td><span class="note err">Error</span></td><td><code>MissingRequiredMetadata</code></td><td>✅ yes</td><td>not until settled</td></tr>
+  <tr><td>Filter expression is invalid</td><td><span class="note err">Error</span></td><td><code>BadFilterCriteria</code></td><td>✅ yes</td><td>not until settled</td></tr>
+  <tr><td>Filter <strong>did not match</strong></td><td><span class="note ok">Success</span></td><td><code>SkippedNotMatchingFilter</code></td><td>❌ no</td><td>✅ yes</td></tr>
+  <tr><td>Filter <strong>matched</strong>, handler succeeds</td><td><span class="note ok">Success</span></td><td>(handler's)</td><td>❌ no</td><td>✅ yes</td></tr>
+  <tr><td>Filter <strong>matched</strong>, handler fails/throws</td><td><span class="note err">Error</span></td><td>(handler's)</td><td>✅ yes</td><td>not until settled</td></tr>
+</table>
+<p>Key takeaways:</p>
+<ul>
+  <li><strong>A non-matching filter is a success, not a failure.</strong> The listener <em>correctly</em> decided this event was not for it, so it's recorded as <code>Success</code> (<code>SkippedNotMatchingFilter</code>), is <strong>not</strong> retried, and can be archived. A listener that filters out 99% of traffic shouldn't generate a mountain of "errors" to retry.</li>
+  <li><strong>A broken filter or missing required metadata is an error.</strong> These are config problems an operator can fix, so they're recorded as <code>Error</code> and <em>are</em> retried — giving you a window to fix the listener config and let the retry succeed (or to extend retries, §2.4).</li>
+</ul>
+
+<h3 id="s14">1.4 Loop detection &amp; quarantine</h3>
+<p>Before an event is dispatched, the engine can detect runaway loops (e.g. a handler that re-publishes an event that triggers itself). If loop detection is enabled and the same event "signature" (content hash + address) has occurred more than <code>Threshold</code> times within the <code>Window</code>, the event is marked <strong>Quarantined</strong>, persisted, and a <code>LoopDetectedEventV2CoordinationException</code> is thrown back to the caller. <strong>Quarantined events are never dispatched</strong>, and are swept up separately by archiving (§3.1).</p>
+
+<h2 id="s2">2. Retries</h2>
+<p>When a delivery fails (<code>ListenerEventV2.Status == Error</code>), the engine does <strong>not</strong> hammer it in place. The failed record waits to be re-attempted by a consumer-scheduled sweep, with an increasing delay between attempts. Retries operate <strong>per listener event</strong> — each failed delivery has its own budget, so one flaky listener can never starve the others.</p>
+
+<h3 id="s21">2.1 The scheduling process</h3>
+<p>The consumer calls <code>RetryFailedListenerEventV2sAsync()</code> on a CRON (say, every minute). Each call:</p>
+<ol>
+  <li>Reads the current time and pages through <strong>all</strong> listener events <em>in scope right now</em> (§2.2), <strong>oldest first</strong>.</li>
+  <li>Re-dispatches each one <strong>in place</strong> (re-runs the event call on the <em>existing</em> record — it does <strong>not</strong> create a new row):
+    <ul>
+      <li><strong>success</strong> → <code>Status = Success</code>, clear the retry gate. Done.</li>
+      <li><strong>failure</strong> → decrement the remaining budget, compute the next delay (§2.3), stamp <code>NextRetryAttemptNotBefore</code>, refresh <code>DispatchedDate</code>.</li>
+    </ul>
+  </li>
+  <li>Keeps paging until nothing eligible remains, then returns. The next CRON tick does it again.</li>
+</ol>
+
+<pre class="mermaid">
+sequenceDiagram
+    participant Cron as External scheduler (CRON)
+    participant Client as EventV2Client
+    participant Sweep as Retry sweep
+    participant DB as Storage
+    participant Call as Event call
+    Cron-&gt;&gt;Client: RetryFailedListenerEventV2sAsync()
+    loop page until empty
+        Client-&gt;&gt;Sweep: get eligible failed deliveries (oldest first)
+        Sweep-&gt;&gt;DB: WHERE Status=Error AND Remaining&gt;0 AND gate due
+        loop each delivery
+            Sweep-&gt;&gt;Call: re-run handler (in place)
+            alt success
+                Sweep-&gt;&gt;DB: Status=Success, clear gate
+            else failure
+                Sweep-&gt;&gt;DB: Remaining--, set next Fibonacci gate, set DispatchedDate
+            end
+        end
+    end
+    Client--&gt;&gt;Cron: done (until next tick)
+</pre>
+
+<blockquote><p>The retry sweep never spins its own loop of attempts — <strong>the CRON cadence <em>is</em> the loop.</strong> One attempt per eligible item per call.</p></blockquote>
+
+<h3 id="s22">2.2 When a retry is in scope (and when not)</h3>
+<p>A delivery is picked up by the sweep <strong>only</strong> when <strong>all</strong> of these are true:</p>
+<ul>
+  <li><code>Status == Error</code></li>
+  <li><code>RemainingRetryAttempts &gt; 0</code> (still has budget — not "dead")</li>
+  <li><code>NextRetryAttemptNotBefore == null</code> <strong>or</strong> <code>&lt;= now</code> (backoff window elapsed)</li>
+</ul>
+<p><strong>Not</strong> in scope:</p>
+<table>
+  <tr><th>State</th><th>Why it's skipped</th></tr>
+  <tr><td><code>Success</code> (incl. <code>SkippedNotMatchingFilter</code>)</td><td>Nothing to retry.</td></tr>
+  <tr><td><code>Pending</code></td><td>Still being processed / just created.</td></tr>
+  <tr><td><code>Replay</code></td><td>Owned by the replay processor, not the retry sweep (§4).</td></tr>
+  <tr><td><code>Error</code> but <code>RemainingRetryAttempts == 0</code></td><td><strong>Dead</strong> — exhausted its budget. Waits for archiving, or an operator <em>extends</em> it (§2.4).</td></tr>
+  <tr><td><code>Error</code>, budget left, gate in the future</td><td>Backing off — becomes eligible when the delay elapses.</td></tr>
+</table>
+
+<h3 id="s23">2.3 The incremental (Fibonacci) delay</h3>
+<p>Every time a retry fails, the gap before the next attempt grows along the <strong>Fibonacci sequence, in minutes</strong>, so a persistently-failing endpoint is probed less and less often.</p>
+<ul>
+  <li>Attempt index <code>n = RetryAttemptsAllowed − RemainingRetryAttempts</code> (grows by 1 each failed retry).</li>
+  <li><code>delay = min( Fib(n) minutes , RetryBackoffMaxMinutes )</code> where Fib = 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233 …</li>
+  <li><code>NextRetryAttemptNotBefore = now + delay</code>.</li>
+</ul>
+<p>With the default budget <code>RetryAttemptsAllowed = 15</code>:</p>
+<table>
+  <tr><th>Retry</th><th>Remaining after</th><th>index <code>n</code></th><th>Fib(n)</th><th>Wait before next attempt</th></tr>
+  <tr><td>initial dispatch</td><td>15</td><td>0</td><td>—</td><td>eligible immediately</td></tr>
+  <tr><td>1</td><td>14</td><td>1</td><td>1</td><td>1 min</td></tr>
+  <tr><td>2</td><td>13</td><td>2</td><td>1</td><td>1 min</td></tr>
+  <tr><td>3</td><td>12</td><td>3</td><td>2</td><td>2 min</td></tr>
+  <tr><td>4</td><td>11</td><td>4</td><td>3</td><td>3 min</td></tr>
+  <tr><td>5</td><td>10</td><td>5</td><td>5</td><td>5 min</td></tr>
+  <tr><td>6</td><td>9</td><td>6</td><td>8</td><td>8 min</td></tr>
+  <tr><td>7</td><td>8</td><td>7</td><td>13</td><td>13 min</td></tr>
+  <tr><td>8</td><td>7</td><td>8</td><td>21</td><td>21 min</td></tr>
+  <tr><td>9</td><td>6</td><td>9</td><td>34</td><td>34 min</td></tr>
+  <tr><td>10</td><td>5</td><td>10</td><td>55</td><td>55 min</td></tr>
+  <tr><td>11</td><td>4</td><td>11</td><td>89</td><td>89 min</td></tr>
+  <tr><td>12</td><td>3</td><td>12</td><td>144</td><td>144 min</td></tr>
+  <tr><td>13</td><td>2</td><td>13</td><td>233</td><td><strong>180 min (capped)</strong></td></tr>
+  <tr><td>14</td><td>1</td><td>14</td><td>377</td><td><strong>180 min (capped)</strong></td></tr>
+  <tr><td>15</td><td>0</td><td>15</td><td>—</td><td><strong>dead</strong> (budget exhausted)</td></tr>
+</table>
+<p>That's roughly <strong>12 hours</strong> of retrying spread across 15 attempts before the delivery is declared dead — the early attempts are close together (minutes), and once <code>Fib(n)</code> would exceed the <code>RetryBackoffMaxMinutes</code> cap (default 180) the last few attempts settle at a steady 3-hour spacing.</p>
+
+<h3 id="s24">2.4 Extending retries on a dead delivery</h3>
+<p>A dead delivery (<code>Error</code>, <code>RemainingRetryAttempts == 0</code>) sits idle, waiting to be archived. Before that happens, an operator can bring it back into scope by <strong>extending</strong> it:</p>
+<ul>
+  <li><code>ResetRetriesForListenerEventV2ByIdAsync(id)</code> — one delivery.</li>
+  <li><code>ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(listenerId)</code> — <strong>all</strong> failed deliveries for a given listener (bulk recovery after an outage; only <code>Error</code> rows are touched, never <code>Success</code>).</li>
+</ul>
+<p>Extending <strong>adds</strong> the configured budget to both the ceiling and the remaining count and clears the gate, so the item is immediately eligible again. Because the ceiling grows in lockstep, the Fibonacci sequence <strong>continues from where it left off</strong> (longer delays) rather than restarting at 1 minute — a persistently-failing item that keeps being extended keeps backing off, bounded by <code>RetryBackoffMaxMinutes</code>.</p>
+
+<h2 id="s3">3. Archiving</h2>
+<p>Archiving moves settled events out of the hot tables (<code>EventV2</code> / <code>ListenerEventV2</code>) into the archive tables (<code>EventArchiveV2</code> / <code>ListenerEventArchiveV2</code>), keeping the live working set small and fast. It's a consumer-scheduled job: <code>ArchiveEventV2sAsync()</code>. Two independent paths run back-to-back:</p>
+<ul>
+  <li><strong>Quarantined events</strong> (loop-detected, §1.4) — archived as-is.</li>
+  <li><strong>Dead events</strong> — events whose delivery is fully finished (§3.1).</li>
+</ul>
+<p>A separate <code>PurgeEventArchiveV2sAsync(olderThan)</code> permanently deletes archive rows past a retention date.</p>
+
+<h3 id="s31">3.1 What is in scope for archiving (and when)</h3>
+<p>An event becomes a <strong>dead event</strong> (archivable) only when its whole fan-out has settled and aged out:</p>
+<ul>
+  <li><code>Type == Immediate</code> (scheduled events become Immediate when fired), <strong>and</strong></li>
+  <li><strong>no</strong> listener event is still <code>Pending</code> or <code>Replay</code>, <strong>and</strong></li>
+  <li><strong>every</strong> listener event is either:
+    <ul>
+      <li><code>Success</code> (handled, or correctly filter-skipped), <strong>or</strong></li>
+      <li><code>Error</code> <strong>and</strong> exhausted (<code>RemainingRetryAttempts == 0</code>) <strong>and</strong> aged out (<code>DispatchedDate + DeadAfterMinutes &lt;= now</code>).</li>
+    </ul>
+  </li>
+</ul>
+<div class="callout">The <code>DeadAfterMinutes</code> grace window (default 180) is measured from the <strong>last dispatch</strong>, and because <code>DispatchedDate</code> slides forward on every retry, <strong>the window keeps extending while an item is still being retried.</strong> This guarantees an operator always has a window to <em>extend</em> a dead delivery (§2.4) before it's archived out of reach.</div>
+<p><strong>Not</strong> archivable (stays live): any listener still <code>Pending</code>/<code>Replay</code>; any listener still retriable (<code>Error</code>, budget left); any dead listener still inside its grace window.</p>
+
+<pre class="mermaid">
+flowchart TD
+    E[EventV2 - Immediate] --&gt; Q{Any listener<br/>Pending or Replay?}
+    Q -- yes --&gt; Keep[Keep live]
+    Q -- no --&gt; A{Every listener settled?}
+    A -- "some still retriable<br/>or in grace" --&gt; Keep
+    A -- "all Success, or dead &amp; aged out" --&gt; Arch[Archive event + its listener events]
+</pre>
+
+<h3 id="s32">3.2 The dual-paged concept</h3>
+<p>The dead-event archiver is deliberately <strong>doubly paged</strong> to stay memory-safe under large fan-out. The danger case: one popular address has thousands of listeners, so a single event can have thousands of <code>ListenerEventV2</code> rows. Loading all of them at once would blow up memory.</p>
+<p>So archiving nests two paged loops:</p>
+<ul>
+  <li><strong>Outer page — over dead <em>events</em>.</strong> Grab a batch of dead events, archive the event rows.</li>
+  <li><strong>Inner page — over <em>listener events</em> of those events.</strong> Page through their listener events in <code>BatchSizeForBulkProcessing</code> chunks; archive each chunk, then delete the archived listener rows from live. Repeat until drained.</li>
+  <li>Only once <strong>all</strong> of an event's listener events are safely archived is the event row removed from live. Anything that fails to archive is left in place and retried next run (nothing is lost).</li>
+</ul>
+
+<pre class="mermaid">
+flowchart TD
+    Start([ArchiveEventV2sAsync]) --&gt; Quar[Path A: archive quarantined events - paged]
+    Quar --&gt; DeadLoop[Path B: outer page - batch of dead events]
+    DeadLoop --&gt; ArchEvt[Archive the event rows]
+    ArchEvt --&gt; Inner[Inner page - batch of THEIR listener events]
+    Inner --&gt; ArchLE[Archive listener-event chunk, delete from live]
+    ArchLE --&gt; More{More listener events<br/>for these events?}
+    More -- yes --&gt; Inner
+    More -- no --&gt; RemoveEvt[Remove fully-archived events from live]
+    RemoveEvt --&gt; NextBatch{More dead events?}
+    NextBatch -- yes --&gt; DeadLoop
+    NextBatch -- no --&gt; Done([Done])
+</pre>
+<p>This is the same paging discipline used by purge and by replay — the library always steps through the whole in-scope set in bounded chunks, so memory stays flat regardless of backlog or fan-out size.</p>
+
+<h2 id="s4">4. Replay</h2>
+<p>Replay re-delivers events that were <strong>already archived</strong>. It is a deliberate, operator-triggered operation (not automatic), and it is <strong>completely separate from retry</strong> — different source tables, different trigger, different records.</p>
+
+<h3 id="s41">4.1 How replay works &amp; targeted replay</h3>
+<p>The entry point is <code>ReplayingEventV2Client.ReplayEventArchiveV2sAsync(...)</code>, in two shapes:</p>
+<ul>
+  <li><strong>Criteria (bulk) replay</strong> — replay everything in the archive matching optional filters: <code>eventAddressId</code> (one address), <code>eventListenerIds</code> (specific listeners), <code>startDate</code>/<code>endDate</code> (a time window).</li>
+  <li><strong>Targeted replay</strong> — replay a single archived event by <code>eventV2Id</code> (with optional address check and an <code>allowReplayOfQuarantinedItem</code> opt-in, since quarantined items are skipped by default).</li>
+</ul>
+<p>Mechanically, replay <strong>copies from the archive tables back into the live tables</strong> (the "restore" step), using the same doubly-paged discipline as archiving so a huge replay can't exhaust memory. Restored deliveries are written as <code>Status = Replay</code>. A second consumer-scheduled job, <code>ProcessReplayedListenerEventV2sAsync()</code>, then drains the <code>Replay</code>-status rows: it dispatches each to its handler exactly like a first-time send, and records <code>Success</code> / <code>Error</code>.</p>
+
+<pre class="mermaid">
+sequenceDiagram
+    participant Op as Operator
+    participant RC as ReplayingEventV2Client
+    participant Arch as Archive tables
+    participant Live as Live tables
+    participant Cron as CRON
+    participant Proc as Replay processor
+    Op-&gt;&gt;RC: ReplayEventArchiveV2sAsync(criteria or eventId)
+    loop dual-paged over archives
+        RC-&gt;&gt;Arch: read matching archived events + listener events
+        RC-&gt;&gt;Live: copy back as NEW rows, Status = Replay
+    end
+    Note over Live: replayed deliveries wait as Replay
+    Cron-&gt;&gt;Proc: ProcessReplayedListenerEventV2sAsync()
+    loop each Replay row
+        Proc-&gt;&gt;Proc: dispatch to handler
+        Proc-&gt;&gt;Live: Status = Success / Error, stamp DispatchedDate
+    end
+</pre>
+
+<h3 id="s42">4.2 Replay copies listener events for history (not the same as retry)</h3>
+<p>This is the crucial distinction:</p>
+<table>
+  <tr><th></th><th>Retry</th><th>Replay</th></tr>
+  <tr><td>Operates on</td><td>the <strong>existing</strong> live <code>ListenerEventV2</code> row</td><td>the <strong>archive</strong>, copied back as <strong>new</strong> rows</td></tr>
+  <tr><td>Row identity</td><td>same <code>Id</code>, modified in place</td><td><strong>new <code>Id</code></strong>, with <code>CorrelationId</code> → the archived row</td></tr>
+  <tr><td>Trigger</td><td>automatic sweep (<code>RetryFailedListenerEventV2sAsync</code>)</td><td>operator-triggered (<code>ReplayEventArchiveV2sAsync</code>)</td></tr>
+  <tr><td>Purpose</td><td>keep trying a delivery that hasn't succeeded yet</td><td>re-send something already finished &amp; archived</td></tr>
+</table>
+<p>Because replay creates a <strong>new</strong> <code>ListenerEventV2</code> with a fresh <code>Id</code> and a <code>CorrelationId</code> pointing back at the archived original, <strong>you keep a full audit trail</strong> — you can see every time an event was (re)sent, and trace each replayed delivery back to the record it came from. Retry, by contrast, mutates one record in place; it's the same delivery still trying to complete.</p>
+<blockquote><p><strong>How replay hands off to retry:</strong> replay clones the archived delivery into a <strong>new</strong> <code>ListenerEventV2</code> (new <code>Id</code>, <code>CorrelationId</code> → the archived row), and re-seeds its budget from config — <code>RetryAttemptsAllowed</code> and <code>RemainingRetryAttempts</code> are both set to <code>RetryConfiguration.RetryAttemptsAllowed</code> (the cloned values are <strong>not</strong> carried over) — with <code>NextRetryAttemptNotBefore = null</code> and <code>DispatchedDate = null</code>. When the replay processor dispatches it and it <em>fails</em>, it becomes an ordinary <code>Error</code> delivery with budget — from there the normal retry sweep (§2) takes over. The two features never call each other; they simply share the same columns on <code>ListenerEventV2</code>.</p></blockquote>
+
+<h2 id="s5">5. The maintenance jobs a consumer must schedule</h2>
+<p>EventHighway runs no timers of its own. A host application (or CRON) drives these library methods. Each does <strong>all</strong> the in-scope work available at that instant (via paged/bulk processing) and returns:</p>
+<table>
+  <tr><th>Job</th><th>Method</th><th>Typical cadence</th><th>What it does</th></tr>
+  <tr><td>Fire due scheduled events</td><td><code>FireScheduledPendingEventV2sAsync</code></td><td>frequent (~1 min)</td><td>Dispatch scheduled events whose time has come (§1.2).</td></tr>
+  <tr><td>Retry failed deliveries</td><td><code>RetryFailedListenerEventV2sAsync</code></td><td>frequent (~1 min)</td><td>Re-attempt eligible failed listener events with Fibonacci backoff (§2).</td></tr>
+  <tr><td>Archive</td><td><code>ArchiveEventV2sAsync</code></td><td>periodic (~hourly)</td><td>Move quarantined + dead events to the archive (§3).</td></tr>
+  <tr><td>Purge archive</td><td><code>PurgeEventArchiveV2sAsync(olderThan)</code></td><td>infrequent (~daily)</td><td>Permanently delete archive rows past retention.</td></tr>
+  <tr><td>Process replays</td><td><code>ProcessReplayedListenerEventV2sAsync</code></td><td>frequent while replaying</td><td>Dispatch replay-queued deliveries (§4).</td></tr>
+  <tr><td>Replay (on demand)</td><td><code>ReplayEventArchiveV2sAsync(...)</code></td><td>operator-triggered</td><td>Restore archived events to live for re-delivery (§4).</td></tr>
+</table>
+
+<h2 id="s6">6. The ListenerEventV2 lifecycle (one picture)</h2>
+<pre class="mermaid">
+stateDiagram-v2
+    [*] --&gt; Pending: created during fire
+    Pending --&gt; Success: handler ok / filter skipped
+    Pending --&gt; Error: handler failed / bad config
+    Error --&gt; Success: retry succeeds
+    Error --&gt; Error: retry fails (budget--, longer wait)
+    Error --&gt; Dead: budget reaches 0
+    Dead --&gt; Error: operator extends retries
+    Dead --&gt; Archived: DispatchedDate + DeadAfterMinutes &lt;= now
+    Success --&gt; Archived: event fully settled
+    Replay --&gt; Success: replay dispatch ok
+    Replay --&gt; Error: replay dispatch fails (then normal retry)
+    Archived --&gt; Replay: operator triggers replay (NEW row, CorrelationId)
+    note right of Dead
+        "Dead" = Error with
+        RemainingRetryAttempts == 0
+    end note
+</pre>
+
+<h2 id="s7">7. Configuration reference</h2>
+<p>All configuration is passed once to the client via <code>EventHighwayConfiguration</code>. <strong>There are no scheduling/interval settings</strong> — the consumer owns timing.</p>
+<table>
+  <tr><th>Section</th><th>Setting</th><th>Default</th><th>Meaning</th></tr>
+  <tr><td rowspan="3"><code>RetryConfiguration</code></td><td><code>RetryAttemptsAllowed</code></td><td>15</td><td>Retry budget seeded on each new delivery; also the Fibonacci ceiling. ~12 h of retrying (last attempts capped at 3 h).</td></tr>
+  <tr><td><code>RetryBackoffMaxMinutes</code></td><td>180</td><td>Cap on any single backoff delay (guards <em>extended</em> items).</td></tr>
+  <tr><td><code>DeadAfterMinutes</code></td><td>180</td><td>Grace after the last dispatch before a dead delivery may be archived.</td></tr>
+  <tr><td><code>LoopDetection</code></td><td><code>Enabled</code> / <code>Threshold</code> / <code>Window</code></td><td>true / 5 / 60 s</td><td>Quarantine an event when the same signature recurs too often (§1.4).</td></tr>
+  <tr><td><code>BatchProcessing</code></td><td><code>BatchSizeForBulkProcessing</code></td><td>(system default)</td><td>Page size for every bulk/paged job (fire, retry, archive, purge, replay).</td></tr>
+  <tr><td><code>Health</code></td><td>RAG thresholds</td><td>standard</td><td>Health-dashboard classification (separate subsystem).</td></tr>
+</table>
+
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'neutral', securityLevel: 'loose', flowchart: { htmlLabels: true } });
+</script>
+</body>
+</html>
