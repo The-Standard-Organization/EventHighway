@@ -45,6 +45,10 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
                 throw retryingListenerEventV2OrchestrationDependencyException;
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (NullRetryingListenerEventV2OrchestrationException
                 nullRetryingListenerEventV2OrchestrationException)
             {

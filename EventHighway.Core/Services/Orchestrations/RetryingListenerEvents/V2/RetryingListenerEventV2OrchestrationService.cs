@@ -46,6 +46,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
             ValidateListenerEventV2IsNotNull(listenerEventV2);
 
             IEnumerable<string> requiredKeys =
