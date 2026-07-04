@@ -52,6 +52,30 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     listenerEventV2ProcessingDependencyValidationException);
             }
+            catch (EventCallV2ProcessingDependencyException
+                eventCallV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventCallV2ProcessingDependencyException);
+            }
+            catch (EventCallV2ProcessingServiceException
+                eventCallV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventCallV2ProcessingServiceException);
+            }
+            catch (ListenerEventV2ProcessingDependencyException
+                listenerEventV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerEventV2ProcessingDependencyException);
+            }
+            catch (ListenerEventV2ProcessingServiceException
+                listenerEventV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerEventV2ProcessingServiceException);
+            }
         }
 
         private async ValueTask<RetryingListenerEventV2OrchestrationValidationException>
@@ -80,6 +104,20 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 retryingListenerEventV2OrchestrationDependencyValidationException);
 
             return retryingListenerEventV2OrchestrationDependencyValidationException;
+        }
+
+        private async ValueTask<RetryingListenerEventV2OrchestrationDependencyException>
+            CreateAndLogDependencyExceptionAsync(Xeption exception)
+        {
+            var retryingListenerEventV2OrchestrationDependencyException =
+                new RetryingListenerEventV2OrchestrationDependencyException(
+                    message: "Retrying listener event dependency error occurred, contact support.",
+                    innerException: exception.InnerException as Xeption);
+
+            await this.loggingBroker.LogErrorAsync(
+                retryingListenerEventV2OrchestrationDependencyException);
+
+            return retryingListenerEventV2OrchestrationDependencyException;
         }
     }
 }
