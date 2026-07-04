@@ -144,6 +144,11 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
             return (IEnumerable<ListenerEventV2>)itemsToBulkRestore;
         });
 
+        public ValueTask<IEnumerable<ListenerEventV2>> BulkModifyListenerEventV2sAsync(
+            IEnumerable<ListenerEventV2> listenerEventV2s,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         public ValueTask<IQueryable<ListenerEventV2>> RetrieveListenerEventV2sByEventIdsAsync(
             IEnumerable<Guid> eventIds,
             CancellationToken cancellationToken = default) =>
