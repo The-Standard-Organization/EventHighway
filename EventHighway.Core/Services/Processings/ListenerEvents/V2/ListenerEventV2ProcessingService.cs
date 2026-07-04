@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Services.Foundations.ListenerEvents.V2;
 
@@ -16,13 +18,19 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
     internal partial class ListenerEventV2ProcessingService : IListenerEventV2ProcessingService
     {
         private readonly IListenerEventV2Service listenerEventV2Service;
+        private readonly IConfigurationBroker configurationBroker;
+        private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public ListenerEventV2ProcessingService(
             IListenerEventV2Service listenerEventV2Service,
+            IConfigurationBroker configurationBroker,
+            IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.listenerEventV2Service = listenerEventV2Service;
+            this.configurationBroker = configurationBroker;
+            this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -175,5 +183,10 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
 
             return listenerEventV2s.AsEnumerable();
         });
+
+        public ValueTask<ListenerEventV2> ResetRetriesForListenerEventV2ByIdAsync(
+            Guid listenerEventV2Id,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }

@@ -59,5 +59,9 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
         ValueTask<IEnumerable<ListenerEventV2>> RetrieveListenerEventV2sByEventListenerV2IdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default);
+
+        ValueTask<ListenerEventV2> ResetRetriesForListenerEventV2ByIdAsync(
+            Guid listenerEventV2Id,
+            CancellationToken cancellationToken = default);
     }
 }
