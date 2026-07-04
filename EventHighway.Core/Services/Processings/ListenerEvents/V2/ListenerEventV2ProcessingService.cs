@@ -215,6 +215,50 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
         public ValueTask ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IQueryable<ListenerEventV2> listenerEventV2s =
+                await this.listenerEventV2Service
+                    .RetrieveListenerEventV2sByEventListenerV2IdAsync(eventListenerV2Id, cancellationToken);
+
+            int batchSize =
+                this.configurationBroker.GetBatchConfiguration().BatchSizeForBulkProcessing;
+
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            IQueryable<ListenerEventV2> errorListenerEventV2s =
+                listenerEventV2s
+                    .Where(listenerEventV2 =>
+                        listenerEventV2.Status == ListenerEventStatusV2.Error)
+                    .OrderBy(listenerEventV2 => listenerEventV2.CreatedDate);
+
+            int skip = 0;
+
+            while (true)
+            {
+                List<ListenerEventV2> batch =
+                    errorListenerEventV2s.Skip(skip).Take(batchSize).ToList();
+
+                if (batch.Count == 0)
+                {
+                    break;
+                }
+
+                foreach (ListenerEventV2 listenerEventV2 in batch)
+                {
+                    listenerEventV2.RetryAttemptsAllowed += retryConfiguration.RetryAttemptsAllowed;
+                    listenerEventV2.RemainingRetryAttempts += retryConfiguration.RetryAttemptsAllowed;
+                    listenerEventV2.NextRetryAttemptNotBefore = null;
+                }
+
+                await this.listenerEventV2Service
+                    .BulkModifyListenerEventV2sAsync(batch, cancellationToken);
+
+                skip += batchSize;
+            }
+        });
     }
 }
