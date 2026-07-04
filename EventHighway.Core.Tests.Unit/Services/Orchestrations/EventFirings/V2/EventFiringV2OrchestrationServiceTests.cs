@@ -8,8 +8,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -35,9 +37,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
         private readonly Mock<IEventListenerV2ProcessingService> eventListenerV2ProcessingServiceMock;
         private readonly Mock<IListenerEventV2ProcessingService> listenerEventV2ProcessingServiceMock;
         private readonly Mock<IEventCallV2ProcessingService> eventCallV2ProcessingServiceMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly ICompareLogic compareLogic;
+        private readonly RetryConfiguration retryConfiguration;
         private readonly IEventFiringV2OrchestrationService eventFiringV2OrchestrationService;
 
         public EventFiringV2OrchestrationServiceTests()
@@ -54,6 +58,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
                 new Mock<IEventCallV2ProcessingService>(
                     behavior: MockBehavior.Strict);
 
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>(
+                behavior: MockBehavior.Strict);
+
             this.dateTimeBrokerMock = new Mock<IDateTimeBroker>(
                 behavior: MockBehavior.Strict);
 
@@ -65,11 +72,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
 
             this.compareLogic = new CompareLogic(compareConfiguration);
 
+            this.retryConfiguration = CreateRandomRetryConfiguration();
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetRetryConfiguration())
+                    .Returns(this.retryConfiguration);
+
             this.eventFiringV2OrchestrationService =
                 new EventFiringV2OrchestrationService(
                     eventListenerV2ProcessingService: this.eventListenerV2ProcessingServiceMock.Object,
                     listenerEventV2ProcessingService: this.listenerEventV2ProcessingServiceMock.Object,
                     eventCallV2ProcessingService: this.eventCallV2ProcessingServiceMock.Object,
+                    configurationBroker: this.configurationBrokerMock.Object,
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
@@ -144,6 +158,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
+        private static RetryConfiguration CreateRandomRetryConfiguration()
+        {
+            return new RetryConfiguration
+            {
+                RetryAttemptsAllowed = GetRandomNumber(),
+                RetryBackoffMaxMinutes = GetRandomNumber(),
+                DeadAfterMinutes = GetRandomNumber()
+            };
+        }
 
         private static EventV2 CreateRandomEventV2() =>
             CreateEventV2Filler().Create();

@@ -47,6 +47,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
                         EventV2Id = inputEventV2.Id,
                         Status = ListenerEventStatusV2.Pending,
                         EventAddressV2Id = inputEventV2.EventAddressV2Id,
+                        RemainingRetryAttempts = this.retryConfiguration.RetryAttemptsAllowed,
+                        RetryAttemptsAllowed = this.retryConfiguration.RetryAttemptsAllowed,
+                        NextRetryAttemptNotBefore = null,
+                        DispatchedDate = randomDateTimeOffset,
                         CreatedDate = randomDateTimeOffset,
                         UpdatedDate = randomDateTimeOffset
                     }).ToList();
@@ -158,6 +162,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
                 broker.GetDateTimeOffsetAsync(),
                     Times.Exactly(callCount: expectedDateTimeBrokerCalls));
 
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetRetryConfiguration(),
+                    Times.Exactly(callCount: inputListenerEventV2s.Count));
+
             for (int index = 0; index < inputListenerEventV2s.Count; index++)
             {
                 this.listenerEventV2ProcessingServiceMock.Verify(service =>
@@ -180,6 +188,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
             }
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
             this.eventListenerV2ProcessingServiceMock.VerifyNoOtherCalls();
             this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
             this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();

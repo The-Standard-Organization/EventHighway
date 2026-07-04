@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -25,6 +27,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
         private readonly IEventListenerV2ProcessingService eventListenerV2ProcessingService;
         private readonly IListenerEventV2ProcessingService listenerEventV2ProcessingService;
         private readonly IEventCallV2ProcessingService eventCallV2ProcessingService;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
@@ -32,12 +35,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
             IEventListenerV2ProcessingService eventListenerV2ProcessingService,
             IListenerEventV2ProcessingService listenerEventV2ProcessingService,
             IEventCallV2ProcessingService eventCallV2ProcessingService,
+            IConfigurationBroker configurationBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventListenerV2ProcessingService = eventListenerV2ProcessingService;
             this.listenerEventV2ProcessingService = listenerEventV2ProcessingService;
             this.eventCallV2ProcessingService = eventCallV2ProcessingService;
+            this.configurationBroker = configurationBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
@@ -148,11 +153,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
         }
 
-        private static ListenerEventV2 CreateListenerEventV2(
+        private ListenerEventV2 CreateListenerEventV2(
             EventV2 eventV2,
             EventListenerV2 eventListenerV2,
             DateTimeOffset now)
         {
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
             return new ListenerEventV2
             {
                 Id = Guid.NewGuid(),
@@ -160,6 +168,10 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 EventListenerV2Id = eventListenerV2.Id,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
                 Status = ListenerEventStatusV2.Pending,
+                RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = now,
                 CreatedDate = now,
                 UpdatedDate = now,
             };
