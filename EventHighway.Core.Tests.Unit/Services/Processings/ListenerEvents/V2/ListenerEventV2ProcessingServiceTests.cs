@@ -5,7 +5,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2.Exceptions;
@@ -20,16 +23,22 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V2
     public partial class ListenerEventV2ProcessingServiceTests
     {
         private readonly Mock<IListenerEventV2Service> listenerEventV2ServiceMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
+        private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IListenerEventV2ProcessingService listenerEventV2ProcessingService;
 
         public ListenerEventV2ProcessingServiceTests()
         {
             this.listenerEventV2ServiceMock = new Mock<IListenerEventV2Service>();
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>();
+            this.dateTimeBrokerMock = new Mock<IDateTimeBroker>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.listenerEventV2ProcessingService = new ListenerEventV2ProcessingService(
                 listenerEventV2Service: this.listenerEventV2ServiceMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
+                dateTimeBroker: this.dateTimeBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
@@ -66,6 +75,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V2
                 new ListenerEventV2ServiceException(
                     someMessage,
                     someInnerException),
+            };
+        }
+
+        private static RetryConfiguration CreateRandomRetryConfiguration()
+        {
+            return new RetryConfiguration
+            {
+                RetryAttemptsAllowed = GetRandomNumber(),
+                RetryBackoffMaxMinutes = GetRandomNumber(),
+                DeadAfterMinutes = GetRandomNumber()
             };
         }
 

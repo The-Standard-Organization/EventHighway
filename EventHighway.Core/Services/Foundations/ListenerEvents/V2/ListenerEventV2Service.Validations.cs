@@ -134,6 +134,44 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                 Parameter: nameof(ListenerEventV2.UpdatedDate)));
         }
 
+        private static void ValidateListenerEventV2OnBulkModify(ListenerEventV2 listenerEventV2, DateTimeOffset now)
+        {
+            ValidateListenerEventV2IsNotNull(listenerEventV2);
+
+            Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(listenerEventV2.Id),
+                Parameter: nameof(ListenerEventV2.Id)),
+
+                (Rule: IsInvalid(listenerEventV2.EventV2Id),
+                Parameter: nameof(ListenerEventV2.EventV2Id)),
+
+                (Rule: IsInvalid(listenerEventV2.EventAddressV2Id),
+                Parameter: nameof(ListenerEventV2.EventAddressV2Id)),
+
+                (Rule: IsInvalid(listenerEventV2.EventListenerV2Id),
+                Parameter: nameof(ListenerEventV2.EventListenerV2Id)),
+
+                (Rule: IsInvalid(listenerEventV2.Status),
+                Parameter: nameof(ListenerEventV2.Status)),
+
+                (Rule: IsInvalid(listenerEventV2.CreatedDate),
+                Parameter: nameof(ListenerEventV2.CreatedDate)),
+
+                (Rule: IsInvalid(listenerEventV2.UpdatedDate),
+                Parameter: nameof(ListenerEventV2.UpdatedDate)),
+
+                (Rule: IsAfter(
+                    firstDate: listenerEventV2.CreatedDate,
+                    secondDate: listenerEventV2.UpdatedDate,
+                    secondDateName: nameof(ListenerEventV2.UpdatedDate)),
+                Parameter: nameof(ListenerEventV2.CreatedDate)),
+
+                (Rule: IsInFuture(date: listenerEventV2.UpdatedDate, now: now),
+                Parameter: nameof(ListenerEventV2.UpdatedDate)));
+        }
+
         private static void ValidateListenerEventV2AgainstStorage(
             ListenerEventV2 incomingListenerEventV2,
             ListenerEventV2 storageListenerEventV2)
