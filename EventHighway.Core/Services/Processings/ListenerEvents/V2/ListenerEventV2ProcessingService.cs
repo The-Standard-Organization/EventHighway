@@ -148,5 +148,10 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
                 .RetrieveRetryBatchListenerEventV2sWithEventWithEventListenerAsync(
                     take, cancellationToken);
         });
+
+        public ValueTask<ListenerEventV2> RetrieveListenerEventV2ByIdAsync(
+            Guid listenerEventV2Id,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
