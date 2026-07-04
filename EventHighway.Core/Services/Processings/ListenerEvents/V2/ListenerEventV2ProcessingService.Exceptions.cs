@@ -57,6 +57,12 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     nullListenerEventV2ProcessingException);
             }
+            catch (InvalidListenerEventV2ProcessingException
+                invalidListenerEventV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidListenerEventV2ProcessingException);
+            }
             catch (ListenerEventV2ValidationException
                 listenerEventV2ValidationException)
             {
