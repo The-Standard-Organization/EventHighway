@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Services.Foundations.ListenerEvents.V2;
 
@@ -187,6 +188,27 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
         public ValueTask<ListenerEventV2> ResetRetriesForListenerEventV2ByIdAsync(
             Guid listenerEventV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            ListenerEventV2 maybeListenerEventV2 =
+                await this.listenerEventV2Service
+                    .RetrieveListenerEventV2ByIdAsync(listenerEventV2Id, cancellationToken);
+
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            maybeListenerEventV2.RetryAttemptsAllowed += retryConfiguration.RetryAttemptsAllowed;
+            maybeListenerEventV2.RemainingRetryAttempts += retryConfiguration.RetryAttemptsAllowed;
+            maybeListenerEventV2.NextRetryAttemptNotBefore = null;
+            maybeListenerEventV2.UpdatedDate = now;
+
+            return await this.listenerEventV2Service
+                .ModifyListenerEventV2Async(maybeListenerEventV2, cancellationToken);
+        });
     }
 }
