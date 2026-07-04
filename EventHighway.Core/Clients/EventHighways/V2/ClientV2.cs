@@ -50,6 +50,7 @@ using EventHighway.Core.Services.Orchestrations.ParticipantSummaries.V2;
 using EventHighway.Core.Services.Orchestrations.RagStatuses.V2;
 using EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RestoringEvents.V2;
+using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RetrySummaries.V2;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Processings.EventArchives.V2;
@@ -377,6 +378,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IReplayingListenerEventV2OrchestrationService,
                 ReplayingListenerEventV2OrchestrationService>();
+
+            services.AddTransient<
+                IRetryingListenerEventV2OrchestrationService,
+                RetryingListenerEventV2OrchestrationService>();
 
             services.AddTransient<
                 IRagStatusV2OrchestrationService,
