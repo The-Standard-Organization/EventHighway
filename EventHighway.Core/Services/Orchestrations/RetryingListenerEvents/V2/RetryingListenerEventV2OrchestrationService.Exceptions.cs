@@ -23,6 +23,28 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             {
                 return await returningListenerEventV2Function();
             }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutRetryingListenerEventV2OrchestrationException =
+                    new TimeoutRetryingListenerEventV2OrchestrationException(
+                        message: "Failed retrying listener event orchestration timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                var retryingListenerEventV2OrchestrationDependencyException =
+                    new RetryingListenerEventV2OrchestrationDependencyException(
+                        message: "Retrying listener event dependency error occurred, contact support.",
+                        innerException: timeoutRetryingListenerEventV2OrchestrationException);
+
+                await this.loggingBroker.LogErrorAsync(
+                    retryingListenerEventV2OrchestrationDependencyException);
+
+                throw retryingListenerEventV2OrchestrationDependencyException;
+            }
             catch (NullRetryingListenerEventV2OrchestrationException
                 nullRetryingListenerEventV2OrchestrationException)
             {
