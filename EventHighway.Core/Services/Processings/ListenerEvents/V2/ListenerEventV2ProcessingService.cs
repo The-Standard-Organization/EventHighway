@@ -164,6 +164,15 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
         public ValueTask<IEnumerable<ListenerEventV2>> RetrieveListenerEventV2sByEventListenerV2IdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IQueryable<ListenerEventV2> listenerEventV2s =
+                await this.listenerEventV2Service
+                    .RetrieveListenerEventV2sByEventListenerV2IdAsync(eventListenerV2Id, cancellationToken);
+
+            return listenerEventV2s.AsEnumerable();
+        });
     }
 }
