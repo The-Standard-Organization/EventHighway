@@ -23,17 +23,25 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            DateTimeOffset now = DateTimeOffset.MaxValue;
+
             List<ListenerEventV2> randomListenerEventV2s =
                 CreateRandomRestoreListenerEventV2s();
 
             List<ListenerEventV2> inputListenerEventV2s = randomListenerEventV2s;
 
             List<ListenerEventV2> expectedListenerEventV2s =
-                inputListenerEventV2s.Select(item => item.DeepClone()).ToList();
+                inputListenerEventV2s.Select(item =>
+                {
+                    ListenerEventV2 clonedListenerEventV2 = item.DeepClone();
+                    clonedListenerEventV2.UpdatedDate = now;
+
+                    return clonedListenerEventV2;
+                }).ToList();
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
-                    .ReturnsAsync(DateTimeOffset.MaxValue);
+                    .ReturnsAsync(now);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.BulkUpdateListenerEventV2sAsync(

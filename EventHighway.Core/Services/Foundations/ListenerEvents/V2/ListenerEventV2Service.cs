@@ -147,7 +147,39 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
         public ValueTask<IEnumerable<ListenerEventV2>> BulkModifyListenerEventV2sAsync(
             IEnumerable<ListenerEventV2> listenerEventV2s,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventV2sIsNotNull(listenerEventV2s);
+
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            List<ListenerEventV2> itemsToBulkModify = new List<ListenerEventV2>();
+
+            foreach (ListenerEventV2 listenerEventV2 in listenerEventV2s)
+            {
+                try
+                {
+                    listenerEventV2.UpdatedDate = now;
+                    ValidateListenerEventV2OnBulkModify(listenerEventV2, now);
+                    itemsToBulkModify.Add(listenerEventV2);
+                }
+                catch (NullListenerEventV2Exception nullListenerEventV2Exception)
+                {
+                    await this.loggingBroker.LogErrorAsync(nullListenerEventV2Exception);
+                }
+                catch (InvalidListenerEventV2Exception invalidListenerEventV2Exception)
+                {
+                    await this.loggingBroker.LogErrorAsync(invalidListenerEventV2Exception);
+                }
+            }
+
+            await this.storageBroker.BulkUpdateListenerEventV2sAsync(
+                itemsToBulkModify, cancellationToken);
+
+            return (IEnumerable<ListenerEventV2>)itemsToBulkModify;
+        });
 
         public ValueTask<IQueryable<ListenerEventV2>> RetrieveListenerEventV2sByEventIdsAsync(
             IEnumerable<Guid> eventIds,
