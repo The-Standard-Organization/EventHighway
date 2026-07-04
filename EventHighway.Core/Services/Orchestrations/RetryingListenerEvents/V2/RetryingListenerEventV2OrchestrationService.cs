@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Foundations.PromotedProperties;
@@ -84,12 +85,62 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             listenerEventV2.DispatchedDate = now;
-            listenerEventV2.Status = ListenerEventStatusV2.Success;
-            listenerEventV2.NextRetryAttemptNotBefore = null;
+
+            if (ranEventCallV2.IsSuccess)
+            {
+                listenerEventV2.Status = ListenerEventStatusV2.Success;
+                listenerEventV2.NextRetryAttemptNotBefore = null;
+            }
+            else
+            {
+                listenerEventV2.RemainingRetryAttempts--;
+
+                int attemptNumber =
+                    listenerEventV2.RetryAttemptsAllowed
+                        - listenerEventV2.RemainingRetryAttempts;
+
+                RetryConfiguration retryConfiguration =
+                    this.configurationBroker.GetRetryConfiguration();
+
+                int backoffMinutes =
+                    CalculateFibonacciBackoffMinutes(
+                        attemptNumber,
+                        retryConfiguration.RetryBackoffMaxMinutes);
+
+                listenerEventV2.NextRetryAttemptNotBefore = now.AddMinutes(backoffMinutes);
+                listenerEventV2.Status = ListenerEventStatusV2.Error;
+            }
+
             listenerEventV2.UpdatedDate = now;
 
             return await this.listenerEventV2ProcessingService
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
+        }
+
+        private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
+        {
+            if (attemptNumber <= 2)
+            {
+                return Math.Min(1, maxMinutes);
+            }
+
+            int previous = 1;
+            int current = 1;
+
+            for (int index = 3; index <= attemptNumber; index++)
+            {
+                int next = previous + current;
+
+                if (next >= maxMinutes)
+                {
+                    return maxMinutes;
+                }
+
+                previous = current;
+                current = next;
+            }
+
+            return current;
         }
     }
 }
