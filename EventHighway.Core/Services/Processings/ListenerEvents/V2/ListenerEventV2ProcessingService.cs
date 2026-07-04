@@ -142,6 +142,7 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRetrieveBatchOfRetryListenerEventV2s(take);
 
             return await this.listenerEventV2Service
                 .RetrieveRetryBatchListenerEventV2sWithEventWithEventListenerAsync(
