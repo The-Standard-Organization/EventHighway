@@ -16,6 +16,8 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
     {
         private delegate ValueTask<ListenerEventV2> ReturningListenerEventV2Function();
 
+        private delegate ValueTask ReturningNothingFunction();
+
         private async ValueTask<ListenerEventV2> TryCatch(
             ReturningListenerEventV2Function returningListenerEventV2Function)
         {
@@ -54,6 +56,99 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     nullRetryingListenerEventV2OrchestrationException);
+            }
+            catch (EventCallV2ProcessingValidationException
+                eventCallV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventCallV2ProcessingValidationException);
+            }
+            catch (EventCallV2ProcessingDependencyValidationException
+                eventCallV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventCallV2ProcessingDependencyValidationException);
+            }
+            catch (ListenerEventV2ProcessingValidationException
+                listenerEventV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV2ProcessingValidationException);
+            }
+            catch (ListenerEventV2ProcessingDependencyValidationException
+                listenerEventV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    listenerEventV2ProcessingDependencyValidationException);
+            }
+            catch (EventCallV2ProcessingDependencyException
+                eventCallV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventCallV2ProcessingDependencyException);
+            }
+            catch (EventCallV2ProcessingServiceException
+                eventCallV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventCallV2ProcessingServiceException);
+            }
+            catch (ListenerEventV2ProcessingDependencyException
+                listenerEventV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerEventV2ProcessingDependencyException);
+            }
+            catch (ListenerEventV2ProcessingServiceException
+                listenerEventV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    listenerEventV2ProcessingServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedRetryingListenerEventV2OrchestrationServiceException =
+                    new FailedRetryingListenerEventV2OrchestrationServiceException(
+                        message: "Failed retrying listener event orchestration service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedRetryingListenerEventV2OrchestrationServiceException);
+            }
+        }
+
+        private async ValueTask TryCatch(ReturningNothingFunction returningNothingFunction)
+        {
+            try
+            {
+                await returningNothingFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutRetryingListenerEventV2OrchestrationException =
+                    new TimeoutRetryingListenerEventV2OrchestrationException(
+                        message: "Failed retrying listener event orchestration timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                var retryingListenerEventV2OrchestrationDependencyException =
+                    new RetryingListenerEventV2OrchestrationDependencyException(
+                        message: "Retrying listener event dependency error occurred, contact support.",
+                        innerException: timeoutRetryingListenerEventV2OrchestrationException);
+
+                await this.loggingBroker.LogErrorAsync(
+                    retryingListenerEventV2OrchestrationDependencyException);
+
+                throw retryingListenerEventV2OrchestrationDependencyException;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (EventCallV2ProcessingValidationException
                 eventCallV2ProcessingValidationException)
