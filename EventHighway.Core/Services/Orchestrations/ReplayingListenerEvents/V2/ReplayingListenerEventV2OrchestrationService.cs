@@ -102,8 +102,11 @@ namespace EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2
                 listenerEventV2.Status = ListenerEventStatusV2.Error;
             }
 
-            listenerEventV2.UpdatedDate =
+            DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            listenerEventV2.DispatchedDate = now;
+            listenerEventV2.UpdatedDate = now;
 
             return await this.listenerEventV2ProcessingService
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
