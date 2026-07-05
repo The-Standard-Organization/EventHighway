@@ -71,7 +71,15 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
                 foreach (ListenerEventV2 listenerEventV2 in listenerEventV2Batch)
                 {
-                    await RetryListenerEventV2CoreAsync(listenerEventV2, cancellationToken);
+                    try
+                    {
+                        await RetryListenerEventV2CoreAsync(listenerEventV2, cancellationToken);
+                    }
+                    catch (Exception exception)
+                        when (exception is not OperationCanceledException)
+                    {
+                        await this.loggingBroker.LogErrorAsync(exception);
+                    }
                 }
 
                 if (take == 0)
