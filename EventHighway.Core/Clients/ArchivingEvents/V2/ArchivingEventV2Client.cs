@@ -213,6 +213,10 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
                 throw CreateArchivingEventV2ClientDependencyException(
                     archivingEventV2CoordinationServiceException.InnerException as Xeption);
             }
+            catch (Exception exception)
+            {
+                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+            }
         }
     }
 }
