@@ -141,6 +141,99 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.ListenerEvents.V2
         }
 
         [Fact]
+        public async Task ShouldResetAllErrorRowsInSingleBatchWhenBatchSizeIsZeroAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid inputEventListenerV2Id = GetRandomId();
+            DateTimeOffset baseDate = GetRandomDateTimeOffset();
+
+            var batchConfiguration =
+                new BatchConfiguration { BatchSizeForBulkProcessing = 0 };
+
+            RetryConfiguration randomRetryConfiguration = CreateRandomRetryConfiguration();
+
+            ListenerEventV2 errorListenerEventV2One = CreateRandomListenerEventV2();
+            errorListenerEventV2One.EventListenerV2Id = inputEventListenerV2Id;
+            errorListenerEventV2One.Status = ListenerEventStatusV2.Error;
+            errorListenerEventV2One.CreatedDate = baseDate;
+
+            ListenerEventV2 errorListenerEventV2Two = CreateRandomListenerEventV2();
+            errorListenerEventV2Two.EventListenerV2Id = inputEventListenerV2Id;
+            errorListenerEventV2Two.Status = ListenerEventStatusV2.Error;
+            errorListenerEventV2Two.CreatedDate = baseDate.AddMinutes(1);
+
+            ListenerEventV2 errorListenerEventV2Three = CreateRandomListenerEventV2();
+            errorListenerEventV2Three.EventListenerV2Id = inputEventListenerV2Id;
+            errorListenerEventV2Three.Status = ListenerEventStatusV2.Error;
+            errorListenerEventV2Three.CreatedDate = baseDate.AddMinutes(2);
+
+            IQueryable<ListenerEventV2> retrievedListenerEventV2s = new List<ListenerEventV2>
+            {
+                errorListenerEventV2One,
+                errorListenerEventV2Two,
+                errorListenerEventV2Three
+            }.AsQueryable();
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.RetrieveListenerEventV2sByEventListenerV2IdAsync(
+                    inputEventListenerV2Id,
+                    randomCancellationToken))
+                        .ReturnsAsync(retrievedListenerEventV2s);
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetBatchConfiguration())
+                    .Returns(batchConfiguration);
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetRetryConfiguration())
+                    .Returns(randomRetryConfiguration);
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.BulkModifyListenerEventV2sAsync(
+                    It.IsAny<IEnumerable<ListenerEventV2>>(),
+                    randomCancellationToken))
+                        .ReturnsAsync(new List<ListenerEventV2>());
+
+            // when
+            await this.listenerEventV2ProcessingService
+                .ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
+                    inputEventListenerV2Id, randomCancellationToken);
+
+            // then
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.RetrieveListenerEventV2sByEventListenerV2IdAsync(
+                    inputEventListenerV2Id,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetBatchConfiguration(),
+                    Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetRetryConfiguration(),
+                    Times.Once);
+
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.BulkModifyListenerEventV2sAsync(
+                    It.Is<IEnumerable<ListenerEventV2>>(rows =>
+                        rows.Count() == 3
+                        && rows.Any(row => row.Id == errorListenerEventV2One.Id)
+                        && rows.Any(row => row.Id == errorListenerEventV2Two.Id)
+                        && rows.Any(row => row.Id == errorListenerEventV2Three.Id)),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.listenerEventV2ServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldPageBulkResetByEventListenerV2IdDeterministicallyByIdWhenCreatedDatesTieAsync()
         {
             // given
