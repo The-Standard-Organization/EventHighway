@@ -99,6 +99,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
         public async ValueTask PurgeEventArchiveV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             PurgeConfiguration purgeConfiguration = this.configurationBroker.GetPurgeConfiguration();
             DateTimeOffset currentDateTimeOffset = await this.dateTimeBroker.GetDateTimeOffsetAsync();
             DateTimeOffset olderThan = currentDateTimeOffset.AddDays(-purgeConfiguration.RetentionDays);
