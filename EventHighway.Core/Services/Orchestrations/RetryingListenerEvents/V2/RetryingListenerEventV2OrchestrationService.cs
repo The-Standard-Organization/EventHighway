@@ -4,11 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
@@ -44,7 +46,43 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
         public ValueTask<ListenerEventV2> RetryListenerEventV2Async(
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken = default) =>
+        TryCatch(() => RetryListenerEventV2CoreAsync(listenerEventV2, cancellationToken));
+
+        public ValueTask RetryFailedListenerEventV2sAsync(
+            CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            BatchConfiguration batchConfiguration =
+                this.configurationBroker.GetBatchConfiguration();
+
+            int take = batchConfiguration.BatchSizeForBulkProcessing;
+            IEnumerable<ListenerEventV2> listenerEventV2Batch;
+
+            do
+            {
+                listenerEventV2Batch =
+                    await this.listenerEventV2ProcessingService
+                        .RetrieveBatchOfRetryListenerEventV2sAsync(take, cancellationToken);
+
+                if (!listenerEventV2Batch.Any())
+                    break;
+
+                foreach (ListenerEventV2 listenerEventV2 in listenerEventV2Batch)
+                {
+                    await RetryListenerEventV2CoreAsync(listenerEventV2, cancellationToken);
+                }
+
+                if (take == 0)
+                    break;
+            }
+            while (true);
+        });
+
+        private async ValueTask<ListenerEventV2> RetryListenerEventV2CoreAsync(
+            ListenerEventV2 listenerEventV2,
+            CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ValidateListenerEventV2IsNotNull(listenerEventV2);
@@ -132,11 +170,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
             return await this.listenerEventV2ProcessingService
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
-        });
-
-        public ValueTask RetryFailedListenerEventV2sAsync(
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        }
 
         private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
         {
