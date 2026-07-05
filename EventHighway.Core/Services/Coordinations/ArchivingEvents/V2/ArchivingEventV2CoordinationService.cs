@@ -11,6 +11,7 @@ using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
+using EventHighway.Core.Models.Configurations.Purging;
 using EventHighway.Core.Models.Coordinations.ArchivingEvents.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
@@ -95,9 +96,29 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             while (true);
         });
 
-        public ValueTask PurgeEventArchiveV2sAsync(
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        public async ValueTask PurgeEventArchiveV2sAsync(
+            CancellationToken cancellationToken = default)
+        {
+            PurgeConfiguration purgeConfiguration = this.configurationBroker.GetPurgeConfiguration();
+            DateTimeOffset currentDateTimeOffset = await this.dateTimeBroker.GetDateTimeOffsetAsync();
+            DateTimeOffset olderThan = currentDateTimeOffset.AddDays(-purgeConfiguration.RetentionDays);
+            BatchConfiguration batchConfiguration = this.configurationBroker.GetBatchConfiguration();
+            int take = batchConfiguration.BatchSizeForBulkProcessing;
+            IEnumerable<EventArchiveV2> batch;
+
+            do
+            {
+                batch = await this.eventArchiveV2OrchestrationService
+                    .RetrieveBatchOfEventArchiveV2sOlderThanAsync(olderThan, take, cancellationToken);
+
+                if (!batch.Any())
+                    break;
+
+                await this.eventArchiveV2OrchestrationService
+                    .BulkRemoveEventArchiveV2sAsync(batch, cancellationToken);
+            }
+            while (true);
+        }
 
         private async ValueTask ArchiveQuarantinedEventV2sAsync(CancellationToken cancellationToken)
         {
