@@ -181,8 +181,11 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public ValueTask PurgeEventArchiveV2sAsync(
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        public async ValueTask PurgeEventArchiveV2sAsync(
+            CancellationToken cancellationToken = default)
+        {
+            await this.archivingEventV2CoordinationService
+                .PurgeEventArchiveV2sAsync(cancellationToken);
+        }
     }
 }
