@@ -200,5 +200,72 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task
+            ShouldThrowDependencyExceptionOnRetryFailedListenerEventV2sIfTimeoutOccursAndLogItAsync()
+        {
+            // given
+            int randomTake = GetRandomNumber();
+            BatchConfiguration batchConfiguration = CreateBatchConfiguration(randomTake);
+
+            var operationCanceledException = new OperationCanceledException();
+
+            var timeoutException =
+                new TimeoutException("The dependency operation timed out.");
+
+            var timeoutRetryingListenerEventV2OrchestrationException =
+                new TimeoutRetryingListenerEventV2OrchestrationException(
+                    message: "Failed retrying listener event orchestration timeout error occurred, contact support.",
+                    innerException: timeoutException,
+                    data: timeoutException.Data);
+
+            var expectedRetryingListenerEventV2OrchestrationDependencyException =
+                new RetryingListenerEventV2OrchestrationDependencyException(
+                    message: "Retrying listener event dependency error occurred, contact support.",
+                    innerException: timeoutRetryingListenerEventV2OrchestrationException);
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetBatchConfiguration())
+                    .Returns(batchConfiguration);
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveBatchOfRetryListenerEventV2sAsync(
+                    randomTake, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(operationCanceledException);
+
+            // when
+            ValueTask retryFailedTask =
+                this.retryingListenerEventV2OrchestrationService
+                    .RetryFailedListenerEventV2sAsync(
+                        TestContext.Current.CancellationToken);
+
+            RetryingListenerEventV2OrchestrationDependencyException actualException =
+                await Assert.ThrowsAsync<RetryingListenerEventV2OrchestrationDependencyException>(
+                    retryFailedTask.AsTask);
+
+            // then
+            actualException.Should().BeEquivalentTo(
+                expectedRetryingListenerEventV2OrchestrationDependencyException);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetBatchConfiguration(), Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveBatchOfRetryListenerEventV2sAsync(
+                    randomTake, It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedRetryingListenerEventV2OrchestrationDependencyException))),
+                Times.Once);
+
+            this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
