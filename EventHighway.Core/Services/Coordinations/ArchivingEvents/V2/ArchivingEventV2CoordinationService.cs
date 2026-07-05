@@ -96,8 +96,9 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             while (true);
         });
 
-        public async ValueTask PurgeEventArchiveV2sAsync(
-            CancellationToken cancellationToken = default)
+        public ValueTask PurgeEventArchiveV2sAsync(
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
             PurgeConfiguration purgeConfiguration = this.configurationBroker.GetPurgeConfiguration();
@@ -119,7 +120,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                     .BulkRemoveEventArchiveV2sAsync(batch, cancellationToken);
             }
             while (true);
-        }
+        });
 
         private async ValueTask ArchiveQuarantinedEventV2sAsync(CancellationToken cancellationToken)
         {
