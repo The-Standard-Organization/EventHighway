@@ -217,10 +217,14 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 generatedListenerEventV2s, cancellationToken);
         });
 
-        private static ListenerEventV2 GenerateListenerEventV2(
+        private ListenerEventV2 GenerateListenerEventV2(
             EventArchiveV2 eventArchiveV2,
-            EventListenerV2 eventListenerV2) =>
-            new ListenerEventV2
+            EventListenerV2 eventListenerV2)
+        {
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            return new ListenerEventV2
             {
                 Id = System.Guid.NewGuid(),
                 Status = ListenerEventStatusV2.Replay,
@@ -229,10 +233,15 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 ResponseMessage = null,
                 CreatedDate = eventArchiveV2.CreatedDate,
                 UpdatedDate = eventArchiveV2.CreatedDate,
+                RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = null,
                 EventV2Id = eventArchiveV2.Id,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id,
                 EventListenerV2Id = eventListenerV2.Id
             };
+        }
 
         private static EventV2 MapToEventV2(EventArchiveV2 eventArchiveV2) =>
             new EventV2
