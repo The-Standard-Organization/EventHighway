@@ -150,7 +150,9 @@ namespace EventHighway.Core.Services.Orchestrations.AddressSummaries.V2
                     TotalListenerEvents = totalListenerEvents,
                     TotalArchivedListenerEvents = totalArchivedListenerEvents,
                     ActiveListeners = activeListeners,
-                    DeadEvents = addressEvents.Count(e => e.RemainingRetryAttempts == 0),
+
+                    // TODO: retry health rework (listener-level) - event-level RemainingRetryAttempts removed; zeroed until the Health overhaul.
+                    DeadEvents = 0,
                     LoopsDetected = addressEvents.Count(e => e.Status == EventStatusV2.Quarantined),
                     ErrorRate = errorRate,
                     DuplicateRate = duplicateRate,
