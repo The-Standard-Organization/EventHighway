@@ -161,7 +161,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ParticipantSummar
                 Id = id,
                 Type = EventTypeV2.Immediate,
                 Status = status,
-                RemainingRetryAttempts = 5,
                 ContentHash = contentHash,
                 Content = GetRandomString(),
                 EventName = GetRandomString(),

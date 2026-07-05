@@ -160,7 +160,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.AddressSummaries.
                 Id = Guid.NewGuid(),
                 Type = EventTypeV2.Immediate,
                 Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts,
                 ContentHash = contentHash,
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
@@ -208,7 +207,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.AddressSummaries.
             {
                 Id = Guid.NewGuid(),
                 Status = EventArchiveStatusV2.Active,
-                RemainingRetryAttempts = GetRandomPositiveNumber(),
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
                 CreatedDate = archivedDate,

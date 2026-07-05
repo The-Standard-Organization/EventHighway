@@ -87,8 +87,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
                 e.Status == EventStatusV2.Active && e.Type == EventTypeV2.Immediate);
             int scheduledEvents = allEvents.Count(e =>
                 e.Status == EventStatusV2.Active && e.Type == EventTypeV2.Scheduled);
-            int deadEvents = allEvents.Count(e =>
-                e.Status == EventStatusV2.Active && e.RemainingRetryAttempts == 0);
             int totalListenerEvents = allListenerEvents.Count;
             int pendingListenerEvents = allListenerEvents.Count(le => le.Status == ListenerEventStatusV2.Pending);
             int successListenerEvents = allListenerEvents.Count(le => le.Status == ListenerEventStatusV2.Success);
@@ -114,9 +112,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
                 ? (decimal)archivedListenerErrors / totalArchivedListenerEvents * 100
                 : 0;
 
-            int deadArchivedEvents =
-                allArchivedEvents.Count(a => a.RemainingRetryAttempts == 0);
-
             int handlerCount = allListeners
                 .Select(listener => listener.HandlerId)
                 .Distinct()
@@ -129,9 +124,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
 
             HealthConfiguration healthConfig =
                 this.configurationBroker.GetHealthConfiguration();
-
-            HealthStatusV2 deadEventsStatus =
-                ComputeRagStatus(deadEvents, HealthMetric.DeadEvents, healthConfig);
 
             HealthStatusV2 errorRateStatus =
                 ComputeRagStatus(errorRate, HealthMetric.ErrorRate, healthConfig);
@@ -151,9 +143,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
             HealthStatusV2 archiveErrorRateStatus =
                 ComputeRagStatus(archiveErrorRate, HealthMetric.ArchiveErrorRate, healthConfig);
 
-            HealthStatusV2 deadArchivedEventsStatus =
-                ComputeRagStatus(deadArchivedEvents, HealthMetric.DeadArchivedEvents, healthConfig);
-
             return new List<HealthCheckItemV2>
             {
                 CreateItem("Event Addresses / Event Listeners / Handlers", "Total Addresses", totalAddresses.ToString(), HealthStatusV2.NA),
@@ -162,7 +151,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
                 CreateItem("Active Events", "Active Events", activeEvents.ToString(), HealthStatusV2.NA),
                 CreateItem("Active Events", "Immediate", immediateEvents.ToString(), HealthStatusV2.NA),
                 CreateItem("Active Events", "Scheduled", scheduledEvents.ToString(), HealthStatusV2.NA),
-                CreateItem("Active Events", "Dead (0 retries)", deadEvents.ToString(), deadEventsStatus),
                 CreateItem("Listener Events", "Total", totalListenerEvents.ToString(), HealthStatusV2.NA),
                 CreateItem("Listener Events", "Pending", pendingListenerEvents.ToString(), HealthStatusV2.NA),
                 CreateItem("Listener Events", "Successful", successListenerEvents.ToString(), HealthStatusV2.NA),
@@ -177,7 +165,6 @@ namespace EventHighway.Core.Services.Orchestrations.RagStatuses.V2
                 CreateItem("Listener Events", "Pending Listener Events", pendingListenerEvents.ToString(), pendingBacklogStatus),
                 CreateItem("Listener Events", "Replay Rate %", $"{replayRate:F2}", replayRateStatus),
                 CreateItem("Event Archives", "Archive Error Rate %", $"{archiveErrorRate:F2}", archiveErrorRateStatus),
-                CreateItem("Event Archives", "Dead Archived Events", deadArchivedEvents.ToString(), deadArchivedEventsStatus),
             };
         });
 

@@ -64,12 +64,6 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V2
         public DateTimeOffset? ScheduledDate { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of retry attempts remaining for this event if processing
-        /// fails.
-        /// </summary>
-        public int RemainingRetryAttempts { get; set; }
-
-        /// <summary>
         /// Gets or sets the unique identifier of the event address associated with this
         /// event.
         /// </summary>

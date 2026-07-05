@@ -58,11 +58,6 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
         public DateTimeOffset? ScheduledDate { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of retry attempts remaining for processing this archived event.
-        /// </summary>
-        public int RemainingRetryAttempts { get; set; }
-
-        /// <summary>
         /// Gets or sets the date and time when this event was archived.
         /// </summary>
         public DateTimeOffset ArchivedDate { get; set; }

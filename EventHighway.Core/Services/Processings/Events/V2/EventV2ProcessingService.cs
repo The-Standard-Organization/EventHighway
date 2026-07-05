@@ -11,6 +11,7 @@ using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Configurations.LoopDetections;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Services.Foundations.Events.V2;
@@ -102,14 +103,24 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             IQueryable<EventV2> eventV2s =
                 await this.eventV2Service.RetrieveAllEventV2sAsync(cancellationToken);
 
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            DateTimeOffset cutoff =
+                now.AddMinutes(-retryConfiguration.DeadAfterMinutes);
+
             return eventV2s.Where(eventV2 =>
                 eventV2.Type == EventTypeV2.Immediate
                 && eventV2.ListenerEventV2s.All(listenerEvent =>
                     listenerEvent.Status != ListenerEventStatusV2.Pending
                     && listenerEvent.Status != ListenerEventStatusV2.Replay)
-                && (eventV2.RemainingRetryAttempts == 0
-                    || eventV2.ListenerEventV2s.All(listenerEvent =>
-                        listenerEvent.Status == ListenerEventStatusV2.Success)));
+                && eventV2.ListenerEventV2s.All(listenerEvent =>
+                    listenerEvent.Status == ListenerEventStatusV2.Success
+                    || (listenerEvent.RemainingRetryAttempts == 0
+                        && (listenerEvent.DispatchedDate ?? listenerEvent.UpdatedDate) <= cutoff)));
         });
 
         public ValueTask<EventV2> MarkEventV2AsImmediateAsync(

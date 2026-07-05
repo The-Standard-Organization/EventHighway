@@ -133,7 +133,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 UpdatedDate = eventArchiveV2.UpdatedDate,
                 ScheduledDate = null,
                 ContentHash = null,
-                RemainingRetryAttempts = 0,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id
             };
 

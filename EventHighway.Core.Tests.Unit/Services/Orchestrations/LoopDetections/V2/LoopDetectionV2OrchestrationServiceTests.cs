@@ -178,7 +178,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.LoopDetections.V2
                 Id = Guid.NewGuid(),
                 Type = EventTypeV2.Immediate,
                 Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts,
                 ContentHash = contentHash,
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
@@ -202,7 +201,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.LoopDetections.V2
                 Id = id,
                 Type = EventTypeV2.Immediate,
                 Status = status,
-                RemainingRetryAttempts = GetRandomPositiveNumber(),
                 ContentHash = contentHash,
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
@@ -223,7 +221,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.LoopDetections.V2
             {
                 Id = Guid.NewGuid(),
                 Status = status,
-                RemainingRetryAttempts = GetRandomPositiveNumber(),
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
                 CreatedDate = archivedDate,

@@ -68,7 +68,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Traffics.V2
                 Id = Guid.NewGuid(),
                 Type = type,
                 Status = EventStatusV2.Active,
-                RemainingRetryAttempts = GetRandomPositiveNumber(),
                 Content = GetRandomString(),
                 EventName = GetRandomString(),
                 CreatedDate = createdDate,

@@ -80,7 +80,6 @@ namespace EventHighway.Portal.Web.Services.Views.EventArchives
                 Content = eventArchive.Content,
                 Type = eventArchive.Type.ToString(),
                 Status = eventArchive.Status.ToString(),
-                RemainingRetryAttempts = eventArchive.RemainingRetryAttempts,
                 EventAddressV2Id = eventArchive.EventAddressV2Id,
                 EventAddressName = eventArchive.EventAddressV2?.Name ?? string.Empty,
                 EventParticipantV2Id = eventArchive.EventParticipantV2Id,

@@ -112,7 +112,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.AddressSummaries.
             summaryA.TotalListenerEvents.Should().Be(4);
             summaryA.TotalArchivedListenerEvents.Should().Be(1);
             summaryA.ActiveListeners.Should().Be(2);
-            summaryA.DeadEvents.Should().Be(1);
+            summaryA.DeadEvents.Should().Be(0);
             summaryA.LoopsDetected.Should().Be(1);
             summaryA.ErrorRate.Should().Be(25m);
             summaryA.DuplicateRate.Should().Be(25m);

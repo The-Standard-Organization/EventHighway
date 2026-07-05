@@ -87,9 +87,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ArchivingEvents.V2
                 .OnProperty(eventV2 =>
                     eventV2.ScheduledDate).Use(now.AddSeconds(seconds: -1))
 
-                .OnProperty(eventV2 =>
-                    eventV2.RemainingRetryAttempts).Use(0)
-
                 .OnType<DateTimeOffset>().Use(now)
                 .OnProperty(eventV2 => eventV2.EventParticipantV2Id).IgnoreIt()
                 .OnProperty(eventV2 => eventV2.EventParticipantV2Secret).IgnoreIt()

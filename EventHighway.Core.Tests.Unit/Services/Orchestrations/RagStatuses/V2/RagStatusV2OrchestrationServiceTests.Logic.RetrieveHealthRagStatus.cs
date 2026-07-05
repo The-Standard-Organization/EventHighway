@@ -59,7 +59,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
             int expectedActiveEvents = 5;
             int expectedImmediateEvents = 3;
             int expectedScheduledEvents = 2;
-            int expectedDeadEvents = 0;
             int expectedTotalListenerEvents = randomListenerEventV2s.Count();
             int expectedPendingListenerEvents = 1;
             int expectedSuccessListenerEvents = 18;
@@ -87,7 +86,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
                     .RetrieveHealthRagStatusV2Async(randomCancellationToken);
 
             // then
-            actualResult.Should().HaveCount(22);
+            actualResult.Should().HaveCount(20);
 
             actualResult.Single(i => i.Grouping == "Event Addresses / Event Listeners / Handlers" && i.Item == "Total Addresses")
                 .Value.Should().Be(expectedTotalAddresses.ToString());
@@ -106,12 +105,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
 
             actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Scheduled")
                 .Value.Should().Be(expectedScheduledEvents.ToString());
-
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .Value.Should().Be(expectedDeadEvents.ToString());
-
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .StatusCode.Should().Be((int)HealthStatusV2.Green);
 
             actualResult.Single(i => i.Grouping == "Listener Events" && i.Item == "Total")
                 .Value.Should().Be(expectedTotalListenerEvents.ToString());
@@ -153,9 +146,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
                 .StatusCode.Should().Be((int)HealthStatusV2.Green);
 
             actualResult.Single(i => i.Grouping == "Event Archives" && i.Item == "Archive Error Rate %")
-                .StatusCode.Should().Be((int)HealthStatusV2.Green);
-
-            actualResult.Single(i => i.Grouping == "Event Archives" && i.Item == "Dead Archived Events")
                 .StatusCode.Should().Be((int)HealthStatusV2.Green);
 
             this.eventAddressV2ServiceMock.Verify(service =>
@@ -218,69 +208,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
 
             actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Scheduled")
                 .Value.Should().Be("3");
-
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .Value.Should().Be("4");
-
-            VerifyRagStatusFoundationMocksOnce(randomCancellationToken);
-        }
-
-        [Fact]
-        public async Task ShouldReturnAmberForDeadEventsWhenBetweenOneAndFiveAsync()
-        {
-            // given
-            CancellationToken randomCancellationToken =
-                TestContext.Current.CancellationToken;
-
-            var events = AttachListenerEventV2s(
-                CreateRandomEventV2s(immediateCount: 3, scheduledCount: 2, deadCount: 3),
-                CreateRandomListenerEventV2s(successCount: 18, pendingCount: 1));
-
-            var archives = AttachListenerEventArchiveV2s(
-                CreateRandomEventArchiveV2s(),
-                CreateRandomListenerEventArchiveV2s(successCount: 3));
-
-            SetupRagStatusFoundationMocks(
-                randomCancellationToken, CreateAddressesWithListeners(5, 2), events, archives);
-
-            // when
-            IEnumerable<HealthCheckItemV2> actualResult =
-                await this.ragStatusV2OrchestrationService
-                    .RetrieveHealthRagStatusV2Async(randomCancellationToken);
-
-            // then
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .StatusCode.Should().Be((int)HealthStatusV2.Amber);
-
-            VerifyRagStatusFoundationMocksOnce(randomCancellationToken);
-        }
-
-        [Fact]
-        public async Task ShouldReturnRedForDeadEventsWhenMoreThanFiveAsync()
-        {
-            // given
-            CancellationToken randomCancellationToken =
-                TestContext.Current.CancellationToken;
-
-            var events = AttachListenerEventV2s(
-                CreateRandomEventV2s(immediateCount: 2, scheduledCount: 1, deadCount: 6),
-                CreateRandomListenerEventV2s(successCount: 18, pendingCount: 1));
-
-            var archives = AttachListenerEventArchiveV2s(
-                CreateRandomEventArchiveV2s(),
-                CreateRandomListenerEventArchiveV2s(successCount: 2));
-
-            SetupRagStatusFoundationMocks(
-                randomCancellationToken, CreateAddressesWithListeners(5, 1), events, archives);
-
-            // when
-            IEnumerable<HealthCheckItemV2> actualResult =
-                await this.ragStatusV2OrchestrationService
-                    .RetrieveHealthRagStatusV2Async(randomCancellationToken);
-
-            // then
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .StatusCode.Should().Be((int)HealthStatusV2.Red);
 
             VerifyRagStatusFoundationMocksOnce(randomCancellationToken);
         }
@@ -371,43 +298,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
             // then
             actualResult.Single(i => i.Grouping == "Event Addresses / Event Listeners / Handlers" && i.Item == "Registered Handlers")
                 .StatusCode.Should().Be((int)HealthStatusV2.Red);
-
-            VerifyRagStatusFoundationMocksOnce(randomCancellationToken);
-        }
-
-        [Fact]
-        public async Task ShouldReturnNAForDeadEventsWhenNoThresholdIsConfiguredAsync()
-        {
-            // given
-            CancellationToken randomCancellationToken =
-                TestContext.Current.CancellationToken;
-
-            var configWithoutDeadEvents = new HealthConfiguration();
-            configWithoutDeadEvents.Thresholds.RemoveAll(t => t.Metric == HealthMetric.DeadEvents);
-
-            this.configurationBrokerMock
-                .Setup(broker => broker.GetHealthConfiguration())
-                .Returns(configWithoutDeadEvents);
-
-            var events = AttachListenerEventV2s(
-                CreateRandomEventV2s(immediateCount: 2, scheduledCount: 1, deadCount: 3),
-                CreateRandomListenerEventV2s(successCount: 9));
-
-            var archives = AttachListenerEventArchiveV2s(
-                CreateRandomEventArchiveV2s(),
-                CreateRandomListenerEventArchiveV2s(successCount: 2));
-
-            SetupRagStatusFoundationMocks(
-                randomCancellationToken, CreateAddressesWithListeners(5, 1), events, archives);
-
-            // when
-            IEnumerable<HealthCheckItemV2> actualResult =
-                await this.ragStatusV2OrchestrationService
-                    .RetrieveHealthRagStatusV2Async(randomCancellationToken);
-
-            // then
-            actualResult.Single(i => i.Grouping == "Active Events" && i.Item == "Dead (0 retries)")
-                .StatusCode.Should().Be((int)HealthStatusV2.NA);
 
             VerifyRagStatusFoundationMocksOnce(randomCancellationToken);
         }

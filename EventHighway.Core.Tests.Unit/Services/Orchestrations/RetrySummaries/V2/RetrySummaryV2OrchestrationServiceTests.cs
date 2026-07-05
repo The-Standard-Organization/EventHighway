@@ -121,7 +121,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetrySummaries.V2
                 Id = Guid.NewGuid(),
                 Type = EventTypeV2.Immediate,
                 Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts,
                 ContentHash = contentHash,
                 Content = GetRandomString(),
                 EventName = GetRandomString(),

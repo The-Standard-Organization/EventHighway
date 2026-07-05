@@ -302,7 +302,6 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = eventV2.CreatedDate,
                 UpdatedDate = eventV2.CreatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
-                RemainingRetryAttempts = eventV2.RemainingRetryAttempts,
                 EventAddressV2Id = eventV2.EventAddressV2Id
             };
         }

@@ -41,8 +41,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
             new EventV2
             {
                 Id = Guid.NewGuid(),
-                Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts
+                Status = status
             };
 
         private static EventV2 CreateRandomEvent(DateTimeOffset createdDate) =>
@@ -53,7 +52,6 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
                 Content = GetRandomString(),
                 Type = EventTypeV2.Scheduled,
                 Status = EventStatusV2.Active,
-                RemainingRetryAttempts = 3,
                 EventAddressV2Id = Guid.NewGuid(),
                 EventParticipantV2Id = Guid.NewGuid(),
                 ScheduledDate = createdDate,
@@ -69,7 +67,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
                 Content = @event.Content,
                 Type = @event.Type.ToString(),
                 Status = @event.Status.ToString(),
-                RemainingRetryAttempts = @event.RemainingRetryAttempts,
+                RemainingRetryAttempts = 0,
                 EventAddressV2Id = @event.EventAddressV2Id,
                 EventParticipantV2Id = @event.EventParticipantV2Id,
                 ScheduledDate = @event.ScheduledDate,
