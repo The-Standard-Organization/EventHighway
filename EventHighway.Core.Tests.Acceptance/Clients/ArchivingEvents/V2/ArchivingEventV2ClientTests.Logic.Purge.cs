@@ -26,5 +26,17 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ArchivingEvents.V2
             await purgeEventArchiveV2sTask.Should()
                 .NotThrowAsync();
         }
+
+        [Fact]
+        public async Task ShouldPurgeEventArchiveV2sFromConfigurationAsync()
+        {
+            // when
+            Func<Task> purgeEventArchiveV2sTask = async () =>
+                await this.clientBroker.PurgeEventArchiveV2sAsync();
+
+            // then
+            await purgeEventArchiveV2sTask.Should()
+                .NotThrowAsync();
+        }
     }
 }

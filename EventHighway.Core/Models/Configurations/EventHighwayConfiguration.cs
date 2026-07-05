@@ -5,6 +5,7 @@
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Configurations.Healths;
 using EventHighway.Core.Models.Configurations.LoopDetections;
+using EventHighway.Core.Models.Configurations.Purging;
 using EventHighway.Core.Models.Configurations.Retries;
 
 namespace EventHighway.Core.Models.Configurations
@@ -38,5 +39,12 @@ namespace EventHighway.Core.Models.Configurations
         /// Defaults to a <see cref="RetryConfiguration"/> with standard budget and backoff values.
         /// </summary>
         public RetryConfiguration RetryConfiguration { get; set; } = new RetryConfiguration();
+
+        /// <summary>
+        /// Gets or sets the purge configuration that controls how long archived events are retained
+        /// before the scheduled purge permanently deletes them.
+        /// Defaults to a <see cref="PurgeConfiguration"/> with a standard retention window.
+        /// </summary>
+        public PurgeConfiguration Purging { get; set; } = new PurgeConfiguration();
     }
 }

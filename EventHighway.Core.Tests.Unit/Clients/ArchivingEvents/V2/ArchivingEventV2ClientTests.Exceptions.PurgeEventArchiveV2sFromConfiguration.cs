@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ArchivingEvents.V2.Exceptions;
+using EventHighway.Core.Models.Coordinations.ArchivingEvents.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -16,11 +17,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
     {
         [Theory]
         [MemberData(nameof(ValidationExceptions))]
-        public async Task ShouldThrowValidationExceptionOnPurgeIfValidationErrorOccursAsync(
+        public async Task ShouldThrowValidationExceptionOnPurgeFromConfigurationIfValidationErrorOccursAsync(
             Xeption validationException)
         {
             // given
-            DateTimeOffset someOlderThan = GetRandomDateTimeOffset();
             CancellationToken someCancellationToken = TestContext.Current.CancellationToken;
 
             var expectedArchivingEventV2ClientValidationException =
@@ -31,14 +31,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Setup(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(validationException);
 
             // when
             ValueTask purgeEventArchiveV2sTask =
                 this.archivingEventV2Client
-                    .PurgeEventArchiveV2sAsync(someOlderThan, someCancellationToken);
+                    .PurgeEventArchiveV2sAsync(someCancellationToken);
 
             ArchivingEventV2ClientValidationException actualArchivingEventV2ClientValidationException =
                 await Assert.ThrowsAsync<ArchivingEventV2ClientValidationException>(
@@ -50,7 +49,6 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -59,11 +57,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
         [Theory]
         [MemberData(nameof(DependencyExceptions))]
-        public async Task ShouldThrowDependencyExceptionOnPurgeIfDependencyErrorOccursAsync(
+        public async Task ShouldThrowDependencyExceptionOnPurgeFromConfigurationIfDependencyErrorOccursAsync(
             Xeption dependencyException)
         {
             // given
-            DateTimeOffset someOlderThan = GetRandomDateTimeOffset();
             CancellationToken someCancellationToken = TestContext.Current.CancellationToken;
 
             var expectedArchivingEventV2ClientDependencyException =
@@ -78,14 +75,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Setup(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(dependencyException);
 
             // when
             ValueTask purgeEventArchiveV2sTask =
                 this.archivingEventV2Client
-                    .PurgeEventArchiveV2sAsync(someOlderThan, someCancellationToken);
+                    .PurgeEventArchiveV2sAsync(someCancellationToken);
 
             ArchivingEventV2ClientDependencyException actualArchivingEventV2ClientDependencyException =
                 await Assert.ThrowsAsync<ArchivingEventV2ClientDependencyException>(
@@ -97,7 +93,6 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -105,10 +100,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
         }
 
         [Fact]
-        public async Task ShouldThrowServiceExceptionOnPurgeIfUnexpectedErrorOccursAsync()
+        public async Task ShouldThrowServiceExceptionOnPurgeFromConfigurationIfUnexpectedErrorOccursAsync()
         {
             // given
-            DateTimeOffset someOlderThan = GetRandomDateTimeOffset();
             CancellationToken randomCancellationToken = TestContext.Current.CancellationToken;
 
             var someXeption = new Xeption(message: GetRandomString());
@@ -121,14 +115,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Setup(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
             ValueTask purgeEventArchiveV2sTask =
                 this.archivingEventV2Client
-                    .PurgeEventArchiveV2sAsync(someOlderThan, randomCancellationToken);
+                    .PurgeEventArchiveV2sAsync(randomCancellationToken);
 
             ArchivingEventV2ClientServiceException actualArchivingEventV2ClientServiceException =
                 await Assert.ThrowsAsync<ArchivingEventV2ClientServiceException>(
@@ -140,7 +133,6 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -148,10 +140,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
         }
 
         [Fact]
-        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnPurgeAsync()
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnPurgeFromConfigurationAsync()
         {
             // given
-            DateTimeOffset someOlderThan = GetRandomDateTimeOffset();
             CancellationToken someCancellationToken = TestContext.Current.CancellationToken;
 
             var operationCanceledException =
@@ -159,14 +150,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Setup(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
             ValueTask purgeEventArchiveV2sTask =
                 this.archivingEventV2Client
-                    .PurgeEventArchiveV2sAsync(someOlderThan, someCancellationToken);
+                    .PurgeEventArchiveV2sAsync(someCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -178,7 +168,6 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
-                    It.IsAny<DateTimeOffset>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 

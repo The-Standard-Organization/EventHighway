@@ -12,5 +12,6 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
     {
         ValueTask ArchiveEventV2sAsync(CancellationToken cancellationToken = default);
         ValueTask PurgeEventArchiveV2sAsync(DateTimeOffset olderThan, CancellationToken cancellationToken = default);
+        ValueTask PurgeEventArchiveV2sAsync(CancellationToken cancellationToken = default);
     }
 }

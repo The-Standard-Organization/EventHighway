@@ -5,6 +5,7 @@
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Configurations.Healths;
 using EventHighway.Core.Models.Configurations.LoopDetections;
+using EventHighway.Core.Models.Configurations.Purging;
 using EventHighway.Core.Models.Configurations.Retries;
 
 namespace EventHighway.Core.Brokers.Configurations
@@ -15,5 +16,6 @@ namespace EventHighway.Core.Brokers.Configurations
         BatchConfiguration GetBatchConfiguration();
         LoopDetection GetLoopDetectionConfiguration();
         RetryConfiguration GetRetryConfiguration();
+        PurgeConfiguration GetPurgeConfiguration();
     }
 }
