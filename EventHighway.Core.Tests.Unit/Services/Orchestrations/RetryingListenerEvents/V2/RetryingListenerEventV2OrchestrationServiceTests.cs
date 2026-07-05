@@ -3,10 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -88,6 +90,21 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
 
             return listenerEventV2;
         }
+
+        private static List<ListenerEventV2> CreateRandomListenerEventV2sWithNavProps(int count)
+        {
+            var listenerEventV2s = new List<ListenerEventV2>();
+
+            for (int index = 0; index < count; index++)
+            {
+                listenerEventV2s.Add(CreateRandomListenerEventV2WithNavProps());
+            }
+
+            return listenerEventV2s;
+        }
+
+        private static BatchConfiguration CreateBatchConfiguration(int batchSize) =>
+            new BatchConfiguration { BatchSizeForBulkProcessing = batchSize };
 
         private static RetryConfiguration CreateRandomRetryConfiguration()
         {

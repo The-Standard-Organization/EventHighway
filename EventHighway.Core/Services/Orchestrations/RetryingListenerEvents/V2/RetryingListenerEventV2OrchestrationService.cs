@@ -134,6 +134,10 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
         });
 
+        public ValueTask RetryFailedListenerEventV2sAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
         {
             if (attemptNumber <= 2)

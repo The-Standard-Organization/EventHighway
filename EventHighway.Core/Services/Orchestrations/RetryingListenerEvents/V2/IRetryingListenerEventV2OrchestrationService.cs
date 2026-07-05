@@ -13,5 +13,8 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
         ValueTask<ListenerEventV2> RetryListenerEventV2Async(
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken = default);
+
+        ValueTask RetryFailedListenerEventV2sAsync(
+            CancellationToken cancellationToken = default);
     }
 }
