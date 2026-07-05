@@ -190,8 +190,16 @@ namespace EventHighway.Core.Services.Coordinations.ReplayingEvents.V2
 
                 foreach (ListenerEventV2 listenerEventV2 in listenerEventV2Batch)
                 {
-                    await this.replayingListenerEventV2OrchestrationService
-                        .ProcessReplayListenerEventV2Async(listenerEventV2, cancellationToken);
+                    try
+                    {
+                        await this.replayingListenerEventV2OrchestrationService
+                            .ProcessReplayListenerEventV2Async(listenerEventV2, cancellationToken);
+                    }
+                    catch (Exception exception)
+                        when (exception is not OperationCanceledException)
+                    {
+                        await this.loggingBroker.LogErrorAsync(exception);
+                    }
                 }
 
                 if (take == 0)

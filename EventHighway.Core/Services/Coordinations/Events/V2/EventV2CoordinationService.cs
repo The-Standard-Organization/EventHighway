@@ -139,11 +139,19 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 if (eventV2.Status == EventStatusV2.Quarantined)
                     continue;
 
-                await this.eventFiringV2OrchestrationService
-                    .FireEventV2Async(eventV2, cancellationToken);
+                try
+                {
+                    await this.eventFiringV2OrchestrationService
+                        .FireEventV2Async(eventV2, cancellationToken);
 
-                await this.eventV2OrchestrationService
-                    .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
+                    await this.eventV2OrchestrationService
+                        .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
+                }
+                catch (Exception exception)
+                    when (exception is not OperationCanceledException)
+                {
+                    await this.loggingBroker.LogErrorAsync(exception);
+                }
             }
         });
 

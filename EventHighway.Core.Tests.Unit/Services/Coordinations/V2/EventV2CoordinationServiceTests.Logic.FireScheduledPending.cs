@@ -115,5 +115,102 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.eventParticipantV2OrchestrationServiceMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldContinueFiringScheduledPendingEventV2sWhenOneItemFailsAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 firstEventV2 = CreateRandomEventV2();
+            EventV2 failingEventV2 = CreateRandomEventV2();
+            EventV2 lastEventV2 = CreateRandomEventV2();
+
+            IQueryable<EventV2> retrievedEventV2s =
+                new[] { firstEventV2, failingEventV2, lastEventV2 }.AsQueryable();
+
+            var itemException = new Exception();
+
+            this.eventV2OrchestrationServiceMock.Setup(service =>
+                service.RetrieveScheduledPendingEventV2sAsync(
+                    randomCancellationToken))
+                        .ReturnsAsync(retrievedEventV2s);
+
+            this.eventFiringV2OrchestrationServiceMock.Setup(service =>
+                service.FireEventV2Async(
+                    firstEventV2,
+                    randomCancellationToken))
+                        .ReturnsAsync(firstEventV2);
+
+            this.eventFiringV2OrchestrationServiceMock.Setup(service =>
+                service.FireEventV2Async(
+                    failingEventV2,
+                    randomCancellationToken))
+                        .ThrowsAsync(itemException);
+
+            this.eventFiringV2OrchestrationServiceMock.Setup(service =>
+                service.FireEventV2Async(
+                    lastEventV2,
+                    randomCancellationToken))
+                        .ReturnsAsync(lastEventV2);
+
+            // when
+            await this.eventV2CoordinationService
+                .FireScheduledPendingEventV2sAsync(
+                    randomCancellationToken);
+
+            // then
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveScheduledPendingEventV2sAsync(
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(
+                    firstEventV2,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(
+                    failingEventV2,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(
+                    lastEventV2,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(
+                    firstEventV2,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(
+                    failingEventV2,
+                    randomCancellationToken),
+                        Times.Never);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(
+                    lastEventV2,
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(itemException),
+                    Times.Once);
+
+            this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventFiringV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventParticipantV2OrchestrationServiceMock.VerifyNoOtherCalls();
+        }
     }
 }
