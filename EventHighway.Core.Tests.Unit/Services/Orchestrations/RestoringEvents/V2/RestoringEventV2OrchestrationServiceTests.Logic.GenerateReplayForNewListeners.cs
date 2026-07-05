@@ -58,7 +58,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                         EventAddressV2Id = eventAddressId,
                         EventListenerV2Id = newEventListenerV2.Id,
                         CreatedDate = inputEventArchiveV2.CreatedDate,
-                        UpdatedDate = inputEventArchiveV2.CreatedDate
+                        UpdatedDate = inputEventArchiveV2.CreatedDate,
+                        RemainingRetryAttempts = this.retryConfiguration.RetryAttemptsAllowed,
+                        RetryAttemptsAllowed = this.retryConfiguration.RetryAttemptsAllowed,
+                        NextRetryAttemptNotBefore = null,
+                        DispatchedDate = null
                     }
                 };
 

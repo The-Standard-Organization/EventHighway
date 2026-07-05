@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -23,17 +25,20 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
         private readonly IEventV2ProcessingService eventV2ProcessingService;
         private readonly IListenerEventV2ProcessingService listenerEventV2ProcessingService;
         private readonly IEventListenerV2ProcessingService eventListenerV2ProcessingService;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public RestoringEventV2OrchestrationService(
             IEventV2ProcessingService eventV2ProcessingService,
             IListenerEventV2ProcessingService listenerEventV2ProcessingService,
             IEventListenerV2ProcessingService eventListenerV2ProcessingService,
+            IConfigurationBroker configurationBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventV2ProcessingService = eventV2ProcessingService;
             this.listenerEventV2ProcessingService = listenerEventV2ProcessingService;
             this.eventListenerV2ProcessingService = eventListenerV2ProcessingService;
+            this.configurationBroker = configurationBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -212,10 +217,14 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 generatedListenerEventV2s, cancellationToken);
         });
 
-        private static ListenerEventV2 GenerateListenerEventV2(
+        private ListenerEventV2 GenerateListenerEventV2(
             EventArchiveV2 eventArchiveV2,
-            EventListenerV2 eventListenerV2) =>
-            new ListenerEventV2
+            EventListenerV2 eventListenerV2)
+        {
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            return new ListenerEventV2
             {
                 Id = System.Guid.NewGuid(),
                 Status = ListenerEventStatusV2.Replay,
@@ -224,10 +233,15 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 ResponseMessage = null,
                 CreatedDate = eventArchiveV2.CreatedDate,
                 UpdatedDate = eventArchiveV2.CreatedDate,
+                RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = null,
                 EventV2Id = eventArchiveV2.Id,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id,
                 EventListenerV2Id = eventListenerV2.Id
             };
+        }
 
         private static EventV2 MapToEventV2(EventArchiveV2 eventArchiveV2) =>
             new EventV2
@@ -244,9 +258,13 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id
             };
 
-        private static ListenerEventV2 MapToListenerEventV2(
-            ListenerEventArchiveV2 listenerEventArchiveV2) =>
-            new ListenerEventV2
+        private ListenerEventV2 MapToListenerEventV2(
+            ListenerEventArchiveV2 listenerEventArchiveV2)
+        {
+            RetryConfiguration retryConfiguration =
+                this.configurationBroker.GetRetryConfiguration();
+
+            return new ListenerEventV2
             {
                 Id = System.Guid.NewGuid(),
                 CorrelationId = listenerEventArchiveV2.Id,
@@ -256,9 +274,14 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 ResponseMessage = null,
                 CreatedDate = listenerEventArchiveV2.CreatedDate,
                 UpdatedDate = listenerEventArchiveV2.UpdatedDate,
+                RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = null,
                 EventV2Id = listenerEventArchiveV2.EventV2Id,
                 EventAddressV2Id = listenerEventArchiveV2.EventAddressV2Id,
                 EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id
             };
+        }
     }
 }

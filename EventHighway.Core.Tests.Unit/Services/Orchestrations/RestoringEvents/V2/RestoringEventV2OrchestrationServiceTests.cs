@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -33,6 +35,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
         private readonly Mock<IListenerEventV2ProcessingService> listenerEventV2ProcessingServiceMock;
         private readonly Mock<IEventListenerV2ProcessingService> eventListenerV2ProcessingServiceMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
+        private readonly RetryConfiguration retryConfiguration;
         private readonly IRestoringEventV2OrchestrationService restoringEventV2OrchestrationService;
 
         public RestoringEventV2OrchestrationServiceTests()
@@ -41,11 +45,18 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
             this.listenerEventV2ProcessingServiceMock = new Mock<IListenerEventV2ProcessingService>();
             this.eventListenerV2ProcessingServiceMock = new Mock<IEventListenerV2ProcessingService>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>();
+            this.retryConfiguration = CreateRandomRetryConfiguration();
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetRetryConfiguration())
+                    .Returns(this.retryConfiguration);
 
             this.restoringEventV2OrchestrationService = new RestoringEventV2OrchestrationService(
                 eventV2ProcessingService: this.eventV2ProcessingServiceMock.Object,
                 listenerEventV2ProcessingService: this.listenerEventV2ProcessingServiceMock.Object,
                 eventListenerV2ProcessingService: this.eventListenerV2ProcessingServiceMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 
@@ -136,7 +147,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id
             };
 
-        private static ListenerEventV2 MapToListenerEventV2(ListenerEventArchiveV2 listenerEventArchiveV2) =>
+        private ListenerEventV2 MapToListenerEventV2(ListenerEventArchiveV2 listenerEventArchiveV2) =>
             new ListenerEventV2
             {
                 Id = listenerEventArchiveV2.Id,
@@ -147,6 +158,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 ResponseMessage = null,
                 CreatedDate = listenerEventArchiveV2.CreatedDate,
                 UpdatedDate = listenerEventArchiveV2.UpdatedDate,
+                RemainingRetryAttempts = this.retryConfiguration.RetryAttemptsAllowed,
+                RetryAttemptsAllowed = this.retryConfiguration.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = null,
+                DispatchedDate = null,
                 EventV2Id = listenerEventArchiveV2.EventV2Id,
                 EventAddressV2Id = listenerEventArchiveV2.EventAddressV2Id,
                 EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id
@@ -154,6 +169,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
+
+        private static RetryConfiguration CreateRandomRetryConfiguration()
+        {
+            return new RetryConfiguration
+            {
+                RetryAttemptsAllowed = GetRandomNumber(),
+                RetryBackoffMaxMinutes = GetRandomNumber(),
+                DeadAfterMinutes = GetRandomNumber()
+            };
+        }
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
