@@ -147,6 +147,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 isSuccess = ranEventCallV2.IsSuccess;
             }
             catch (Exception exception)
+                when (exception is not OperationCanceledException)
             {
                 await this.loggingBroker.LogErrorAsync(exception);
                 listenerEventV2.Response = exception.Message;
