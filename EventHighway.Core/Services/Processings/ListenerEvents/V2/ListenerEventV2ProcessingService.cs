@@ -242,7 +242,9 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
             while (true)
             {
                 List<ListenerEventV2> batch =
-                    errorListenerEventV2s.Skip(skip).Take(batchSize).ToList();
+                    batchSize <= 0
+                        ? errorListenerEventV2s.Skip(skip).ToList()
+                        : errorListenerEventV2s.Skip(skip).Take(batchSize).ToList();
 
                 if (batch.Count == 0)
                 {
@@ -258,6 +260,11 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
 
                 await this.listenerEventV2Service
                     .BulkModifyListenerEventV2sAsync(batch, cancellationToken);
+
+                if (batchSize <= 0)
+                {
+                    break;
+                }
 
                 skip += batchSize;
             }
