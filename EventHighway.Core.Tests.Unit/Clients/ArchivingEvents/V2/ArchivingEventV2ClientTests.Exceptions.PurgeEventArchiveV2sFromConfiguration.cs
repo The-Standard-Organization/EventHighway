@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ArchivingEvents.V2.Exceptions;
@@ -129,6 +130,41 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
             // then
             actualArchivingEventV2ClientServiceException.Should()
                 .BeEquivalentTo(expectedArchivingEventV2ClientServiceException);
+
+            this.archivingEventV2CoordinationServiceMock.Verify(service =>
+                service.PurgeEventArchiveV2sAsync(
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.archivingEventV2CoordinationServiceMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnPurgeFromConfigurationAsync()
+        {
+            // given
+            CancellationToken someCancellationToken = TestContext.Current.CancellationToken;
+
+            var operationCanceledException =
+                new OperationCanceledException();
+
+            this.archivingEventV2CoordinationServiceMock.Setup(service =>
+                service.PurgeEventArchiveV2sAsync(
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(operationCanceledException);
+
+            // when
+            ValueTask purgeEventArchiveV2sTask =
+                this.archivingEventV2Client
+                    .PurgeEventArchiveV2sAsync(someCancellationToken);
+
+            OperationCanceledException actualException =
+                await Assert.ThrowsAsync<OperationCanceledException>(
+                    purgeEventArchiveV2sTask.AsTask);
+
+            // then
+            actualException.Should()
+                .BeEquivalentTo(operationCanceledException);
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
