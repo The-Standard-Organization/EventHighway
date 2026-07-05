@@ -2,10 +2,12 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using EventHighway.Core.Models.Configurations;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Configurations.Healths;
 using EventHighway.Core.Models.Configurations.LoopDetections;
+using EventHighway.Core.Models.Configurations.Purging;
 using EventHighway.Core.Models.Configurations.Retries;
 
 namespace EventHighway.Core.Brokers.Configurations
@@ -28,5 +30,8 @@ namespace EventHighway.Core.Brokers.Configurations
 
         public RetryConfiguration GetRetryConfiguration() =>
             this.configuration.RetryConfiguration;
+
+        public PurgeConfiguration GetPurgeConfiguration() =>
+            throw new NotImplementedException();
     }
 }
