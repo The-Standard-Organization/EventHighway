@@ -18,7 +18,8 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
 {
     /// <summary>
     /// Represents the V2 listener event client implementation, handling listener event
-    /// retrieval and removal operations while managing orchestration service exceptions.
+    /// retrieval, removal, retry, and retry-reset operations while managing orchestration
+    /// service exceptions.
     /// </summary>
     internal class ListenerEventV2Client : IListenerEventV2Client
     {
@@ -166,7 +167,6 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
                 throw CreateListenerEventV2ClientServiceException(exception as Xeption);
             }
         }
-
 
         /// <summary>
         /// Removes a listener event by its identifier asynchronously by delegating to the
