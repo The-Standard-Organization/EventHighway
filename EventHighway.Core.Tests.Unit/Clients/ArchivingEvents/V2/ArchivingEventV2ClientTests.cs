@@ -46,6 +46,24 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
             };
         }
 
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.AddData(GetRandomString(), GetRandomString());
+
+            return new TheoryData<Xeption>
+            {
+                new ArchivingEventV2CoordinationDependencyException(
+                    someMessage,
+                    someInnerException),
+
+                new ArchivingEventV2CoordinationServiceException(
+                    someMessage,
+                    someInnerException),
+            };
+        }
+
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
