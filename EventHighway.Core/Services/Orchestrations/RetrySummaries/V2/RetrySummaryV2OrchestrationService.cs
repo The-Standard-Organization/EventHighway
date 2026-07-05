@@ -53,39 +53,28 @@ namespace EventHighway.Core.Services.Orchestrations.RetrySummaries.V2
             var addressNames = allAddresses
                 .ToDictionary(address => address.Id, address => address.Name);
 
-            var distribution = activeEvents
-                .GroupBy(e => e.RemainingRetryAttempts)
-                .Select(group => new RetryBucketV2
-                {
-                    RemainingRetries = group.Key,
-                    Count = group.Count()
-                })
-                .OrderBy(bucket => bucket.RemainingRetries)
-                .ToList();
-
+            // TODO: retry health rework (listener-level) - event-level RemainingRetryAttempts removed;
+            // retry figures are zeroed here until the Health overhaul rebuilds them from ListenerEventV2.
             var byAddress = activeEvents
                 .GroupBy(e => e.EventAddressV2Id)
                 .Select(group => new RetryAddressDetailV2
                 {
                     EventAddressV2Id = group.Key,
                     EventAddressV2Name = addressNames.TryGetValue(group.Key, out string name) ? name : null,
-                    DeadEvents = group.Count(e => e.RemainingRetryAttempts == 0),
-                    CriticalEvents = group.Count(e =>
-                        e.RemainingRetryAttempts >= 1 && e.RemainingRetryAttempts <= 2),
+                    DeadEvents = 0,
+                    CriticalEvents = 0,
                     TotalEvents = group.Count()
                 })
-                .OrderByDescending(detail => detail.DeadEvents)
-                .ThenByDescending(detail => detail.CriticalEvents)
+                .OrderByDescending(detail => detail.TotalEvents)
                 .ToList();
 
             return new RetryHealthSummaryV2
             {
                 TotalActiveEvents = activeEvents.Count,
-                DeadEvents = activeEvents.Count(e => e.RemainingRetryAttempts == 0),
-                CriticalEvents = activeEvents.Count(e =>
-                    e.RemainingRetryAttempts >= 1 && e.RemainingRetryAttempts <= 2),
-                HealthyEvents = activeEvents.Count(e => e.RemainingRetryAttempts >= 3),
-                Distribution = distribution,
+                DeadEvents = 0,
+                CriticalEvents = 0,
+                HealthyEvents = 0,
+                Distribution = new List<RetryBucketV2>(),
                 ByAddress = byAddress
             };
         });
