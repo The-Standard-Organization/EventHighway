@@ -42,6 +42,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
             expectedListenerEventV2.Response = ranEventCallV2.Response;
             expectedListenerEventV2.ResponseCode = ranEventCallV2.ResponseCode;
             expectedListenerEventV2.ResponseMessage = ranEventCallV2.ResponseMessage;
+            expectedListenerEventV2.DispatchedDate = randomNow;
             expectedListenerEventV2.UpdatedDate = randomNow;
 
             ListenerEventV2 returnedListenerEventV2 = expectedListenerEventV2.DeepClone();
@@ -72,7 +73,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
                         && lev.Response == ranEventCallV2.Response
                         && lev.ResponseCode == ranEventCallV2.ResponseCode
                         && lev.ResponseMessage == ranEventCallV2.ResponseMessage
-                        && lev.UpdatedDate == randomNow),
+                        && lev.UpdatedDate == randomNow
+                        && lev.DispatchedDate == randomNow),
                     randomCancellationToken))
                 .ReturnsAsync(returnedListenerEventV2);
 
@@ -135,6 +137,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
             expectedListenerEventV2.Response = ranEventCallV2.Response;
             expectedListenerEventV2.ResponseCode = ranEventCallV2.ResponseCode;
             expectedListenerEventV2.ResponseMessage = ranEventCallV2.ResponseMessage;
+            expectedListenerEventV2.DispatchedDate = randomNow;
             expectedListenerEventV2.UpdatedDate = randomNow;
 
             ListenerEventV2 returnedListenerEventV2 = expectedListenerEventV2.DeepClone();
@@ -161,7 +164,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
                         && lev.Response == ranEventCallV2.Response
                         && lev.ResponseCode == ranEventCallV2.ResponseCode
                         && lev.ResponseMessage == ranEventCallV2.ResponseMessage
-                        && lev.UpdatedDate == randomNow),
+                        && lev.UpdatedDate == randomNow
+                        && lev.DispatchedDate == randomNow),
                     randomCancellationToken))
                 .ReturnsAsync(returnedListenerEventV2);
 
@@ -215,6 +219,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
             ListenerEventV2 expectedListenerEventV2 = inputListenerEventV2.DeepClone();
             expectedListenerEventV2.Status = ListenerEventStatusV2.Error;
             expectedListenerEventV2.Response = deliveryException.Message;
+            expectedListenerEventV2.DispatchedDate = randomNow;
             expectedListenerEventV2.UpdatedDate = randomNow;
 
             ListenerEventV2 returnedListenerEventV2 = expectedListenerEventV2.DeepClone();
@@ -244,7 +249,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ReplayingListener
                     It.Is<ListenerEventV2>(lev =>
                         lev.Status == ListenerEventStatusV2.Error
                         && lev.Response == deliveryException.Message
-                        && lev.UpdatedDate == randomNow),
+                        && lev.UpdatedDate == randomNow
+                        && lev.DispatchedDate == randomNow),
                     randomCancellationToken))
                 .ReturnsAsync(returnedListenerEventV2);
 
