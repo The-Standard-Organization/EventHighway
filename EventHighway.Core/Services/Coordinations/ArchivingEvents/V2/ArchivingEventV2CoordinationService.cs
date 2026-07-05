@@ -95,6 +95,10 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             while (true);
         });
 
+        public ValueTask PurgeEventArchiveV2sAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private async ValueTask ArchiveQuarantinedEventV2sAsync(CancellationToken cancellationToken)
         {
             var failedEventV2Ids = new List<Guid>();
