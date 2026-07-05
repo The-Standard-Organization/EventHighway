@@ -58,6 +58,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 this.configurationBroker.GetBatchConfiguration();
 
             int take = batchConfiguration.BatchSizeForBulkProcessing;
+            var attemptedListenerEventV2Ids = new HashSet<Guid>();
             IEnumerable<ListenerEventV2> listenerEventV2Batch;
 
             do
@@ -66,10 +67,18 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                     await this.listenerEventV2ProcessingService
                         .RetrieveBatchOfRetryListenerEventV2sAsync(take, cancellationToken);
 
-                if (!listenerEventV2Batch.Any())
-                    break;
+                var freshListenerEventV2s = new List<ListenerEventV2>();
 
                 foreach (ListenerEventV2 listenerEventV2 in listenerEventV2Batch)
+                {
+                    if (attemptedListenerEventV2Ids.Add(listenerEventV2.Id))
+                        freshListenerEventV2s.Add(listenerEventV2);
+                }
+
+                if (!freshListenerEventV2s.Any())
+                    break;
+
+                foreach (ListenerEventV2 listenerEventV2 in freshListenerEventV2s)
                 {
                     try
                     {
@@ -138,6 +147,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 isSuccess = ranEventCallV2.IsSuccess;
             }
             catch (Exception exception)
+                when (exception is not OperationCanceledException)
             {
                 await this.loggingBroker.LogErrorAsync(exception);
                 listenerEventV2.Response = exception.Message;
@@ -182,9 +192,11 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
         private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
         {
+            int cappedMaxMinutes = Math.Max(1, maxMinutes);
+
             if (attemptNumber <= 2)
             {
-                return Math.Min(1, maxMinutes);
+                return Math.Min(1, cappedMaxMinutes);
             }
 
             int previous = 1;
@@ -194,9 +206,9 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             {
                 int next = previous + current;
 
-                if (next >= maxMinutes)
+                if (next >= cappedMaxMinutes)
                 {
-                    return maxMinutes;
+                    return cappedMaxMinutes;
                 }
 
                 previous = current;

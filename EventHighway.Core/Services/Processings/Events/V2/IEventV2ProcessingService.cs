@@ -27,7 +27,7 @@ namespace EventHighway.Core.Services.Processings.Events.V2
         ValueTask<IQueryable<EventV2>> RetrieveScheduledPendingEventV2sAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventV2>> RetrieveAllDeadEventV2sWithListenersAsync(
+        ValueTask<IQueryable<EventV2>> RetrieveAllDeadEventV2sAsync(
             CancellationToken cancellationToken = default);
         ValueTask<EventV2> MarkEventV2AsImmediateAsync(EventV2 eventV2, CancellationToken cancellationToken = default);
         ValueTask<EventV2> RemoveEventV2ByIdAsync(Guid eventV2Id, CancellationToken cancellationToken = default);

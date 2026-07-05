@@ -18,7 +18,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
     public partial class EventV2ProcessingServiceTests
     {
         [Fact]
-        public async Task ShouldRetrieveAllDeadEventV2sWithListenersAsync()
+        public async Task ShouldRetrieveAllDeadEventV2sAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -96,7 +96,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             // when
             IQueryable<EventV2> actualEventV2s =
                 await this.eventV2ProcessingService
-                    .RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                    .RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s);
@@ -184,7 +184,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             // when
             IQueryable<EventV2> actualEventV2s =
                 await this.eventV2ProcessingService
-                    .RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                    .RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s);
@@ -279,7 +279,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             // when
             IQueryable<EventV2> actualEventV2s =
                 await this.eventV2ProcessingService
-                    .RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                    .RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s);
@@ -392,7 +392,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
             // when
             IQueryable<EventV2> actualEventV2s =
                 await this.eventV2ProcessingService
-                    .RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                    .RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s);

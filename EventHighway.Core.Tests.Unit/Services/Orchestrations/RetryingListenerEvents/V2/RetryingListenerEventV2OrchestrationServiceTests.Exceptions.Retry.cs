@@ -5,6 +5,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Configurations.Retries;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.RetryingListenerEvents.V2.Exceptions;
@@ -327,6 +328,96 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogCriticalAsync(It.IsAny<Xeption>()),
+                    Times.Never);
+
+            this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationOccursDuringDispatchOnRetryAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            ListenerEventV2 someListenerEventV2 =
+                CreateRandomListenerEventV2WithNavProps();
+
+            someListenerEventV2.EventListenerV2.PromotedProperties = null;
+            someListenerEventV2.RetryAttemptsAllowed = 15;
+            someListenerEventV2.RemainingRetryAttempts = 10;
+
+            DateTimeOffset randomNow = GetRandomDateTimeOffset();
+
+            var retryConfiguration = new RetryConfiguration
+            {
+                RetryAttemptsAllowed = 15,
+                RetryBackoffMaxMinutes = 180,
+                DeadAfterMinutes = 180
+            };
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+
+            var operationCanceledException =
+                new OperationCanceledException(cancellationTokenSource.Token);
+
+            this.eventCallV2ProcessingServiceMock.Setup(service =>
+                service.RunEventCallV2Async(
+                    It.IsAny<EventCallV2>(),
+                    randomCancellationToken))
+                .ThrowsAsync(operationCanceledException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                .ReturnsAsync(randomNow);
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetRetryConfiguration())
+                .Returns(retryConfiguration);
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.ModifyListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    randomCancellationToken))
+                .ReturnsAsync(someListenerEventV2);
+
+            // when
+            ValueTask<ListenerEventV2> retryTask =
+                this.retryingListenerEventV2OrchestrationService
+                    .RetryListenerEventV2Async(
+                        someListenerEventV2,
+                        randomCancellationToken);
+
+            // then
+            OperationCanceledException actualException =
+                await Assert.ThrowsAsync<OperationCanceledException>(
+                    retryTask.AsTask);
+
+            actualException.Should()
+                .NotBeOfType<RetryingListenerEventV2OrchestrationDependencyException>();
+
+            actualException.Should()
+                .NotBeOfType<RetryingListenerEventV2OrchestrationServiceException>();
+
+            this.eventCallV2ProcessingServiceMock.Verify(service =>
+                service.RunEventCallV2Async(
+                    It.IsAny<EventCallV2>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.ModifyListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.IsAny<Exception>()),
                     Times.Never);
 
             this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();

@@ -224,6 +224,115 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
         }
 
         [Fact]
+        public async Task ShouldFloorFibonacciBackoffAtOneMinuteWhenBackoffMaxMinutesIsZeroAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            ListenerEventV2 inputListenerEventV2 =
+                CreateRandomListenerEventV2WithNavProps();
+
+            inputListenerEventV2.EventListenerV2.PromotedProperties = null;
+            inputListenerEventV2.RetryAttemptsAllowed = 15;
+            inputListenerEventV2.RemainingRetryAttempts = 10;
+
+            DateTimeOffset randomNow = GetRandomDateTimeOffset();
+
+            var retryConfiguration = new RetryConfiguration
+            {
+                RetryAttemptsAllowed = 15,
+                RetryBackoffMaxMinutes = 0,
+                DeadAfterMinutes = 180
+            };
+
+            // a non-positive backoff cap must floor to 1 minute so the gate always advances
+            int expectedRemainingRetryAttempts = 9;
+            DateTimeOffset expectedNextRetryAttemptNotBefore = randomNow.AddMinutes(1);
+
+            var ranEventCallV2 = new EventCallV2
+            {
+                IsSuccess = false,
+                Response = GetRandomString(),
+                ResponseCode = GetRandomString(),
+                ResponseMessage = GetRandomString()
+            };
+
+            ListenerEventV2 returnedListenerEventV2 = inputListenerEventV2.DeepClone();
+
+            var mockSequence = new MockSequence();
+
+            this.eventCallV2ProcessingServiceMock
+                .InSequence(mockSequence)
+                .Setup(service => service.RunEventCallV2Async(
+                    It.IsAny<EventCallV2>(),
+                    randomCancellationToken))
+                .ReturnsAsync(ranEventCallV2);
+
+            this.dateTimeBrokerMock
+                .InSequence(mockSequence)
+                .Setup(broker => broker.GetDateTimeOffsetAsync())
+                .ReturnsAsync(randomNow);
+
+            this.configurationBrokerMock
+                .InSequence(mockSequence)
+                .Setup(broker => broker.GetRetryConfiguration())
+                .Returns(retryConfiguration);
+
+            this.listenerEventV2ProcessingServiceMock
+                .InSequence(mockSequence)
+                .Setup(service => service.ModifyListenerEventV2Async(
+                    It.Is<ListenerEventV2>(lev =>
+                        lev.Status == ListenerEventStatusV2.Error
+                        && lev.RemainingRetryAttempts == expectedRemainingRetryAttempts
+                        && lev.RetryAttemptsAllowed == 15
+                        && lev.NextRetryAttemptNotBefore == expectedNextRetryAttemptNotBefore
+                        && lev.DispatchedDate == randomNow
+                        && lev.Response == ranEventCallV2.Response
+                        && lev.ResponseCode == ranEventCallV2.ResponseCode
+                        && lev.ResponseMessage == ranEventCallV2.ResponseMessage
+                        && lev.UpdatedDate == randomNow),
+                    randomCancellationToken))
+                .ReturnsAsync(returnedListenerEventV2);
+
+            // when
+            ListenerEventV2 actualListenerEventV2 =
+                await this.retryingListenerEventV2OrchestrationService
+                    .RetryListenerEventV2Async(
+                        inputListenerEventV2,
+                        randomCancellationToken);
+
+            // then
+            actualListenerEventV2.Should().BeEquivalentTo(returnedListenerEventV2);
+
+            this.eventCallV2ProcessingServiceMock.Verify(service =>
+                service.RunEventCallV2Async(
+                    It.IsAny<EventCallV2>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetRetryConfiguration(),
+                    Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.ModifyListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldRetryListenerEventV2AsErrorWhenDeliveryExceptionThrownAndLogItAsync()
         {
             // given

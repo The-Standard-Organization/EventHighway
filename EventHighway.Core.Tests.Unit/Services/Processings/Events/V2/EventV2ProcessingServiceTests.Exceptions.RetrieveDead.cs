@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
 
             // when
             ValueTask<IQueryable<EventV2>> retrieveAllDeadEventV2sWithListenersTask =
-                this.eventV2ProcessingService.RetrieveAllDeadEventV2sWithListenersAsync(
+                this.eventV2ProcessingService.RetrieveAllDeadEventV2sAsync(
                     TestContext.Current.CancellationToken);
 
             EventV2ProcessingDependencyException actualEventV2ProcessingDependencyException =
@@ -78,7 +78,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
 
             // when
             ValueTask<IQueryable<EventV2>> retrieveAllDeadEventV2sWithListenersTask =
-                this.eventV2ProcessingService.RetrieveAllDeadEventV2sWithListenersAsync(cancelledToken);
+                this.eventV2ProcessingService.RetrieveAllDeadEventV2sAsync(cancelledToken);
 
             // then
             OperationCanceledException actualException =
@@ -122,7 +122,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
 
             // when
             ValueTask<IQueryable<EventV2>> retrieveAllDeadEventV2sWithListenersTask =
-                this.eventV2ProcessingService.RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                this.eventV2ProcessingService.RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             EventV2ProcessingDependencyException actualEventV2ProcessingDependencyException =
                 await Assert.ThrowsAsync<EventV2ProcessingDependencyException>(
@@ -173,7 +173,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
 
             // when
             ValueTask<IQueryable<EventV2>> retrieveAllDeadEventV2sWithListenersTask =
-                this.eventV2ProcessingService.RetrieveAllDeadEventV2sWithListenersAsync(randomCancellationToken);
+                this.eventV2ProcessingService.RetrieveAllDeadEventV2sAsync(randomCancellationToken);
 
             EventV2ProcessingServiceException actualEventV2ProcessingServiceException =
                 await Assert.ThrowsAsync<EventV2ProcessingServiceException>(

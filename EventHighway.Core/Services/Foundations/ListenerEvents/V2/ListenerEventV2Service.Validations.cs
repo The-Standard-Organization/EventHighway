@@ -61,9 +61,6 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                 (Rule: IsInvalid(listenerEventV2.Id),
                 Parameter: nameof(ListenerEventV2.Id)),
 
-                (Rule: IsInvalid(listenerEventV2.Response),
-                Parameter: nameof(ListenerEventV2.Response)),
-
                 (Rule: IsInvalid(listenerEventV2.EventV2Id),
                 Parameter: nameof(ListenerEventV2.EventV2Id)),
 
