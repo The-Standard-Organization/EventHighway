@@ -56,7 +56,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = quarantinedEventV2.CreatedDate,
                 UpdatedDate = quarantinedEventV2.CreatedDate,
                 ScheduledDate = quarantinedEventV2.ScheduledDate,
-                RemainingRetryAttempts = quarantinedEventV2.RemainingRetryAttempts,
                 EventAddressV2Id = quarantinedEventV2.EventAddressV2Id
             };
 

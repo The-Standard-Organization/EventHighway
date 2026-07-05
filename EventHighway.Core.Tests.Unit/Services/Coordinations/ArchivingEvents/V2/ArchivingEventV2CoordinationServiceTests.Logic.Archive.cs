@@ -82,7 +82,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         CreatedDate = item.CreatedDate,
                         UpdatedDate = item.CreatedDate,
                         ScheduledDate = item.ScheduledDate,
-                        RemainingRetryAttempts = item.RemainingRetryAttempts,
                         EventAddressV2Id = item.EventAddressId
                     }).ToList();
 
@@ -345,7 +344,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         CreatedDate = eventV2.CreatedDate,
                         UpdatedDate = eventV2.UpdatedDate,
                         ScheduledDate = eventV2.ScheduledDate,
-                        RemainingRetryAttempts = eventV2.RemainingRetryAttempts,
                         EventAddressV2Id = eventV2.EventAddressV2Id
                     }).ToList();
 
@@ -610,7 +608,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         CreatedDate = eventV2.CreatedDate,
                         UpdatedDate = eventV2.UpdatedDate,
                         ScheduledDate = eventV2.ScheduledDate,
-                        RemainingRetryAttempts = eventV2.RemainingRetryAttempts,
                         EventAddressV2Id = eventV2.EventAddressV2Id
                     }).ToList();
 
@@ -848,7 +845,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         CreatedDate = deadEventV2.CreatedDate,
                         UpdatedDate = deadEventV2.UpdatedDate,
                         ScheduledDate = deadEventV2.ScheduledDate,
-                        RemainingRetryAttempts = deadEventV2.RemainingRetryAttempts,
                         EventAddressV2Id = deadEventV2.EventAddressV2Id
                     }
                 };
