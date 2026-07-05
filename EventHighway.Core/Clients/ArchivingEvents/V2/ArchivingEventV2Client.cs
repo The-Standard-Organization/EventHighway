@@ -201,6 +201,18 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
                 throw CreateArchivingEventV2ClientValidationException(
                     archivingEventV2CoordinationDependencyValidationException.InnerException as Xeption);
             }
+            catch (ArchivingEventV2CoordinationDependencyException
+                archivingEventV2CoordinationDependencyException)
+            {
+                throw CreateArchivingEventV2ClientDependencyException(
+                    archivingEventV2CoordinationDependencyException.InnerException as Xeption);
+            }
+            catch (ArchivingEventV2CoordinationServiceException
+                archivingEventV2CoordinationServiceException)
+            {
+                throw CreateArchivingEventV2ClientDependencyException(
+                    archivingEventV2CoordinationServiceException.InnerException as Xeption);
+            }
         }
     }
 }
