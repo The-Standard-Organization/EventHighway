@@ -184,8 +184,23 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         public async ValueTask PurgeEventArchiveV2sAsync(
             CancellationToken cancellationToken = default)
         {
-            await this.archivingEventV2CoordinationService
-                .PurgeEventArchiveV2sAsync(cancellationToken);
+            try
+            {
+                await this.archivingEventV2CoordinationService
+                    .PurgeEventArchiveV2sAsync(cancellationToken);
+            }
+            catch (ArchivingEventV2CoordinationValidationException
+                archivingEventV2CoordinationValidationException)
+            {
+                throw CreateArchivingEventV2ClientValidationException(
+                    archivingEventV2CoordinationValidationException.InnerException as Xeption);
+            }
+            catch (ArchivingEventV2CoordinationDependencyValidationException
+                archivingEventV2CoordinationDependencyValidationException)
+            {
+                throw CreateArchivingEventV2ClientValidationException(
+                    archivingEventV2CoordinationDependencyValidationException.InnerException as Xeption);
+            }
         }
     }
 }
