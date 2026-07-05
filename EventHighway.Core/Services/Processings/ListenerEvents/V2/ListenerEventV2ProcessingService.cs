@@ -234,7 +234,8 @@ namespace EventHighway.Core.Services.Processings.ListenerEvents.V2
                 listenerEventV2s
                     .Where(listenerEventV2 =>
                         listenerEventV2.Status == ListenerEventStatusV2.Error)
-                    .OrderBy(listenerEventV2 => listenerEventV2.CreatedDate);
+                    .OrderBy(listenerEventV2 => listenerEventV2.CreatedDate)
+                    .ThenBy(listenerEventV2 => listenerEventV2.Id);
 
             int skip = 0;
 
