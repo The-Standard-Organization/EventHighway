@@ -191,9 +191,11 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
         private static int CalculateFibonacciBackoffMinutes(int attemptNumber, int maxMinutes)
         {
+            int cappedMaxMinutes = Math.Max(1, maxMinutes);
+
             if (attemptNumber <= 2)
             {
-                return Math.Min(1, maxMinutes);
+                return Math.Min(1, cappedMaxMinutes);
             }
 
             int previous = 1;
@@ -203,9 +205,9 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
             {
                 int next = previous + current;
 
-                if (next >= maxMinutes)
+                if (next >= cappedMaxMinutes)
                 {
-                    return maxMinutes;
+                    return cappedMaxMinutes;
                 }
 
                 previous = current;
