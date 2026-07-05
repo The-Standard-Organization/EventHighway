@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
@@ -125,6 +126,72 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedRetryingListenerEventV2OrchestrationDependencyException))),
+                Times.Once);
+
+            this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task
+            ShouldThrowServiceExceptionOnRetryFailedListenerEventV2sIfServiceErrorOccursAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            int randomTake = GetRandomNumber();
+            BatchConfiguration batchConfiguration = CreateBatchConfiguration(randomTake);
+
+            var serviceException = new Exception();
+
+            var failedRetryingListenerEventV2OrchestrationServiceException =
+                new FailedRetryingListenerEventV2OrchestrationServiceException(
+                    message: "Failed retrying listener event orchestration service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedRetryingListenerEventV2OrchestrationServiceException =
+                new RetryingListenerEventV2OrchestrationServiceException(
+                    message: "Retrying listener event service error occurred, contact support.",
+                    innerException: failedRetryingListenerEventV2OrchestrationServiceException);
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetBatchConfiguration())
+                    .Returns(batchConfiguration);
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveBatchOfRetryListenerEventV2sAsync(
+                    randomTake, randomCancellationToken))
+                .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask retryFailedTask =
+                this.retryingListenerEventV2OrchestrationService
+                    .RetryFailedListenerEventV2sAsync(randomCancellationToken);
+
+            RetryingListenerEventV2OrchestrationServiceException actualException =
+                await Assert.ThrowsAsync<RetryingListenerEventV2OrchestrationServiceException>(
+                    retryFailedTask.AsTask);
+
+            // then
+            actualException.Should().BeEquivalentTo(
+                expectedRetryingListenerEventV2OrchestrationServiceException);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetBatchConfiguration(), Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveBatchOfRetryListenerEventV2sAsync(
+                    randomTake, randomCancellationToken),
+                Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedRetryingListenerEventV2OrchestrationServiceException))),
                 Times.Once);
 
             this.eventCallV2ProcessingServiceMock.VerifyNoOtherCalls();
