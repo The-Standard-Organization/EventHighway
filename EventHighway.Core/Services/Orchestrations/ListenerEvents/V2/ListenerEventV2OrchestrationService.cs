@@ -82,5 +82,30 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
             return await this.listenerEventV2ProcessingService
                 .RemoveListenerEventV2ByIdAsync(listenerEventV2Id, cancellationToken);
         });
+
+        public ValueTask<ListenerEventV2> ResetRetriesForListenerEventV2ByIdAsync(
+            Guid listenerEventV2Id,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventV2Id(listenerEventV2Id);
+
+            return await this.listenerEventV2ProcessingService
+                .ResetRetriesForListenerEventV2ByIdAsync(listenerEventV2Id, cancellationToken);
+        });
+
+        public ValueTask ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
+            Guid eventListenerV2Id,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventListenerV2Id(eventListenerV2Id);
+
+            await this.listenerEventV2ProcessingService
+                .ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
+                    eventListenerV2Id, cancellationToken);
+        });
     }
 }

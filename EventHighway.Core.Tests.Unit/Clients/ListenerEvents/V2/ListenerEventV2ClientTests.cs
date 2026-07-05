@@ -8,7 +8,9 @@ using EventHighway.Core.Clients.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2.Exceptions;
+using EventHighway.Core.Models.Services.Orchestrations.RetryingListenerEvents.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
+using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -18,6 +20,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
     public partial class ListenerEventV2ClientTests
     {
         private readonly Mock<IListenerEventV2OrchestrationService> listenerEventV2OrchestrationServiceMock;
+
+        private readonly Mock<IRetryingListenerEventV2OrchestrationService>
+            retryingListenerEventV2OrchestrationServiceMock;
+
         private readonly IListenerEventV2Client listenerEventV2Client;
 
         public ListenerEventV2ClientTests()
@@ -25,10 +31,16 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             this.listenerEventV2OrchestrationServiceMock =
                 new Mock<IListenerEventV2OrchestrationService>();
 
+            this.retryingListenerEventV2OrchestrationServiceMock =
+                new Mock<IRetryingListenerEventV2OrchestrationService>();
+
             this.listenerEventV2Client =
                 new ListenerEventV2Client(
                     listenerEventV2OrchestrationService:
-                        this.listenerEventV2OrchestrationServiceMock.Object);
+                        this.listenerEventV2OrchestrationServiceMock.Object,
+
+                    retryingListenerEventV2OrchestrationService:
+                        this.retryingListenerEventV2OrchestrationServiceMock.Object);
         }
 
         public static TheoryData<Xeption> ValidationExceptions()
@@ -44,6 +56,24 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                     someInnerException),
 
                 new ListenerEventV2OrchestrationDependencyValidationException(
+                    someMessage,
+                    someInnerException),
+            };
+        }
+
+        public static TheoryData<Xeption> RetryValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.AddData(GetRandomString(), GetRandomString());
+
+            return new TheoryData<Xeption>
+            {
+                new RetryingListenerEventV2OrchestrationValidationException(
+                    someMessage,
+                    someInnerException),
+
+                new RetryingListenerEventV2OrchestrationDependencyValidationException(
                     someMessage,
                     someInnerException),
             };
