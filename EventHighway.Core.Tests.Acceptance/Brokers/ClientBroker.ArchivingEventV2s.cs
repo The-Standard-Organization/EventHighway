@@ -15,5 +15,8 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
         public async ValueTask PurgeEventArchiveV2sAsync(DateTimeOffset olderThan) =>
             await this.eventHighwayClient.V2.ArchivingEventV2Client
                 .PurgeEventArchiveV2sAsync(olderThan);
+
+        public ValueTask PurgeEventArchiveV2sAsync() =>
+            throw new NotImplementedException();
     }
 }
