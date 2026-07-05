@@ -39,5 +39,20 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
         ValueTask PurgeEventArchiveV2sAsync(DateTimeOffset olderThan, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Purges archived events older than the configured retention window asynchronously. The
+        /// retention window is read from <c>EventHighwayConfiguration.Purging.RetentionDays</c>.
+        /// This is the entry point a scheduler uses to purge archive rows on a cadence, whereas the
+        /// <see cref="PurgeEventArchiveV2sAsync(DateTimeOffset, CancellationToken)"/> overload
+        /// supports a manual purge to an explicit threshold.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        ValueTask PurgeEventArchiveV2sAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -169,5 +169,20 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
                 throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
             }
         }
+
+        /// <summary>
+        /// Purges archived events older than the configured retention window asynchronously by
+        /// delegating to the coordination service and handling any exceptions that occur. The
+        /// retention window is read from <c>EventHighwayConfiguration.Purging.RetentionDays</c>.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        public ValueTask PurgeEventArchiveV2sAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
