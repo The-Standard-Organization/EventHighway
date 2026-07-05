@@ -43,7 +43,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()))
                     .ThrowsAsync(operationCanceledException);
 
             // when
@@ -65,7 +65,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -135,7 +135,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()))
                     .ThrowsAsync(validationException);
 
             // when
@@ -157,7 +157,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -191,7 +191,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -213,7 +213,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -253,7 +253,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     .Returns(randomBatchConfiguration);
 
             this.eventV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()))
                     .ThrowsAsync(exception);
 
             // when
@@ -275,7 +275,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.ArchivingEvents.V
                     Times.Once);
 
             this.eventV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllDeadEventV2sWithListenersAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveAllDeadEventV2sAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

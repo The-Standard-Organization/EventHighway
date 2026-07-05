@@ -94,7 +94,7 @@ namespace EventHighway.Core.Services.Processings.Events.V2
                 eventV2.ScheduledDate < now);
         });
 
-        public ValueTask<IQueryable<EventV2>> RetrieveAllDeadEventV2sWithListenersAsync(
+        public ValueTask<IQueryable<EventV2>> RetrieveAllDeadEventV2sAsync(
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {

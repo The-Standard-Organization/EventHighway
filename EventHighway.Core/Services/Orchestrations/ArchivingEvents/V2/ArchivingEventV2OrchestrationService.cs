@@ -84,7 +84,7 @@ namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
 
             IQueryable<EventV2> deadEventV2s =
                 await this.eventV2ProcessingService
-                    .RetrieveAllDeadEventV2sWithListenersAsync(cancellationToken);
+                    .RetrieveAllDeadEventV2sAsync(cancellationToken);
 
             int take = batchConfiguration.BatchSizeForBulkProcessing;
 
