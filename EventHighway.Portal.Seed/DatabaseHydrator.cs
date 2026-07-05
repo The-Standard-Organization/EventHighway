@@ -330,7 +330,6 @@ namespace EventHighway.Portal.Seed
                 ContentHash = "HASH-" + Guid.NewGuid().ToString("N")[..12],
                 Type = type,
                 Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts,
                 ScheduledDate = scheduledDate,
                 EventAddressV2Id = eventAddressId,
                 EventParticipantV2Id = participantId,

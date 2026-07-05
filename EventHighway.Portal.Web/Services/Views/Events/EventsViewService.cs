@@ -34,10 +34,8 @@ namespace EventHighway.Portal.Web.Services.Views.Events
             IQueryable<EventV2> events =
                 await this.eventHighwayBroker.RetrieveAllEventV2sAsync(cancellationToken);
 
-            return events.Count(@event =>
-                @event.Status == EventStatusV2.Quarantined
-                    || (@event.Status == EventStatusV2.Active
-                        && @event.RemainingRetryAttempts == 0));
+            // TODO: listener-level dead count for archivable events - wire up in the Health overhaul
+            return events.Count(@event => @event.Status == EventStatusV2.Quarantined);
         });
 
         public ValueTask<List<EventView>> RetrieveAllEventsAsync(
@@ -75,7 +73,6 @@ namespace EventHighway.Portal.Web.Services.Views.Events
                 Content = @event.Content,
                 Type = @event.Type.ToString(),
                 Status = @event.Status.ToString(),
-                RemainingRetryAttempts = @event.RemainingRetryAttempts,
                 EventAddressV2Id = @event.EventAddressV2Id,
                 EventAddressName = @event.EventAddressV2?.Name ?? string.Empty,
                 EventParticipantV2Id = @event.EventParticipantV2Id,

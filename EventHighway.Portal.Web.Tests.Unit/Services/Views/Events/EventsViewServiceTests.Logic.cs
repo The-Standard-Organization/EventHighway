@@ -29,7 +29,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
                 CreateRandomEvent(EventStatusV2.Active, remainingRetryAttempts: 2)
             }.AsQueryable();
 
-            int expectedCount = 4;
+            int expectedCount = 2;
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveAllEventV2sAsync(It.IsAny<CancellationToken>()))

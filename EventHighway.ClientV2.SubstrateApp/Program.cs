@@ -461,7 +461,6 @@ public partial class Program
                 EventName = "AddNewRelease",
                 EventAddressV2Id = eventAddressId,
                 ScheduledDate = null,
-                RemainingRetryAttempts = remainingRetryAttempts,
                 EventParticipantV2Id = nflix.Id,
                 EventParticipantV2Secret = "NFlix",
                 CreatedDate = now,
