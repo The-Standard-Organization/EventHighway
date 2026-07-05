@@ -176,6 +176,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RetryingListenerE
                     It.IsAny<EventCallV2>(), randomCancellationToken),
                 Times.Exactly(randomTake));
 
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                Times.Exactly(randomTake));
+
             this.listenerEventV2ProcessingServiceMock.Verify(service =>
                 service.ModifyListenerEventV2Async(
                     It.IsAny<ListenerEventV2>(), randomCancellationToken),

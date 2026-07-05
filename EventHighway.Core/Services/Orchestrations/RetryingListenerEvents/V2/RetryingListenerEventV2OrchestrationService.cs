@@ -58,6 +58,7 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                 this.configurationBroker.GetBatchConfiguration();
 
             int take = batchConfiguration.BatchSizeForBulkProcessing;
+            var attemptedListenerEventV2Ids = new HashSet<Guid>();
             IEnumerable<ListenerEventV2> listenerEventV2Batch;
 
             do
@@ -66,10 +67,18 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                     await this.listenerEventV2ProcessingService
                         .RetrieveBatchOfRetryListenerEventV2sAsync(take, cancellationToken);
 
-                if (!listenerEventV2Batch.Any())
-                    break;
+                var freshListenerEventV2s = new List<ListenerEventV2>();
 
                 foreach (ListenerEventV2 listenerEventV2 in listenerEventV2Batch)
+                {
+                    if (attemptedListenerEventV2Ids.Add(listenerEventV2.Id))
+                        freshListenerEventV2s.Add(listenerEventV2);
+                }
+
+                if (!freshListenerEventV2s.Any())
+                    break;
+
+                foreach (ListenerEventV2 listenerEventV2 in freshListenerEventV2s)
                 {
                     try
                     {
