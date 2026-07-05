@@ -98,6 +98,13 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
         public ValueTask ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await this.listenerEventV2ProcessingService
+                .ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
+                    eventListenerV2Id, cancellationToken);
+        });
     }
 }
