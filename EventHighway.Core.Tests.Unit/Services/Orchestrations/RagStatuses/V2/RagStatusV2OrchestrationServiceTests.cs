@@ -233,7 +233,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
                     Id = Guid.NewGuid(),
                     Type = type,
                     Status = status,
-                    RemainingRetryAttempts = positiveRetries ? GetRandomPositiveNumber() : 0,
                     Content = GetRandomString(),
                     EventName = GetRandomString(),
                     CreatedDate = GetRandomDateTimeOffset(),
@@ -318,7 +317,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RagStatuses.V2
                 {
                     Id = Guid.NewGuid(),
                     Status = status,
-                    RemainingRetryAttempts = positiveRetries ? GetRandomPositiveNumber() : 0,
                     Content = GetRandomString(),
                     EventName = GetRandomString(),
                     CreatedDate = GetRandomDateTimeOffset(),

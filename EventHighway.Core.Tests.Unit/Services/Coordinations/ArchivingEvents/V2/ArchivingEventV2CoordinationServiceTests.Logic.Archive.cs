@@ -46,7 +46,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         CreatedDate = item.CreatedDate,
                         UpdatedDate = item.UpdatedDate,
                         ScheduledDate = item.ScheduledDate,
-                        RemainingRetryAttempts = item.RemainingRetryAttempts,
                         EventAddressV2Id = item.EventAddressId
                     }).ToList();
 
@@ -267,7 +266,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = randomDateTimeOffset,
                 UpdatedDate = randomDateTimeOffset,
                 ScheduledDate = randomDateTimeOffset,
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 
@@ -280,7 +278,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = randomDateTimeOffset,
                 UpdatedDate = randomDateTimeOffset,
                 ScheduledDate = randomDateTimeOffset,
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 
@@ -551,7 +548,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = randomDateTimeOffset,
                 UpdatedDate = randomDateTimeOffset,
                 ScheduledDate = randomDateTimeOffset,
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 
@@ -564,7 +560,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = randomDateTimeOffset,
                 UpdatedDate = randomDateTimeOffset,
                 ScheduledDate = randomDateTimeOffset,
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 
@@ -806,7 +801,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = randomDateTimeOffset,
                 UpdatedDate = randomDateTimeOffset,
                 ScheduledDate = randomDateTimeOffset,
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 

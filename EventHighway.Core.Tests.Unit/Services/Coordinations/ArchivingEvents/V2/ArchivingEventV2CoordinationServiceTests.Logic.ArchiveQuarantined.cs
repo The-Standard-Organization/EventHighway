@@ -39,7 +39,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 CreatedDate = GetRandomDateTimeOffset(),
                 UpdatedDate = GetRandomDateTimeOffset(),
                 ScheduledDate = GetRandomDateTimeOffset(),
-                RemainingRetryAttempts = GetRandomNumber(),
                 EventAddressV2Id = GetRandomId()
             };
 
