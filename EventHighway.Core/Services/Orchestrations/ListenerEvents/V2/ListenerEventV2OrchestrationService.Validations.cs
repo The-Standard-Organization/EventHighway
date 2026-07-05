@@ -44,6 +44,15 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
                 Parameter: nameof(ListenerEventV2.Id)));
         }
 
+        private static void ValidateEventListenerV2Id(Guid eventListenerV2Id)
+        {
+            Validate(
+                message: "Listener event is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventListenerV2Id),
+                Parameter: nameof(ListenerEventV2.EventListenerV2Id)));
+        }
+
         private static dynamic IsNull(IEnumerable<Guid> value) => new
         {
             Condition = value is null,
