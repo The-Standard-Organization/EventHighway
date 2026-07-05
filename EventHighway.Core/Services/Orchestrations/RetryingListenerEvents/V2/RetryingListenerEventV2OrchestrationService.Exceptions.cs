@@ -146,6 +146,10 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
                 throw retryingListenerEventV2OrchestrationDependencyException;
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (EventCallV2ProcessingValidationException
                 eventCallV2ProcessingValidationException)
             {
