@@ -5,6 +5,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ArchivingEvents.V2.Exceptions;
+using EventHighway.Core.Models.Coordinations.ArchivingEvents.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -44,6 +45,50 @@ namespace EventHighway.Core.Tests.Unit.Clients.ArchivingEvents.V2
             // then
             actualArchivingEventV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedArchivingEventV2ClientValidationException);
+
+            this.archivingEventV2CoordinationServiceMock.Verify(service =>
+                service.PurgeEventArchiveV2sAsync(
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.archivingEventV2CoordinationServiceMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [MemberData(nameof(DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnPurgeFromConfigurationIfDependencyErrorOccursAsync(
+            Xeption dependencyException)
+        {
+            // given
+            CancellationToken someCancellationToken = TestContext.Current.CancellationToken;
+
+            var expectedArchivingEventV2ClientDependencyException =
+                new ArchivingEventV2ClientDependencyException(
+                    message: "Archiving event client dependency error occurred, contact support.",
+
+                    innerException: dependencyException
+                        .InnerException as Xeption,
+
+                    data: (dependencyException
+                        .InnerException as Xeption).Data);
+
+            this.archivingEventV2CoordinationServiceMock.Setup(service =>
+                service.PurgeEventArchiveV2sAsync(
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask purgeEventArchiveV2sTask =
+                this.archivingEventV2Client
+                    .PurgeEventArchiveV2sAsync(someCancellationToken);
+
+            ArchivingEventV2ClientDependencyException actualArchivingEventV2ClientDependencyException =
+                await Assert.ThrowsAsync<ArchivingEventV2ClientDependencyException>(
+                    purgeEventArchiveV2sTask.AsTask);
+
+            // then
+            actualArchivingEventV2ClientDependencyException.Should()
+                .BeEquivalentTo(expectedArchivingEventV2ClientDependencyException);
 
             this.archivingEventV2CoordinationServiceMock.Verify(service =>
                 service.PurgeEventArchiveV2sAsync(
