@@ -28,6 +28,22 @@ namespace EventHighway.Core.Brokers.Storages
             })
             .HasDatabaseName("IX_EventV2s_LoopDetection");
 
+            model.HasIndex(eventV2 => new { eventV2.Status, eventV2.Type })
+                .HasDatabaseName("IX_EventV2s_StatusType");
+
+            model.HasIndex(eventV2 => new { eventV2.EventAddressV2Id, eventV2.CreatedDate })
+                .IncludeProperties(eventV2 => new
+                {
+                    eventV2.Status,
+                    eventV2.Type,
+                    eventV2.EventParticipantV2Id
+                })
+                .HasDatabaseName("IX_EventV2s_AddressCreatedDate");
+
+            model.HasIndex(eventV2 => eventV2.CreatedDate)
+                .IncludeProperties(eventV2 => eventV2.Type)
+                .HasDatabaseName("IX_EventV2s_CreatedDate");
+
             model.HasOne(eventV2 => eventV2.EventAddressV2)
                 .WithMany(eventAddressV2 => eventAddressV2.EventV2s)
                 .HasForeignKey(eventV2 => eventV2.EventAddressV2Id)

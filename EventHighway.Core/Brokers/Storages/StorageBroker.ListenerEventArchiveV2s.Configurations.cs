@@ -26,6 +26,21 @@ namespace EventHighway.Core.Brokers.Storages
             })
             .HasDatabaseName("IX_ListenerEventArchiveV2s_RetryClassification");
 
+            model.HasIndex(listenerEventArchiveV2 => listenerEventArchiveV2.Status)
+                .HasDatabaseName("IX_ListenerEventArchiveV2s_Status");
+
+            model.HasIndex(listenerEventArchiveV2 => listenerEventArchiveV2.ArchivedDate)
+                .IncludeProperties(listenerEventArchiveV2 => listenerEventArchiveV2.Status)
+                .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate");
+
+            model.HasIndex(listenerEventArchiveV2 => new
+            {
+                listenerEventArchiveV2.EventAddressV2Id,
+                listenerEventArchiveV2.ArchivedDate
+            })
+            .IncludeProperties(listenerEventArchiveV2 => listenerEventArchiveV2.Status)
+            .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate");
+
             model.HasOne<EventListenerV2>(listenerEventArchiveV2 => listenerEventArchiveV2.EventListenerV2)
                 .WithMany(eventListenerV2 => eventListenerV2.ListenerEventArchiveV2s)
                 .HasForeignKey(listenerEventArchiveV2 => listenerEventArchiveV2.EventListenerV2Id)

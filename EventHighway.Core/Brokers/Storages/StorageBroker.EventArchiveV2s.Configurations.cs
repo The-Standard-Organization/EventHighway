@@ -28,6 +28,20 @@ namespace EventHighway.Core.Brokers.Storages
             })
             .HasDatabaseName("IX_EventArchiveV2s_ContentHash");
 
+            model.HasIndex(eventArchiveV2 => eventArchiveV2.Status)
+                .HasDatabaseName("IX_EventArchiveV2s_Status");
+
+            model.HasIndex(eventArchiveV2 => eventArchiveV2.ArchivedDate)
+                .HasDatabaseName("IX_EventArchiveV2s_ArchivedDate");
+
+            model.HasIndex(eventArchiveV2 => new
+            {
+                eventArchiveV2.EventAddressV2Id,
+                eventArchiveV2.ArchivedDate
+            })
+            .IncludeProperties(eventArchiveV2 => eventArchiveV2.Status)
+            .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate");
+
             model.HasMany<ListenerEventArchiveV2>(eventArchiveV2 => eventArchiveV2.ListenerEventArchiveV2s)
                 .WithOne()
                 .HasForeignKey(listenerEventArchiveV2 => listenerEventArchiveV2.EventArchiveV2Id)
