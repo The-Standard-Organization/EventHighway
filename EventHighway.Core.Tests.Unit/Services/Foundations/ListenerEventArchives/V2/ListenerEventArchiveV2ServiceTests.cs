@@ -113,6 +113,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(date)
+                .OnType<DateTimeOffset?>().Use(GetRandomDateTimeOffset())
 
                 .OnProperty(listenerEventArchiveV2 => listenerEventArchiveV2.EventListenerV2)
                     .IgnoreIt()

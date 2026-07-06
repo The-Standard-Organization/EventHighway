@@ -222,6 +222,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset)
+                .OnType<DateTimeOffset?>().Use(GetRandomDateTimeOffset())
 
                 .OnProperty(listenerEventArchiveV2 => listenerEventArchiveV2.EventListenerV2)
                     .IgnoreIt()

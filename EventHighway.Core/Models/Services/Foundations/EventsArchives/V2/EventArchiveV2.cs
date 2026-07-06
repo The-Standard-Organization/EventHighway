@@ -31,6 +31,11 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
         public string EventName { get; set; }
 
         /// <summary>
+        /// Gets or sets the hash of the content payload of this archived event.
+        /// </summary>
+        public string ContentHash { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="EventArchiveTypeV2"/> that categorizes this archived event.
         /// </summary>
         public EventArchiveTypeV2 Type { get; set; }
