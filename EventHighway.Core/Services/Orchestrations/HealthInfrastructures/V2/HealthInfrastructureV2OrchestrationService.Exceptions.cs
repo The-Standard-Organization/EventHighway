@@ -43,6 +43,32 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             {
                 throw;
             }
+            catch (EventAddressV2ValidationException eventAddressV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventAddressV2ValidationException);
+            }
+            catch (EventAddressV2DependencyValidationException eventAddressV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventAddressV2DependencyValidationException);
+            }
+            catch (EventListenerV2ValidationException eventListenerV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventListenerV2ValidationException);
+            }
+            catch (EventListenerV2DependencyValidationException eventListenerV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventListenerV2DependencyValidationException);
+            }
+            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(eventParticipantV2ValidationException);
+            }
+            catch (EventParticipantV2DependencyValidationException eventParticipantV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventParticipantV2DependencyValidationException);
+            }
             catch (EventAddressV2DependencyException eventAddressV2DependencyException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(eventAddressV2DependencyException);
@@ -66,6 +92,17 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
             {
                 throw await CreateAndLogDependencyExceptionAsync(eventParticipantV2ServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedHealthInfrastructureV2OrchestrationServiceException =
+                    new FailedHealthInfrastructureV2OrchestrationServiceException(
+                        message: "Failed health infrastructure service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedHealthInfrastructureV2OrchestrationServiceException);
             }
         }
 
@@ -95,6 +132,34 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
                 healthInfrastructureV2OrchestrationDependencyException);
 
             return healthInfrastructureV2OrchestrationDependencyException;
+        }
+
+        private async ValueTask<HealthInfrastructureV2OrchestrationDependencyValidationException>
+            CreateAndLogDependencyValidationExceptionAsync(Xeption exception)
+        {
+            var healthInfrastructureV2OrchestrationDependencyValidationException =
+                new HealthInfrastructureV2OrchestrationDependencyValidationException(
+                    message: "Health infrastructure validation error occurred, fix the errors and try again.",
+                    innerException: exception.InnerException as Xeption);
+
+            await this.loggingBroker.LogErrorAsync(
+                healthInfrastructureV2OrchestrationDependencyValidationException);
+
+            return healthInfrastructureV2OrchestrationDependencyValidationException;
+        }
+
+        private async ValueTask<HealthInfrastructureV2OrchestrationServiceException>
+            CreateAndLogServiceExceptionAsync(Xeption exception)
+        {
+            var healthInfrastructureV2OrchestrationServiceException =
+                new HealthInfrastructureV2OrchestrationServiceException(
+                    message: "Health infrastructure service error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(
+                healthInfrastructureV2OrchestrationServiceException);
+
+            return healthInfrastructureV2OrchestrationServiceException;
         }
     }
 }
