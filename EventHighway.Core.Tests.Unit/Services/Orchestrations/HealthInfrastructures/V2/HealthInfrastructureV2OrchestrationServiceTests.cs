@@ -92,20 +92,53 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
         private static Guid GetRandomId() =>
             Guid.NewGuid();
 
-        private static IQueryable<EventAddressV2> CreateRandomEventAddressV2s(int count) =>
-            Enumerable.Range(start: 0, count: count)
-                .Select(item => new EventAddressV2 { Id = GetRandomId() })
-                .AsQueryable();
+        private static bool GetRandomBoolean() =>
+            GetRandomNumber() % 2 == 0;
 
-        private static IQueryable<EventParticipantV2> CreateRandomEventParticipantV2s(int count) =>
-            Enumerable.Range(start: 0, count: count)
-                .Select(item => new EventParticipantV2 { Id = GetRandomId() })
-                .AsQueryable();
+        private static DateTimeOffset GetRandomDateTimeOffset() =>
+            new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 
-        private static IQueryable<EventListenerV2> CreateEventListenerV2sWithHandlerIds(
-            IEnumerable<Guid> handlerIds) =>
+        private static T GetRandomEnum<T>() where T : struct, Enum
+        {
+            T[] enumValues = Enum.GetValues<T>();
+
+            return enumValues[new IntRange(min: 0, max: enumValues.Length - 1).GetValue()];
+        }
+
+        private static List<EventAddressV2> CreateRandomEventAddressV2s(int count) =>
+            Enumerable.Range(start: 0, count: count)
+                .Select(item => new EventAddressV2
+                {
+                    Id = GetRandomId(),
+                    Name = GetRandomString(),
+                    Description = GetRandomString()
+                })
+                .ToList();
+
+        private static List<EventParticipantV2> CreateRandomEventParticipantV2s(int count) =>
+            Enumerable.Range(start: 0, count: count)
+                .Select(item => new EventParticipantV2
+                {
+                    Id = GetRandomId(),
+                    Name = GetRandomString(),
+                    ContactEmail = GetRandomString(),
+                    ContactPhone = GetRandomString(),
+                    IsActive = GetRandomBoolean()
+                })
+                .ToList();
+
+        private static List<EventListenerV2> CreateRandomEventListenerV2s(
+            IReadOnlyList<Guid> handlerIds,
+            IReadOnlyList<EventAddressV2> eventAddresses,
+            IReadOnlyList<EventParticipantV2> eventParticipants) =>
             handlerIds
-                .Select(handlerId => new EventListenerV2 { Id = GetRandomId(), HandlerId = handlerId })
-                .AsQueryable();
+                .Select((handlerId, index) => new EventListenerV2
+                {
+                    Id = GetRandomId(),
+                    HandlerId = handlerId,
+                    EventAddressV2Id = eventAddresses[index % eventAddresses.Count].Id,
+                    EventParticipantV2Id = eventParticipants[index % eventParticipants.Count].Id
+                })
+                .ToList();
     }
 }

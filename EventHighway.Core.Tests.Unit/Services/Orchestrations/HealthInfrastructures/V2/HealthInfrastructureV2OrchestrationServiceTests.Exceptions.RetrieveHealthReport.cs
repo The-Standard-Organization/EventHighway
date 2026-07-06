@@ -17,7 +17,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
     public partial class HealthInfrastructureV2OrchestrationServiceTests
     {
         [Fact]
-        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRetrieveInfrastructureHealthV2Async()
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRetrieveHealthReportV2Async()
         {
             // given
             var cancellationTokenSource = new CancellationTokenSource();
@@ -25,14 +25,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
             CancellationToken cancelledToken = cancellationTokenSource.Token;
 
             // when
-            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthInfrastructureV2OrchestrationService
-                    .RetrieveInfrastructureHealthV2Async(cancelledToken);
+                    .RetrieveHealthReportV2Async(
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), cancelledToken);
 
             // then
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
-                    retrieveInfrastructureHealthTask.AsTask);
+                    retrieveHealthReportTask.AsTask);
 
             actualException.CancellationToken.IsCancellationRequested.Should().BeTrue();
 
@@ -51,7 +52,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
         }
 
         [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveInfrastructureHealthV2IfTimeoutOccursAndLogItAsync()
+        public async Task ShouldThrowDependencyExceptionOnRetrieveHealthReportV2IfTimeoutOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -78,14 +79,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthInfrastructureV2OrchestrationService
-                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+                    .RetrieveHealthReportV2Async(
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
 
             HealthInfrastructureV2OrchestrationDependencyException
                 actualHealthInfrastructureV2OrchestrationDependencyException =
                     await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationDependencyException>(
-                        retrieveInfrastructureHealthTask.AsTask);
+                        retrieveHealthReportTask.AsTask);
 
             // then
             actualHealthInfrastructureV2OrchestrationDependencyException.Should()
@@ -108,7 +110,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
 
         [Theory]
         [MemberData(nameof(DependencyExceptions))]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveInfrastructureHealthV2IfDependencyExceptionOccursAndLogItAsync(
+        public async Task ShouldThrowDependencyExceptionOnRetrieveHealthReportV2IfDependencyExceptionOccursAndLogItAsync(
             Xeption dependencyException)
         {
             // given
@@ -125,14 +127,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     .ThrowsAsync(dependencyException);
 
             // when
-            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthInfrastructureV2OrchestrationService
-                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+                    .RetrieveHealthReportV2Async(
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
 
             HealthInfrastructureV2OrchestrationDependencyException
                 actualHealthInfrastructureV2OrchestrationDependencyException =
                     await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationDependencyException>(
-                        retrieveInfrastructureHealthTask.AsTask);
+                        retrieveHealthReportTask.AsTask);
 
             // then
             actualHealthInfrastructureV2OrchestrationDependencyException.Should()
@@ -155,7 +158,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
 
         [Theory]
         [MemberData(nameof(DependencyValidationExceptions))]
-        public async Task ShouldThrowDependencyValidationExceptionOnRetrieveInfrastructureHealthV2IfDependencyValidationErrorOccursAndLogItAsync(
+        public async Task ShouldThrowDependencyValidationExceptionOnRetrieveHealthReportV2IfDependencyValidationErrorOccursAndLogItAsync(
             Xeption dependencyValidationException)
         {
             // given
@@ -172,14 +175,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     .ThrowsAsync(dependencyValidationException);
 
             // when
-            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthInfrastructureV2OrchestrationService
-                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+                    .RetrieveHealthReportV2Async(
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
 
             HealthInfrastructureV2OrchestrationDependencyValidationException
                 actualHealthInfrastructureV2OrchestrationDependencyValidationException =
                     await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationDependencyValidationException>(
-                        retrieveInfrastructureHealthTask.AsTask);
+                        retrieveHealthReportTask.AsTask);
 
             // then
             actualHealthInfrastructureV2OrchestrationDependencyValidationException.Should()
@@ -201,7 +205,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
         }
 
         [Fact]
-        public async Task ShouldThrowServiceExceptionOnRetrieveInfrastructureHealthV2IfServiceErrorOccursAndLogItAsync()
+        public async Task ShouldThrowServiceExceptionOnRetrieveHealthReportV2IfServiceErrorOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -226,14 +230,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     .ThrowsAsync(serviceException);
 
             // when
-            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthInfrastructureV2OrchestrationService
-                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+                    .RetrieveHealthReportV2Async(
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
 
             HealthInfrastructureV2OrchestrationServiceException
                 actualHealthInfrastructureV2OrchestrationServiceException =
                     await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationServiceException>(
-                        retrieveInfrastructureHealthTask.AsTask);
+                        retrieveHealthReportTask.AsTask);
 
             // then
             actualHealthInfrastructureV2OrchestrationServiceException.Should()

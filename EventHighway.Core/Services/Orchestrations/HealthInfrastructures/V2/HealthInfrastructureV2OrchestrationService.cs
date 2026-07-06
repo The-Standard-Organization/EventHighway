@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<InfrastructureHealthV2> RetrieveInfrastructureHealthV2Async(
+        public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -50,16 +53,10 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             IQueryable<EventParticipantV2> eventParticipants =
                 await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(cancellationToken);
 
-            return new InfrastructureHealthV2
+            return new HealthReportV2
             {
-                TotalEventAddresses = eventAddresses.LongCount(),
-                TotalEventListeners = eventListeners.LongCount(),
-                TotalParticipants = eventParticipants.LongCount(),
-
-                RegisteredHandlers = eventListeners
-                    .Select(eventListener => eventListener.HandlerId)
-                    .Distinct()
-                    .LongCount()
+                Period = period,
+                WindowStart = windowStart
             };
         });
     }
