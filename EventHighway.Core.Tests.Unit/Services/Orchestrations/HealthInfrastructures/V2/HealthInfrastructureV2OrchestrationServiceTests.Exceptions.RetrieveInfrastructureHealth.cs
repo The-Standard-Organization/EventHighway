@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
@@ -144,6 +145,107 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedHealthInfrastructureV2OrchestrationDependencyException))),
+                        Times.Once);
+
+            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [MemberData(nameof(DependencyValidationExceptions))]
+        public async Task ShouldThrowDependencyValidationExceptionOnRetrieveInfrastructureHealthV2IfDependencyValidationErrorOccursAndLogItAsync(
+            Xeption dependencyValidationException)
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            var expectedHealthInfrastructureV2OrchestrationDependencyValidationException =
+                new HealthInfrastructureV2OrchestrationDependencyValidationException(
+                    message: "Health infrastructure validation error occurred, fix the errors and try again.",
+                    innerException: dependencyValidationException.InnerException as Xeption);
+
+            this.eventAddressV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(dependencyValidationException);
+
+            // when
+            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+                this.healthInfrastructureV2OrchestrationService
+                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+
+            HealthInfrastructureV2OrchestrationDependencyValidationException
+                actualHealthInfrastructureV2OrchestrationDependencyValidationException =
+                    await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationDependencyValidationException>(
+                        retrieveInfrastructureHealthTask.AsTask);
+
+            // then
+            actualHealthInfrastructureV2OrchestrationDependencyValidationException.Should()
+                .BeEquivalentTo(expectedHealthInfrastructureV2OrchestrationDependencyValidationException);
+
+            this.eventAddressV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHealthInfrastructureV2OrchestrationDependencyValidationException))),
+                        Times.Once);
+
+            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRetrieveInfrastructureHealthV2IfServiceErrorOccursAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
+
+            var failedHealthInfrastructureV2OrchestrationServiceException =
+                new FailedHealthInfrastructureV2OrchestrationServiceException(
+                    message: "Failed health infrastructure service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedHealthInfrastructureV2OrchestrationServiceException =
+                new HealthInfrastructureV2OrchestrationServiceException(
+                    message: "Health infrastructure service error occurred, contact support.",
+                    innerException: failedHealthInfrastructureV2OrchestrationServiceException);
+
+            this.eventAddressV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+                this.healthInfrastructureV2OrchestrationService
+                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+
+            HealthInfrastructureV2OrchestrationServiceException
+                actualHealthInfrastructureV2OrchestrationServiceException =
+                    await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationServiceException>(
+                        retrieveInfrastructureHealthTask.AsTask);
+
+            // then
+            actualHealthInfrastructureV2OrchestrationServiceException.Should()
+                .BeEquivalentTo(expectedHealthInfrastructureV2OrchestrationServiceException);
+
+            this.eventAddressV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHealthInfrastructureV2OrchestrationServiceException))),
                         Times.Once);
 
             this.eventAddressV2ServiceMock.VerifyNoOtherCalls();

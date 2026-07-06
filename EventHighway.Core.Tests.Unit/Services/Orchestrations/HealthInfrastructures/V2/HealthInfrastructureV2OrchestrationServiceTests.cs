@@ -46,6 +46,23 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     loggingBroker: this.loggingBrokerMock.Object);
         }
 
+        public static TheoryData<Xeption> DependencyValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyValidationError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventAddressV2ValidationException(someMessage, someInnerException),
+                new EventAddressV2DependencyValidationException(someMessage, someInnerException),
+                new EventListenerV2ValidationException(someMessage, someInnerException),
+                new EventListenerV2DependencyValidationException(someMessage, someInnerException),
+                new EventParticipantV2ValidationException(someMessage, someInnerException),
+                new EventParticipantV2DependencyValidationException(someMessage, someInnerException),
+            };
+        }
+
         public static TheoryData<Xeption> DependencyExceptions()
         {
             string someMessage = GetRandomString();
