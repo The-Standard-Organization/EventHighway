@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -15,6 +16,7 @@ using EventHighway.Core.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastructures.V2
 {
@@ -40,6 +42,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     eventParticipantV2Service: this.eventParticipantV2ServiceMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
+
+        private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
