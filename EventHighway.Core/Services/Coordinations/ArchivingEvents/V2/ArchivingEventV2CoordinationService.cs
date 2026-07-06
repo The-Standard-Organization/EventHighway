@@ -324,12 +324,15 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 Id = eventV2.Id,
                 Content = eventV2.Content,
                 EventName = eventV2.EventName,
+                ContentHash = eventV2.ContentHash,
                 Type = (EventArchiveTypeV2)eventV2.Type,
                 Status = (EventArchiveStatusV2)eventV2.Status,
                 CreatedDate = eventV2.CreatedDate,
                 UpdatedDate = eventV2.CreatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
-                EventAddressV2Id = eventV2.EventAddressV2Id
+                EventAddressV2Id = eventV2.EventAddressV2Id,
+                EventParticipantV2Id = eventV2.EventParticipantV2Id,
+                EventParticipantV2Secret = eventV2.EventParticipantV2Secret
             };
         }
 
