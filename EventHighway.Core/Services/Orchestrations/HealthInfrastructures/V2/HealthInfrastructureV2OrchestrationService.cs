@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,11 +55,87 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             IQueryable<EventParticipantV2> eventParticipants =
                 await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(cancellationToken);
 
+            long totalEventAddresses = eventAddresses.LongCount();
+            long totalEventListeners = eventListeners.LongCount();
+            long totalParticipants = eventParticipants.LongCount();
+
+            long registeredHandlers = eventListeners
+                .Select(eventListener => eventListener.HandlerId)
+                .Distinct()
+                .LongCount();
+
             return new HealthReportV2
             {
                 Period = period,
-                WindowStart = windowStart
+                WindowStart = windowStart,
+
+                HealthCheckItems = new List<HealthCheckItemV2>
+                {
+                    MapToInfrastructureItem(
+                        item: "Total Event Addresses",
+                        value: totalEventAddresses,
+                        description: "Total number of registered event addresses."),
+
+                    MapToInfrastructureItem(
+                        item: "Total Event Listeners",
+                        value: totalEventListeners,
+                        description: "Total number of registered event listeners."),
+
+                    MapToInfrastructureItem(
+                        item: "Total Participants",
+                        value: totalParticipants,
+                        description: "Total number of registered participants."),
+
+                    MapToInfrastructureItem(
+                        item: "Registered Handlers",
+                        value: registeredHandlers,
+                        description: "Number of distinct registered event handlers.")
+                },
+
+                AddressUsage = eventAddresses
+                    .Select(eventAddress => new EventAddressUsageV2
+                    {
+                        EventAddressV2Id = eventAddress.Id,
+                        Name = eventAddress.Name,
+                        Description = eventAddress.Description,
+
+                        ActiveListeners = eventListeners
+                            .LongCount(eventListener =>
+                                eventListener.EventAddressV2Id == eventAddress.Id)
+                    })
+                    .ToList(),
+
+                ParticipantUsage = eventParticipants
+                    .Select(eventParticipant => new ParticipantUsageV2
+                    {
+                        EventParticipantV2Id = eventParticipant.Id,
+                        Name = eventParticipant.Name,
+                        ContactEmail = eventParticipant.ContactEmail,
+                        ContactPhone = eventParticipant.ContactPhone,
+                        IsActive = eventParticipant.IsActive,
+
+                        OwnedListeners = eventListeners
+                            .LongCount(eventListener =>
+                                eventListener.EventParticipantV2Id == eventParticipant.Id)
+                    })
+                    .ToList()
             };
         });
+
+        private static HealthCheckItemV2 MapToInfrastructureItem(
+            string item,
+            long value,
+            string description)
+        {
+            return new HealthCheckItemV2
+            {
+                Grouping = "Infrastructure",
+                Item = item,
+                Value = value.ToString(CultureInfo.InvariantCulture),
+                Description = description,
+                StatusCode = (int)HealthStatusV2.NA,
+                Status = nameof(HealthStatusV2.NA)
+            };
+        }
     }
 }
