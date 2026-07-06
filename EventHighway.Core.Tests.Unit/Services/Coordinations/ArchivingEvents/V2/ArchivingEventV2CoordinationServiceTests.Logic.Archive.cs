@@ -240,6 +240,232 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
         }
 
         [Fact]
+        public async Task ShouldCopyRetryStateAndParticipantAttributionWhenArchivingDeadListenerEventV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            var mockSequence = new MockSequence();
+
+            BatchConfiguration randomBatchConfiguration = CreateRandomBatchConfiguration();
+            int take = randomBatchConfiguration.BatchSizeForBulkProcessing;
+
+            var deadEventV2 = new EventV2
+            {
+                Id = GetRandomId(),
+                Content = GetRandomString(),
+                EventName = GetRandomString(),
+                Type = GetRandomEnum<EventTypeV2>(),
+                CreatedDate = GetRandomDateTimeOffset(),
+                UpdatedDate = GetRandomDateTimeOffset(),
+                ScheduledDate = GetRandomDateTimeOffset(),
+                EventAddressV2Id = GetRandomId()
+            };
+
+            List<EventV2> retrievedEventV2s = new List<EventV2> { deadEventV2 };
+
+            var deadListenerEventV2 = new ListenerEventV2
+            {
+                Id = GetRandomId(),
+                CorrelationId = GetRandomId(),
+                Status = ListenerEventStatusV2.Error,
+                Response = GetRandomString(),
+                ResponseCode = GetRandomString(),
+                ResponseMessage = GetRandomString(),
+                CreatedDate = GetRandomDateTimeOffset(),
+                UpdatedDate = GetRandomDateTimeOffset(),
+                RemainingRetryAttempts = 0,
+                RetryAttemptsAllowed = GetRandomNumber(),
+                NextRetryAttemptNotBefore = GetRandomDateTimeOffset(),
+                DispatchedDate = GetRandomDateTimeOffset(),
+                EventV2Id = deadEventV2.Id,
+                EventAddressV2Id = deadEventV2.EventAddressV2Id,
+                EventListenerV2Id = GetRandomId(),
+                EventParticipantV2Id = GetRandomId()
+            };
+
+            List<ListenerEventV2> retrievedListenerEventV2s =
+                new List<ListenerEventV2> { deadListenerEventV2 };
+
+            var expectedEventArchiveV2 = new EventArchiveV2
+            {
+                Id = deadEventV2.Id,
+                Content = deadEventV2.Content,
+                EventName = deadEventV2.EventName,
+                Type = (EventArchiveTypeV2)deadEventV2.Type,
+                CreatedDate = deadEventV2.CreatedDate,
+                UpdatedDate = deadEventV2.CreatedDate,
+                ScheduledDate = deadEventV2.ScheduledDate,
+                EventAddressV2Id = deadEventV2.EventAddressV2Id
+            };
+
+            List<EventArchiveV2> expectedEventArchiveV2s =
+                new List<EventArchiveV2> { expectedEventArchiveV2 };
+
+            var expectedListenerEventArchiveV2 = new ListenerEventArchiveV2
+            {
+                Id = deadListenerEventV2.Id,
+                CorrelationId = deadListenerEventV2.CorrelationId,
+                Status = (ListenerEventArchiveStatusV2)deadListenerEventV2.Status,
+                Response = deadListenerEventV2.Response,
+                ResponseCode = deadListenerEventV2.ResponseCode,
+                ResponseMessage = deadListenerEventV2.ResponseMessage,
+                CreatedDate = deadListenerEventV2.CreatedDate,
+                UpdatedDate = deadListenerEventV2.CreatedDate,
+                RemainingRetryAttempts = deadListenerEventV2.RemainingRetryAttempts,
+                RetryAttemptsAllowed = deadListenerEventV2.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = deadListenerEventV2.NextRetryAttemptNotBefore,
+                DispatchedDate = deadListenerEventV2.DispatchedDate,
+                EventV2Id = deadListenerEventV2.EventV2Id,
+                EventAddressV2Id = deadListenerEventV2.EventAddressV2Id,
+                EventListenerV2Id = deadListenerEventV2.EventListenerV2Id,
+                EventArchiveV2Id = deadListenerEventV2.EventV2Id,
+                EventParticipantV2Id = deadListenerEventV2.EventParticipantV2Id
+            };
+
+            List<ListenerEventArchiveV2> expectedListenerEventArchiveV2s =
+                new List<ListenerEventArchiveV2> { expectedListenerEventArchiveV2 };
+
+            // Step 1
+            this.archivingEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.RetrieveBatchOfQuarantinedEventV2sAsync(randomCancellationToken))
+                        .ReturnsAsync(Enumerable.Empty<EventV2>());
+
+            this.configurationBrokerMock
+                .InSequence(mockSequence).Setup(broker =>
+                    broker.GetBatchConfiguration())
+                        .Returns(randomBatchConfiguration);
+
+            // Step 2
+            this.archivingEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.RetrieveBatchOfDeadEventV2sAsync(randomCancellationToken))
+                        .ReturnsAsync((IEnumerable<EventV2>)retrievedEventV2s);
+
+            // Step 3
+            this.eventArchiveV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.BulkAddEventArchiveV2sAsync(
+                        It.Is(SameEventArchiveV2sAs(expectedEventArchiveV2s)),
+                        randomCancellationToken))
+                            .ReturnsAsync(expectedEventArchiveV2s);
+
+            IEnumerable<Guid> archivedEventV2Ids =
+                expectedEventArchiveV2s.Select(a => a.Id).ToList();
+
+            // Step 4
+            this.listenerEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.RetrieveBatchOfListenerEventV2sByEventIdsAsync(
+                        It.Is(SameEventV2IdsAs(archivedEventV2Ids)),
+                        take,
+                        randomCancellationToken))
+                            .ReturnsAsync((IEnumerable<ListenerEventV2>)retrievedListenerEventV2s);
+
+            // Step 5
+            this.eventArchiveV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.BulkAddEventArchiveV2sWithListenerEventArchiveV2sAsync(
+                        It.Is(SameEventArchiveV2sAs(
+                            MapToEventArchiveV2sWithListenerEventArchiveV2s(expectedListenerEventArchiveV2s))),
+                        randomCancellationToken))
+                            .ReturnsAsync(
+                                MapToEventArchiveV2sWithListenerEventArchiveV2s(expectedListenerEventArchiveV2s));
+
+            // Step 6
+            this.listenerEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.BulkRemoveListenerEventV2sAsync(
+                        It.Is(SameListenerEventV2sAs(retrievedListenerEventV2s)),
+                        randomCancellationToken))
+                            .Returns(ValueTask.CompletedTask);
+
+            List<EventV2> archivedDeadEventV2s =
+                retrievedEventV2s
+                    .Where(e => archivedEventV2Ids.Contains(e.Id)).ToList();
+
+            // Step 7
+            this.listenerEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.RetrieveBatchOfListenerEventV2sByEventIdsAsync(
+                        It.Is(SameEventV2IdsAs(archivedEventV2Ids)),
+                        take,
+                        randomCancellationToken))
+                            .ReturnsAsync(Enumerable.Empty<ListenerEventV2>());
+
+            // Step 8
+            this.archivingEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.BulkRemoveEventV2sAsync(
+                        It.Is(SameEventV2sAs(archivedDeadEventV2s)),
+                        randomCancellationToken))
+                            .Returns(ValueTask.CompletedTask);
+
+            // Step 9
+            this.archivingEventV2OrchestrationServiceMock
+                .InSequence(mockSequence).Setup(service =>
+                    service.RetrieveBatchOfDeadEventV2sAsync(randomCancellationToken))
+                        .ReturnsAsync(Enumerable.Empty<EventV2>());
+
+            // when
+            await this.archivingEventV2CoordinationService
+                .ArchiveEventV2sAsync(randomCancellationToken);
+
+            // then
+            this.eventArchiveV2OrchestrationServiceMock.Verify(service =>
+                service.BulkAddEventArchiveV2sWithListenerEventArchiveV2sAsync(
+                    It.Is(SameEventArchiveV2sAs(
+                        MapToEventArchiveV2sWithListenerEventArchiveV2s(expectedListenerEventArchiveV2s))),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.archivingEventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveBatchOfQuarantinedEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.configurationBrokerMock.Verify(broker =>
+                broker.GetBatchConfiguration(),
+                    Times.Once);
+
+            this.archivingEventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveBatchOfDeadEventV2sAsync(randomCancellationToken),
+                    Times.Exactly(2));
+
+            this.eventArchiveV2OrchestrationServiceMock.Verify(service =>
+                service.BulkAddEventArchiveV2sAsync(
+                    It.Is(SameEventArchiveV2sAs(expectedEventArchiveV2s)),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.listenerEventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveBatchOfListenerEventV2sByEventIdsAsync(
+                    It.Is(SameEventV2IdsAs(archivedEventV2Ids)),
+                    take,
+                    randomCancellationToken),
+                        Times.Exactly(2));
+
+            this.listenerEventV2OrchestrationServiceMock.Verify(service =>
+                service.BulkRemoveListenerEventV2sAsync(
+                    It.Is(SameListenerEventV2sAs(retrievedListenerEventV2s)),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.archivingEventV2OrchestrationServiceMock.Verify(service =>
+                service.BulkRemoveEventV2sAsync(
+                    It.Is(SameEventV2sAs(archivedDeadEventV2s)),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.archivingEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventArchiveV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task
             ShouldArchiveCleanEventV2sAndRetainEventV2sWithUnarchivableListenerEventV2sAsync()
         {
