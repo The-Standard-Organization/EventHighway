@@ -35,8 +35,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<InfrastructureHealthV2> RetrieveInfrastructureHealthV2Async(
-            CancellationToken cancellationToken = default)
+        public ValueTask<InfrastructureHealthV2> RetrieveInfrastructureHealthV2Async(
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -60,6 +61,6 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
                     .Distinct()
                     .LongCount()
             };
-        }
+        });
     }
 }
