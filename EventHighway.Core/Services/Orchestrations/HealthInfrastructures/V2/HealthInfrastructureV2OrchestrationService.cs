@@ -38,6 +38,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
         public async ValueTask<InfrastructureHealthV2> RetrieveInfrastructureHealthV2Async(
             CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             IQueryable<EventAddressV2> eventAddresses =
                 await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(cancellationToken);
 
