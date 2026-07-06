@@ -42,9 +42,8 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public DateTimeOffset GeneratedDate { get; set; }
 
         /// <summary>
-        /// Gets or sets the whole-system RAG tiles as generic items, extensible without contract change.
-        /// Groupings: "Infrastructure", "Active Events", "Active Listeners", "Archived Events",
-        /// "Archived Listeners". The UI drives its components off <see cref="HealthCheckItemV2.Grouping"/>.
+        /// Gets or sets the whole-system RAG tiles as generic items with groupings and descriptions. 
+        /// The UI drives its components off <see cref="HealthCheckItemV2.Grouping"/>.
         /// </summary>
         public IReadOnlyList<HealthCheckItemV2> HealthCheckItems { get; set; }
 
