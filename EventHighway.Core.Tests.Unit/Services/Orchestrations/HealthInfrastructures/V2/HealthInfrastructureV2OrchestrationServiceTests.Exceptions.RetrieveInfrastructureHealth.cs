@@ -104,5 +104,52 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
             this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRetrieveInfrastructureHealthV2IfDependencyExceptionOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            var expectedHealthInfrastructureV2OrchestrationDependencyException =
+                new HealthInfrastructureV2OrchestrationDependencyException(
+                    message: "Health infrastructure dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.eventAddressV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask<InfrastructureHealthV2> retrieveInfrastructureHealthTask =
+                this.healthInfrastructureV2OrchestrationService
+                    .RetrieveInfrastructureHealthV2Async(randomCancellationToken);
+
+            HealthInfrastructureV2OrchestrationDependencyException
+                actualHealthInfrastructureV2OrchestrationDependencyException =
+                    await Assert.ThrowsAsync<HealthInfrastructureV2OrchestrationDependencyException>(
+                        retrieveInfrastructureHealthTask.AsTask);
+
+            // then
+            actualHealthInfrastructureV2OrchestrationDependencyException.Should()
+                .BeEquivalentTo(expectedHealthInfrastructureV2OrchestrationDependencyException);
+
+            this.eventAddressV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHealthInfrastructureV2OrchestrationDependencyException))),
+                        Times.Once);
+
+            this.eventAddressV2ServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }

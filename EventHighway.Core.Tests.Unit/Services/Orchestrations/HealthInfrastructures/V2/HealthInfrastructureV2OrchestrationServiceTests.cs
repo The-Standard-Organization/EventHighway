@@ -8,8 +8,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Foundations.EventListeners.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Services.Foundations.EventParticipants.V2;
@@ -43,8 +46,28 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     loggingBroker: this.loggingBrokerMock.Object);
         }
 
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventAddressV2DependencyException(someMessage, someInnerException),
+                new EventAddressV2ServiceException(someMessage, someInnerException),
+                new EventListenerV2DependencyException(someMessage, someInnerException),
+                new EventListenerV2ServiceException(someMessage, someInnerException),
+                new EventParticipantV2DependencyException(someMessage, someInnerException),
+                new EventParticipantV2ServiceException(someMessage, someInnerException),
+            };
+        }
+
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
+        private static string GetRandomString() =>
+            new MnemonicString().GetValue();
 
         private static int GetRandomNumber() =>
             new IntRange(min: 2, max: 9).GetValue();
