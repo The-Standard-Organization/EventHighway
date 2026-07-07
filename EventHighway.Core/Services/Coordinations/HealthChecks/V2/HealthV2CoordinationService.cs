@@ -44,12 +44,14 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<HealthReportV2> RetrieveHealthCheckItemsReportV2Async(
+        public ValueTask<HealthReportV2> RetrieveHealthCheckItemsReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRetrieveHealthReport(windowStart);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -73,7 +75,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             report.HealthCheckItems = healthCheckItems;
 
             return report;
-        }
+        });
 
         private async ValueTask<HealthReportV2> BuildReportShellAsync(
             TrafficPeriodV2 period,
