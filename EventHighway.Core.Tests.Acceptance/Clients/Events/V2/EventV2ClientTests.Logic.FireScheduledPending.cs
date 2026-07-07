@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
@@ -53,8 +54,11 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                     listenerEventV2.Response == expectedResponse);
 
             // cleanup
-            foreach (ListenerEventV2 listenerEventV2 in allListenerEventV2s
-                .Where(listenerEventV2 => listenerEventV2.EventV2Id == eventV2.Id))
+            List<ListenerEventV2> listenerEventV2sToRemove = allListenerEventV2s
+                   .Where(listenerEventV2 => listenerEventV2.EventV2Id == eventV2.Id)
+                        .ToList();
+
+            foreach (ListenerEventV2 listenerEventV2 in listenerEventV2sToRemove)
                 await this.clientBroker.RemoveListenerEventV2ByIdAsync(listenerEventV2.Id);
 
             await this.clientBroker.RemoveEventV2ByIdAsync(eventV2.Id);
