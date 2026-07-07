@@ -33,10 +33,11 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
+        public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -150,7 +151,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
 
                 Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
             };
-        }
+        });
 
         private static HealthCheckItemV2 MapToHealthCheckItem(
             string grouping,
