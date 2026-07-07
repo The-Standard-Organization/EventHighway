@@ -178,6 +178,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             };
         }
 
+        public ValueTask<HealthReportV2> RetrieveAddressUsageReportV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private static List<(DateTimeOffset Start, string Label)> EnumerateBucketStarts(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,

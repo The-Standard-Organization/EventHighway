@@ -288,5 +288,25 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 TotalReplays = GetRandomNumber(),
                 Buckets = buckets
             };
+
+        private static EventAddressUsageV2 CreateNameAddressUsage(Guid eventAddressV2Id, string name) =>
+            new EventAddressUsageV2
+            {
+                EventAddressV2Id = eventAddressV2Id,
+                Name = name,
+                Description = GetRandomString(),
+                ActiveListeners = GetRandomNumber()
+            };
+
+        private static ParticipantUsageV2 CreateNameParticipantUsage(Guid eventParticipantV2Id, string name) =>
+            new ParticipantUsageV2
+            {
+                EventParticipantV2Id = eventParticipantV2Id,
+                Name = name,
+                ContactEmail = GetRandomString(),
+                ContactPhone = GetRandomString(),
+                IsActive = true,
+                OwnedListeners = GetRandomNumber()
+            };
     }
 }
