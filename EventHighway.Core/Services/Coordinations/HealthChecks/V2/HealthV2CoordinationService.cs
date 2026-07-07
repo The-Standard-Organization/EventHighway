@@ -278,11 +278,88 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public ValueTask<HealthReportV2> RetrieveDuplicateReportV2Async(
+        public async ValueTask<HealthReportV2> RetrieveDuplicateReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            HealthReportV2 infrastructurePartialReport =
+                await this.healthInfrastructureV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+
+            report.Duplicates = EnrichDuplicates(
+                period,
+                windowStart,
+                report.WindowEnd,
+                report.WindowLabel,
+                eventsPartialReport?.Duplicates,
+                infrastructurePartialReport?.AddressUsage,
+                infrastructurePartialReport?.ParticipantUsage);
+
+            return report;
+        }
+
+        private static DuplicateDetectionSummaryV2 EnrichDuplicates(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            string windowLabel,
+            DuplicateDetectionSummaryV2 liveDuplicates,
+            IReadOnlyList<EventAddressUsageV2> addressNameRows,
+            IReadOnlyList<ParticipantUsageV2> participantNameRows)
+        {
+            if (liveDuplicates is null)
+            {
+                return null;
+            }
+
+            List<EventAddressUsageV2> addressNames =
+                addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            List<ParticipantUsageV2> participantNames =
+                participantNameRows?.ToList() ?? new List<ParticipantUsageV2>();
+
+            List<DuplicateDetailV2> byAddress = (liveDuplicates.ByAddress
+                ?? Enumerable.Empty<DuplicateDetailV2>())
+                .Select(row => new DuplicateDetailV2
+                {
+                    EventAddressV2Id = row.EventAddressV2Id,
+
+                    EventAddressV2Name = addressNames
+                        .FirstOrDefault(addressName =>
+                            addressName.EventAddressV2Id == row.EventAddressV2Id)?.Name,
+
+                    EventParticipantV2Id = row.EventParticipantV2Id,
+                    EventParticipantV2Name = ResolveParticipantName(
+                        row.EventParticipantV2Id, participantNames),
+
+                    TotalEvents = row.TotalEvents,
+                    Duplicates = row.Duplicates,
+                    DuplicateRate = row.DuplicateRate,
+                    LastDuplicateSeen = row.LastDuplicateSeen
+                })
+                .ToList();
+
+            return new DuplicateDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                WindowLabel = windowLabel,
+                TotalDuplicatesDetected = liveDuplicates.TotalDuplicatesDetected,
+                TotalUniqueEvents = liveDuplicates.TotalUniqueEvents,
+                OverallDuplicateRate = liveDuplicates.OverallDuplicateRate,
+                ByAddress = byAddress
+            };
+        }
 
         private static LoopDetectionSummaryV2 MergeLoopDetection(
             TrafficPeriodV2 period,
