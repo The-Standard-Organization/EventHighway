@@ -309,11 +309,88 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
+        public async ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            HealthReportV2 infrastructurePartialReport =
+                await this.healthInfrastructureV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 archivedEventsPartialReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+
+            report.Retry = MergeRetry(
+                period,
+                windowStart,
+                report.WindowEnd,
+                report.WindowLabel,
+                eventsPartialReport?.Retry,
+                archivedEventsPartialReport?.Retry,
+                infrastructurePartialReport?.AddressUsage);
+
+            return report;
+        }
+
+        private static RetryHealthSummaryV2 MergeRetry(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            string windowLabel,
+            RetryHealthSummaryV2 liveRetry,
+            RetryHealthSummaryV2 archivedRetry,
+            IReadOnlyList<EventAddressUsageV2> addressNameRows)
+        {
+            if (liveRetry is null && archivedRetry is null)
+            {
+                return null;
+            }
+
+            List<EventAddressUsageV2> addressNames =
+                addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            List<RetryAddressDetailV2> byAddress = (liveRetry?.ByAddress
+                ?? Enumerable.Empty<RetryAddressDetailV2>())
+                .Select(row => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = row.EventAddressV2Id,
+
+                    EventAddressV2Name = addressNames
+                        .FirstOrDefault(addressName =>
+                            addressName.EventAddressV2Id == row.EventAddressV2Id)?.Name,
+
+                    DeadEvents = row.DeadEvents,
+                    CriticalEvents = row.CriticalEvents,
+                    HealthyEvents = row.HealthyEvents,
+                    TotalEvents = row.TotalEvents
+                })
+                .ToList();
+
+            return new RetryHealthSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                WindowLabel = windowLabel,
+                TotalActiveEvents = liveRetry?.TotalActiveEvents ?? 0,
+                DeadEvents = liveRetry?.DeadEvents ?? 0,
+                CriticalEvents = liveRetry?.CriticalEvents ?? 0,
+                HealthyEvents = liveRetry?.HealthyEvents ?? 0,
+                ArchivedDeadEvents = archivedRetry?.ArchivedDeadEvents ?? 0,
+                Distribution = liveRetry?.Distribution ?? new List<RetryBucketV2>(),
+                ByAddress = byAddress
+            };
+        }
 
         private static DuplicateDetectionSummaryV2 EnrichDuplicates(
             TrafficPeriodV2 period,
