@@ -309,6 +309,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
+        public ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private static DuplicateDetectionSummaryV2 EnrichDuplicates(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
