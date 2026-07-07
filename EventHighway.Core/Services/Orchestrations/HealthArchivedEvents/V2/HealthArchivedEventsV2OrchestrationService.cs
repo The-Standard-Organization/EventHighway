@@ -146,7 +146,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
 
                 AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
 
-                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents)
+                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
+
+                Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
             };
         }
 
@@ -397,6 +399,25 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 TotalArchivedQuarantined = totalArchivedQuarantined,
                 TotalInWindow = totalArchivedQuarantined,
                 ByAddress = byAddress
+            };
+        }
+
+        private static RetryHealthSummaryV2 MapToRetry(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<ListenerEventArchiveV2> windowListenerEvents)
+        {
+            long archivedDeadEvents = windowListenerEvents
+                .LongCount(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error
+                    && listenerEvent.RemainingRetryAttempts == 0);
+
+            return new RetryHealthSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                ArchivedDeadEvents = archivedDeadEvents
             };
         }
     }
