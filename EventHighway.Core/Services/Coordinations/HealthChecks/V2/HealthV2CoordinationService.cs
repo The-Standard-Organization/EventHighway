@@ -240,11 +240,156 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
+        public async ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            HealthReportV2 infrastructurePartialReport =
+                await this.healthInfrastructureV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 archivedEventsPartialReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
+
+            report.LoopDetection = MergeLoopDetection(
+                period,
+                windowStart,
+                report.WindowEnd,
+                report.WindowLabel,
+                eventsPartialReport?.LoopDetection,
+                archivedEventsPartialReport?.LoopDetection,
+                infrastructurePartialReport?.AddressUsage,
+                infrastructurePartialReport?.ParticipantUsage,
+                healthConfiguration);
+
+            return report;
+        }
+
+        private static LoopDetectionSummaryV2 MergeLoopDetection(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            string windowLabel,
+            LoopDetectionSummaryV2 liveLoopDetection,
+            LoopDetectionSummaryV2 archivedLoopDetection,
+            IReadOnlyList<EventAddressUsageV2> addressNameRows,
+            IReadOnlyList<ParticipantUsageV2> participantNameRows,
+            HealthConfiguration healthConfiguration)
+        {
+            if (liveLoopDetection is null && archivedLoopDetection is null)
+            {
+                return null;
+            }
+
+            List<LoopDetailV2> liveRows =
+                liveLoopDetection?.ByAddress?.ToList() ?? new List<LoopDetailV2>();
+
+            List<LoopDetailV2> archivedRows =
+                archivedLoopDetection?.ByAddress?.ToList() ?? new List<LoopDetailV2>();
+
+            List<EventAddressUsageV2> addressNames =
+                addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            List<ParticipantUsageV2> participantNames =
+                participantNameRows?.ToList() ?? new List<ParticipantUsageV2>();
+
+            List<LoopDetailV2> byAddress = liveRows
+                .Select(row => (row.EventAddressV2Id, row.EventParticipantV2Id))
+                .Union(archivedRows.Select(row => (row.EventAddressV2Id, row.EventParticipantV2Id)))
+                .Select(key =>
+                {
+                    LoopDetailV2 liveRow = liveRows.FirstOrDefault(row =>
+                        row.EventAddressV2Id == key.EventAddressV2Id
+                        && row.EventParticipantV2Id == key.EventParticipantV2Id);
+
+                    LoopDetailV2 archivedRow = archivedRows.FirstOrDefault(row =>
+                        row.EventAddressV2Id == key.EventAddressV2Id
+                        && row.EventParticipantV2Id == key.EventParticipantV2Id);
+
+                    long inWindow = (liveRow?.InWindow ?? 0) + (archivedRow?.InWindow ?? 0);
+
+                    return new LoopDetailV2
+                    {
+                        EventAddressV2Id = key.EventAddressV2Id,
+
+                        EventAddressV2Name = addressNames
+                            .FirstOrDefault(addressName =>
+                                addressName.EventAddressV2Id == key.EventAddressV2Id)?.Name,
+
+                        EventParticipantV2Id = key.EventParticipantV2Id,
+                        EventParticipantV2Name = ResolveParticipantName(
+                            key.EventParticipantV2Id, participantNames),
+
+                        ActiveQuarantined =
+                            (liveRow?.ActiveQuarantined ?? 0) + (archivedRow?.ActiveQuarantined ?? 0),
+
+                        ArchivedQuarantined =
+                            (liveRow?.ArchivedQuarantined ?? 0) + (archivedRow?.ArchivedQuarantined ?? 0),
+
+                        InWindow = inWindow,
+
+                        MostRecentDetection = MaxDate(
+                            liveRow?.MostRecentDetection, archivedRow?.MostRecentDetection),
+
+                        Status = ComputeRagStatus(inWindow, HealthMetric.LoopsDetected, healthConfiguration)
+                    };
+                })
+                .ToList();
+
+            return new LoopDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                WindowLabel = windowLabel,
+
+                TotalActiveQuarantined =
+                    (liveLoopDetection?.TotalActiveQuarantined ?? 0)
+                    + (archivedLoopDetection?.TotalActiveQuarantined ?? 0),
+
+                TotalArchivedQuarantined =
+                    (liveLoopDetection?.TotalArchivedQuarantined ?? 0)
+                    + (archivedLoopDetection?.TotalArchivedQuarantined ?? 0),
+
+                TotalInWindow =
+                    (liveLoopDetection?.TotalInWindow ?? 0) + (archivedLoopDetection?.TotalInWindow ?? 0),
+
+                ByAddress = byAddress
+            };
+        }
+
+        private static string ResolveParticipantName(
+            Guid? eventParticipantV2Id,
+            IReadOnlyList<ParticipantUsageV2> participantNames)
+        {
+            if (eventParticipantV2Id is null)
+            {
+                return "Unknown";
+            }
+
+            return participantNames
+                .FirstOrDefault(participantName =>
+                    participantName.EventParticipantV2Id == eventParticipantV2Id.Value)?.Name;
+        }
+
+        private static DateTimeOffset? MaxDate(DateTimeOffset? left, DateTimeOffset? right)
+        {
+            if (left is null) return right;
+            if (right is null) return left;
+
+            return left.Value >= right.Value ? left : right;
+        }
 
         private static IReadOnlyList<ParticipantUsageV2> MergeParticipantUsage(
             IReadOnlyList<ParticipantUsageV2> nameRows,
