@@ -4,6 +4,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
@@ -14,6 +15,7 @@ using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
 {
@@ -62,6 +64,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
+
+        private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
