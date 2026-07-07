@@ -957,5 +957,131 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
 
             return eventV2;
         }
+
+        [Fact]
+        public async Task ShouldRetrieveRetryOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            Guid addressA = GetRandomId();
+            Guid addressB = GetRandomId();
+
+            ListenerEventV2 successListenerEvent =
+                CreateRandomListenerEventV2WithCreatedDate(inWindowDate);
+            successListenerEvent.Status = ListenerEventStatusV2.Success;
+            successListenerEvent.EventAddressV2Id = addressA;
+
+            List<ListenerEventV2> randomListenerEvents = new List<ListenerEventV2>
+            {
+                CreateErrorListenerEventV2(addressA, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventV2(addressA, remainingRetryAttempts: 1, inWindowDate),
+                CreateErrorListenerEventV2(addressA, remainingRetryAttempts: 2, inWindowDate),
+                CreateErrorListenerEventV2(addressA, remainingRetryAttempts: 3, inWindowDate),
+                CreateErrorListenerEventV2(addressB, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventV2(addressB, remainingRetryAttempts: 4, inWindowDate),
+                CreateErrorListenerEventV2(addressA, remainingRetryAttempts: 0, outOfWindowDate),
+                successListenerEvent
+            };
+
+            RetryHealthSummaryV2 expectedRetry = BuildExpectedRetry(
+                inputPeriod, inputWindowStart, windowEnd, randomListenerEvents);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<EventV2>().AsQueryable());
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.Retry.Should().BeEquivalentTo(expectedRetry);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static RetryHealthSummaryV2 BuildExpectedRetry(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            List<ListenerEventV2> allListenerEvents)
+        {
+            List<ListenerEventV2> errorEvents = allListenerEvents
+                .Where(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Error
+                    && listenerEvent.CreatedDate >= windowStart
+                    && listenerEvent.CreatedDate < windowEnd)
+                .ToList();
+
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.Count()
+                })
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                    CriticalEvents = group.Count(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+                    HealthyEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.Count()
+                })
+                .ToList();
+
+            return new RetryHealthSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalActiveEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 0),
+                DeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                CriticalEvents = errorEvents.Count(listenerEvent =>
+                    listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+                HealthyEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                Distribution = distribution,
+                ByAddress = byAddress
+            };
+        }
+
+        private static ListenerEventV2 CreateErrorListenerEventV2(
+            Guid eventAddressV2Id, int remainingRetryAttempts, DateTimeOffset createdDate)
+        {
+            ListenerEventV2 listenerEventV2 = CreateRandomListenerEventV2WithCreatedDate(createdDate);
+            listenerEventV2.EventAddressV2Id = eventAddressV2Id;
+            listenerEventV2.Status = ListenerEventStatusV2.Error;
+            listenerEventV2.RemainingRetryAttempts = remainingRetryAttempts;
+
+            return listenerEventV2;
+        }
     }
 }
