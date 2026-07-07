@@ -189,5 +189,166 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             return $"{count.ToString(CultureInfo.InvariantCulture)} " +
                 $"({rate.ToString("0.00", CultureInfo.InvariantCulture)}%)";
         }
+
+        [Fact]
+        public async Task ShouldRetrieveArchivedTrafficOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            long windowSpanTicks = (windowEnd - inputWindowStart).Ticks;
+
+            int inWindowEventCount = GetRandomNumber();
+
+            List<EventArchiveV2> inWindowEvents = Enumerable.Range(start: 0, count: inWindowEventCount)
+                .Select(index => CreateRandomEventArchiveV2WithArchivedDate(
+                    inputWindowStart.AddTicks(windowSpanTicks * (2 * index + 1) / (2 * inWindowEventCount))))
+                .ToList();
+
+            int inWindowListenerEventCount = GetRandomNumber();
+
+            List<ListenerEventArchiveV2> inWindowListenerEvents =
+                Enumerable.Range(start: 0, count: inWindowListenerEventCount)
+                    .Select(index => CreateRandomListenerEventArchiveV2WithArchivedDate(
+                        inputWindowStart.AddTicks(windowSpanTicks * (2 * index + 1) / (2 * inWindowListenerEventCount))))
+                    .ToList();
+
+            List<EventArchiveV2> randomArchivedEvents = inWindowEvents
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(windowEnd))
+                .ToList();
+
+            List<ListenerEventArchiveV2> randomArchivedListenerEvents = inWindowListenerEvents
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(windowEnd))
+                .ToList();
+
+            TrafficSnapshotV2 expectedTraffic = BuildExpectedTrafficSnapshot(
+                inputPeriod, inputWindowStart, windowEnd, inWindowEvents, inWindowListenerEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedEvents.AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.Traffic.Should().BeEquivalentTo(expectedTraffic);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static TrafficSnapshotV2 BuildExpectedTrafficSnapshot(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            List<EventArchiveV2> windowEvents,
+            List<ListenerEventArchiveV2> windowListenerEvents)
+        {
+            var eventBuckets = windowEvents
+                .GroupBy(archivedEvent => GetExpectedBucketStart(period, archivedEvent.ArchivedDate))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    Events = (long)group.Count(),
+                    ImmediateEvents = (long)group.Count(
+                        archivedEvent => archivedEvent.Type == EventArchiveTypeV2.Immediate),
+                    ScheduledEvents = (long)group.Count(
+                        archivedEvent => archivedEvent.Type == EventArchiveTypeV2.Scheduled)
+                })
+                .ToList();
+
+            var listenerBuckets = windowListenerEvents
+                .GroupBy(listenerEvent => GetExpectedBucketStart(period, listenerEvent.ArchivedDate))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    ListenerEvents = (long)group.Count(),
+                    Success = (long)group.Count(le => le.Status == ListenerEventArchiveStatusV2.Success),
+                    Errors = (long)group.Count(le => le.Status == ListenerEventArchiveStatusV2.Error),
+                    Pending = (long)group.Count(le => le.Status == ListenerEventArchiveStatusV2.Pending),
+                    Replays = (long)group.Count(le => le.Status == ListenerEventArchiveStatusV2.Replay)
+                })
+                .ToList();
+
+            List<TrafficBucketV2> buckets = eventBuckets.Select(bucket => bucket.PeriodStart)
+                .Union(listenerBuckets.Select(bucket => bucket.PeriodStart))
+                .OrderBy(periodStart => periodStart)
+                .Select(periodStart =>
+                {
+                    var eventBucket = eventBuckets.FirstOrDefault(bucket => bucket.PeriodStart == periodStart);
+                    var listenerBucket = listenerBuckets.FirstOrDefault(bucket => bucket.PeriodStart == periodStart);
+
+                    return new TrafficBucketV2
+                    {
+                        PeriodStart = periodStart,
+                        Events = eventBucket?.Events ?? 0,
+                        ImmediateEvents = eventBucket?.ImmediateEvents ?? 0,
+                        ScheduledEvents = eventBucket?.ScheduledEvents ?? 0,
+                        ListenerEvents = listenerBucket?.ListenerEvents ?? 0,
+                        Success = listenerBucket?.Success ?? 0,
+                        Errors = listenerBucket?.Errors ?? 0,
+                        Pending = listenerBucket?.Pending ?? 0,
+                        Replays = listenerBucket?.Replays ?? 0
+                    };
+                })
+                .ToList();
+
+            return new TrafficSnapshotV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalEvents = windowEvents.Count,
+                TotalListenerEvents = windowListenerEvents.Count,
+                TotalSuccess = windowListenerEvents.Count(le => le.Status == ListenerEventArchiveStatusV2.Success),
+                TotalErrors = windowListenerEvents.Count(le => le.Status == ListenerEventArchiveStatusV2.Error),
+                TotalPending = windowListenerEvents.Count(le => le.Status == ListenerEventArchiveStatusV2.Pending),
+                TotalReplays = windowListenerEvents.Count(le => le.Status == ListenerEventArchiveStatusV2.Replay),
+                Buckets = buckets
+            };
+        }
+
+        private static DateTimeOffset GetExpectedBucketStart(TrafficPeriodV2 period, DateTimeOffset archivedDate)
+        {
+            switch (period)
+            {
+                case TrafficPeriodV2.Week:
+                case TrafficPeriodV2.Month:
+                    return new DateTimeOffset(
+                        archivedDate.Year, archivedDate.Month, archivedDate.Day, 0, 0, 0, TimeSpan.Zero);
+
+                case TrafficPeriodV2.Year:
+                    return new DateTimeOffset(
+                        archivedDate.Year, archivedDate.Month, 1, 0, 0, 0, TimeSpan.Zero);
+
+                default:
+                    return new DateTimeOffset(
+                        archivedDate.Year, archivedDate.Month, archivedDate.Day, archivedDate.Hour, 0, 0,
+                        TimeSpan.Zero);
+            }
+        }
     }
 }
