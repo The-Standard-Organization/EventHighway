@@ -476,5 +476,121 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
 
             return listenerEventArchiveV2;
         }
+
+        [Fact]
+        public async Task ShouldRetrieveArchivedLoopDetectionOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset earlyDate = inputWindowStart;
+            DateTimeOffset laterDate = inputWindowStart.AddTicks((windowEnd - inputWindowStart).Ticks / 2);
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            Guid addressA = GetRandomId();
+            Guid addressB = GetRandomId();
+            Guid participant = GetRandomId();
+
+            List<EventArchiveV2> randomArchivedEvents = new List<EventArchiveV2>
+            {
+                CreateQuarantinedEventArchiveV2(participant, addressA, earlyDate),
+                CreateQuarantinedEventArchiveV2(participant, addressA, laterDate),
+                CreateQuarantinedEventArchiveV2(participant, addressB, earlyDate),
+                CreateQuarantinedEventArchiveV2(eventParticipantV2Id: null, addressA, laterDate),
+                AssignAddress(
+                    WithStatus(CreateRandomEventArchiveV2WithArchivedDate(earlyDate), EventArchiveStatusV2.Active),
+                    addressA),
+                CreateQuarantinedEventArchiveV2(participant, addressA, outOfWindowDate)
+            };
+
+            LoopDetectionSummaryV2 expectedLoopDetection = BuildExpectedLoopDetection(
+                inputPeriod, inputWindowStart, windowEnd, randomArchivedEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedEvents.AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<ListenerEventArchiveV2>().AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.LoopDetection.Should().BeEquivalentTo(expectedLoopDetection);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static LoopDetectionSummaryV2 BuildExpectedLoopDetection(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            List<EventArchiveV2> allEvents)
+        {
+            List<EventArchiveV2> quarantinedEvents = allEvents
+                .Where(archivedEvent => archivedEvent.Status == EventArchiveStatusV2.Quarantined
+                    && archivedEvent.ArchivedDate >= windowStart
+                    && archivedEvent.ArchivedDate < windowEnd)
+                .ToList();
+
+            List<LoopDetailV2> byAddress = quarantinedEvents
+                .GroupBy(archivedEvent => new { archivedEvent.EventAddressV2Id, archivedEvent.EventParticipantV2Id })
+                .Select(group => new LoopDetailV2
+                {
+                    EventAddressV2Id = group.Key.EventAddressV2Id,
+                    EventParticipantV2Id = group.Key.EventParticipantV2Id,
+                    ArchivedQuarantined = group.Count(),
+                    InWindow = group.Count(),
+                    MostRecentDetection = group.Max(archivedEvent => archivedEvent.ArchivedDate)
+                })
+                .ToList();
+
+            return new LoopDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalArchivedQuarantined = quarantinedEvents.Count,
+                TotalInWindow = quarantinedEvents.Count,
+                ByAddress = byAddress
+            };
+        }
+
+        private static EventArchiveV2 CreateQuarantinedEventArchiveV2(
+            Guid? eventParticipantV2Id, Guid eventAddressV2Id, DateTimeOffset archivedDate)
+        {
+            EventArchiveV2 eventArchiveV2 = CreateRandomEventArchiveV2WithArchivedDate(archivedDate);
+            eventArchiveV2.EventParticipantV2Id = eventParticipantV2Id;
+            eventArchiveV2.EventAddressV2Id = eventAddressV2Id;
+            eventArchiveV2.Status = EventArchiveStatusV2.Quarantined;
+
+            return eventArchiveV2;
+        }
+
+        private static EventArchiveV2 WithStatus(EventArchiveV2 eventArchiveV2, EventArchiveStatusV2 status)
+        {
+            eventArchiveV2.Status = status;
+
+            return eventArchiveV2;
+        }
     }
 }
