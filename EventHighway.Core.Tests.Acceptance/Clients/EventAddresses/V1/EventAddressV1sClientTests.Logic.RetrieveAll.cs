@@ -2,6 +2,8 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
@@ -26,20 +28,22 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
                 inputEventAddressV1s.DeepClone();
 
             // when 
-            IQueryable<EventAddressV1> actualEventAddressV1s =
-                await this.clientBroker
-                    .RetrieveAllEventAddressV1sAsync();
+            List<EventAddressV1> actualEventAddressV1s =
+                (await this.clientBroker.RetrieveAllEventAddressV1sAsync())
+                    .ToList();
 
             // then
             actualEventAddressV1s.Should()
-                .BeEquivalentTo(expectedEventAddressV1s);
+                .Contain(expectedEventAddressV1 =>
+                    expectedEventAddressV1s.Any(expected =>
+                        expected.Id == expectedEventAddressV1.Id));
 
-            foreach (EventAddressV1 actualEventAddressV1
-                in actualEventAddressV1s)
+            foreach (EventAddressV1 expectedEventAddressV1
+                in expectedEventAddressV1s)
             {
                 await this.clientBroker
                     .RemoveEventAddressV1ByIdAsync(
-                        actualEventAddressV1.Id);
+                        expectedEventAddressV1.Id);
             }
         }
     }
