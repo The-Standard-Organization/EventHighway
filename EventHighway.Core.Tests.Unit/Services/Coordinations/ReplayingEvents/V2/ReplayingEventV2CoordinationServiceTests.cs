@@ -143,6 +143,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ReplayingEvents.V2
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(GetRandomDateTimeOffset)
+                .OnType<DateTimeOffset?>().Use(GetRandomDateTimeOffset())
 
                 .OnProperty(listenerEventArchiveV2 => listenerEventArchiveV2.EventListenerV2)
                     .IgnoreIt()

@@ -392,7 +392,20 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedDate")
+                        .HasDatabaseName("IX_EventV2s_CreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Type" });
+
                     b.HasIndex("EventParticipantV2Id");
+
+                    b.HasIndex("EventAddressV2Id", "CreatedDate")
+                        .HasDatabaseName("IX_EventV2s_AddressCreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "Type", "EventParticipantV2Id" });
+
+                    b.HasIndex("Status", "Type")
+                        .HasDatabaseName("IX_EventV2s_StatusType");
 
                     b.HasIndex("EventAddressV2Id", "EventName", "ContentHash", "CreatedDate")
                         .HasDatabaseName("IX_EventV2s_LoopDetection");
@@ -444,6 +457,10 @@ namespace EventHighway.Core.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ContentHash")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
@@ -473,9 +490,21 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventAddressV2Id");
+                    b.HasIndex("ArchivedDate")
+                        .HasDatabaseName("IX_EventArchiveV2s_ArchivedDate");
 
                     b.HasIndex("EventParticipantV2Id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_EventArchiveV2s_Status");
+
+                    b.HasIndex("EventAddressV2Id", "ArchivedDate")
+                        .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
+
+                    b.HasIndex("EventAddressV2Id", "ContentHash")
+                        .HasDatabaseName("IX_EventArchiveV2s_ContentHash");
 
                     b.ToTable("EventArchiveV2s", (string)null);
                 });
@@ -532,7 +561,13 @@ namespace EventHighway.Core.Migrations
                     b.Property<DateTimeOffset>("ArchivedDate")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DispatchedDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressV2Id")
@@ -550,6 +585,12 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventV2Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("NextRetryAttemptNotBefore")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("RemainingRetryAttempts")
+                        .HasColumnType("int");
+
                     b.Property<string>("Response")
                         .HasColumnType("nvarchar(max)");
 
@@ -559,6 +600,9 @@ namespace EventHighway.Core.Migrations
                     b.Property<string>("ResponseMessage")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("RetryAttemptsAllowed")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -567,11 +611,27 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ArchivedDate")
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ArchivedDate"), new[] { "Status" });
+
                     b.HasIndex("EventArchiveV2Id");
 
                     b.HasIndex("EventListenerV2Id");
 
                     b.HasIndex("EventParticipantV2Id");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_Status");
+
+                    b.HasIndex("EventAddressV2Id", "ArchivedDate")
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
+
+                    b.HasIndex("Status", "RemainingRetryAttempts")
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_RetryClassification");
 
                     b.ToTable("ListenerEventArchiveV2s", (string)null);
                 });
@@ -708,13 +768,27 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventAddressV2Id");
+                    b.HasIndex("CreatedDate")
+                        .HasDatabaseName("IX_ListenerEventV2s_CreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Status" });
 
                     b.HasIndex("EventListenerV2Id");
 
                     b.HasIndex("EventParticipantV2Id");
 
-                    b.HasIndex("EventV2Id");
+                    b.HasIndex("EventV2Id")
+                        .HasDatabaseName("IX_ListenerEventV2s_ToBeArchived");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventV2Id"), new[] { "Status", "RemainingRetryAttempts", "DispatchedDate" });
+
+                    b.HasIndex("EventAddressV2Id", "CreatedDate")
+                        .HasDatabaseName("IX_ListenerEventV2s_AddressCreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "RemainingRetryAttempts" });
+
+                    b.HasIndex("Status", "RemainingRetryAttempts")
+                        .HasDatabaseName("IX_ListenerEventV2s_RetryClassification");
 
                     b.ToTable("ListenerEventV2s", (string)null);
                 });

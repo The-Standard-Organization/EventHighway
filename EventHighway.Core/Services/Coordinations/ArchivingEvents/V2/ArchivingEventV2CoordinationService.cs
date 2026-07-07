@@ -324,12 +324,15 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 Id = eventV2.Id,
                 Content = eventV2.Content,
                 EventName = eventV2.EventName,
+                ContentHash = eventV2.ContentHash,
                 Type = (EventArchiveTypeV2)eventV2.Type,
                 Status = (EventArchiveStatusV2)eventV2.Status,
                 CreatedDate = eventV2.CreatedDate,
                 UpdatedDate = eventV2.CreatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
-                EventAddressV2Id = eventV2.EventAddressV2Id
+                EventAddressV2Id = eventV2.EventAddressV2Id,
+                EventParticipantV2Id = eventV2.EventParticipantV2Id,
+                EventParticipantV2Secret = eventV2.EventParticipantV2Secret
             };
         }
 
@@ -339,16 +342,22 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
             return new ListenerEventArchiveV2
             {
                 Id = listenerEventV2.Id,
+                CorrelationId = listenerEventV2.CorrelationId,
                 Status = (ListenerEventArchiveStatusV2)listenerEventV2.Status,
                 Response = listenerEventV2.Response,
                 ResponseCode = listenerEventV2.ResponseCode,
                 ResponseMessage = listenerEventV2.ResponseMessage,
                 CreatedDate = listenerEventV2.CreatedDate,
                 UpdatedDate = listenerEventV2.CreatedDate,
+                RemainingRetryAttempts = listenerEventV2.RemainingRetryAttempts,
+                RetryAttemptsAllowed = listenerEventV2.RetryAttemptsAllowed,
+                NextRetryAttemptNotBefore = listenerEventV2.NextRetryAttemptNotBefore,
+                DispatchedDate = listenerEventV2.DispatchedDate,
                 EventV2Id = listenerEventV2.EventV2Id,
                 EventAddressV2Id = listenerEventV2.EventAddressV2Id,
                 EventListenerV2Id = listenerEventV2.EventListenerV2Id,
-                EventArchiveV2Id = listenerEventV2.EventV2Id
+                EventArchiveV2Id = listenerEventV2.EventV2Id,
+                EventParticipantV2Id = listenerEventV2.EventParticipantV2Id
             };
         }
     }

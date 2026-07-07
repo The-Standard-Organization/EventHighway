@@ -10,6 +10,7 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using FluentAssertions;
 using Moq;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V2
@@ -178,6 +179,95 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
             this.listenerEventV2ProcessingServiceMock.Verify(service =>
                 service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
                     Times.Once);
+
+            this.eventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldResetRetryFieldsOnRestoreWhenListenerEventArchiveV2HasNonDefaultRetryStateAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            List<EventArchiveV2> inputEventArchiveV2s = new List<EventArchiveV2>();
+
+            ListenerEventArchiveV2 inputListenerEventArchiveV2 =
+                CreateListenerEventArchiveV2Filler().Create();
+
+            inputListenerEventArchiveV2.CorrelationId = GetRandomId();
+            inputListenerEventArchiveV2.RemainingRetryAttempts = 0;
+            inputListenerEventArchiveV2.RetryAttemptsAllowed = 0;
+            inputListenerEventArchiveV2.NextRetryAttemptNotBefore = GetRandomDateTimeOffset();
+            inputListenerEventArchiveV2.DispatchedDate = GetRandomDateTimeOffset();
+
+            List<ListenerEventArchiveV2> inputListenerEventArchiveV2s =
+                new List<ListenerEventArchiveV2> { inputListenerEventArchiveV2 };
+
+            this.eventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<EventV2>().AsQueryable());
+
+            this.eventV2ProcessingServiceMock.Setup(service =>
+                service.BulkRestoreEventV2sAsync(
+                    It.IsAny<IEnumerable<EventV2>>(),
+                    randomCancellationToken))
+                        .ReturnsAsync(new List<EventV2>());
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<ListenerEventV2>().AsQueryable());
+
+            List<ListenerEventV2> capturedListenerEventV2sToRestore = null;
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.BulkRestoreListenerEventV2sAsync(
+                    It.IsAny<IEnumerable<ListenerEventV2>>(),
+                    randomCancellationToken))
+                        .Callback<IEnumerable<ListenerEventV2>, CancellationToken>(
+                            (actualListenerEventV2s, _) =>
+                                capturedListenerEventV2sToRestore = actualListenerEventV2s.ToList())
+                        .ReturnsAsync(new List<ListenerEventV2>());
+
+            // when
+            await this.restoringEventV2OrchestrationService.RestoreAsync(
+                inputEventArchiveV2s,
+                inputListenerEventArchiveV2s,
+                randomCancellationToken);
+
+            // then
+            ListenerEventV2 actualListenerEventV2 =
+                capturedListenerEventV2sToRestore.Single();
+
+            actualListenerEventV2.Status.Should().Be(ListenerEventStatusV2.Replay);
+            actualListenerEventV2.CorrelationId.Should().Be(inputListenerEventArchiveV2.Id);
+            actualListenerEventV2.RemainingRetryAttempts.Should().Be(this.retryConfiguration.RetryAttemptsAllowed);
+            actualListenerEventV2.RetryAttemptsAllowed.Should().Be(this.retryConfiguration.RetryAttemptsAllowed);
+            actualListenerEventV2.NextRetryAttemptNotBefore.Should().BeNull();
+            actualListenerEventV2.DispatchedDate.Should().BeNull();
+
+            this.eventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ProcessingServiceMock.Verify(service =>
+                service.BulkRestoreEventV2sAsync(
+                    It.IsAny<IEnumerable<EventV2>>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.BulkRestoreListenerEventV2sAsync(
+                    It.IsAny<IEnumerable<ListenerEventV2>>(),
+                    randomCancellationToken),
+                        Times.Once);
 
             this.eventV2ProcessingServiceMock.VerifyNoOtherCalls();
             this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();

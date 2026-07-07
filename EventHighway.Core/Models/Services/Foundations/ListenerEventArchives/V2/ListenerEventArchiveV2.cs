@@ -19,6 +19,12 @@ namespace EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2
         public Guid Id { get; set; }
 
         /// <summary>
+        /// Gets or sets the identifier of the originating listener event this record was archived from.
+        /// A null value indicates the archived listener event was not produced by a replay.
+        /// </summary>
+        public Guid? CorrelationId { get; set; }
+
+        /// <summary>
         /// Gets or sets the <see cref="ListenerEventArchiveStatusV2"/> indicating the current state of the archived listener event delivery.
         /// </summary>
         public ListenerEventArchiveStatusV2 Status { get; set; }
@@ -47,6 +53,29 @@ namespace EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2
         /// Gets or sets the date and time when this listener event archive was last updated.
         /// </summary>
         public DateTimeOffset UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of additional dispatch attempts remaining after the initial dispatch,
+        /// as recorded at the time this delivery was archived.
+        /// </summary>
+        public int RemainingRetryAttempts { get; set; }
+
+        /// <summary>
+        /// Gets or sets the attempts ceiling for this delivery, as recorded at the time this delivery was archived.
+        /// </summary>
+        public int RetryAttemptsAllowed { get; set; }
+
+        /// <summary>
+        /// Gets or sets the earliest time the next retry was permitted to run, as recorded at the time this
+        /// delivery was archived. A null value indicates the delivery was eligible immediately.
+        /// </summary>
+        public DateTimeOffset? NextRetryAttemptNotBefore { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timestamp of the most recent actual dispatch, as recorded at the time this delivery
+        /// was archived. Null indicates the delivery had never been dispatched.
+        /// </summary>
+        public DateTimeOffset? DispatchedDate { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when this listener event archive was archived.

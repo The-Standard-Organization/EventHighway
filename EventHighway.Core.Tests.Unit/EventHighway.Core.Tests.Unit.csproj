@@ -17,7 +17,7 @@
     </PackageReference>
     <PackageReference Include="DeepCloner" Version="0.10.4" />
     <PackageReference Include="FluentAssertions" Version="[7.2.2]" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Tynamix.ObjectFiller" Version="1.5.9" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
