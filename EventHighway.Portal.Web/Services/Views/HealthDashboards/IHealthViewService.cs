@@ -14,6 +14,8 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
     public interface IHealthViewService
     {
         ValueTask<List<HealthRagTile>> RetrieveHealthRagTilesAsync(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
         ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotAsync(
@@ -21,7 +23,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
-        ValueTask<List<EventAddressSummaryV2>> RetrieveAddressSummariesAsync(
+        ValueTask<List<EventAddressUsageV2>> RetrieveAddressSummariesAsync(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
@@ -37,9 +39,11 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             CancellationToken cancellationToken = default);
 
         ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthAsync(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
-        ValueTask<List<ParticipantSummaryV2>> RetrieveParticipantSummariesAsync(
+        ValueTask<List<ParticipantUsageV2>> RetrieveParticipantSummariesAsync(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);

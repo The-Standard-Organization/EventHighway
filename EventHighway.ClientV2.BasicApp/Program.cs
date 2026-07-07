@@ -510,7 +510,8 @@ public partial class Program
     private static async Task PrintHealthSummaryAsync(EventHighwayClient client)
     {
         IEnumerable<HealthCheckItemV2> summary =
-            await client.V2.HealthStatusClientV2.RetrieveHealthRagStatusV2Async();
+            await client.V2.HealthClientV2.HealthStatusClientV2.RetrieveHealthRagStatusV2Async(
+                TrafficPeriodV2.Day, DateTimeOffset.UtcNow);
 
         Console.WriteLine("── Health summary ──");
 
