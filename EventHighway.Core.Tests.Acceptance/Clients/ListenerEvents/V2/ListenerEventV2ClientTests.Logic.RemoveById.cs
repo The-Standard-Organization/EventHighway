@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
@@ -17,8 +18,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
         public async Task ShouldRemoveListenerEventV2ByIdAsync()
         {
             // given
-            IQueryable<ListenerEventV2> randomListenerEventV2s =
-                await CreateRandomListenerEventV2sAsync();
+            List<ListenerEventV2> randomListenerEventV2s =
+                (await CreateRandomListenerEventV2sAsync())
+                    .ToList();
 
             ListenerEventV2 randomListenerEventV2 =
                 randomListenerEventV2s.First();
