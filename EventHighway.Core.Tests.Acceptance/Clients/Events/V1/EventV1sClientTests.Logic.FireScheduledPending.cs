@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -58,8 +59,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             // when
             await this.clientBroker.FireScheduledPendingEventV1sAsync();
 
-            IQueryable<ListenerEventV1> storageListenerEventV1s =
-                await this.clientBroker.RetrieveAllListenerEventV1s();
+            List<ListenerEventV1> storageListenerEventV1s =
+                (await this.clientBroker.RetrieveAllListenerEventV1s())
+                    .ToList();
 
             // then
             foreach (ListenerEventV1 storageListenerEventV1
