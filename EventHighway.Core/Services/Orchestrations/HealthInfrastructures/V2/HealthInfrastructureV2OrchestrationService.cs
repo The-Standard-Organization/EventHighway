@@ -46,14 +46,22 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IQueryable<EventAddressV2> eventAddresses =
-                await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(cancellationToken);
+            // Infrastructure tables (addresses, listeners, participants) are config-scale and each
+            // foundation exposes its IQueryable over its own DbContext instance; materialize them so
+            // the whole-system counts and cross-joins evaluate in memory rather than composing a
+            // single EF query across multiple contexts (§0's server-side rule targets the large
+            // event/history tables, not these bounded config tables).
+            List<EventAddressV2> eventAddresses =
+                (await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(cancellationToken))
+                    .ToList();
 
-            IQueryable<EventListenerV2> eventListeners =
-                await this.eventListenerV2Service.RetrieveAllEventListenerV2sAsync(cancellationToken);
+            List<EventListenerV2> eventListeners =
+                (await this.eventListenerV2Service.RetrieveAllEventListenerV2sAsync(cancellationToken))
+                    .ToList();
 
-            IQueryable<EventParticipantV2> eventParticipants =
-                await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(cancellationToken);
+            List<EventParticipantV2> eventParticipants =
+                (await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(cancellationToken))
+                    .ToList();
 
             long totalEventAddresses = eventAddresses.LongCount();
             long totalEventListeners = eventListeners.LongCount();
