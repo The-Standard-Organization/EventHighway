@@ -5,6 +5,7 @@
 using System;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Clients.EventHighways;
+using EventHighway.SqlServer.Brokers;
 
 namespace EventHighway.Core.Tests.Acceptance.Brokers
 {
@@ -18,7 +19,10 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
                 "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDb.Acceptance;",
                 "Trusted_Connection=True;MultipleActiveResultSets=true;Pooling=false");
 
-            this.eventHighwayClient = new EventHighwayClient(connectionString);
+            SqlServerStorageBrokerProvider storageProvider =
+                  new SqlServerStorageBrokerProvider(connectionString);
+
+            this.eventHighwayClient = new EventHighwayClient(storageProvider);
         }
 
         public ClientBroker RegisterEventHandler(IEventHandler eventHandler)
