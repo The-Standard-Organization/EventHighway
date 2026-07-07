@@ -5,15 +5,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEvents.V2
 {
@@ -38,6 +42,39 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     listenerEventArchiveV2Service: this.listenerEventArchiveV2ServiceMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
+
+        public static TheoryData<Xeption> DependencyValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyValidationError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventArchiveV2ValidationException(someMessage, someInnerException),
+                new EventArchiveV2DependencyValidationException(someMessage, someInnerException),
+                new ListenerEventArchiveV2ValidationException(someMessage, someInnerException),
+                new ListenerEventArchiveV2DependencyValidationException(someMessage, someInnerException),
+            };
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventArchiveV2DependencyException(someMessage, someInnerException),
+                new EventArchiveV2ServiceException(someMessage, someInnerException),
+                new ListenerEventArchiveV2DependencyException(someMessage, someInnerException),
+                new ListenerEventArchiveV2ServiceException(someMessage, someInnerException),
+            };
+        }
+
+        private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
