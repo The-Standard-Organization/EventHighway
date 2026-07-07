@@ -144,7 +144,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 Traffic = MapToTrafficSnapshot(
                     period, windowStart, windowEnd, windowEvents, windowListenerEvents),
 
-                AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents)
+                AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
+
+                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents)
             };
         }
 
@@ -362,6 +364,40 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                     };
                 })
                 .ToList();
+        }
+
+        private static LoopDetectionSummaryV2 MapToLoopDetection(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<EventArchiveV2> windowEvents)
+        {
+            IQueryable<EventArchiveV2> quarantinedEvents = windowEvents
+                .Where(archivedEvent => archivedEvent.Status == EventArchiveStatusV2.Quarantined);
+
+            long totalArchivedQuarantined = quarantinedEvents.LongCount();
+
+            List<LoopDetailV2> byAddress = quarantinedEvents
+                .GroupBy(archivedEvent => new { archivedEvent.EventAddressV2Id, archivedEvent.EventParticipantV2Id })
+                .Select(group => new LoopDetailV2
+                {
+                    EventAddressV2Id = group.Key.EventAddressV2Id,
+                    EventParticipantV2Id = group.Key.EventParticipantV2Id,
+                    ArchivedQuarantined = group.LongCount(),
+                    InWindow = group.LongCount(),
+                    MostRecentDetection = group.Max(archivedEvent => archivedEvent.ArchivedDate)
+                })
+                .ToList();
+
+            return new LoopDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalArchivedQuarantined = totalArchivedQuarantined,
+                TotalInWindow = totalArchivedQuarantined,
+                ByAddress = byAddress
+            };
         }
     }
 }
