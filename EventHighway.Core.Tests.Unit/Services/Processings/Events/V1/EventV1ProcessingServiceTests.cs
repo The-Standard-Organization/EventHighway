@@ -129,6 +129,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
                     .GetValue();
         }
 
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove =
+                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
+        }
+
         private static Filler<EventV1> CreateEventV1Filler(
             DateTimeOffset dates,
             EventV1Type eventV1Type)
