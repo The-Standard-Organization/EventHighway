@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
@@ -20,33 +21,41 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             RetryHealthSummaryV2 randomSummary =
                 CreateRandomRetryHealthSummaryV2();
 
-            RetryHealthSummaryV2 returnedSummary =
-                randomSummary;
+            var returnedHealthReport = new HealthReportV2
+            {
+                Retry = randomSummary
+            };
 
             RetryHealthSummaryV2 expectedSummary =
-                returnedSummary.DeepClone();
+                randomSummary.DeepClone();
 
-            this.retrySummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveRetryHealthV2Async(randomCancellationToken))
-                    .ReturnsAsync(returnedSummary);
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveRetryReportV2Async(
+                    randomPeriod, randomWindowStart, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
             RetryHealthSummaryV2 actualSummary =
                 await this.healthRetryClientV2
-                    .RetrieveRetryHealthV2Async(randomCancellationToken);
+                    .RetrieveRetryHealthV2Async(
+                        randomPeriod, randomWindowStart, randomCancellationToken);
 
             // then
             actualSummary.Should()
                 .BeEquivalentTo(expectedSummary);
 
-            this.retrySummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveRetryHealthV2Async(randomCancellationToken),
-                    Times.Once);
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveRetryReportV2Async(
+                    randomPeriod, randomWindowStart, randomCancellationToken),
+                        Times.Once);
 
-            this.retrySummaryV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

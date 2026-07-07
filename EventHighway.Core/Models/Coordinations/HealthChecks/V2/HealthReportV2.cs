@@ -76,11 +76,5 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         /// Gets or sets the windowed duplicate-detection summary (live only).
         /// </summary>
         public DuplicateDetectionSummaryV2 Duplicates { get; set; }
-
-        /// <summary>
-        /// Gets or sets the sections that failed to load, so the rest of the report can still render.
-        /// Empty on full success.
-        /// </summary>
-        public IReadOnlyList<HealthSectionErrorV2> FailedSections { get; set; }
     }
 }

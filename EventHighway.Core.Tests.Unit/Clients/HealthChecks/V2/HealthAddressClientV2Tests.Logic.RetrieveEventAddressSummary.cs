@@ -25,36 +25,38 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
             DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
-            IEnumerable<EventAddressSummaryV2> randomSummaries =
-                CreateRandomEventAddressSummaryV2s();
+            IReadOnlyList<EventAddressUsageV2> randomAddressUsages =
+                CreateRandomEventAddressUsageV2s();
 
-            IEnumerable<EventAddressSummaryV2> returnedSummaries =
-                randomSummaries;
+            var returnedHealthReport = new HealthReportV2
+            {
+                AddressUsage = randomAddressUsages
+            };
 
-            IEnumerable<EventAddressSummaryV2> expectedSummaries =
-                returnedSummaries.DeepClone();
+            IReadOnlyList<EventAddressUsageV2> expectedAddressUsages =
+                randomAddressUsages.DeepClone();
 
-            this.addressSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken))
-                        .ReturnsAsync(returnedSummaries);
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
-            IEnumerable<EventAddressSummaryV2> actualSummaries =
+            IReadOnlyList<EventAddressUsageV2> actualAddressUsages =
                 await this.healthAddressClientV2
                     .RetrieveEventAddressSummaryV2Async(
                         randomPeriod, randomWindowStart, randomCancellationToken);
 
             // then
-            actualSummaries.Should()
-                .BeEquivalentTo(expectedSummaries);
+            actualAddressUsages.Should()
+                .BeEquivalentTo(expectedAddressUsages);
 
-            this.addressSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken),
                         Times.Once);
 
-            this.addressSummaryV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

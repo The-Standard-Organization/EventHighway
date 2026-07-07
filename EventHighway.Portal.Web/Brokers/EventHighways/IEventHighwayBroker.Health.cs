@@ -12,7 +12,9 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
     public partial interface IEventHighwayBroker
     {
-        ValueTask<IEnumerable<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+        ValueTask<IReadOnlyList<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
         ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotV2Async(
@@ -20,7 +22,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<EventAddressSummaryV2>> RetrieveEventAddressSummaryV2Async(
+        ValueTask<IReadOnlyList<EventAddressUsageV2>> RetrieveEventAddressSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
@@ -36,9 +38,11 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             CancellationToken cancellationToken = default);
 
         ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<ParticipantSummaryV2>> RetrieveParticipantSummaryV2Async(
+        ValueTask<IReadOnlyList<ParticipantUsageV2>> RetrieveParticipantSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);

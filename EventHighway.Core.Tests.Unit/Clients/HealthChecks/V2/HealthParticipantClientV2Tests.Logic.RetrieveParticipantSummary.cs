@@ -25,36 +25,38 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
             DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
-            IEnumerable<ParticipantSummaryV2> randomParticipantSummaryV2s =
-                CreateRandomParticipantSummaryV2s();
+            IReadOnlyList<ParticipantUsageV2> randomParticipantUsages =
+                CreateRandomParticipantUsageV2s();
 
-            IEnumerable<ParticipantSummaryV2> returnedParticipantSummaryV2s =
-                randomParticipantSummaryV2s;
+            var returnedHealthReport = new HealthReportV2
+            {
+                ParticipantUsage = randomParticipantUsages
+            };
 
-            IEnumerable<ParticipantSummaryV2> expectedParticipantSummaryV2s =
-                returnedParticipantSummaryV2s.DeepClone();
+            IReadOnlyList<ParticipantUsageV2> expectedParticipantUsages =
+                randomParticipantUsages.DeepClone();
 
-            this.participantSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveParticipantSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveParticipantUsageReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken))
-                        .ReturnsAsync(returnedParticipantSummaryV2s);
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
-            IEnumerable<ParticipantSummaryV2> actualParticipantSummaryV2s =
+            IReadOnlyList<ParticipantUsageV2> actualParticipantUsages =
                 await this.healthParticipantClientV2
                     .RetrieveParticipantSummaryV2Async(
                         randomPeriod, randomWindowStart, randomCancellationToken);
 
             // then
-            actualParticipantSummaryV2s.Should()
-                .BeEquivalentTo(expectedParticipantSummaryV2s);
+            actualParticipantUsages.Should()
+                .BeEquivalentTo(expectedParticipantUsages);
 
-            this.participantSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveParticipantSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveParticipantUsageReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken),
                         Times.Once);
 
-            this.participantSummaryV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

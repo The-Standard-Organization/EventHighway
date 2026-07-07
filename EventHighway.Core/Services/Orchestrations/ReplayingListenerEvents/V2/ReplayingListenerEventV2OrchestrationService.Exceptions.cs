@@ -37,15 +37,8 @@ namespace EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var replayingListenerEventV2OrchestrationDependencyException =
-                    new ReplayingListenerEventV2OrchestrationDependencyException(
-                        message: "Replaying listener event dependency error occurred, contact support.",
-                        innerException: timeoutReplayingListenerEventV2OrchestrationException);
-
-                await this.loggingBroker.LogErrorAsync(
-                    replayingListenerEventV2OrchestrationDependencyException);
-
-                throw replayingListenerEventV2OrchestrationDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutReplayingListenerEventV2OrchestrationException);
             }
             catch (OperationCanceledException)
             {
@@ -107,15 +100,8 @@ namespace EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var replayingListenerEventV2OrchestrationDependencyException =
-                    new ReplayingListenerEventV2OrchestrationDependencyException(
-                        message: "Replaying listener event dependency error occurred, contact support.",
-                        innerException: timeoutReplayingListenerEventV2OrchestrationException);
-
-                await this.loggingBroker.LogErrorAsync(
-                    replayingListenerEventV2OrchestrationDependencyException);
-
-                throw replayingListenerEventV2OrchestrationDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutReplayingListenerEventV2OrchestrationException);
             }
             catch (OperationCanceledException)
             {
@@ -243,5 +229,19 @@ namespace EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2
 
             return replayingListenerEventV2OrchestrationDependencyValidationException;
         }
+
+        private async ValueTask<ReplayingListenerEventV2OrchestrationDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var replayingListenerEventV2OrchestrationDependencyException =
+                new ReplayingListenerEventV2OrchestrationDependencyException(
+                    message: "Replaying listener event dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(replayingListenerEventV2OrchestrationDependencyException);
+
+            return replayingListenerEventV2OrchestrationDependencyException;
+        }
+
     }
 }

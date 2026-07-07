@@ -27,16 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             DuplicateDetectionSummaryV2 randomSummary =
                 CreateRandomDuplicateDetectionSummaryV2();
 
-            DuplicateDetectionSummaryV2 returnedSummary =
-                randomSummary;
+            var returnedHealthReport = new HealthReportV2
+            {
+                Duplicates = randomSummary
+            };
 
             DuplicateDetectionSummaryV2 expectedSummary =
-                returnedSummary.DeepClone();
+                randomSummary.DeepClone();
 
-            this.duplicateSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveDuplicateDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveDuplicateReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken))
-                        .ReturnsAsync(returnedSummary);
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
             DuplicateDetectionSummaryV2 actualSummary =
@@ -48,12 +50,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualSummary.Should()
                 .BeEquivalentTo(expectedSummary);
 
-            this.duplicateSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveDuplicateDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveDuplicateReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken),
                         Times.Once);
 
-            this.duplicateSummaryV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

@@ -43,13 +43,8 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventCallV2ProcessingDependencyException =
-                    new EventCallV2ProcessingDependencyException(
-                        message: "Event call dependency error occurred, contact support.",
-                        innerException: timeoutEventCallV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventCallV2ProcessingDependencyException);
-                throw eventCallV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventCallV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -90,13 +85,8 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventCallV2ProcessingDependencyException =
-                    new EventCallV2ProcessingDependencyException(
-                        message: "Event call dependency error occurred, contact support.",
-                        innerException: timeoutEventCallV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventCallV2ProcessingDependencyException);
-                throw eventCallV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventCallV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -152,13 +142,8 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventCallV2ProcessingDependencyException =
-                    new EventCallV2ProcessingDependencyException(
-                        message: "Event call dependency error occurred, contact support.",
-                        innerException: timeoutEventCallV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventCallV2ProcessingDependencyException);
-                throw eventCallV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventCallV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -228,5 +213,19 @@ namespace EventHighway.Core.Services.Processings.EventCalls.V2
 
             return eventCallV2ProcessingServiceException;
         }
+
+        private async ValueTask<EventCallV2ProcessingDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventCallV2ProcessingDependencyException =
+                new EventCallV2ProcessingDependencyException(
+                    message: "Event call dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventCallV2ProcessingDependencyException);
+
+            return eventCallV2ProcessingDependencyException;
+        }
+
     }
 }
