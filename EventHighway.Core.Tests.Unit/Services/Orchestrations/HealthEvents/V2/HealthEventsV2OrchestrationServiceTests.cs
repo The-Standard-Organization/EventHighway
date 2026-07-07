@@ -56,6 +56,21 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             };
         }
 
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventV2DependencyException(someMessage, someInnerException),
+                new EventV2ServiceException(someMessage, someInnerException),
+                new ListenerEventV2DependencyException(someMessage, someInnerException),
+                new ListenerEventV2ServiceException(someMessage, someInnerException),
+            };
+        }
+
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
 
