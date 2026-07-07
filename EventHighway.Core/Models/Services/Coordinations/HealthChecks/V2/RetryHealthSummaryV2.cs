@@ -55,6 +55,12 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public long HealthyEvents { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of errored archived listener events with no remaining retry attempts
+        /// (terminal dead deliveries) within the window. Contributed by the archived-events orchestration.
+        /// </summary>
+        public long ArchivedDeadEvents { get; set; }
+
+        /// <summary>
         /// Gets or sets the histogram buckets keyed by remaining retry count.
         /// </summary>
         public IEnumerable<RetryBucketV2> Distribution { get; set; }
