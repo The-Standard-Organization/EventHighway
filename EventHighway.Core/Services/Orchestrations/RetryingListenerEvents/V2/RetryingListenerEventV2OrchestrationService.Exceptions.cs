@@ -37,15 +37,8 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var retryingListenerEventV2OrchestrationDependencyException =
-                    new RetryingListenerEventV2OrchestrationDependencyException(
-                        message: "Retrying listener event dependency error occurred, contact support.",
-                        innerException: timeoutRetryingListenerEventV2OrchestrationException);
-
-                await this.loggingBroker.LogErrorAsync(
-                    retryingListenerEventV2OrchestrationDependencyException);
-
-                throw retryingListenerEventV2OrchestrationDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutRetryingListenerEventV2OrchestrationException);
             }
             catch (OperationCanceledException)
             {
@@ -136,15 +129,8 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var retryingListenerEventV2OrchestrationDependencyException =
-                    new RetryingListenerEventV2OrchestrationDependencyException(
-                        message: "Retrying listener event dependency error occurred, contact support.",
-                        innerException: timeoutRetryingListenerEventV2OrchestrationException);
-
-                await this.loggingBroker.LogErrorAsync(
-                    retryingListenerEventV2OrchestrationDependencyException);
-
-                throw retryingListenerEventV2OrchestrationDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutRetryingListenerEventV2OrchestrationException);
             }
             catch (OperationCanceledException)
             {
@@ -266,5 +252,19 @@ namespace EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2
 
             return retryingListenerEventV2OrchestrationServiceException;
         }
+
+        private async ValueTask<RetryingListenerEventV2OrchestrationDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var retryingListenerEventV2OrchestrationDependencyException =
+                new RetryingListenerEventV2OrchestrationDependencyException(
+                    message: "Retrying listener event dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(retryingListenerEventV2OrchestrationDependencyException);
+
+            return retryingListenerEventV2OrchestrationDependencyException;
+        }
+
     }
 }

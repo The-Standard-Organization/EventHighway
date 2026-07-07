@@ -42,7 +42,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventArchiveV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventArchiveV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -149,7 +149,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventArchiveV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventArchiveV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -198,7 +198,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventArchiveV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventArchiveV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -252,7 +252,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventArchiveV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventArchiveV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -312,6 +312,19 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             await this.loggingBroker.LogErrorAsync(eventArchiveV2DependencyValidationException);
 
             return eventArchiveV2DependencyValidationException;
+        }
+
+        private async ValueTask<EventArchiveV2DependencyException> CreateAndLogTimeoutDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventArchiveV2DependencyException =
+                new EventArchiveV2DependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventArchiveV2DependencyException);
+
+            return eventArchiveV2DependencyException;
         }
 
         private async ValueTask<EventArchiveV2DependencyException> CreateAndLogDependencyExceptionAsync(
