@@ -175,7 +175,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
 
                 AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
 
-                ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents)
+                ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents),
+
+                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents)
             };
         }
 
@@ -493,6 +495,40 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                     };
                 })
                 .ToList();
+        }
+
+        private static LoopDetectionSummaryV2 MapToLoopDetection(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<EventV2> windowEvents)
+        {
+            IQueryable<EventV2> quarantinedEvents = windowEvents
+                .Where(@event => @event.Status == EventStatusV2.Quarantined);
+
+            long totalActiveQuarantined = quarantinedEvents.LongCount();
+
+            List<LoopDetailV2> byAddress = quarantinedEvents
+                .GroupBy(@event => new { @event.EventAddressV2Id, @event.EventParticipantV2Id })
+                .Select(group => new LoopDetailV2
+                {
+                    EventAddressV2Id = group.Key.EventAddressV2Id,
+                    EventParticipantV2Id = group.Key.EventParticipantV2Id,
+                    ActiveQuarantined = group.LongCount(),
+                    InWindow = group.LongCount(),
+                    MostRecentDetection = group.Max(@event => @event.CreatedDate)
+                })
+                .ToList();
+
+            return new LoopDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalActiveQuarantined = totalActiveQuarantined,
+                TotalInWindow = totalActiveQuarantined,
+                ByAddress = byAddress
+            };
         }
     }
 }
