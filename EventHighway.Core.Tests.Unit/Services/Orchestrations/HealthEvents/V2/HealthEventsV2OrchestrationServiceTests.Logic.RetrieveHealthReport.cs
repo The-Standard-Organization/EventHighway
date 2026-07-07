@@ -818,5 +818,144 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
 
             return eventV2;
         }
+
+        [Fact]
+        public async Task ShouldRetrieveDuplicatesOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            long windowSpanTicks = (windowEnd - inputWindowStart).Ticks;
+            DateTimeOffset firstDate = inputWindowStart;
+            DateTimeOffset secondDate = inputWindowStart.AddTicks(windowSpanTicks / 4);
+            DateTimeOffset thirdDate = inputWindowStart.AddTicks(windowSpanTicks / 2);
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            Guid addressA = GetRandomId();
+            Guid participantOne = GetRandomId();
+            Guid participantTwo = GetRandomId();
+            string hashOne = GetRandomString();
+            string hashTwo = GetRandomString();
+            string hashThree = GetRandomString();
+
+            List<EventV2> randomEvents = new List<EventV2>
+            {
+                CreateEventV2WithHash(participantOne, addressA, hashOne, firstDate),
+                CreateEventV2WithHash(participantOne, addressA, hashOne, secondDate),
+                CreateEventV2WithHash(participantOne, addressA, hashOne, thirdDate),
+                CreateEventV2WithHash(participantOne, addressA, hashTwo, firstDate),
+                CreateEventV2WithHash(participantOne, addressA, hashThree, firstDate),
+                CreateEventV2WithHash(participantOne, addressA, hashThree, secondDate),
+                CreateEventV2WithHash(participantTwo, addressA, hashOne, firstDate),
+                CreateEventV2WithHash(participantTwo, addressA, hashOne, secondDate),
+                CreateEventV2WithHash(participantOne, addressA, hashOne, outOfWindowDate)
+            };
+
+            DuplicateDetectionSummaryV2 expectedDuplicates = BuildExpectedDuplicates(
+                inputPeriod, inputWindowStart, windowEnd, randomEvents);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomEvents.AsQueryable());
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<ListenerEventV2>().AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.Duplicates.Should().BeEquivalentTo(expectedDuplicates);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static DuplicateDetectionSummaryV2 BuildExpectedDuplicates(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            List<EventV2> allEvents)
+        {
+            List<EventV2> windowEvents = allEvents
+                .Where(@event => @event.CreatedDate >= windowStart && @event.CreatedDate < windowEnd)
+                .ToList();
+
+            List<DuplicateDetailV2> byAddress = windowEvents
+                .GroupBy(@event => new { @event.EventAddressV2Id, @event.EventParticipantV2Id })
+                .Select(group =>
+                {
+                    List<EventV2> groupEvents = group.ToList();
+
+                    var hashGroups = groupEvents
+                        .GroupBy(@event => @event.ContentHash)
+                        .ToList();
+
+                    long totalEvents = groupEvents.Count;
+                    long duplicates = totalEvents - hashGroups.Count;
+
+                    List<EventV2> duplicateEvents = hashGroups
+                        .Where(hashGroup => hashGroup.Count() > 1)
+                        .SelectMany(hashGroup => hashGroup.OrderBy(@event => @event.CreatedDate).Skip(1))
+                        .ToList();
+
+                    return new DuplicateDetailV2
+                    {
+                        EventAddressV2Id = group.Key.EventAddressV2Id,
+                        EventParticipantV2Id = group.Key.EventParticipantV2Id,
+                        TotalEvents = totalEvents,
+                        Duplicates = duplicates,
+                        DuplicateRate = totalEvents > 0 ? (decimal)duplicates / totalEvents * 100 : 0,
+                        LastDuplicateSeen = duplicateEvents.Count > 0
+                            ? duplicateEvents.Max(@event => @event.CreatedDate)
+                            : (DateTimeOffset?)null
+                    };
+                })
+                .ToList();
+
+            long totalDuplicatesDetected = byAddress.Sum(detail => detail.Duplicates);
+            long totalEventsInWindow = byAddress.Sum(detail => detail.TotalEvents);
+
+            return new DuplicateDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalDuplicatesDetected = totalDuplicatesDetected,
+                TotalUniqueEvents = totalEventsInWindow - totalDuplicatesDetected,
+                OverallDuplicateRate = totalEventsInWindow > 0
+                    ? (decimal)totalDuplicatesDetected / totalEventsInWindow * 100
+                    : 0,
+                ByAddress = byAddress
+            };
+        }
+
+        private static EventV2 CreateEventV2WithHash(
+            Guid? eventParticipantV2Id, Guid eventAddressV2Id, string contentHash, DateTimeOffset createdDate)
+        {
+            EventV2 eventV2 = CreateRandomEventV2WithCreatedDate(createdDate);
+            eventV2.EventParticipantV2Id = eventParticipantV2Id;
+            eventV2.EventAddressV2Id = eventAddressV2Id;
+            eventV2.ContentHash = contentHash;
+
+            return eventV2;
+        }
     }
 }
