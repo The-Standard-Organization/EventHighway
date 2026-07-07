@@ -79,12 +79,28 @@ namespace EventHighway.Core.Services.Processings.Events.V1
         private async ValueTask<EventV1> SetEventV1AsImmediateAsync(EventV1 eventV1)
         {
             DateTimeOffset now =
-                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+                await this.GetCurrentDateTimeOffsetAsync();
 
             eventV1.Type = EventV1Type.Immediate;
             eventV1.UpdatedDate = now;
 
             return await this.eventV1Service.ModifyEventV1Async(eventV1);
+        }
+
+        private async ValueTask<DateTimeOffset> GetCurrentDateTimeOffsetAsync()
+        {
+            DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            return TruncateToMicroseconds(now);
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove =
+                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }
