@@ -38,7 +38,7 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventParticipantSecretV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventParticipantSecretV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -121,7 +121,7 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventParticipantSecretV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventParticipantSecretV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -162,6 +162,19 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             await this.loggingBroker.LogErrorAsync(eventParticipantSecretV2ServiceException);
 
             return eventParticipantSecretV2ServiceException;
+        }
+
+        private async ValueTask<EventParticipantSecretV2DependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventParticipantSecretV2DependencyException =
+                new EventParticipantSecretV2DependencyException(
+                    message: "Event participant secret dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventParticipantSecretV2DependencyException);
+
+            return eventParticipantSecretV2DependencyException;
         }
 
         private async ValueTask<EventParticipantSecretV2DependencyException>

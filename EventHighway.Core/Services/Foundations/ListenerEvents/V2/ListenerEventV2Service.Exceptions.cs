@@ -41,7 +41,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutListenerEventV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutListenerEventV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -106,7 +106,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutListenerEventV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutListenerEventV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -218,7 +218,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutListenerEventV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutListenerEventV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -277,7 +277,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutListenerEventV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutListenerEventV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -362,6 +362,19 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
             await this.loggingBroker.LogErrorAsync(listenerEventV2DependencyValidationException);
 
             return listenerEventV2DependencyValidationException;
+        }
+
+        private async ValueTask<ListenerEventV2DependencyException> CreateAndLogTimeoutDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var listenerEventV2DependencyException =
+                new ListenerEventV2DependencyException(
+                    message: "Listener event dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(listenerEventV2DependencyException);
+
+            return listenerEventV2DependencyException;
         }
 
         private async ValueTask<ListenerEventV2DependencyException> CreateAndLogDependencyExceptionAsync(

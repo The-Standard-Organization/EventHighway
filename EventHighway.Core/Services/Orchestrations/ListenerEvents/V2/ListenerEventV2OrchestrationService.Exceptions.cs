@@ -169,10 +169,6 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
             {
                 return await returningListenerEventV2sFunction();
             }
-            // TODO: This localize-then-categorize timeout pattern (via
-            // CreateAndLogTimeoutDependencyExceptionAsync) is the correct/consistent form.
-            // All other V2 services still use the older inline timeout block and must be
-            // brought in line with this pattern in an end-of-phase consistency sweep.
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {

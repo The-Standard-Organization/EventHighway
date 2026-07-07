@@ -37,13 +37,8 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventAddressV2ProcessingDependencyException =
-                    new EventAddressV2ProcessingDependencyException(
-                        message: "Event address dependency error occurred, contact support.",
-                        innerException: timeoutEventAddressV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventAddressV2ProcessingDependencyException);
-                throw eventAddressV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventAddressV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -89,13 +84,8 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventAddressV2ProcessingDependencyException =
-                    new EventAddressV2ProcessingDependencyException(
-                        message: "Event address dependency error occurred, contact support.",
-                        innerException: timeoutEventAddressV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventAddressV2ProcessingDependencyException);
-                throw eventAddressV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventAddressV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -202,5 +192,19 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
 
             return eventAddressV2ProcessingServiceException;
         }
+
+        private async ValueTask<EventAddressV2ProcessingDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventAddressV2ProcessingDependencyException =
+                new EventAddressV2ProcessingDependencyException(
+                    message: "Event address dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventAddressV2ProcessingDependencyException);
+
+            return eventAddressV2ProcessingDependencyException;
+        }
+
     }
 }

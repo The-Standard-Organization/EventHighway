@@ -39,7 +39,7 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventAddressV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventAddressV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -134,7 +134,7 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventAddressV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventAddressV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -200,6 +200,19 @@ namespace EventHighway.Core.Services.Foundations.EventAddresses.V2
                     innerException: exception);
 
             await this.loggingBroker.LogCriticalAsync(eventAddressV2DependencyException);
+
+            return eventAddressV2DependencyException;
+        }
+
+        private async ValueTask<EventAddressV2DependencyException> CreateAndLogTimeoutDependencyExceptionAsync(
+            Xeption exception)
+        {
+            var eventAddressV2DependencyException =
+                new EventAddressV2DependencyException(
+                    message: "Event address dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventAddressV2DependencyException);
 
             return eventAddressV2DependencyException;
         }

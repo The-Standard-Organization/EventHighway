@@ -39,13 +39,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventArchiveV2ProcessingDependencyException =
-                    new EventArchiveV2ProcessingDependencyException(
-                        message: "Event archive dependency error occurred, contact support.",
-                        innerException: timeoutEventArchiveV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventArchiveV2ProcessingDependencyException);
-                throw eventArchiveV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventArchiveV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -113,13 +108,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventArchiveV2ProcessingDependencyException =
-                    new EventArchiveV2ProcessingDependencyException(
-                        message: "Event archive dependency error occurred, contact support.",
-                        innerException: timeoutEventArchiveV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventArchiveV2ProcessingDependencyException);
-                throw eventArchiveV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventArchiveV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -165,13 +155,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventArchiveV2ProcessingDependencyException =
-                    new EventArchiveV2ProcessingDependencyException(
-                        message: "Event archive dependency error occurred, contact support.",
-                        innerException: timeoutEventArchiveV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventArchiveV2ProcessingDependencyException);
-                throw eventArchiveV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventArchiveV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -245,13 +230,8 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventArchiveV2ProcessingDependencyException =
-                    new EventArchiveV2ProcessingDependencyException(
-                        message: "Event archive dependency error occurred, contact support.",
-                        innerException: timeoutEventArchiveV2ProcessingException);
-
-                await this.loggingBroker.LogErrorAsync(eventArchiveV2ProcessingDependencyException);
-                throw eventArchiveV2ProcessingDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventArchiveV2ProcessingException);
             }
             catch (OperationCanceledException)
             {
@@ -358,5 +338,19 @@ namespace EventHighway.Core.Services.Processings.EventArchives.V2
 
             return eventArchiveV2ProcessingServiceException;
         }
+
+        private async ValueTask<EventArchiveV2ProcessingDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventArchiveV2ProcessingDependencyException =
+                new EventArchiveV2ProcessingDependencyException(
+                    message: "Event archive dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventArchiveV2ProcessingDependencyException);
+
+            return eventArchiveV2ProcessingDependencyException;
+        }
+
     }
 }

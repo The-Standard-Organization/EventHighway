@@ -38,7 +38,7 @@ namespace EventHighway.Core.Services.Foundations.EventParticipants.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventParticipantV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventParticipantV2Exception);
             }
             catch (OperationCanceledException)
             {
@@ -116,6 +116,19 @@ namespace EventHighway.Core.Services.Foundations.EventParticipants.V2
         }
 
         private async ValueTask<EventParticipantV2DependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventParticipantV2DependencyException =
+                new EventParticipantV2DependencyException(
+                    message: "Event participant dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventParticipantV2DependencyException);
+
+            return eventParticipantV2DependencyException;
+        }
+
+        private async ValueTask<EventParticipantV2DependencyException>
             CreateAndLogDependencyExceptionAsync(Xeption exception)
         {
             var eventParticipantV2DependencyException =
@@ -160,7 +173,7 @@ namespace EventHighway.Core.Services.Foundations.EventParticipants.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                throw await CreateAndLogDependencyExceptionAsync(timeoutEventParticipantV2Exception);
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventParticipantV2Exception);
             }
             catch (OperationCanceledException)
             {
