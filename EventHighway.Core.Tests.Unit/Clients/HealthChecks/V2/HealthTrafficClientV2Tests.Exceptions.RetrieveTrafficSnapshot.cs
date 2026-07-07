@@ -3,12 +3,10 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
-using EventHighway.Core.Models.Services.Processings.Traffics.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -17,85 +15,77 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 {
     public partial class HealthTrafficClientV2Tests
     {
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveTrafficSnapshotIfDependencyErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientValidationExceptions))]
+        public async Task ShouldThrowValidationExceptionOnRetrieveTrafficSnapshotIfValidationErrorOccursAsync(
+            Xeption coordinationValidationException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
-            var trafficV2ProcessingDependencyException =
-                new TrafficV2ProcessingDependencyException(
-                    someMessage,
-                    someInnerException);
+            var expectedHealthTrafficClientV2ValidationException =
+                new HealthTrafficClientV2ValidationException(
+                    message: "Health client validation error occurred, fix the errors and try again.",
+                    innerException: coordinationValidationException.InnerException as Xeption,
+                    data: (coordinationValidationException.InnerException as Xeption).Data);
 
-            var expectedHealthTrafficClientV2DependencyException =
-                new HealthTrafficClientV2DependencyException(
-                    message: "Health client dependency error occurred, contact support.",
-                    innerException: trafficV2ProcessingDependencyException.InnerException as Xeption,
-                    data: (trafficV2ProcessingDependencyException.InnerException as Xeption).Data);
-
-            this.trafficV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(trafficV2ProcessingDependencyException);
+                        .ThrowsAsync(coordinationValidationException);
 
             // when
             ValueTask<TrafficSnapshotV2> retrieveTask =
                 this.healthTrafficClientV2.RetrieveTrafficSnapshotV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
-            HealthTrafficClientV2DependencyException actualException =
-                await Assert.ThrowsAsync<HealthTrafficClientV2DependencyException>(
+            HealthTrafficClientV2ValidationException actualException =
+                await Assert.ThrowsAsync<HealthTrafficClientV2ValidationException>(
                     retrieveTask.AsTask);
 
             // then
             actualException.Should()
-                .BeEquivalentTo(expectedHealthTrafficClientV2DependencyException);
+                .BeEquivalentTo(expectedHealthTrafficClientV2ValidationException);
 
-            this.trafficV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.trafficV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveTrafficSnapshotIfServiceErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientDependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRetrieveTrafficSnapshotIfDependencyErrorOccursAsync(
+            Xeption coordinationDependencyException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
-
-            var trafficV2ProcessingServiceException =
-                new TrafficV2ProcessingServiceException(
-                    someMessage,
-                    someInnerException);
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
             var expectedHealthTrafficClientV2DependencyException =
                 new HealthTrafficClientV2DependencyException(
                     message: "Health client dependency error occurred, contact support.",
-                    innerException: trafficV2ProcessingServiceException.InnerException as Xeption,
-                    data: (trafficV2ProcessingServiceException.InnerException as Xeption).Data);
+                    innerException: coordinationDependencyException.InnerException as Xeption,
+                    data: (coordinationDependencyException.InnerException as Xeption).Data);
 
-            this.trafficV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(trafficV2ProcessingServiceException);
+                        .ThrowsAsync(coordinationDependencyException);
 
             // when
             ValueTask<TrafficSnapshotV2> retrieveTask =
                 this.healthTrafficClientV2.RetrieveTrafficSnapshotV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthTrafficClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthTrafficClientV2DependencyException>(
@@ -105,12 +95,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthTrafficClientV2DependencyException);
 
-            this.trafficV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.trafficV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -120,6 +110,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedHealthTrafficClientV2ServiceException =
@@ -128,15 +121,15 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
                     innerException: someXeption,
                     data: someXeption.Data);
 
-            this.trafficV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
             ValueTask<TrafficSnapshotV2> retrieveTask =
                 this.healthTrafficClientV2.RetrieveTrafficSnapshotV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthTrafficClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthTrafficClientV2ServiceException>(
@@ -146,12 +139,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthTrafficClientV2ServiceException);
 
-            this.trafficV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.trafficV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -161,18 +154,21 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
-            this.trafficV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
             ValueTask<TrafficSnapshotV2> retrieveTask =
                 this.healthTrafficClientV2.RetrieveTrafficSnapshotV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -182,12 +178,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(operationCanceledException);
 
-            this.trafficV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.trafficV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
     }
 }

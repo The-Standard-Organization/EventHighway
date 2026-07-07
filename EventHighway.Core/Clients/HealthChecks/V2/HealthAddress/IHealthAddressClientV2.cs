@@ -26,8 +26,8 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IEnumerable}"/> representing the asynchronous
-        /// operation that returns one summary per event address.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns one usage row per event address.</returns>
         /// <exception cref="HealthAddressClientV2ValidationException">Thrown when validation errors
         /// occur during retrieval.</exception>
         /// <exception cref="HealthAddressClientV2DependencyException">Thrown when dependency or
@@ -36,7 +36,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         /// occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IEnumerable<EventAddressSummaryV2>> RetrieveEventAddressSummaryV2Async(
+        ValueTask<IReadOnlyList<EventAddressUsageV2>> RetrieveEventAddressSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);

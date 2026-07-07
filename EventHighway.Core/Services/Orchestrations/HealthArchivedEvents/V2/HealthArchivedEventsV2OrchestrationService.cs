@@ -231,24 +231,55 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
             IQueryable<EventArchiveV2> windowEvents,
             IQueryable<ListenerEventArchiveV2> windowListenerEvents)
         {
+            // Bucket server-side by translatable date-parts then re-fold into period buckets in
+            // memory (see HealthEvents for the rationale); ArchivedDate is stored UTC.
             var eventBuckets = windowEvents
-                .GroupBy(archivedEvent => MapToBucketStart(period, archivedEvent.ArchivedDate))
+                .GroupBy(archivedEvent => new
+                {
+                    archivedEvent.ArchivedDate.Year,
+                    archivedEvent.ArchivedDate.Month,
+                    archivedEvent.ArchivedDate.Day,
+                    archivedEvent.ArchivedDate.Hour
+                })
                 .Select(group => new
                 {
-                    PeriodStart = group.Key,
+                    group.Key.Year,
+                    group.Key.Month,
+                    group.Key.Day,
+                    group.Key.Hour,
                     Events = group.LongCount(),
                     ImmediateEvents = group.LongCount(
                         archivedEvent => archivedEvent.Type == EventArchiveTypeV2.Immediate),
                     ScheduledEvents = group.LongCount(
                         archivedEvent => archivedEvent.Type == EventArchiveTypeV2.Scheduled)
                 })
-                .ToList();
-
-            var listenerBuckets = windowListenerEvents
-                .GroupBy(listenerEvent => MapToBucketStart(period, listenerEvent.ArchivedDate))
+                .ToList()
+                .GroupBy(bucket => MapToBucketStart(
+                    period,
+                    new DateTimeOffset(bucket.Year, bucket.Month, bucket.Day, bucket.Hour, 0, 0, TimeSpan.Zero)))
                 .Select(group => new
                 {
                     PeriodStart = group.Key,
+                    Events = group.Sum(bucket => bucket.Events),
+                    ImmediateEvents = group.Sum(bucket => bucket.ImmediateEvents),
+                    ScheduledEvents = group.Sum(bucket => bucket.ScheduledEvents)
+                })
+                .ToList();
+
+            var listenerBuckets = windowListenerEvents
+                .GroupBy(listenerEvent => new
+                {
+                    listenerEvent.ArchivedDate.Year,
+                    listenerEvent.ArchivedDate.Month,
+                    listenerEvent.ArchivedDate.Day,
+                    listenerEvent.ArchivedDate.Hour
+                })
+                .Select(group => new
+                {
+                    group.Key.Year,
+                    group.Key.Month,
+                    group.Key.Day,
+                    group.Key.Hour,
                     ListenerEvents = group.LongCount(),
                     Success = group.LongCount(
                         listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Success),
@@ -258,6 +289,19 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                         listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Pending),
                     Replays = group.LongCount(
                         listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Replay)
+                })
+                .ToList()
+                .GroupBy(bucket => MapToBucketStart(
+                    period,
+                    new DateTimeOffset(bucket.Year, bucket.Month, bucket.Day, bucket.Hour, 0, 0, TimeSpan.Zero)))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    ListenerEvents = group.Sum(bucket => bucket.ListenerEvents),
+                    Success = group.Sum(bucket => bucket.Success),
+                    Errors = group.Sum(bucket => bucket.Errors),
+                    Pending = group.Sum(bucket => bucket.Pending),
+                    Replays = group.Sum(bucket => bucket.Replays)
                 })
                 .ToList();
 

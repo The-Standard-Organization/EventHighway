@@ -62,7 +62,10 @@
 
         try
         {
-            summary = await HealthViewService.RetrieveRetryHealthAsync();
+            var windowStart = WindowNavigator.Current(TrafficPeriodV2.Day, DateTimeOffset.UtcNow);
+
+            summary = await HealthViewService.RetrieveRetryHealthAsync(
+                TrafficPeriodV2.Day, windowStart);
 
             var distribution = (summary.Distribution ?? Enumerable.Empty<RetryBucketV2>()).ToList();
             labels = distribution.Select(b => b.RemainingRetries.ToString()).ToList();

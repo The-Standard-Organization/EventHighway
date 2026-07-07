@@ -32,15 +32,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
                         innerException: timeoutException,
                         data: timeoutException.Data);
 
-                var eventParticipantV2OrchestrationDependencyException =
-                    new EventParticipantV2OrchestrationDependencyException(
-                        message: "Event participant dependency error occurred, contact support.",
-                        innerException: timeoutEventParticipantV2OrchestrationException);
-
-                await this.loggingBroker.LogErrorAsync(
-                    eventParticipantV2OrchestrationDependencyException);
-
-                throw eventParticipantV2OrchestrationDependencyException;
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventParticipantV2OrchestrationException);
             }
             catch (OperationCanceledException)
             {
@@ -168,5 +161,19 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 
             return eventParticipantV2OrchestrationServiceException;
         }
+
+        private async ValueTask<EventParticipantV2OrchestrationDependencyException>
+            CreateAndLogTimeoutDependencyExceptionAsync(Xeption exception)
+        {
+            var eventParticipantV2OrchestrationDependencyException =
+                new EventParticipantV2OrchestrationDependencyException(
+                    message: "Event participant dependency error occurred, contact support.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventParticipantV2OrchestrationDependencyException);
+
+            return eventParticipantV2OrchestrationDependencyException;
+        }
+
     }
 }

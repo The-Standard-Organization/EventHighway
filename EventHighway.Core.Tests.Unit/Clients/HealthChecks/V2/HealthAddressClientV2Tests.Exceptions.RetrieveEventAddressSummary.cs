@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
-using EventHighway.Core.Models.Services.Orchestrations.AddressSummaries.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -17,85 +16,77 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 {
     public partial class HealthAddressClientV2Tests
     {
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveEventAddressSummaryIfDependencyErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientValidationExceptions))]
+        public async Task ShouldThrowValidationExceptionOnRetrieveEventAddressSummaryIfValidationErrorOccursAsync(
+            Xeption coordinationValidationException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
-            var addressSummaryV2OrchestrationDependencyException =
-                new AddressSummaryV2OrchestrationDependencyException(
-                    someMessage,
-                    someInnerException);
+            var expectedHealthAddressClientV2ValidationException =
+                new HealthAddressClientV2ValidationException(
+                    message: "Health client validation error occurred, fix the errors and try again.",
+                    innerException: coordinationValidationException.InnerException as Xeption,
+                    data: (coordinationValidationException.InnerException as Xeption).Data);
 
-            var expectedHealthAddressClientV2DependencyException =
-                new HealthAddressClientV2DependencyException(
-                    message: "Health client dependency error occurred, contact support.",
-                    innerException: addressSummaryV2OrchestrationDependencyException.InnerException as Xeption,
-                    data: (addressSummaryV2OrchestrationDependencyException.InnerException as Xeption).Data);
-
-            this.addressSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(addressSummaryV2OrchestrationDependencyException);
+                        .ThrowsAsync(coordinationValidationException);
 
             // when
-            ValueTask<IEnumerable<EventAddressSummaryV2>> retrieveTask =
+            ValueTask<IReadOnlyList<EventAddressUsageV2>> retrieveTask =
                 this.healthAddressClientV2.RetrieveEventAddressSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
-            HealthAddressClientV2DependencyException actualException =
-                await Assert.ThrowsAsync<HealthAddressClientV2DependencyException>(
+            HealthAddressClientV2ValidationException actualException =
+                await Assert.ThrowsAsync<HealthAddressClientV2ValidationException>(
                     retrieveTask.AsTask);
 
             // then
             actualException.Should()
-                .BeEquivalentTo(expectedHealthAddressClientV2DependencyException);
+                .BeEquivalentTo(expectedHealthAddressClientV2ValidationException);
 
-            this.addressSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.addressSummaryV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveEventAddressSummaryIfServiceErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientDependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRetrieveEventAddressSummaryIfDependencyErrorOccursAsync(
+            Xeption coordinationDependencyException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
-
-            var addressSummaryV2OrchestrationServiceException =
-                new AddressSummaryV2OrchestrationServiceException(
-                    someMessage,
-                    someInnerException);
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
             var expectedHealthAddressClientV2DependencyException =
                 new HealthAddressClientV2DependencyException(
                     message: "Health client dependency error occurred, contact support.",
-                    innerException: addressSummaryV2OrchestrationServiceException.InnerException as Xeption,
-                    data: (addressSummaryV2OrchestrationServiceException.InnerException as Xeption).Data);
+                    innerException: coordinationDependencyException.InnerException as Xeption,
+                    data: (coordinationDependencyException.InnerException as Xeption).Data);
 
-            this.addressSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(addressSummaryV2OrchestrationServiceException);
+                        .ThrowsAsync(coordinationDependencyException);
 
             // when
-            ValueTask<IEnumerable<EventAddressSummaryV2>> retrieveTask =
+            ValueTask<IReadOnlyList<EventAddressUsageV2>> retrieveTask =
                 this.healthAddressClientV2.RetrieveEventAddressSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthAddressClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthAddressClientV2DependencyException>(
@@ -105,12 +96,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthAddressClientV2DependencyException);
 
-            this.addressSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.addressSummaryV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -120,6 +111,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedHealthAddressClientV2ServiceException =
@@ -128,15 +122,15 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
                     innerException: someXeption,
                     data: someXeption.Data);
 
-            this.addressSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IEnumerable<EventAddressSummaryV2>> retrieveTask =
+            ValueTask<IReadOnlyList<EventAddressUsageV2>> retrieveTask =
                 this.healthAddressClientV2.RetrieveEventAddressSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthAddressClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthAddressClientV2ServiceException>(
@@ -146,12 +140,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthAddressClientV2ServiceException);
 
-            this.addressSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.addressSummaryV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -161,18 +155,21 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
-            this.addressSummaryV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IEnumerable<EventAddressSummaryV2>> retrieveTask =
+            ValueTask<IReadOnlyList<EventAddressUsageV2>> retrieveTask =
                 this.healthAddressClientV2.RetrieveEventAddressSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -182,12 +179,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(operationCanceledException);
 
-            this.addressSummaryV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveEventAddressSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveAddressUsageReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.addressSummaryV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
     }
 }

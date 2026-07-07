@@ -1,5 +1,6 @@
 @namespace EventHighway.Portal.Web.Components.Dashboard
 @inherits PeriodAwarePanelBase
+@using System.Linq
 @using EventHighway.Core.Models.Coordinations.HealthChecks.V2
 @using EventHighway.Portal.Web.Components.CoreUI
 @using EventHighway.Portal.Web.Services.Views.HealthDashboards
@@ -26,7 +27,7 @@
         }
         else
         {
-            <DataTable TItem="ParticipantSummaryV2" Items="summaries" Columns="columns" />
+            <DataTable TItem="ParticipantUsageV2" Items="summaries" Columns="columns" />
         }
     </ChildContent>
 </Card>
@@ -34,17 +35,17 @@
 @code {
     private bool isLoading = true;
     private string? errorMessage;
-    private List<ParticipantSummaryV2> summaries = new();
+    private List<ParticipantUsageV2> summaries = new();
 
-    private readonly List<DataTableColumn<ParticipantSummaryV2>> columns = new()
+    private readonly List<DataTableColumn<ParticipantUsageV2>> columns = new()
     {
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Participant", Value = p => string.IsNullOrEmpty(p.Name) ? "Unknown" : p.Name },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Addresses", Value = p => p.ActiveEventAddressNames is null ? "—" : string.Join(", ", p.ActiveEventAddressNames) },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Submitted", Value = p => p.TotalEventsSubmitted },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Received", Value = p => p.TotalListenerEvents },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Pub Err %", Value = p => p.PublisherErrorRate.ToString("0.00") },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Lis Err %", Value = p => p.ListenerErrorRate.ToString("0.00") },
-        new DataTableColumn<ParticipantSummaryV2> { Title = "Last Activity", Value = p => p.LastActivity?.ToString("u") ?? "—" },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Participant", Value = p => string.IsNullOrEmpty(p.Name) ? "Unknown" : p.Name },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Addresses", Value = p => p.ByAddress is null ? "—" : string.Join(", ", p.ByAddress.Select(a => a.EventAddressV2Name)) },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Submitted", Value = p => p.TotalEventsSubmitted },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Received", Value = p => p.TotalListenerEvents },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Pub Err %", Value = p => p.PublisherErrorRate.ToString("0.00") },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Lis Err %", Value = p => p.ListenerErrorRate.ToString("0.00") },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Last Activity", Value = p => p.LastActivity?.ToString("u") ?? "—" },
     };
 
     protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart)
