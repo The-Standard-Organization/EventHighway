@@ -37,9 +37,7 @@ using EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2;
 using EventHighway.Core.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Foundations.ListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.AddressSummaries.V2;
 using EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2;
-using EventHighway.Core.Services.Orchestrations.DuplicateSummaries.V2;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V2;
 using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
 using EventHighway.Core.Services.Orchestrations.EventListeners.V2;
@@ -49,13 +47,9 @@ using EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.LoopDetections.V2;
-using EventHighway.Core.Services.Orchestrations.ParticipantSummaries.V2;
-using EventHighway.Core.Services.Orchestrations.RagStatuses.V2;
 using EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RestoringEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.RetrySummaries.V2;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Processings.EventArchives.V2;
 using EventHighway.Core.Services.Processings.EventCalls.V2;
@@ -63,7 +57,6 @@ using EventHighway.Core.Services.Processings.EventListeners.V2;
 using EventHighway.Core.Services.Processings.Events.V2;
 using EventHighway.Core.Services.Processings.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Processings.ListenerEvents.V2;
-using EventHighway.Core.Services.Processings.Traffics.V2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -291,10 +284,6 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IListenerEventArchiveV2ProcessingService,
                 ListenerEventArchiveV2ProcessingService>();
-
-            services.AddTransient<
-                ITrafficV2ProcessingService,
-                TrafficV2ProcessingService>();
         }
 
         private static void RegisterOrchestrationServices(IServiceCollection services)
@@ -338,30 +327,6 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IRetryingListenerEventV2OrchestrationService,
                 RetryingListenerEventV2OrchestrationService>();
-
-            services.AddTransient<
-                IRagStatusV2OrchestrationService,
-                RagStatusV2OrchestrationService>();
-
-            services.AddTransient<
-                IAddressSummaryV2OrchestrationService,
-                AddressSummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                ILoopDetectionV2OrchestrationService,
-                LoopDetectionV2OrchestrationService>();
-
-            services.AddTransient<
-                IDuplicateSummaryV2OrchestrationService,
-                DuplicateSummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                IRetrySummaryV2OrchestrationService,
-                RetrySummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                IParticipantSummaryV2OrchestrationService,
-                ParticipantSummaryV2OrchestrationService>();
 
             services.AddTransient<
                 IHealthInfrastructureV2OrchestrationService,
