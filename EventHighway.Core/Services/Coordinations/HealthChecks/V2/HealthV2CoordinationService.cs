@@ -77,12 +77,14 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public async ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
+        public ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRetrieveHealthReport(windowStart);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
@@ -103,7 +105,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 archivedEventsPartialReport?.Traffic);
 
             return report;
-        }
+        });
 
         private static TrafficSnapshotV2 MergeTraffic(
             TrafficPeriodV2 period,
