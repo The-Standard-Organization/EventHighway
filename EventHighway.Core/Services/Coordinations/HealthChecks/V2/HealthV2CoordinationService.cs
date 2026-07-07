@@ -182,7 +182,98 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRetrieveHealthReport(windowStart);
+
+            HealthReportV2 infrastructurePartialReport =
+                await this.healthInfrastructureV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 archivedEventsPartialReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
+
+            report.AddressUsage = MergeAddressUsage(
+                infrastructurePartialReport?.AddressUsage,
+                eventsPartialReport?.AddressUsage,
+                archivedEventsPartialReport?.AddressUsage,
+                healthConfiguration);
+
+            return report;
+        });
+
+        private static IReadOnlyList<EventAddressUsageV2> MergeAddressUsage(
+            IReadOnlyList<EventAddressUsageV2> nameRows,
+            IReadOnlyList<EventAddressUsageV2> liveCountRows,
+            IReadOnlyList<EventAddressUsageV2> archivedCountRows,
+            HealthConfiguration healthConfiguration)
+        {
+            List<EventAddressUsageV2> names = nameRows?.ToList() ?? new List<EventAddressUsageV2>();
+            List<EventAddressUsageV2> liveCounts = liveCountRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            List<EventAddressUsageV2> archivedCounts =
+                archivedCountRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            if (names.Count == 0 && liveCounts.Count == 0 && archivedCounts.Count == 0)
+            {
+                return null;
+            }
+
+            return names.Select(row => row.EventAddressV2Id)
+                .Union(liveCounts.Select(row => row.EventAddressV2Id))
+                .Union(archivedCounts.Select(row => row.EventAddressV2Id))
+                .Select(eventAddressV2Id =>
+                {
+                    EventAddressUsageV2 nameRow =
+                        names.FirstOrDefault(row => row.EventAddressV2Id == eventAddressV2Id);
+
+                    EventAddressUsageV2 liveRow =
+                        liveCounts.FirstOrDefault(row => row.EventAddressV2Id == eventAddressV2Id);
+
+                    EventAddressUsageV2 archivedRow =
+                        archivedCounts.FirstOrDefault(row => row.EventAddressV2Id == eventAddressV2Id);
+
+                    HealthStatusV2 deadStatus = ComputeRagStatus(
+                        liveRow?.DeadEvents ?? 0, HealthMetric.DeadEvents, healthConfiguration);
+
+                    HealthStatusV2 loopsStatus = ComputeRagStatus(
+                        liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration);
+
+                    return new EventAddressUsageV2
+                    {
+                        EventAddressV2Id = eventAddressV2Id,
+                        Name = nameRow?.Name,
+                        Description = nameRow?.Description,
+                        ActiveListeners = nameRow?.ActiveListeners ?? 0,
+                        TotalActiveEvents = liveRow?.TotalActiveEvents ?? 0,
+                        TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
+                        DeadEvents = liveRow?.DeadEvents ?? 0,
+                        LoopsDetected = liveRow?.LoopsDetected ?? 0,
+                        TotalArchivedEvents = archivedRow?.TotalArchivedEvents ?? 0,
+                        TotalArchivedListenerEvents = archivedRow?.TotalArchivedListenerEvents ?? 0,
+                        Status = WorstOf(deadStatus, loopsStatus)
+                    };
+                })
+                .ToList();
+        }
+
+        private static HealthStatusV2 WorstOf(params HealthStatusV2[] statuses)
+        {
+            if (statuses.Contains(HealthStatusV2.Red)) return HealthStatusV2.Red;
+            if (statuses.Contains(HealthStatusV2.Amber)) return HealthStatusV2.Amber;
+            if (statuses.Contains(HealthStatusV2.Green)) return HealthStatusV2.Green;
+
+            return HealthStatusV2.NA;
+        }
 
         private static List<(DateTimeOffset Start, string Label)> EnumerateBucketStarts(
             TrafficPeriodV2 period,
