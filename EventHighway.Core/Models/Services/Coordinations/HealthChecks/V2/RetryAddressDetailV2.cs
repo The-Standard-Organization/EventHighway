@@ -33,7 +33,12 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public long CriticalEvents { get; set; }
 
         /// <summary>
-        /// Gets or sets the total number of active events on this address.
+        /// Gets or sets the number of events on this address with three or more remaining retry attempts.
+        /// </summary>
+        public long HealthyEvents { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total number of errored listener events on this address within the window.
         /// </summary>
         public long TotalEvents { get; set; }
     }
