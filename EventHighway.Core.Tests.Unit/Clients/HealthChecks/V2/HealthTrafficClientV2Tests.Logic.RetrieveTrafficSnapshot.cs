@@ -27,16 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             TrafficSnapshotV2 randomTrafficSnapshotV2 =
                 CreateRandomTrafficSnapshotV2();
 
-            TrafficSnapshotV2 returnedTrafficSnapshotV2 =
-                randomTrafficSnapshotV2;
+            var returnedHealthReport = new HealthReportV2
+            {
+                Traffic = randomTrafficSnapshotV2
+            };
 
             TrafficSnapshotV2 expectedTrafficSnapshotV2 =
-                returnedTrafficSnapshotV2.DeepClone();
+                randomTrafficSnapshotV2.DeepClone();
 
-            this.trafficV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken))
-                        .ReturnsAsync(returnedTrafficSnapshotV2);
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
             TrafficSnapshotV2 actualTrafficSnapshotV2 =
@@ -48,12 +50,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualTrafficSnapshotV2.Should()
                 .BeEquivalentTo(expectedTrafficSnapshotV2);
 
-            this.trafficV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveTrafficSnapshotV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken),
                         Times.Once);
 
-            this.trafficV2ProcessingServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }
