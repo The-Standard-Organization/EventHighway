@@ -211,11 +211,107 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
+        public async ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            HealthReportV2 infrastructurePartialReport =
+                await this.healthInfrastructureV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
+
+            report.ParticipantUsage = MergeParticipantUsage(
+                infrastructurePartialReport?.ParticipantUsage,
+                eventsPartialReport?.ParticipantUsage,
+                infrastructurePartialReport?.AddressUsage,
+                healthConfiguration);
+
+            return report;
+        }
+
+        private static IReadOnlyList<ParticipantUsageV2> MergeParticipantUsage(
+            IReadOnlyList<ParticipantUsageV2> nameRows,
+            IReadOnlyList<ParticipantUsageV2> liveCountRows,
+            IReadOnlyList<EventAddressUsageV2> addressNameRows,
+            HealthConfiguration healthConfiguration)
+        {
+            List<ParticipantUsageV2> names = nameRows?.ToList() ?? new List<ParticipantUsageV2>();
+            List<ParticipantUsageV2> liveCounts = liveCountRows?.ToList() ?? new List<ParticipantUsageV2>();
+
+            if (names.Count == 0 && liveCounts.Count == 0)
+            {
+                return null;
+            }
+
+            List<EventAddressUsageV2> addressNames =
+                addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
+
+            long totalSent = liveCounts.Sum(row => row.TotalEventsSubmitted);
+            long totalReceived = liveCounts.Sum(row => row.TotalListenerEvents);
+
+            return names.Select(row => row.EventParticipantV2Id)
+                .Union(liveCounts.Select(row => row.EventParticipantV2Id))
+                .Select(eventParticipantV2Id =>
+                {
+                    ParticipantUsageV2 nameRow =
+                        names.FirstOrDefault(row => row.EventParticipantV2Id == eventParticipantV2Id);
+
+                    ParticipantUsageV2 liveRow =
+                        liveCounts.FirstOrDefault(row => row.EventParticipantV2Id == eventParticipantV2Id);
+
+                    List<ParticipantAddressUsageV2> byAddress = (liveRow?.ByAddress
+                        ?? Enumerable.Empty<ParticipantAddressUsageV2>())
+                        .Select(addressRow => new ParticipantAddressUsageV2
+                        {
+                            EventAddressV2Id = addressRow.EventAddressV2Id,
+
+                            EventAddressV2Name = addressNames
+                                .FirstOrDefault(addressName =>
+                                    addressName.EventAddressV2Id == addressRow.EventAddressV2Id)?.Name,
+
+                            Sent = addressRow.Sent,
+
+                            SentPercentage = totalSent == 0
+                                ? 0
+                                : (decimal)addressRow.Sent * 100 / totalSent,
+
+                            Received = addressRow.Received,
+
+                            ReceivedPercentage = totalReceived == 0
+                                ? 0
+                                : (decimal)addressRow.Received * 100 / totalReceived
+                        })
+                        .ToList();
+
+                    return new ParticipantUsageV2
+                    {
+                        EventParticipantV2Id = eventParticipantV2Id,
+                        Name = nameRow?.Name ?? "Unknown",
+                        ContactEmail = nameRow?.ContactEmail,
+                        ContactPhone = nameRow?.ContactPhone,
+                        IsActive = nameRow?.IsActive ?? false,
+                        OwnedListeners = nameRow?.OwnedListeners ?? 0,
+                        TotalEventsSubmitted = liveRow?.TotalEventsSubmitted ?? 0,
+                        TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
+                        LoopsDetected = liveRow?.LoopsDetected ?? 0,
+                        DuplicatesDetected = liveRow?.DuplicatesDetected ?? 0,
+                        ByAddress = byAddress,
+
+                        Status = ComputeRagStatus(
+                            liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration)
+                    };
+                })
+                .ToList();
+        }
 
         private static IReadOnlyList<EventAddressUsageV2> MergeAddressUsage(
             IReadOnlyList<EventAddressUsageV2> nameRows,
