@@ -5,8 +5,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
+using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
+using Xeptions;
 
 namespace EventHighway.Core.Clients.HealthChecks.V2
 {
@@ -32,10 +35,72 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default)
         {
-            HealthReportV2 healthReport = await this.healthV2CoordinationService
-                .RetrieveRetryReportV2Async(period, windowStart, cancellationToken);
+            try
+            {
+                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                    .RetrieveRetryReportV2Async(period, windowStart, cancellationToken);
 
-            return healthReport.Retry;
+                return healthReport.Retry;
+            }
+            catch (HealthV2CoordinationValidationException
+                healthV2CoordinationValidationException)
+            {
+                throw CreateHealthRetryClientV2ValidationException(
+                    healthV2CoordinationValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyValidationException
+                healthV2CoordinationDependencyValidationException)
+            {
+                throw CreateHealthRetryClientV2ValidationException(
+                    healthV2CoordinationDependencyValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyException
+                healthV2CoordinationDependencyException)
+            {
+                throw CreateHealthRetryClientV2DependencyException(
+                    healthV2CoordinationDependencyException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationServiceException
+                healthV2CoordinationServiceException)
+            {
+                throw CreateHealthRetryClientV2DependencyException(
+                    healthV2CoordinationServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateHealthRetryClientV2ServiceException(exception as Xeption);
+            }
+        }
+
+        private static HealthRetryClientV2ValidationException
+            CreateHealthRetryClientV2ValidationException(Xeption innerException)
+        {
+            return new HealthRetryClientV2ValidationException(
+                message: "Health client validation error occurred, fix the errors and try again.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static HealthRetryClientV2DependencyException
+            CreateHealthRetryClientV2DependencyException(Xeption innerException)
+        {
+            return new HealthRetryClientV2DependencyException(
+                message: "Health client dependency error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static HealthRetryClientV2ServiceException
+            CreateHealthRetryClientV2ServiceException(Xeption innerException)
+        {
+            return new HealthRetryClientV2ServiceException(
+                message: "Health client service error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
         }
     }
 }
