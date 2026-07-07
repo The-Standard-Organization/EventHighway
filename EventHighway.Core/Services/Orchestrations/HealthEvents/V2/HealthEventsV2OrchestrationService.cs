@@ -171,7 +171,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 },
 
                 Traffic = MapToTrafficSnapshot(
-                    period, windowStart, windowEnd, windowEvents, windowListenerEvents)
+                    period, windowStart, windowEnd, windowEvents, windowListenerEvents),
+
+                AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents)
             };
         }
 
@@ -339,6 +341,55 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                     return new DateTimeOffset(
                         createdDate.Year, createdDate.Month, createdDate.Day, createdDate.Hour, 0, 0, TimeSpan.Zero);
             }
+        }
+
+        private static IReadOnlyList<EventAddressUsageV2> MapToAddressUsage(
+            IQueryable<EventV2> windowEvents,
+            IQueryable<ListenerEventV2> windowListenerEvents)
+        {
+            var eventCounts = windowEvents
+                .GroupBy(@event => @event.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalActiveEvents = group.LongCount(),
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                })
+                .ToList();
+
+            var listenerCounts = windowListenerEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalListenerEvents = group.LongCount(),
+                    DeadEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error
+                        && listenerEvent.RemainingRetryAttempts == 0)
+                })
+                .ToList();
+
+            return eventCounts.Select(count => count.EventAddressV2Id)
+                .Union(listenerCounts.Select(count => count.EventAddressV2Id))
+                .OrderBy(eventAddressV2Id => eventAddressV2Id)
+                .Select(eventAddressV2Id =>
+                {
+                    var eventCount =
+                        eventCounts.FirstOrDefault(count => count.EventAddressV2Id == eventAddressV2Id);
+
+                    var listenerCount =
+                        listenerCounts.FirstOrDefault(count => count.EventAddressV2Id == eventAddressV2Id);
+
+                    return new EventAddressUsageV2
+                    {
+                        EventAddressV2Id = eventAddressV2Id,
+                        TotalActiveEvents = eventCount?.TotalActiveEvents ?? 0,
+                        LoopsDetected = eventCount?.LoopsDetected ?? 0,
+                        TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
+                        DeadEvents = listenerCount?.DeadEvents ?? 0
+                    };
+                })
+                .ToList();
         }
     }
 }
