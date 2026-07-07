@@ -12,11 +12,13 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
     public sealed partial class EventHighwayBroker
     {
-        public ValueTask<IEnumerable<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+        public ValueTask<IReadOnlyList<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthStatusClientV2
-                    .RetrieveHealthRagStatusV2Async(cancellationToken),
+                client.HealthClientV2.HealthStatusClientV2
+                    .RetrieveHealthRagStatusV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
         public ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotV2Async(
@@ -24,17 +26,17 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthTrafficClientV2
+                client.HealthClientV2.HealthTrafficClientV2
                     .RetrieveTrafficSnapshotV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
-        public ValueTask<IEnumerable<EventAddressSummaryV2>>
+        public ValueTask<IReadOnlyList<EventAddressUsageV2>>
             RetrieveEventAddressSummaryV2Async(
                 TrafficPeriodV2 period,
                 DateTimeOffset windowStart,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthAddressClientV2
+                client.HealthClientV2.HealthAddressClientV2
                     .RetrieveEventAddressSummaryV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
@@ -43,7 +45,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthLoopClientV2
+                client.HealthClientV2.HealthLoopClientV2
                     .RetrieveLoopDetectionSummaryV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
@@ -53,24 +55,26 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                 DateTimeOffset windowStart,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthDuplicateClientV2
+                client.HealthClientV2.HealthDuplicateClientV2
                     .RetrieveDuplicateDetectionSummaryV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
         public ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthRetryClientV2
-                    .RetrieveRetryHealthV2Async(cancellationToken),
+                client.HealthClientV2.HealthRetryClientV2
+                    .RetrieveRetryHealthV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
 
-        public ValueTask<IEnumerable<ParticipantSummaryV2>>
+        public ValueTask<IReadOnlyList<ParticipantUsageV2>>
             RetrieveParticipantSummaryV2Async(
                 TrafficPeriodV2 period,
                 DateTimeOffset windowStart,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
-                client.HealthParticipantClientV2
+                client.HealthClientV2.HealthParticipantClientV2
                     .RetrieveParticipantSummaryV2Async(period, windowStart, cancellationToken),
                 cancellationToken);
     }

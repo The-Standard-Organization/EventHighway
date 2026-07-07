@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,27 +22,32 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
             List<HealthCheckItemV2> randomHealthCheckItems =
                 CreateRandomHealthCheckItems();
 
-            IEnumerable<HealthCheckItemV2> returnedHealthCheckItems =
+            IReadOnlyList<HealthCheckItemV2> returnedHealthCheckItems =
                 randomHealthCheckItems;
 
             List<HealthRagTile> expectedHealthRagTiles =
                 MapToTiles(randomHealthCheckItems);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(returnedHealthCheckItems);
+                broker.RetrieveHealthRagStatusV2Async(
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(),
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(returnedHealthCheckItems);
 
             // when
             List<HealthRagTile> actualHealthRagTiles =
                 await this.healthViewService.RetrieveHealthRagTilesAsync(
+                    TrafficPeriodV2.Day, DateTimeOffset.MinValue,
                     TestContext.Current.CancellationToken);
 
             // then
             actualHealthRagTiles.Should().BeEquivalentTo(expectedHealthRagTiles);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<CancellationToken>()),
-                    Times.Once);
+                broker.RetrieveHealthRagStatusV2Async(
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();

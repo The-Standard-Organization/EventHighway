@@ -29,12 +29,14 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
         }
 
         public ValueTask<List<HealthRagTile>> RetrieveHealthRagTilesAsync(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<HealthCheckItemV2> healthCheckItems =
+            IReadOnlyList<HealthCheckItemV2> healthCheckItems =
                 await this.eventHighwayBroker.RetrieveHealthRagStatusV2Async(
-                    cancellationToken);
+                    period, windowStart, cancellationToken);
 
             return healthCheckItems.Select(AsRagTile).ToList();
         });
@@ -47,13 +49,13 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             await this.eventHighwayBroker.RetrieveTrafficSnapshotV2Async(
                 period, windowStart, cancellationToken));
 
-        public ValueTask<List<EventAddressSummaryV2>> RetrieveAddressSummariesAsync(
+        public ValueTask<List<EventAddressUsageV2>> RetrieveAddressSummariesAsync(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<EventAddressSummaryV2> summaries =
+            IReadOnlyList<EventAddressUsageV2> summaries =
                 await this.eventHighwayBroker.RetrieveEventAddressSummaryV2Async(
                     period, windowStart, cancellationToken);
 
@@ -77,17 +79,20 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
                 period, windowStart, cancellationToken));
 
         public ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthAsync(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
-            await this.eventHighwayBroker.RetrieveRetryHealthV2Async(cancellationToken));
+            await this.eventHighwayBroker.RetrieveRetryHealthV2Async(
+                period, windowStart, cancellationToken));
 
-        public ValueTask<List<ParticipantSummaryV2>> RetrieveParticipantSummariesAsync(
+        public ValueTask<List<ParticipantUsageV2>> RetrieveParticipantSummariesAsync(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<ParticipantSummaryV2> summaries =
+            IReadOnlyList<ParticipantUsageV2> summaries =
                 await this.eventHighwayBroker.RetrieveParticipantSummaryV2Async(
                     period, windowStart, cancellationToken);
 

@@ -8,67 +8,64 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
-using EventHighway.Core.Models.Services.Orchestrations.ParticipantSummaries.V2.Exceptions;
-using EventHighway.Core.Services.Orchestrations.ParticipantSummaries.V2;
+using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
+using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.HealthChecks.V2
 {
     /// <summary>
     /// Represents the V2 health participant client implementation, handling per-participant
-    /// health-summary retrieval while managing coordination service exceptions.
+    /// summary retrieval while managing coordination service exceptions.
     /// </summary>
     internal class HealthParticipantClientV2 : IHealthParticipantClientV2
     {
-        private readonly IParticipantSummaryV2OrchestrationService participantSummaryV2OrchestrationService;
+        private readonly IHealthV2CoordinationService healthV2CoordinationService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HealthParticipantClientV2"/> class with
-        /// the specified participant summary orchestration service.
+        /// Initializes a new instance of the <see cref="HealthParticipantClientV2"/> class with the
+        /// specified health coordination service.
         /// </summary>
-        /// <param name="participantSummaryV2OrchestrationService">The orchestration service for
-        /// per-participant summaries.</param>
-        public HealthParticipantClientV2(IParticipantSummaryV2OrchestrationService participantSummaryV2OrchestrationService) =>
-            this.participantSummaryV2OrchestrationService = participantSummaryV2OrchestrationService;
+        /// <param name="healthV2CoordinationService">The coordination service for health
+        /// reports.</param>
+        public HealthParticipantClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
+            this.healthV2CoordinationService = healthV2CoordinationService;
 
-        /// <summary>
-        /// Retrieves per-participant health summaries asynchronously by delegating to the
-        /// coordination service and handling any exceptions that occur.
-        /// </summary>
-        /// <param name="period">The traffic period to summarize.</param>
-        /// <param name="windowStart">The start of the time window to summarize.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IEnumerable}"/> representing the asynchronous
-        /// operation that returns a collection of participant summaries.</returns>
-        /// <exception cref="HealthParticipantClientV2DependencyException">Thrown when dependency
-        /// or service errors occur.</exception>
-        /// <exception cref="HealthParticipantClientV2ServiceException">Thrown when an unexpected
-        /// error occurs during retrieval.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
-        public async ValueTask<IEnumerable<ParticipantSummaryV2>> RetrieveParticipantSummaryV2Async(
+        public async ValueTask<IReadOnlyList<ParticipantUsageV2>> RetrieveParticipantSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default)
         {
             try
             {
-                return await this.participantSummaryV2OrchestrationService
-                    .RetrieveParticipantSummaryV2Async(period, windowStart, cancellationToken);
+                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                    .RetrieveParticipantUsageReportV2Async(period, windowStart, cancellationToken);
+
+                return healthReport.ParticipantUsage;
             }
-            catch (ParticipantSummaryV2OrchestrationDependencyException
-                participantSummaryV2OrchestrationDependencyException)
+            catch (HealthV2CoordinationValidationException
+                healthV2CoordinationValidationException)
+            {
+                throw CreateHealthParticipantClientV2ValidationException(
+                    healthV2CoordinationValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyValidationException
+                healthV2CoordinationDependencyValidationException)
+            {
+                throw CreateHealthParticipantClientV2ValidationException(
+                    healthV2CoordinationDependencyValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyException
+                healthV2CoordinationDependencyException)
             {
                 throw CreateHealthParticipantClientV2DependencyException(
-                    participantSummaryV2OrchestrationDependencyException.InnerException as Xeption);
+                    healthV2CoordinationDependencyException.InnerException as Xeption);
             }
-            catch (ParticipantSummaryV2OrchestrationServiceException
-                participantSummaryV2OrchestrationServiceException)
+            catch (HealthV2CoordinationServiceException
+                healthV2CoordinationServiceException)
             {
                 throw CreateHealthParticipantClientV2DependencyException(
-                    participantSummaryV2OrchestrationServiceException.InnerException as Xeption);
+                    healthV2CoordinationServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {
@@ -78,6 +75,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             {
                 throw CreateHealthParticipantClientV2ServiceException(exception as Xeption);
             }
+        }
+
+        private static HealthParticipantClientV2ValidationException
+            CreateHealthParticipantClientV2ValidationException(Xeption innerException)
+        {
+            return new HealthParticipantClientV2ValidationException(
+                message: "Health client validation error occurred, fix the errors and try again.",
+                innerException: innerException,
+                data: innerException?.Data);
         }
 
         private static HealthParticipantClientV2DependencyException

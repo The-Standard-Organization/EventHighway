@@ -27,16 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             LoopDetectionSummaryV2 randomSummary =
                 CreateRandomLoopDetectionSummaryV2();
 
-            LoopDetectionSummaryV2 returnedSummary =
-                randomSummary;
+            var returnedHealthReport = new HealthReportV2
+            {
+                LoopDetection = randomSummary
+            };
 
             LoopDetectionSummaryV2 expectedSummary =
-                returnedSummary.DeepClone();
+                randomSummary.DeepClone();
 
-            this.loopDetectionV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken))
-                        .ReturnsAsync(returnedSummary);
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
             LoopDetectionSummaryV2 actualSummary =
@@ -48,12 +50,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualSummary.Should()
                 .BeEquivalentTo(expectedSummary);
 
-            this.loopDetectionV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     randomPeriod, randomWindowStart, randomCancellationToken),
                         Times.Once);
 
-            this.loopDetectionV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

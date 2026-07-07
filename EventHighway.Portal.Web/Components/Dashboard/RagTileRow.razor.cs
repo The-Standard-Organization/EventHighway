@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Portal.Web.Models.Views.HealthDashboards;
 using EventHighway.Portal.Web.Services.Views.HealthDashboards;
 using Microsoft.AspNetCore.Components;
@@ -38,7 +39,14 @@ namespace EventHighway.Portal.Web.Components.Dashboard
 
             try
             {
-                Tiles = await this.HealthViewService.RetrieveHealthRagTilesAsync();
+                // The RAG tiles are whole-system and ignore the window (§0 rule 4); a current-period
+                // window is supplied only to satisfy the coordination contract.
+                DateTimeOffset windowStart =
+                    WindowNavigator.Current(TrafficPeriodV2.Day, DateTimeOffset.UtcNow);
+
+                Tiles = await this.HealthViewService.RetrieveHealthRagTilesAsync(
+                    TrafficPeriodV2.Day, windowStart);
+
                 State = RagTileRowState.Content;
             }
             catch (Exception)

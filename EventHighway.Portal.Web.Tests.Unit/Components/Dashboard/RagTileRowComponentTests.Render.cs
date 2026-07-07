@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Bunit;
+using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Portal.Web.Components.CoreUI;
 using EventHighway.Portal.Web.Components.Dashboard;
 using EventHighway.Portal.Web.Models.Views.HealthDashboards;
@@ -25,7 +26,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
             var pendingSource = new TaskCompletionSource<List<HealthRagTile>>();
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<CancellationToken>()))
                     .Returns(new ValueTask<List<HealthRagTile>>(pendingSource.Task));
 
             // when
@@ -43,7 +44,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
             List<HealthRagTile> randomTiles = CreateRandomRagTiles();
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(randomTiles);
 
             // when
@@ -54,7 +55,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
             renderedRagTileRow.FindAll("div.stat-tile").Should().HaveCount(randomTiles.Count);
 
             this.healthViewServiceMock.Verify(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<CancellationToken>()),
                     Times.Once);
         }
 
@@ -67,7 +68,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
                     innerException: new Xeption(message: GetRandomString()));
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -102,7 +103,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
             };
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(tiles);
 
             // when

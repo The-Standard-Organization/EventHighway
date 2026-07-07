@@ -3,12 +3,10 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
-using EventHighway.Core.Models.Services.Orchestrations.LoopDetections.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -17,85 +15,77 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 {
     public partial class HealthLoopClientV2Tests
     {
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveLoopDetectionSummaryIfDependencyErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientValidationExceptions))]
+        public async Task ShouldThrowValidationExceptionOnRetrieveLoopDetectionSummaryIfValidationErrorOccursAsync(
+            Xeption coordinationValidationException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
-            var loopDetectionV2OrchestrationDependencyException =
-                new LoopDetectionV2OrchestrationDependencyException(
-                    someMessage,
-                    someInnerException);
+            var expectedHealthLoopClientV2ValidationException =
+                new HealthLoopClientV2ValidationException(
+                    message: "Health client validation error occurred, fix the errors and try again.",
+                    innerException: coordinationValidationException.InnerException as Xeption,
+                    data: (coordinationValidationException.InnerException as Xeption).Data);
 
-            var expectedHealthLoopClientV2DependencyException =
-                new HealthLoopClientV2DependencyException(
-                    message: "Health client dependency error occurred, contact support.",
-                    innerException: loopDetectionV2OrchestrationDependencyException.InnerException as Xeption,
-                    data: (loopDetectionV2OrchestrationDependencyException.InnerException as Xeption).Data);
-
-            this.loopDetectionV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(loopDetectionV2OrchestrationDependencyException);
+                        .ThrowsAsync(coordinationValidationException);
 
             // when
             ValueTask<LoopDetectionSummaryV2> retrieveTask =
                 this.healthLoopClientV2.RetrieveLoopDetectionSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
-            HealthLoopClientV2DependencyException actualException =
-                await Assert.ThrowsAsync<HealthLoopClientV2DependencyException>(
+            HealthLoopClientV2ValidationException actualException =
+                await Assert.ThrowsAsync<HealthLoopClientV2ValidationException>(
                     retrieveTask.AsTask);
 
             // then
             actualException.Should()
-                .BeEquivalentTo(expectedHealthLoopClientV2DependencyException);
+                .BeEquivalentTo(expectedHealthLoopClientV2ValidationException);
 
-            this.loopDetectionV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.loopDetectionV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
-        public async Task ShouldThrowDependencyExceptionOnRetrieveLoopDetectionSummaryIfServiceErrorOccursAsync()
+        [Theory]
+        [MemberData(nameof(ClientDependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRetrieveLoopDetectionSummaryIfDependencyErrorOccursAsync(
+            Xeption coordinationDependencyException)
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            string someMessage = GetRandomString();
-            var someInnerException = new Xeption(someMessage);
-            someInnerException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
-
-            var loopDetectionV2OrchestrationServiceException =
-                new LoopDetectionV2OrchestrationServiceException(
-                    someMessage,
-                    someInnerException);
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
 
             var expectedHealthLoopClientV2DependencyException =
                 new HealthLoopClientV2DependencyException(
                     message: "Health client dependency error occurred, contact support.",
-                    innerException: loopDetectionV2OrchestrationServiceException.InnerException as Xeption,
-                    data: (loopDetectionV2OrchestrationServiceException.InnerException as Xeption).Data);
+                    innerException: coordinationDependencyException.InnerException as Xeption,
+                    data: (coordinationDependencyException.InnerException as Xeption).Data);
 
-            this.loopDetectionV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-                        .ThrowsAsync(loopDetectionV2OrchestrationServiceException);
+                        .ThrowsAsync(coordinationDependencyException);
 
             // when
             ValueTask<LoopDetectionSummaryV2> retrieveTask =
                 this.healthLoopClientV2.RetrieveLoopDetectionSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthLoopClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthLoopClientV2DependencyException>(
@@ -105,12 +95,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthLoopClientV2DependencyException);
 
-            this.loopDetectionV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.loopDetectionV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -120,6 +110,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedHealthLoopClientV2ServiceException =
@@ -128,15 +121,15 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
                     innerException: someXeption,
                     data: someXeption.Data);
 
-            this.loopDetectionV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
             ValueTask<LoopDetectionSummaryV2> retrieveTask =
                 this.healthLoopClientV2.RetrieveLoopDetectionSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             HealthLoopClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthLoopClientV2ServiceException>(
@@ -146,12 +139,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(expectedHealthLoopClientV2ServiceException);
 
-            this.loopDetectionV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.loopDetectionV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -161,18 +154,21 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            TrafficPeriodV2 randomPeriod = GetRandomTrafficPeriodV2();
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
-            this.loopDetectionV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
             ValueTask<LoopDetectionSummaryV2> retrieveTask =
                 this.healthLoopClientV2.RetrieveLoopDetectionSummaryV2Async(
-                    GetRandomTrafficPeriodV2(), GetRandomDateTimeOffset(), randomCancellationToken);
+                    randomPeriod, randomWindowStart, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -182,12 +178,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             actualException.Should()
                 .BeEquivalentTo(operationCanceledException);
 
-            this.loopDetectionV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveLoopDetectionSummaryV2Async(
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
                     It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
-            this.loopDetectionV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
         }
     }
 }
