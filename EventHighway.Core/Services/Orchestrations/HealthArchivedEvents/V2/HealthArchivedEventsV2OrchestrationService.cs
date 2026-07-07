@@ -131,13 +131,13 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
 
                     MapToHealthCheckItem(
                         grouping: "Archived Listeners",
-                        item: "Active (Retries Left)",
+                        item: "Active (Items With Retries Left)",
                         value: totalActiveRetries,
                         description: "Errored archived listener events with retry attempts remaining."),
 
                     MapToHealthCheckItem(
                         grouping: "Archived Listeners",
-                        item: "Dead (No Retries)",
+                        item: "Dead (Items With No Retries)",
                         value: totalDead,
                         description: "Errored archived listener events with no retry attempts remaining.")
                 },

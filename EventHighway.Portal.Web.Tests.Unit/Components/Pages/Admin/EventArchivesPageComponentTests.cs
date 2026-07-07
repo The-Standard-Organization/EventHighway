@@ -26,14 +26,18 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
-        private static EventArchiveView CreateArchive(string status, int remainingRetryAttempts) =>
+        private static EventArchiveView CreateArchive(
+            string status,
+            int listenerEventCount,
+            int succeededListenerEventCount) =>
             new EventArchiveView
             {
                 Id = Guid.NewGuid(),
                 EventName = GetRandomString(),
                 Type = "Immediate",
                 Status = status,
-                RemainingRetryAttempts = remainingRetryAttempts,
+                ListenerEventCount = listenerEventCount,
+                SucceededListenerEventCount = succeededListenerEventCount,
                 EventAddressV2Id = Guid.NewGuid(),
                 EventAddressName = GetRandomString(),
                 ArchivedDate = DateTimeOffset.UtcNow

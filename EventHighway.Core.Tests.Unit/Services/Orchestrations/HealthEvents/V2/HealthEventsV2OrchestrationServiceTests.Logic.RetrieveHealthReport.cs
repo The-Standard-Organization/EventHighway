@@ -168,7 +168,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 new HealthCheckItemV2
                 {
                     Grouping = "Active Listeners",
-                    Item = "Active (Retries Left)",
+                    Item = "Active (Items With Retries Left)",
                     Value = totalActiveRetries.ToString(CultureInfo.InvariantCulture),
                     Description = "Errored listener events with retry attempts remaining.",
                     StatusCode = (int)HealthStatusV2.NA,
@@ -178,7 +178,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 new HealthCheckItemV2
                 {
                     Grouping = "Active Listeners",
-                    Item = "Dead (No Retries)",
+                    Item = "Dead (Items With No Retries)",
                     Value = totalDead.ToString(CultureInfo.InvariantCulture),
                     Description = "Errored listener events with no retry attempts remaining.",
                     StatusCode = (int)HealthStatusV2.NA,

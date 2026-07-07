@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Views.EventArchives;
 using FluentAssertions;
 using Moq;
@@ -58,19 +58,19 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
             // given
             DateTimeOffset baseDate = GetRandomDateTimeOffset();
 
-            EventArchiveV2 oldest = CreateRandomEventArchive(baseDate.AddDays(-2));
-            EventArchiveV2 middle = CreateRandomEventArchive(baseDate.AddDays(-1));
-            EventArchiveV2 newest = CreateRandomEventArchive(baseDate);
+            EventArchiveV2Summary oldest = CreateRandomEventArchiveSummary(baseDate.AddDays(-2));
+            EventArchiveV2Summary middle = CreateRandomEventArchiveSummary(baseDate.AddDays(-1));
+            EventArchiveV2Summary newest = CreateRandomEventArchiveSummary(baseDate);
 
-            IQueryable<EventArchiveV2> storageEventArchives =
-                new[] { oldest, newest, middle }.AsQueryable();
+            List<EventArchiveV2Summary> storageEventArchiveSummaries =
+                new List<EventArchiveV2Summary> { oldest, newest, middle };
 
             List<EventArchiveView> expectedViews =
                 new[] { newest, middle, oldest }.Select(MapToView).ToList();
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventArchiveV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(storageEventArchives);
+                broker.RetrieveAllEventArchiveV2SummariesAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(storageEventArchiveSummaries);
 
             // when
             List<EventArchiveView> actualViews =
@@ -82,7 +82,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
                 expectedViews, options => options.WithStrictOrdering());
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventArchiveV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventArchiveV2SummariesAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
@@ -95,21 +95,16 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
             // given
             DateTimeOffset baseDate = GetRandomDateTimeOffset();
 
-            EventArchiveV2 targetEventArchive = CreateRandomEventArchive(baseDate);
-            Guid eventArchiveId = targetEventArchive.Id;
+            EventArchiveV2Summary targetEventArchiveSummary =
+                CreateRandomEventArchiveSummary(baseDate);
 
-            IQueryable<EventArchiveV2> storageEventArchives = new[]
-            {
-                CreateRandomEventArchive(baseDate.AddDays(-1)),
-                targetEventArchive,
-                CreateRandomEventArchive(baseDate.AddDays(-2))
-            }.AsQueryable();
-
-            EventArchiveView expectedView = MapToView(targetEventArchive);
+            Guid eventArchiveId = targetEventArchiveSummary.Id;
+            EventArchiveView expectedView = MapToView(targetEventArchiveSummary);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventArchiveV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(storageEventArchives);
+                broker.RetrieveEventArchiveV2SummaryByIdAsync(
+                    eventArchiveId, It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(targetEventArchiveSummary);
 
             // when
             EventArchiveView actualView =
@@ -120,8 +115,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
             actualView.Should().BeEquivalentTo(expectedView);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventArchiveV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()),
-                    Times.Once);
+                broker.RetrieveEventArchiveV2SummaryByIdAsync(
+                    eventArchiveId, It.IsAny<CancellationToken>()),
+                        Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();

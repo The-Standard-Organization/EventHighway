@@ -52,7 +52,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     CreateHealthCheckItem("Active Events", "Loops Detected", "0"),
                     CreateHealthCheckItem("Active Events", "Duplicates Blocked", "7"),
                     CreateHealthCheckItem("Active Listeners", "Total Error", "25 (25.00%)"),
-                    CreateHealthCheckItem("Active Listeners", "Dead (No Retries)", "0")
+                    CreateHealthCheckItem("Active Listeners", "Dead (Items With No Retries)", "0")
                 }
             };
 
@@ -62,7 +62,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 {
                     CreateHealthCheckItem("Archived Events", "Total Quarantined", "9"),
                     CreateHealthCheckItem("Archived Listeners", "Total Error", "1 (5.00%)"),
-                    CreateHealthCheckItem("Archived Listeners", "Dead (No Retries)", "7")
+                    CreateHealthCheckItem("Archived Listeners", "Dead (Items With No Retries)", "7")
                 }
             };
 
@@ -74,12 +74,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 CreateScoredHealthCheckItem("Active Events", "Loops Detected", "0", HealthStatusV2.Green),
                 CreateScoredHealthCheckItem("Active Events", "Duplicates Blocked", "7", HealthStatusV2.Red),
                 CreateScoredHealthCheckItem("Active Listeners", "Total Error", "25 (25.00%)", HealthStatusV2.Red),
-                CreateScoredHealthCheckItem("Active Listeners", "Dead (No Retries)", "0", HealthStatusV2.Green),
+                CreateScoredHealthCheckItem("Active Listeners", "Dead (Items With No Retries)", "0", HealthStatusV2.Green),
                 CreateHealthCheckItem("Archived Events", "Total Quarantined", "9"),
                 CreateScoredHealthCheckItem("Archived Listeners", "Total Error", "1 (5.00%)", HealthStatusV2.Green),
 
                 CreateScoredHealthCheckItem(
-                    "Archived Listeners", "Dead (No Retries)", "7", HealthStatusV2.Red)
+                    "Archived Listeners", "Dead (Items With No Retries)", "7", HealthStatusV2.Red)
             };
 
             this.configurationBrokerMock.Setup(broker =>

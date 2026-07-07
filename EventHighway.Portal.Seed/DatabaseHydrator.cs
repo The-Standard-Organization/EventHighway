@@ -88,13 +88,16 @@ namespace EventHighway.Portal.Seed
         private const int LiveEventCount = 1825;      // ~5/day across the year
         private const int ArchivedEventCount = 730;   // ~2/day across the year
 
-        // 80% of listener deliveries succeed; the remaining 20% are errors carrying a
-        // dead/critical/healthy remaining-retry distribution (see RandomErrorRemaining).
-        private const double SuccessRate = 0.80;
+        // Outcome mix PER EVENT: ~80% fully-successful deliveries; the remainder is partial
+        // successes (1-2 listeners errored, the rest succeeded), complete failures, and
+        // loop-quarantined events (caught before dispatch, so no listener events). Errored
+        // deliveries carry the dead/critical/healthy retry split (see RandomErrorRemaining).
+        private const int AllSuccessPercent = 80;
+        private const int PartialSuccessPercent = 8;
+        private const int AllFailurePercent = 6;    // the remaining ~6% is quarantined
 
-        // A small slice of events are quarantined by loop detection, and a slice draw their content
-        // hash from a shared per-run pool so duplicate detection has repeated hashes to find.
-        private const double QuarantineRate = 0.05;
+        // A slice of events draw their content hash from a shared per-run pool so duplicate
+        // detection has repeated hashes to find.
         private const double DuplicateRate = 0.10;
         private const int DuplicateHashPoolSize = 12;
         private const int RetryAttemptsAllowed = 5;
@@ -130,7 +133,7 @@ namespace EventHighway.Portal.Seed
             {
                 DateTimeOffset created = RandomPastMoment(rng, now);
                 bool isScheduled = rng.Next(0, 2) == 0;
-                bool isQuarantined = rng.NextDouble() < QuarantineRate;
+                EventOutcome outcome = RollOutcome(rng);
 
                 var eventV2 = new EventV2
                 {
@@ -139,7 +142,11 @@ namespace EventHighway.Portal.Seed
                     EventName = NewReleaseEventName,
                     ContentHash = NextContentHash(),
                     Type = isScheduled ? EventTypeV2.Scheduled : EventTypeV2.Immediate,
-                    Status = isQuarantined ? EventStatusV2.Quarantined : EventStatusV2.Active,
+
+                    Status = outcome == EventOutcome.Quarantined
+                        ? EventStatusV2.Quarantined
+                        : EventStatusV2.Active,
+
                     ScheduledDate = isScheduled ? created : (DateTimeOffset?)null,
                     EventAddressV2Id = newReleases.Id,
                     EventParticipantV2Id = nflix.Id,
@@ -150,9 +157,21 @@ namespace EventHighway.Portal.Seed
 
                 events.Add(eventV2);
 
-                foreach (EventListenerV2 listener in addressListeners)
+                // Quarantined events are caught by loop detection before dispatch.
+                if (outcome == EventOutcome.Quarantined)
                 {
-                    bool isSuccess = rng.NextDouble() < SuccessRate;
+                    continue;
+                }
+
+                HashSet<int> errorIndexes =
+                    PickErrorIndexes(rng, addressListeners.Count, outcome);
+
+                for (int listenerIndex = 0; listenerIndex < addressListeners.Count; listenerIndex++)
+                {
+                    EventListenerV2 listener = addressListeners[listenerIndex];
+                    bool isSuccess = errorIndexes.Contains(listenerIndex) is false;
+                    DateTimeOffset dispatched = created.AddSeconds(3);
+                    int remainingRetries = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng);
 
                     listenerEvents.Add(new ListenerEventV2
                     {
@@ -161,14 +180,20 @@ namespace EventHighway.Portal.Seed
                         Response = isSuccess ? "Event received" : "Handler failed",
                         ResponseCode = isSuccess ? "200" : "503",
                         ResponseMessage = isSuccess ? "OK" : "Service Unavailable",
-                        RemainingRetryAttempts = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng),
+                        RemainingRetryAttempts = remainingRetries,
                         RetryAttemptsAllowed = RetryAttemptsAllowed,
+
+                        NextRetryAttemptNotBefore = isSuccess is false && remainingRetries > 0
+                            ? dispatched.AddMinutes(rng.Next(5, 240))
+                            : (DateTimeOffset?)null,
+
+                        DispatchedDate = dispatched,
                         EventV2Id = eventV2.Id,
                         EventAddressV2Id = eventV2.EventAddressV2Id,
                         EventListenerV2Id = listener.Id,
                         EventParticipantV2Id = listener.EventParticipantV2Id,
-                        CreatedDate = created.AddSeconds(3),
-                        UpdatedDate = created.AddSeconds(3)
+                        CreatedDate = dispatched,
+                        UpdatedDate = dispatched
                     });
                 }
             }
@@ -182,7 +207,7 @@ namespace EventHighway.Portal.Seed
                 DateTimeOffset archived = RandomPastMoment(rng, now);
                 DateTimeOffset created = archived.AddDays(-rng.Next(0, 7)).AddHours(-rng.Next(0, 24));
                 bool isScheduled = rng.Next(0, 2) == 0;
-                bool isQuarantined = rng.NextDouble() < QuarantineRate;
+                EventOutcome outcome = RollOutcome(rng);
 
                 var eventArchive = new EventArchiveV2
                 {
@@ -191,7 +216,11 @@ namespace EventHighway.Portal.Seed
                     EventName = NewReleaseEventName,
                     ContentHash = NextContentHash(),
                     Type = isScheduled ? EventArchiveTypeV2.Scheduled : EventArchiveTypeV2.Immediate,
-                    Status = isQuarantined ? EventArchiveStatusV2.Quarantined : EventArchiveStatusV2.Active,
+
+                    Status = outcome == EventOutcome.Quarantined
+                        ? EventArchiveStatusV2.Quarantined
+                        : EventArchiveStatusV2.Active,
+
                     ScheduledDate = isScheduled ? created : (DateTimeOffset?)null,
                     EventAddressV2Id = newReleases.Id,
                     EventParticipantV2Id = nflix.Id,
@@ -203,9 +232,21 @@ namespace EventHighway.Portal.Seed
 
                 eventArchives.Add(eventArchive);
 
-                foreach (EventListenerV2 listener in addressListeners)
+                // Quarantined events were caught by loop detection before dispatch.
+                if (outcome == EventOutcome.Quarantined)
                 {
-                    bool isSuccess = rng.NextDouble() < SuccessRate;
+                    continue;
+                }
+
+                HashSet<int> errorIndexes =
+                    PickErrorIndexes(rng, addressListeners.Count, outcome);
+
+                for (int listenerIndex = 0; listenerIndex < addressListeners.Count; listenerIndex++)
+                {
+                    EventListenerV2 listener = addressListeners[listenerIndex];
+                    bool isSuccess = errorIndexes.Contains(listenerIndex) is false;
+                    DateTimeOffset dispatched = created.AddSeconds(3);
+                    int remainingRetries = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng);
 
                     listenerEventArchives.Add(new ListenerEventArchiveV2
                     {
@@ -216,15 +257,21 @@ namespace EventHighway.Portal.Seed
                         Response = isSuccess ? "Event received" : "Handler failed",
                         ResponseCode = isSuccess ? "200" : "503",
                         ResponseMessage = isSuccess ? "OK" : "Service Unavailable",
-                        RemainingRetryAttempts = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng),
+                        RemainingRetryAttempts = remainingRetries,
                         RetryAttemptsAllowed = RetryAttemptsAllowed,
+
+                        NextRetryAttemptNotBefore = isSuccess is false && remainingRetries > 0
+                            ? dispatched.AddMinutes(rng.Next(5, 240))
+                            : (DateTimeOffset?)null,
+
+                        DispatchedDate = dispatched,
                         EventV2Id = Guid.NewGuid(),
                         EventAddressV2Id = newReleases.Id,
                         EventListenerV2Id = listener.Id,
                         EventArchiveV2Id = eventArchive.Id,
                         EventParticipantV2Id = listener.EventParticipantV2Id,
-                        CreatedDate = created.AddSeconds(3),
-                        UpdatedDate = created.AddSeconds(3),
+                        CreatedDate = dispatched,
+                        UpdatedDate = dispatched,
                         ArchivedDate = archived
                     });
                 }
@@ -371,6 +418,42 @@ namespace EventHighway.Portal.Seed
             "{\"Title\":\"AddNewRelease\",\"Type\":\"Movie\",\"Rating\":\""
                 + (rng.Next(10, 100) / 10.0).ToString("0.0") + "\"}";
 
+        // Rolls the per-event outcome: ~80% all listeners succeed, ~8% partial success,
+        // ~6% complete failure, remaining ~6% quarantined by loop detection.
+        private static EventOutcome RollOutcome(Random rng)
+        {
+            int roll = rng.Next(0, 100);
+
+            return roll < AllSuccessPercent ? EventOutcome.AllSuccess
+                : roll < AllSuccessPercent + PartialSuccessPercent ? EventOutcome.PartialSuccess
+                : roll < AllSuccessPercent + PartialSuccessPercent + AllFailurePercent
+                    ? EventOutcome.AllFailure
+                    : EventOutcome.Quarantined;
+        }
+
+        // Picks which listeners error for the outcome: none, 1..(n-1) for partial, or all.
+        private static HashSet<int> PickErrorIndexes(
+            Random rng,
+            int listenerCount,
+            EventOutcome outcome)
+        {
+            int errorCount = outcome switch
+            {
+                EventOutcome.AllSuccess => 0,
+                EventOutcome.AllFailure => listenerCount,
+                _ => rng.Next(1, Math.Max(2, listenerCount))
+            };
+
+            var errorIndexes = new HashSet<int>();
+
+            while (errorIndexes.Count < errorCount)
+            {
+                errorIndexes.Add(rng.Next(0, listenerCount));
+            }
+
+            return errorIndexes;
+        }
+
         // Errored deliveries carry a remaining-retry distribution so the Retry Health tiles have
         // dead (0), critical (1-2) and healthy (3+) populations: 50% dead, 25% critical, 25% healthy.
         private static int RandomErrorRemaining(Random rng)
@@ -388,6 +471,14 @@ namespace EventHighway.Portal.Seed
                 .AddHours(-rng.Next(0, 24))
                 .AddMinutes(-rng.Next(0, 60))
                 .AddSeconds(-rng.Next(0, 60));
+
+        private enum EventOutcome
+        {
+            AllSuccess,
+            PartialSuccess,
+            AllFailure,
+            Quarantined
+        }
 
         private sealed record ListenerSpec(
             Guid ParticipantId,

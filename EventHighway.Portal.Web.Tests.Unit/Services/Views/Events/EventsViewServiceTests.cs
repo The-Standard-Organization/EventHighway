@@ -5,6 +5,7 @@
 using System;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Models.Views.Events;
 using EventHighway.Portal.Web.Services.Views.Events;
@@ -35,17 +36,15 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
         private static DateTimeOffset GetRandomDateTimeOffset() =>
             new DateTimeRange(earliestDate: new DateTime()).GetValue();
 
-        private static EventV2 CreateRandomEvent(
-            EventStatusV2 status,
-            int remainingRetryAttempts) =>
+        private static EventV2 CreateRandomEvent(EventStatusV2 status) =>
             new EventV2
             {
                 Id = Guid.NewGuid(),
                 Status = status
             };
 
-        private static EventV2 CreateRandomEvent(DateTimeOffset createdDate) =>
-            new EventV2
+        private static EventV2Summary CreateRandomEventSummary(DateTimeOffset createdDate) =>
+            new EventV2Summary
             {
                 Id = Guid.NewGuid(),
                 EventName = GetRandomString(),
@@ -53,25 +52,29 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
                 Type = EventTypeV2.Scheduled,
                 Status = EventStatusV2.Active,
                 EventAddressV2Id = Guid.NewGuid(),
+                EventAddressName = GetRandomString(),
                 EventParticipantV2Id = Guid.NewGuid(),
                 ScheduledDate = createdDate,
                 CreatedDate = createdDate,
-                UpdatedDate = createdDate
+                ListenerEventCount = 3,
+                SucceededListenerEventCount = 2
             };
 
-        private static EventView MapToView(EventV2 @event) =>
+        private static EventView MapToView(EventV2Summary eventSummary) =>
             new EventView
             {
-                Id = @event.Id,
-                EventName = @event.EventName,
-                Content = @event.Content,
-                Type = @event.Type.ToString(),
-                Status = @event.Status.ToString(),
-                RemainingRetryAttempts = 0,
-                EventAddressV2Id = @event.EventAddressV2Id,
-                EventParticipantV2Id = @event.EventParticipantV2Id,
-                ScheduledDate = @event.ScheduledDate,
-                CreatedDate = @event.CreatedDate
+                Id = eventSummary.Id,
+                EventName = eventSummary.EventName ?? string.Empty,
+                Content = eventSummary.Content ?? string.Empty,
+                Type = eventSummary.Type.ToString(),
+                Status = eventSummary.Status.ToString(),
+                EventAddressV2Id = eventSummary.EventAddressV2Id,
+                EventAddressName = eventSummary.EventAddressName ?? string.Empty,
+                EventParticipantV2Id = eventSummary.EventParticipantV2Id,
+                ScheduledDate = eventSummary.ScheduledDate,
+                CreatedDate = eventSummary.CreatedDate,
+                ListenerEventCount = eventSummary.ListenerEventCount,
+                SucceededListenerEventCount = eventSummary.SucceededListenerEventCount
             };
     }
 }

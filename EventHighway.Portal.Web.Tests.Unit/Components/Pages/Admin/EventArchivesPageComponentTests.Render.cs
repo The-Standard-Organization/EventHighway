@@ -18,19 +18,23 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         public void ShouldRenderStatusBadgesAndRowColors()
         {
             // given
-            EventArchiveView quarantined = CreateArchive("Quarantined", remainingRetryAttempts: 3);
-            EventArchiveView dead = CreateArchive("Active", remainingRetryAttempts: 0);
+            EventArchiveView quarantined = CreateArchive(
+                "Quarantined", listenerEventCount: 0, succeededListenerEventCount: 0);
+
+            EventArchiveView partialSuccess = CreateArchive(
+                "Active", listenerEventCount: 3, succeededListenerEventCount: 2);
 
             this.eventArchivesViewServiceMock.Setup(service =>
                 service.RetrieveAllEventArchivesAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new List<EventArchiveView> { quarantined, dead });
+                    .ReturnsAsync(new List<EventArchiveView> { quarantined, partialSuccess });
 
             // when
             IRenderedComponent<EventArchivesPage> renderedPage = Render<EventArchivesPage>();
 
             // then
             renderedPage.Markup.Should().Contain(quarantined.EventAddressName);
-            renderedPage.Markup.Should().Contain("Dead");
+            renderedPage.Markup.Should().Contain("Partial Success");
+            renderedPage.Markup.Should().Contain("2/3");
             renderedPage.FindAll("tr.table-danger").Should().NotBeEmpty();
             renderedPage.FindAll("tr.table-warning").Should().NotBeEmpty();
             renderedPage.FindAll("span.badge.text-bg-danger").Should().NotBeEmpty();
@@ -41,12 +45,15 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         public void ShouldFilterArchivesByStatus()
         {
             // given
-            EventArchiveView quarantined = CreateArchive("Quarantined", remainingRetryAttempts: 3);
-            EventArchiveView active = CreateArchive("Active", remainingRetryAttempts: 3);
+            EventArchiveView quarantined = CreateArchive(
+                "Quarantined", listenerEventCount: 0, succeededListenerEventCount: 0);
+
+            EventArchiveView success = CreateArchive(
+                "Active", listenerEventCount: 3, succeededListenerEventCount: 3);
 
             this.eventArchivesViewServiceMock.Setup(service =>
                 service.RetrieveAllEventArchivesAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new List<EventArchiveView> { quarantined, active });
+                    .ReturnsAsync(new List<EventArchiveView> { quarantined, success });
 
             IRenderedComponent<EventArchivesPage> renderedPage = Render<EventArchivesPage>();
 
@@ -55,7 +62,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
 
             // then
             renderedPage.Markup.Should().Contain(quarantined.EventAddressName);
-            renderedPage.Markup.Should().NotContain(active.EventAddressName);
+            renderedPage.Markup.Should().NotContain(success.EventAddressName);
         }
     }
 }
