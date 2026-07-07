@@ -77,11 +77,152 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
-        public ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
+        public async ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            HealthReportV2 eventsPartialReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 archivedEventsPartialReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+
+            report.Traffic = MergeTraffic(
+                period,
+                windowStart,
+                report.WindowEnd,
+                report.WindowLabel,
+                eventsPartialReport?.Traffic,
+                archivedEventsPartialReport?.Traffic);
+
+            return report;
+        }
+
+        private static TrafficSnapshotV2 MergeTraffic(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            string windowLabel,
+            TrafficSnapshotV2 liveTraffic,
+            TrafficSnapshotV2 archivedTraffic)
+        {
+            if (liveTraffic is null && archivedTraffic is null)
+            {
+                return null;
+            }
+
+            List<TrafficBucketV2> liveBuckets =
+                liveTraffic?.Buckets?.ToList() ?? new List<TrafficBucketV2>();
+
+            List<TrafficBucketV2> archivedBuckets =
+                archivedTraffic?.Buckets?.ToList() ?? new List<TrafficBucketV2>();
+
+            List<TrafficBucketV2> mergedBuckets =
+                EnumerateBucketStarts(period, windowStart, windowEnd)
+                    .Select(bucket =>
+                    {
+                        TrafficBucketV2 liveBucket = liveBuckets
+                            .FirstOrDefault(candidate => candidate.PeriodStart == bucket.Start);
+
+                        TrafficBucketV2 archivedBucket = archivedBuckets
+                            .FirstOrDefault(candidate => candidate.PeriodStart == bucket.Start);
+
+                        return new TrafficBucketV2
+                        {
+                            PeriodStart = bucket.Start,
+                            Label = bucket.Label,
+                            Events = (liveBucket?.Events ?? 0) + (archivedBucket?.Events ?? 0),
+
+                            ImmediateEvents =
+                                (liveBucket?.ImmediateEvents ?? 0) + (archivedBucket?.ImmediateEvents ?? 0),
+
+                            ScheduledEvents =
+                                (liveBucket?.ScheduledEvents ?? 0) + (archivedBucket?.ScheduledEvents ?? 0),
+
+                            ListenerEvents =
+                                (liveBucket?.ListenerEvents ?? 0) + (archivedBucket?.ListenerEvents ?? 0),
+
+                            Success = (liveBucket?.Success ?? 0) + (archivedBucket?.Success ?? 0),
+                            Errors = (liveBucket?.Errors ?? 0) + (archivedBucket?.Errors ?? 0),
+                            Pending = (liveBucket?.Pending ?? 0) + (archivedBucket?.Pending ?? 0),
+                            Replays = (liveBucket?.Replays ?? 0) + (archivedBucket?.Replays ?? 0)
+                        };
+                    })
+                    .ToList();
+
+            return new TrafficSnapshotV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                WindowLabel = windowLabel,
+                TotalEvents = (liveTraffic?.TotalEvents ?? 0) + (archivedTraffic?.TotalEvents ?? 0),
+
+                TotalListenerEvents =
+                    (liveTraffic?.TotalListenerEvents ?? 0) + (archivedTraffic?.TotalListenerEvents ?? 0),
+
+                TotalSuccess = (liveTraffic?.TotalSuccess ?? 0) + (archivedTraffic?.TotalSuccess ?? 0),
+                TotalErrors = (liveTraffic?.TotalErrors ?? 0) + (archivedTraffic?.TotalErrors ?? 0),
+                TotalPending = (liveTraffic?.TotalPending ?? 0) + (archivedTraffic?.TotalPending ?? 0),
+                TotalReplays = (liveTraffic?.TotalReplays ?? 0) + (archivedTraffic?.TotalReplays ?? 0),
+                Buckets = mergedBuckets
+            };
+        }
+
+        private static List<(DateTimeOffset Start, string Label)> EnumerateBucketStarts(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd)
+        {
+            var bucketStarts = new List<(DateTimeOffset Start, string Label)>();
+
+            switch (period)
+            {
+                case TrafficPeriodV2.Week:
+                    for (int day = 0; day < 7; day++)
+                    {
+                        DateTimeOffset start = windowStart.AddDays(day);
+                        bucketStarts.Add((start, start.ToString("ddd", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                case TrafficPeriodV2.Month:
+                    for (DateTimeOffset start = windowStart; start < windowEnd; start = start.AddDays(1))
+                    {
+                        bucketStarts.Add((start, start.ToString("dd", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                case TrafficPeriodV2.Year:
+                    for (int month = 0; month < 12; month++)
+                    {
+                        DateTimeOffset start = windowStart.AddMonths(month);
+                        bucketStarts.Add((start, start.ToString("MMM", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                default:
+                    for (int hour = 0; hour < 24; hour++)
+                    {
+                        DateTimeOffset start = windowStart.AddHours(hour);
+                        bucketStarts.Add((start, start.ToString("HH:00", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+            }
+
+            return bucketStarts;
+        }
 
         private async ValueTask<HealthReportV2> BuildReportShellAsync(
             TrafficPeriodV2 period,
