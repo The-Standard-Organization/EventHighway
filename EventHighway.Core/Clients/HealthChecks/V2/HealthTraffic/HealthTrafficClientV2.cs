@@ -35,10 +35,72 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             DateTimeOffset windowStart,
             CancellationToken cancellationToken = default)
         {
-            HealthReportV2 healthReport = await this.healthV2CoordinationService
-                .RetrieveTrafficReportV2Async(period, windowStart, cancellationToken);
+            try
+            {
+                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                    .RetrieveTrafficReportV2Async(period, windowStart, cancellationToken);
 
-            return healthReport.Traffic;
+                return healthReport.Traffic;
+            }
+            catch (HealthV2CoordinationValidationException
+                healthV2CoordinationValidationException)
+            {
+                throw CreateHealthTrafficClientV2ValidationException(
+                    healthV2CoordinationValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyValidationException
+                healthV2CoordinationDependencyValidationException)
+            {
+                throw CreateHealthTrafficClientV2ValidationException(
+                    healthV2CoordinationDependencyValidationException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationDependencyException
+                healthV2CoordinationDependencyException)
+            {
+                throw CreateHealthTrafficClientV2DependencyException(
+                    healthV2CoordinationDependencyException.InnerException as Xeption);
+            }
+            catch (HealthV2CoordinationServiceException
+                healthV2CoordinationServiceException)
+            {
+                throw CreateHealthTrafficClientV2DependencyException(
+                    healthV2CoordinationServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateHealthTrafficClientV2ServiceException(exception as Xeption);
+            }
+        }
+
+        private static HealthTrafficClientV2ValidationException
+            CreateHealthTrafficClientV2ValidationException(Xeption innerException)
+        {
+            return new HealthTrafficClientV2ValidationException(
+                message: "Health client validation error occurred, fix the errors and try again.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static HealthTrafficClientV2DependencyException
+            CreateHealthTrafficClientV2DependencyException(Xeption innerException)
+        {
+            return new HealthTrafficClientV2DependencyException(
+                message: "Health client dependency error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static HealthTrafficClientV2ServiceException
+            CreateHealthTrafficClientV2ServiceException(Xeption innerException)
+        {
+            return new HealthTrafficClientV2ServiceException(
+                message: "Health client service error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
         }
     }
 }
