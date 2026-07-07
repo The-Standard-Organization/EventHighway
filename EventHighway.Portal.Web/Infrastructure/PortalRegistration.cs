@@ -28,6 +28,7 @@ using EventHighway.Portal.Web.Services.Views.ListenerEventArchives;
 using EventHighway.Portal.Web.Services.Views.ListenerEvents;
 using EventHighway.Portal.Web.Services.Views.Replays;
 using EventHighway.Portal.Web.Services.Views.Users;
+using EventHighway.SqlServer.Brokers;
 
 namespace EventHighway.Portal.Web.Infrastructure
 {
@@ -135,8 +136,11 @@ namespace EventHighway.Portal.Web.Infrastructure
 
             var eventHighwayConfiguration = new EventHighwayConfiguration();
 
+            SqlServerStorageBrokerProvider storageProvider =
+                new SqlServerStorageBrokerProvider(connectionString);
+
             var eventHighwayClient =
-                new EventHighwayClient(connectionString, eventHighwayConfiguration);
+                new EventHighwayClient(storageProvider, eventHighwayConfiguration);
 
             return eventHighwayClient.V2;
         }

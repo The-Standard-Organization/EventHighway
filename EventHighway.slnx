@@ -10,6 +10,9 @@
     <Project Path="EventHighway.EventHandlers.Tests.Unit/EventHighway.EventHandlers.Tests.Unit.csproj" />
     <Project Path="EventHighway.EventHandlers/EventHighway.EventHandlers.csproj" />
   </Folder>
+  <Folder Name="/Providers/">
+    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" Id="e2a1ae4c-319e-4185-bef3-969c94de1a06" DisplayName="EventHighway.SqlServer" />
+  </Folder>
   <Folder Name="/Samples/" />
   <Folder Name="/Samples/ClientV1/">
     <Project Path="EventHighway.App/EventHighway.App.csproj">
@@ -22,9 +25,9 @@
     <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
   </Folder>
   <Folder Name="/Portal/">
-    <Project Path="EventHighway.Portal.Web/EventHighway.Portal.Web.csproj" />
-    <Project Path="EventHighway.Portal.Web.Tests.Unit/EventHighway.Portal.Web.Tests.Unit.csproj" />
     <Project Path="EventHighway.Portal.Seed/EventHighway.Portal.Seed.csproj" />
+    <Project Path="EventHighway.Portal.Web.Tests.Unit/EventHighway.Portal.Web.Tests.Unit.csproj" />
+    <Project Path="EventHighway.Portal.Web/EventHighway.Portal.Web.csproj" />
   </Folder>
   <Project Path="EventHighway.Infrastructure/EventHighway.Infrastructure.csproj" />
 </Solution>
