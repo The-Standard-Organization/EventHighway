@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,33 +22,41 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            IEnumerable<HealthCheckItemV2> randomHealthCheckItemV2s =
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
+            DateTimeOffset inputWindowStart = GetRandomDateTimeOffset();
+
+            IReadOnlyList<HealthCheckItemV2> randomHealthCheckItemV2s =
                 CreateRandomHealthCheckItemV2s();
 
-            IEnumerable<HealthCheckItemV2> returnedHealthCheckItemV2s =
-                randomHealthCheckItemV2s;
+            var returnedHealthReport = new HealthReportV2
+            {
+                HealthCheckItems = randomHealthCheckItemV2s
+            };
 
-            IEnumerable<HealthCheckItemV2> expectedHealthCheckItemV2s =
-                returnedHealthCheckItemV2s.DeepClone();
+            IReadOnlyList<HealthCheckItemV2> expectedHealthCheckItemV2s =
+                randomHealthCheckItemV2s.DeepClone();
 
-            this.ragStatusV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveHealthRagStatusV2Async(randomCancellationToken))
-                    .ReturnsAsync(returnedHealthCheckItemV2s);
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveHealthCheckItemsReportV2Async(
+                    inputPeriod, inputWindowStart, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
 
             // when
-            IEnumerable<HealthCheckItemV2> actualHealthCheckItemV2s =
+            IReadOnlyList<HealthCheckItemV2> actualHealthCheckItemV2s =
                 await this.healthV2Client
-                    .RetrieveHealthRagStatusV2Async(randomCancellationToken);
+                    .RetrieveHealthRagStatusV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
 
             // then
             actualHealthCheckItemV2s.Should()
                 .BeEquivalentTo(expectedHealthCheckItemV2s);
 
-            this.ragStatusV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthRagStatusV2Async(randomCancellationToken),
-                    Times.Once);
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveHealthCheckItemsReportV2Async(
+                    inputPeriod, inputWindowStart, randomCancellationToken),
+                        Times.Once);
 
-            this.ragStatusV2OrchestrationServiceMock
+            this.healthV2CoordinationServiceMock
                 .VerifyNoOtherCalls();
         }
     }

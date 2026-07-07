@@ -26,7 +26,7 @@
         }
         else
         {
-            <DataTable TItem="EventAddressSummaryV2" Items="summaries" Columns="columns" />
+            <DataTable TItem="EventAddressUsageV2" Items="summaries" Columns="columns" />
         }
     </ChildContent>
 </Card>
@@ -34,16 +34,16 @@
 @code {
     private bool isLoading = true;
     private string? errorMessage;
-    private List<EventAddressSummaryV2> summaries = new();
+    private List<EventAddressUsageV2> summaries = new();
 
-    private readonly List<DataTableColumn<EventAddressSummaryV2>> columns = new()
+    private readonly List<DataTableColumn<EventAddressUsageV2>> columns = new()
     {
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Address", Value = s => s.Name },
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Events", Value = s => s.TotalActiveEvents + s.TotalArchivedEvents },
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Listener Events", Value = s => s.TotalListenerEvents + s.TotalArchivedListenerEvents },
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Error %", Value = s => s.ErrorRate.ToString("0.00") },
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Loops", Value = s => s.LoopsDetected },
-        new DataTableColumn<EventAddressSummaryV2> { Title = "Last Activity", Value = s => s.LastActivity?.ToString("u") ?? "—" },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Address", Value = s => s.Name },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Events", Value = s => s.TotalActiveEvents + s.TotalArchivedEvents },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Listener Events", Value = s => s.TotalListenerEvents + s.TotalArchivedListenerEvents },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Error %", Value = s => s.ErrorRate.ToString("0.00") },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Loops", Value = s => s.LoopsDetected },
+        new DataTableColumn<EventAddressUsageV2> { Title = "Last Activity", Value = s => s.LastActivity?.ToString("u") ?? "—" },
     };
 
     protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart)

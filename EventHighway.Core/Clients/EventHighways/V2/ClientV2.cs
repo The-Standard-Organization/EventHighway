@@ -25,6 +25,7 @@ using EventHighway.Core.Clients.ListenerEvents.V2;
 using EventHighway.Core.Clients.ReplayingEvents.V2;
 using EventHighway.Core.Services.Coordinations.ArchivingEvents.V2;
 using EventHighway.Core.Services.Coordinations.Events.V2;
+using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Services.Coordinations.ReplayingEvents.V2;
 using EventHighway.Core.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
@@ -36,9 +37,7 @@ using EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2;
 using EventHighway.Core.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Foundations.ListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.AddressSummaries.V2;
 using EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2;
-using EventHighway.Core.Services.Orchestrations.DuplicateSummaries.V2;
 using EventHighway.Core.Services.Orchestrations.EventArchives.V2;
 using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
 using EventHighway.Core.Services.Orchestrations.EventListeners.V2;
@@ -48,13 +47,9 @@ using EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.LoopDetections.V2;
-using EventHighway.Core.Services.Orchestrations.ParticipantSummaries.V2;
-using EventHighway.Core.Services.Orchestrations.RagStatuses.V2;
 using EventHighway.Core.Services.Orchestrations.ReplayingListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RestoringEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
-using EventHighway.Core.Services.Orchestrations.RetrySummaries.V2;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Processings.EventArchives.V2;
 using EventHighway.Core.Services.Processings.EventCalls.V2;
@@ -62,7 +57,6 @@ using EventHighway.Core.Services.Processings.EventListeners.V2;
 using EventHighway.Core.Services.Processings.Events.V2;
 using EventHighway.Core.Services.Processings.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Processings.ListenerEvents.V2;
-using EventHighway.Core.Services.Processings.Traffics.V2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -149,39 +143,9 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         public IEventV2Client EventV2Client { get; private set; }
 
         /// <summary>
-        /// Gets the client for retrieving per-event-address health summaries in V2 API.
+        /// Gets the container exposing the V2 health check sub-clients.
         /// </summary>
-        public IHealthAddressClientV2 HealthAddressClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for retrieving the duplicate-detection summary in V2 API.
-        /// </summary>
-        public IHealthDuplicateClientV2 HealthDuplicateClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for retrieving the loop-detection summary in V2 API.
-        /// </summary>
-        public IHealthLoopClientV2 HealthLoopClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for retrieving the per-participant health summary in V2 API.
-        /// </summary>
-        public IHealthParticipantClientV2 HealthParticipantClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for retrieving the retry-health summary in V2 API.
-        /// </summary>
-        public IHealthRetryClientV2 HealthRetryClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for performing health checks in V2 API.
-        /// </summary>
-        public IHealthStatusClientV2 HealthStatusClientV2 { get; private set; }
-
-        /// <summary>
-        /// Gets the client for retrieving health traffic snapshots in V2 API.
-        /// </summary>
-        public IHealthTrafficClientV2 HealthTrafficClientV2 { get; private set; }
+        public IHealthClientV2 HealthClientV2 { get; private set; }
 
         /// <summary>
         /// Gets the client for retrieving archived listener events in V2 API.
@@ -230,26 +194,8 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             this.EventV2Client =
                 serviceProvider.GetRequiredService<IEventV2Client>();
 
-            this.HealthAddressClientV2 =
-                serviceProvider.GetRequiredService<IHealthAddressClientV2>();
-
-            this.HealthDuplicateClientV2 =
-                serviceProvider.GetRequiredService<IHealthDuplicateClientV2>();
-
-            this.HealthLoopClientV2 =
-                serviceProvider.GetRequiredService<IHealthLoopClientV2>();
-
-            this.HealthParticipantClientV2 =
-                serviceProvider.GetRequiredService<IHealthParticipantClientV2>();
-
-            this.HealthRetryClientV2 =
-                serviceProvider.GetRequiredService<IHealthRetryClientV2>();
-
-            this.HealthStatusClientV2 =
-                serviceProvider.GetRequiredService<IHealthStatusClientV2>();
-
-            this.HealthTrafficClientV2 =
-                serviceProvider.GetRequiredService<IHealthTrafficClientV2>();
+            this.HealthClientV2 =
+                serviceProvider.GetRequiredService<IHealthClientV2>();
 
             this.ListenerEventArchiveV2Client =
                 serviceProvider.GetRequiredService<IListenerEventArchiveV2Client>();
@@ -338,10 +284,6 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IListenerEventArchiveV2ProcessingService,
                 ListenerEventArchiveV2ProcessingService>();
-
-            services.AddTransient<
-                ITrafficV2ProcessingService,
-                TrafficV2ProcessingService>();
         }
 
         private static void RegisterOrchestrationServices(IServiceCollection services)
@@ -387,30 +329,6 @@ namespace EventHighway.Core.Clients.EventHighways.V2
                 RetryingListenerEventV2OrchestrationService>();
 
             services.AddTransient<
-                IRagStatusV2OrchestrationService,
-                RagStatusV2OrchestrationService>();
-
-            services.AddTransient<
-                IAddressSummaryV2OrchestrationService,
-                AddressSummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                ILoopDetectionV2OrchestrationService,
-                LoopDetectionV2OrchestrationService>();
-
-            services.AddTransient<
-                IDuplicateSummaryV2OrchestrationService,
-                DuplicateSummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                IRetrySummaryV2OrchestrationService,
-                RetrySummaryV2OrchestrationService>();
-
-            services.AddTransient<
-                IParticipantSummaryV2OrchestrationService,
-                ParticipantSummaryV2OrchestrationService>();
-
-            services.AddTransient<
                 IHealthInfrastructureV2OrchestrationService,
                 HealthInfrastructureV2OrchestrationService>();
 
@@ -436,6 +354,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IReplayingEventV2CoordinationService,
                 ReplayingEventV2CoordinationService>();
+
+            services.AddTransient<
+                IHealthV2CoordinationService,
+                HealthV2CoordinationService>();
         }
 
         private static void RegisterClients(IServiceCollection services)
@@ -467,6 +389,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IEventV2Client,
                 EventV2Client>();
+
+            services.AddTransient<
+                IHealthClientV2,
+                HealthClientV2>();
 
             services.AddTransient<
                 IHealthAddressClientV2,

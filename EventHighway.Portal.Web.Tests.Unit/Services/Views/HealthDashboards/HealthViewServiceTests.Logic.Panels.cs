@@ -40,10 +40,10 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
         public async Task ShouldRetrieveAddressSummariesAsync()
         {
             // given
-            var summaries = new List<EventAddressSummaryV2>
+            IReadOnlyList<EventAddressUsageV2> summaries = new List<EventAddressUsageV2>
             {
-                new EventAddressSummaryV2 { Name = "A" },
-                new EventAddressSummaryV2 { Name = "B" },
+                new EventAddressUsageV2 { Name = "A" },
+                new EventAddressUsageV2 { Name = "B" },
             };
 
             this.eventHighwayBrokerMock.Setup(broker =>
@@ -53,7 +53,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                         .ReturnsAsync(summaries);
 
             // when
-            List<EventAddressSummaryV2> actual =
+            List<EventAddressUsageV2> actual =
                 await this.healthViewService.RetrieveAddressSummariesAsync(
                     TrafficPeriodV2.Day, DateTimeOffset.MinValue,
                     TestContext.Current.CancellationToken);
@@ -113,12 +113,15 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
             var summary = new RetryHealthSummaryV2 { DeadEvents = 5 };
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveRetryHealthV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(summary);
+                broker.RetrieveRetryHealthV2Async(
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(),
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(summary);
 
             // when
             RetryHealthSummaryV2 actual =
                 await this.healthViewService.RetrieveRetryHealthAsync(
+                    TrafficPeriodV2.Day, DateTimeOffset.MinValue,
                     TestContext.Current.CancellationToken);
 
             // then
@@ -129,9 +132,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
         public async Task ShouldRetrieveParticipantSummariesAsync()
         {
             // given
-            var summaries = new List<ParticipantSummaryV2>
+            IReadOnlyList<ParticipantUsageV2> summaries = new List<ParticipantUsageV2>
             {
-                new ParticipantSummaryV2 { Name = "P1" },
+                new ParticipantUsageV2 { Name = "P1" },
             };
 
             this.eventHighwayBrokerMock.Setup(broker =>
@@ -141,7 +144,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                         .ReturnsAsync(summaries);
 
             // when
-            List<ParticipantSummaryV2> actual =
+            List<ParticipantUsageV2> actual =
                 await this.healthViewService.RetrieveParticipantSummariesAsync(
                     TrafficPeriodV2.Day, DateTimeOffset.MinValue,
                     TestContext.Current.CancellationToken);
