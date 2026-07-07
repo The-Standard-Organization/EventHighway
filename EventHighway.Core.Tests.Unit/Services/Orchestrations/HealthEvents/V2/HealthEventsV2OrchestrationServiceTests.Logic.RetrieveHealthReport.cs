@@ -384,5 +384,132 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                         createdDate.Year, createdDate.Month, createdDate.Day, createdDate.Hour, 0, 0, TimeSpan.Zero);
             }
         }
+
+        [Fact]
+        public async Task ShouldRetrieveAddressUsageCountsOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            List<Guid> addressIds = Enumerable.Range(start: 0, count: 3)
+                .Select(index => GetRandomId())
+                .ToList();
+
+            List<EventV2> inWindowEvents = Enumerable.Range(start: 0, count: GetRandomNumber())
+                .Select(index => AssignAddress(
+                    CreateRandomEventV2WithCreatedDate(inWindowDate), addressIds[index % addressIds.Count]))
+                .ToList();
+
+            List<ListenerEventV2> inWindowListenerEvents = Enumerable.Range(start: 0, count: GetRandomNumber())
+                .Select(index => AssignAddress(
+                    CreateRandomListenerEventV2WithCreatedDate(inWindowDate), addressIds[index % addressIds.Count]))
+                .ToList();
+
+            List<EventV2> randomEvents = inWindowEvents
+                .Append(AssignAddress(CreateRandomEventV2WithCreatedDate(outOfWindowDate), addressIds[0]))
+                .ToList();
+
+            List<ListenerEventV2> randomListenerEvents = inWindowListenerEvents
+                .Append(AssignAddress(CreateRandomListenerEventV2WithCreatedDate(outOfWindowDate), addressIds[0]))
+                .ToList();
+
+            IReadOnlyList<EventAddressUsageV2> expectedAddressUsage =
+                BuildExpectedAddressUsage(inWindowEvents, inWindowListenerEvents);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomEvents.AsQueryable());
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.AddressUsage.Should().BeEquivalentTo(expectedAddressUsage);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static IReadOnlyList<EventAddressUsageV2> BuildExpectedAddressUsage(
+            List<EventV2> windowEvents,
+            List<ListenerEventV2> windowListenerEvents)
+        {
+            var eventCounts = windowEvents
+                .GroupBy(@event => @event.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalActiveEvents = (long)group.Count(),
+                    LoopsDetected = (long)group.Count(@event => @event.Status == EventStatusV2.Quarantined)
+                })
+                .ToList();
+
+            var listenerCounts = windowListenerEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalListenerEvents = (long)group.Count(),
+                    DeadEvents = (long)group.Count(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error
+                        && listenerEvent.RemainingRetryAttempts == 0)
+                })
+                .ToList();
+
+            return eventCounts.Select(count => count.EventAddressV2Id)
+                .Union(listenerCounts.Select(count => count.EventAddressV2Id))
+                .Select(addressId =>
+                {
+                    var eventCount = eventCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
+                    var listenerCount = listenerCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
+
+                    return new EventAddressUsageV2
+                    {
+                        EventAddressV2Id = addressId,
+                        TotalActiveEvents = eventCount?.TotalActiveEvents ?? 0,
+                        LoopsDetected = eventCount?.LoopsDetected ?? 0,
+                        TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
+                        DeadEvents = listenerCount?.DeadEvents ?? 0
+                    };
+                })
+                .ToList();
+        }
+
+        private static EventV2 AssignAddress(EventV2 eventV2, Guid eventAddressV2Id)
+        {
+            eventV2.EventAddressV2Id = eventAddressV2Id;
+
+            return eventV2;
+        }
+
+        private static ListenerEventV2 AssignAddress(ListenerEventV2 listenerEventV2, Guid eventAddressV2Id)
+        {
+            listenerEventV2.EventAddressV2Id = eventAddressV2Id;
+
+            return listenerEventV2;
+        }
     }
 }
