@@ -5,15 +5,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Foundations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
 {
@@ -36,6 +40,24 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                     listenerEventV2Service: this.listenerEventV2ServiceMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
+
+        public static TheoryData<Xeption> DependencyValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyValidationError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventV2ValidationException(someMessage, someInnerException),
+                new EventV2DependencyValidationException(someMessage, someInnerException),
+                new ListenerEventV2ValidationException(someMessage, someInnerException),
+                new ListenerEventV2DependencyValidationException(someMessage, someInnerException),
+            };
+        }
+
+        private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
+            actualException => actualException.SameExceptionAs(expectedException);
 
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
