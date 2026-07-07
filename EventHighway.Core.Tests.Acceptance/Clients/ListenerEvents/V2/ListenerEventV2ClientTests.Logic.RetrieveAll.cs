@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
@@ -26,9 +27,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
                 inputListenerEventV2s.DeepClone();
 
             // when
-            IQueryable<ListenerEventV2> actualListenerEventV2s =
-                await this.clientBroker
-                    .RetrieveAllListenerEventV2sAsync();
+            List<ListenerEventV2> actualListenerEventV2s =
+              (await this.clientBroker
+                  .RetrieveAllListenerEventV2sAsync())
+                      .ToList();
 
             // then
             actualListenerEventV2s.Should()
