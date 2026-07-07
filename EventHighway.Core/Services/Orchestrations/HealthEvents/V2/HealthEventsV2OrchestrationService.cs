@@ -46,6 +46,16 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             IQueryable<ListenerEventV2> listenerEvents =
                 await this.listenerEventV2Service.RetrieveAllListenerEventV2sAsync(cancellationToken);
 
+            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+
+            IQueryable<EventV2> windowEvents = events
+                .Where(@event => @event.CreatedDate >= windowStart
+                    && @event.CreatedDate < windowEnd);
+
+            IQueryable<ListenerEventV2> windowListenerEvents = listenerEvents
+                .Where(listenerEvent => listenerEvent.CreatedDate >= windowStart
+                    && listenerEvent.CreatedDate < windowEnd);
+
             long totalEvents = events.LongCount();
 
             long totalActive = events
@@ -158,7 +168,10 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         item: "Dead (No Retries)",
                         value: totalDead,
                         description: "Errored listener events with no retry attempts remaining.")
-                }
+                },
+
+                Traffic = MapToTrafficSnapshot(
+                    period, windowStart, windowEnd, windowEvents, windowListenerEvents)
             };
         }
 
@@ -202,6 +215,130 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 StatusCode = (int)HealthStatusV2.NA,
                 Status = nameof(HealthStatusV2.NA)
             };
+        }
+
+        private static TrafficSnapshotV2 MapToTrafficSnapshot(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<EventV2> windowEvents,
+            IQueryable<ListenerEventV2> windowListenerEvents)
+        {
+            return new TrafficSnapshotV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalEvents = windowEvents.LongCount(),
+                TotalListenerEvents = windowListenerEvents.LongCount(),
+
+                TotalSuccess = windowListenerEvents
+                    .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Success),
+
+                TotalErrors = windowListenerEvents
+                    .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Error),
+
+                TotalPending = windowListenerEvents
+                    .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Pending),
+
+                TotalReplays = windowListenerEvents
+                    .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Replay),
+
+                Buckets = MapToTrafficBuckets(period, windowEvents, windowListenerEvents)
+            };
+        }
+
+        private static IEnumerable<TrafficBucketV2> MapToTrafficBuckets(
+            TrafficPeriodV2 period,
+            IQueryable<EventV2> windowEvents,
+            IQueryable<ListenerEventV2> windowListenerEvents)
+        {
+            var eventBuckets = windowEvents
+                .GroupBy(@event => MapToBucketStart(period, @event.CreatedDate))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    Events = group.LongCount(),
+                    ImmediateEvents = group.LongCount(@event => @event.Type == EventTypeV2.Immediate),
+                    ScheduledEvents = group.LongCount(@event => @event.Type == EventTypeV2.Scheduled)
+                })
+                .ToList();
+
+            var listenerBuckets = windowListenerEvents
+                .GroupBy(listenerEvent => MapToBucketStart(period, listenerEvent.CreatedDate))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    ListenerEvents = group.LongCount(),
+                    Success = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Success),
+                    Errors = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Error),
+                    Pending = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Pending),
+                    Replays = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Replay)
+                })
+                .ToList();
+
+            return eventBuckets.Select(bucket => bucket.PeriodStart)
+                .Union(listenerBuckets.Select(bucket => bucket.PeriodStart))
+                .OrderBy(periodStart => periodStart)
+                .Select(periodStart =>
+                {
+                    var eventBucket = eventBuckets.FirstOrDefault(bucket => bucket.PeriodStart == periodStart);
+
+                    var listenerBucket =
+                        listenerBuckets.FirstOrDefault(bucket => bucket.PeriodStart == periodStart);
+
+                    return new TrafficBucketV2
+                    {
+                        PeriodStart = periodStart,
+                        Events = eventBucket?.Events ?? 0,
+                        ImmediateEvents = eventBucket?.ImmediateEvents ?? 0,
+                        ScheduledEvents = eventBucket?.ScheduledEvents ?? 0,
+                        ListenerEvents = listenerBucket?.ListenerEvents ?? 0,
+                        Success = listenerBucket?.Success ?? 0,
+                        Errors = listenerBucket?.Errors ?? 0,
+                        Pending = listenerBucket?.Pending ?? 0,
+                        Replays = listenerBucket?.Replays ?? 0
+                    };
+                })
+                .ToList();
+        }
+
+        private static DateTimeOffset ComputeWindowEnd(TrafficPeriodV2 period, DateTimeOffset windowStart)
+        {
+            switch (period)
+            {
+                case TrafficPeriodV2.Week:
+                    return windowStart.AddDays(7);
+
+                case TrafficPeriodV2.Month:
+                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
+                        .AddMonths(1);
+
+                case TrafficPeriodV2.Year:
+                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+                default:
+                    return windowStart.AddHours(24);
+            }
+        }
+
+        private static DateTimeOffset MapToBucketStart(TrafficPeriodV2 period, DateTimeOffset createdDate)
+        {
+            switch (period)
+            {
+                case TrafficPeriodV2.Week:
+                case TrafficPeriodV2.Month:
+                    return new DateTimeOffset(
+                        createdDate.Year, createdDate.Month, createdDate.Day, 0, 0, 0, TimeSpan.Zero);
+
+                case TrafficPeriodV2.Year:
+                    return new DateTimeOffset(
+                        createdDate.Year, createdDate.Month, 1, 0, 0, 0, TimeSpan.Zero);
+
+                default:
+                    return new DateTimeOffset(
+                        createdDate.Year, createdDate.Month, createdDate.Day, createdDate.Hour, 0, 0, TimeSpan.Zero);
+            }
         }
     }
 }
