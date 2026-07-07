@@ -207,5 +207,86 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
 
             return healthCheckItem;
         }
+
+        private static List<(DateTimeOffset Start, string Label)> GetExpectedBucketStarts(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd)
+        {
+            var bucketStarts = new List<(DateTimeOffset Start, string Label)>();
+
+            switch (period)
+            {
+                case TrafficPeriodV2.Week:
+                    for (int day = 0; day < 7; day++)
+                    {
+                        DateTimeOffset start = windowStart.AddDays(day);
+                        bucketStarts.Add((start, start.ToString("ddd", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                case TrafficPeriodV2.Month:
+                    for (DateTimeOffset start = windowStart; start < windowEnd; start = start.AddDays(1))
+                    {
+                        bucketStarts.Add((start, start.ToString("dd", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                case TrafficPeriodV2.Year:
+                    for (int month = 0; month < 12; month++)
+                    {
+                        DateTimeOffset start = windowStart.AddMonths(month);
+                        bucketStarts.Add((start, start.ToString("MMM", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
+                default:
+                    for (int hour = 0; hour < 24; hour++)
+                    {
+                        DateTimeOffset start = windowStart.AddHours(hour);
+                        bucketStarts.Add((start, start.ToString("HH:00", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+            }
+
+            return bucketStarts;
+        }
+
+        private static TrafficBucketV2 CreateRandomTrafficBucket(DateTimeOffset periodStart) =>
+            new TrafficBucketV2
+            {
+                PeriodStart = periodStart,
+                Events = GetRandomNumber(),
+                ImmediateEvents = GetRandomNumber(),
+                ScheduledEvents = GetRandomNumber(),
+                ListenerEvents = GetRandomNumber(),
+                Success = GetRandomNumber(),
+                Errors = GetRandomNumber(),
+                Pending = GetRandomNumber(),
+                Replays = GetRandomNumber()
+            };
+
+        private static TrafficSnapshotV2 CreateRandomTrafficSnapshot(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IEnumerable<TrafficBucketV2> buckets) =>
+            new TrafficSnapshotV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalEvents = GetRandomNumber(),
+                TotalListenerEvents = GetRandomNumber(),
+                TotalSuccess = GetRandomNumber(),
+                TotalErrors = GetRandomNumber(),
+                TotalPending = GetRandomNumber(),
+                TotalReplays = GetRandomNumber(),
+                Buckets = buckets
+            };
     }
 }
