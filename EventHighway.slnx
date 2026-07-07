@@ -11,7 +11,8 @@
     <Project Path="EventHighway.EventHandlers/EventHighway.EventHandlers.csproj" />
   </Folder>
   <Folder Name="/Providers/">
-    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" Id="e2a1ae4c-319e-4185-bef3-969c94de1a06" DisplayName="EventHighway.SqlServer" />
+    <Project Path="EventHighway.PostgresSql/EventHighway.PostgresSql.csproj" Id="7b9b3b26-99ff-4ff8-a605-9459714eaeb1" />
+    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" Id="e2a1ae4c-319e-4185-bef3-969c94de1a06" />
   </Folder>
   <Folder Name="/Samples/" />
   <Folder Name="/Samples/ClientV1/">
