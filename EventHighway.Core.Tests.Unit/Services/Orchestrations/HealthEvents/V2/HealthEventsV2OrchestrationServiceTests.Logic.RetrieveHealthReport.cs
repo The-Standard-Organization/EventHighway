@@ -511,5 +511,196 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
 
             return listenerEventV2;
         }
+
+        [Fact]
+        public async Task ShouldRetrieveParticipantUsageCountsOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            List<Guid?> participantIds = new List<Guid?> { GetRandomId(), GetRandomId(), null };
+            List<Guid> addressIds = new List<Guid> { GetRandomId(), GetRandomId() };
+
+            List<EventV2> inWindowEvents = Enumerable.Range(start: 0, count: GetRandomNumber() + addressIds.Count)
+                .Select(index => AssignParticipantAndAddress(
+                    CreateRandomEventV2WithCreatedDate(inWindowDate),
+                    participantIds[index % participantIds.Count],
+                    addressIds[index % addressIds.Count]))
+                .ToList();
+
+            List<ListenerEventV2> inWindowListenerEvents =
+                Enumerable.Range(start: 0, count: GetRandomNumber() + addressIds.Count)
+                    .Select(index => AssignParticipantAndAddress(
+                        CreateRandomListenerEventV2WithCreatedDate(inWindowDate),
+                        participantIds[index % participantIds.Count],
+                        addressIds[index % addressIds.Count]))
+                    .ToList();
+
+            List<EventV2> randomEvents = inWindowEvents
+                .Append(AssignParticipantAndAddress(
+                    CreateRandomEventV2WithCreatedDate(outOfWindowDate), participantIds[0], addressIds[0]))
+                .ToList();
+
+            List<ListenerEventV2> randomListenerEvents = inWindowListenerEvents
+                .Append(AssignParticipantAndAddress(
+                    CreateRandomListenerEventV2WithCreatedDate(outOfWindowDate), participantIds[0], addressIds[0]))
+                .ToList();
+
+            IReadOnlyList<ParticipantUsageV2> expectedParticipantUsage =
+                BuildExpectedParticipantUsage(inWindowEvents, inWindowListenerEvents);
+
+            this.eventV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomEvents.AsQueryable());
+
+            this.listenerEventV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.ParticipantUsage.Should().BeEquivalentTo(expectedParticipantUsage);
+
+            this.eventV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static IReadOnlyList<ParticipantUsageV2> BuildExpectedParticipantUsage(
+            List<EventV2> windowEvents,
+            List<ListenerEventV2> windowListenerEvents)
+        {
+            var eventCounts = windowEvents
+                .GroupBy(@event => @event.EventParticipantV2Id ?? Guid.Empty)
+                .Select(group => new
+                {
+                    EventParticipantV2Id = group.Key,
+                    TotalEventsSubmitted = (long)group.Count(),
+                    LoopsDetected = (long)group.Count(@event => @event.Status == EventStatusV2.Quarantined)
+                })
+                .ToList();
+
+            var listenerCounts = windowListenerEvents
+                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id ?? Guid.Empty)
+                .Select(group => new
+                {
+                    EventParticipantV2Id = group.Key,
+                    TotalListenerEvents = (long)group.Count()
+                })
+                .ToList();
+
+            var sentCounts = windowEvents
+                .GroupBy(@event => new
+                {
+                    EventParticipantV2Id = @event.EventParticipantV2Id ?? Guid.Empty,
+                    @event.EventAddressV2Id
+                })
+                .Select(group => new
+                {
+                    group.Key.EventParticipantV2Id,
+                    group.Key.EventAddressV2Id,
+                    Sent = (long)group.Count()
+                })
+                .ToList();
+
+            var receivedCounts = windowListenerEvents
+                .GroupBy(listenerEvent => new
+                {
+                    EventParticipantV2Id = listenerEvent.EventParticipantV2Id ?? Guid.Empty,
+                    listenerEvent.EventAddressV2Id
+                })
+                .Select(group => new
+                {
+                    group.Key.EventParticipantV2Id,
+                    group.Key.EventAddressV2Id,
+                    Received = (long)group.Count()
+                })
+                .ToList();
+
+            return eventCounts.Select(count => count.EventParticipantV2Id)
+                .Union(listenerCounts.Select(count => count.EventParticipantV2Id))
+                .Select(participantId =>
+                {
+                    var eventCount =
+                        eventCounts.FirstOrDefault(count => count.EventParticipantV2Id == participantId);
+
+                    var listenerCount =
+                        listenerCounts.FirstOrDefault(count => count.EventParticipantV2Id == participantId);
+
+                    var participantSent = sentCounts
+                        .Where(count => count.EventParticipantV2Id == participantId)
+                        .ToList();
+
+                    var participantReceived = receivedCounts
+                        .Where(count => count.EventParticipantV2Id == participantId)
+                        .ToList();
+
+                    List<ParticipantAddressUsageV2> byAddress = participantSent
+                        .Select(count => count.EventAddressV2Id)
+                        .Union(participantReceived.Select(count => count.EventAddressV2Id))
+                        .Select(addressId => new ParticipantAddressUsageV2
+                        {
+                            EventAddressV2Id = addressId,
+                            Sent = participantSent
+                                .Where(count => count.EventAddressV2Id == addressId)
+                                .Select(count => count.Sent)
+                                .FirstOrDefault(),
+                            Received = participantReceived
+                                .Where(count => count.EventAddressV2Id == addressId)
+                                .Select(count => count.Received)
+                                .FirstOrDefault()
+                        })
+                        .ToList();
+
+                    return new ParticipantUsageV2
+                    {
+                        EventParticipantV2Id = participantId,
+                        TotalEventsSubmitted = eventCount?.TotalEventsSubmitted ?? 0,
+                        LoopsDetected = eventCount?.LoopsDetected ?? 0,
+                        DuplicatesDetected = eventCount?.LoopsDetected ?? 0,
+                        TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
+                        ByAddress = byAddress
+                    };
+                })
+                .ToList();
+        }
+
+        private static EventV2 AssignParticipantAndAddress(
+            EventV2 eventV2, Guid? eventParticipantV2Id, Guid eventAddressV2Id)
+        {
+            eventV2.EventParticipantV2Id = eventParticipantV2Id;
+            eventV2.EventAddressV2Id = eventAddressV2Id;
+
+            return eventV2;
+        }
+
+        private static ListenerEventV2 AssignParticipantAndAddress(
+            ListenerEventV2 listenerEventV2, Guid? eventParticipantV2Id, Guid eventAddressV2Id)
+        {
+            listenerEventV2.EventParticipantV2Id = eventParticipantV2Id;
+            listenerEventV2.EventAddressV2Id = eventAddressV2Id;
+
+            return listenerEventV2;
+        }
     }
 }
