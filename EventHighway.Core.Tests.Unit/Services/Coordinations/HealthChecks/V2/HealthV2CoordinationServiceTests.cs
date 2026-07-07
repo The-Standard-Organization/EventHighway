@@ -3,12 +3,16 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
+using EventHighway.Core.Models.Services.Orchestrations.HealthArchivedEvents.V2.Exceptions;
+using EventHighway.Core.Models.Services.Orchestrations.HealthEvents.V2.Exceptions;
+using EventHighway.Core.Models.Services.Orchestrations.HealthInfrastructures.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
@@ -63,6 +67,41 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     configurationBroker: this.configurationBrokerMock.Object,
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
+        }
+
+        public static TheoryData<Xeption> DependencyValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyValidationError" });
+
+            return new TheoryData<Xeption>
+            {
+                new HealthInfrastructureV2OrchestrationDependencyValidationException(
+                    someMessage, someInnerException),
+
+                new HealthEventsV2OrchestrationDependencyValidationException(someMessage, someInnerException),
+
+                new HealthArchivedEventsV2OrchestrationDependencyValidationException(
+                    someMessage, someInnerException),
+            };
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+
+            return new TheoryData<Xeption>
+            {
+                new HealthInfrastructureV2OrchestrationDependencyException(someMessage, someInnerException),
+                new HealthInfrastructureV2OrchestrationServiceException(someMessage, someInnerException),
+                new HealthEventsV2OrchestrationDependencyException(someMessage, someInnerException),
+                new HealthEventsV2OrchestrationServiceException(someMessage, someInnerException),
+                new HealthArchivedEventsV2OrchestrationDependencyException(someMessage, someInnerException),
+                new HealthArchivedEventsV2OrchestrationServiceException(someMessage, someInnerException),
+            };
         }
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
