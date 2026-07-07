@@ -592,5 +592,100 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
 
             return eventArchiveV2;
         }
+
+        [Fact]
+        public async Task ShouldRetrieveArchivedRetryOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            Guid addressA = GetRandomId();
+
+            ListenerEventArchiveV2 successListenerEvent =
+                CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate);
+            successListenerEvent.Status = ListenerEventArchiveStatusV2.Success;
+
+            List<ListenerEventArchiveV2> randomArchivedListenerEvents = new List<ListenerEventArchiveV2>
+            {
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 2, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, outOfWindowDate),
+                successListenerEvent
+            };
+
+            RetryHealthSummaryV2 expectedRetry = BuildExpectedRetry(
+                inputPeriod, inputWindowStart, windowEnd, randomArchivedListenerEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<EventArchiveV2>().AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.Retry.Should().BeEquivalentTo(expectedRetry);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static RetryHealthSummaryV2 BuildExpectedRetry(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            List<ListenerEventArchiveV2> allListenerEvents)
+        {
+            List<ListenerEventArchiveV2> errorEvents = allListenerEvents
+                .Where(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error
+                    && listenerEvent.ArchivedDate >= windowStart
+                    && listenerEvent.ArchivedDate < windowEnd)
+                .ToList();
+
+            return new RetryHealthSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                ArchivedDeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0)
+            };
+        }
+
+        private static ListenerEventArchiveV2 CreateErrorListenerEventArchiveV2(
+            Guid eventAddressV2Id, int remainingRetryAttempts, DateTimeOffset archivedDate)
+        {
+            ListenerEventArchiveV2 listenerEventArchiveV2 =
+                CreateRandomListenerEventArchiveV2WithArchivedDate(archivedDate);
+
+            listenerEventArchiveV2.EventAddressV2Id = eventAddressV2Id;
+            listenerEventArchiveV2.Status = ListenerEventArchiveStatusV2.Error;
+            listenerEventArchiveV2.RemainingRetryAttempts = remainingRetryAttempts;
+
+            return listenerEventArchiveV2;
+        }
     }
 }
