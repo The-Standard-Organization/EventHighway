@@ -350,5 +350,131 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                         TimeSpan.Zero);
             }
         }
+
+        [Fact]
+        public async Task ShouldRetrieveArchivedAddressUsageCountsOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
+            DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
+            DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
+
+            List<Guid> addressIds = Enumerable.Range(start: 0, count: 3)
+                .Select(index => GetRandomId())
+                .ToList();
+
+            List<EventArchiveV2> inWindowEvents = Enumerable.Range(start: 0, count: GetRandomNumber())
+                .Select(index => AssignAddress(
+                    CreateRandomEventArchiveV2WithArchivedDate(inWindowDate), addressIds[index % addressIds.Count]))
+                .ToList();
+
+            List<ListenerEventArchiveV2> inWindowListenerEvents =
+                Enumerable.Range(start: 0, count: GetRandomNumber())
+                    .Select(index => AssignAddress(
+                        CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate),
+                        addressIds[index % addressIds.Count]))
+                    .ToList();
+
+            List<EventArchiveV2> randomArchivedEvents = inWindowEvents
+                .Append(AssignAddress(
+                    CreateRandomEventArchiveV2WithArchivedDate(outOfWindowDate), addressIds[0]))
+                .ToList();
+
+            List<ListenerEventArchiveV2> randomArchivedListenerEvents = inWindowListenerEvents
+                .Append(AssignAddress(
+                    CreateRandomListenerEventArchiveV2WithArchivedDate(outOfWindowDate), addressIds[0]))
+                .ToList();
+
+            IReadOnlyList<EventAddressUsageV2> expectedAddressUsage =
+                BuildExpectedAddressUsage(inWindowEvents, inWindowListenerEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedEvents.AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, randomCancellationToken);
+
+            // then
+            actualHealthReport.AddressUsage.Should().BeEquivalentTo(expectedAddressUsage);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        private static IReadOnlyList<EventAddressUsageV2> BuildExpectedAddressUsage(
+            List<EventArchiveV2> windowEvents,
+            List<ListenerEventArchiveV2> windowListenerEvents)
+        {
+            var eventCounts = windowEvents
+                .GroupBy(archivedEvent => archivedEvent.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalArchivedEvents = (long)group.Count()
+                })
+                .ToList();
+
+            var listenerCounts = windowListenerEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    TotalArchivedListenerEvents = (long)group.Count()
+                })
+                .ToList();
+
+            return eventCounts.Select(count => count.EventAddressV2Id)
+                .Union(listenerCounts.Select(count => count.EventAddressV2Id))
+                .Select(addressId =>
+                {
+                    var eventCount = eventCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
+                    var listenerCount = listenerCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
+
+                    return new EventAddressUsageV2
+                    {
+                        EventAddressV2Id = addressId,
+                        TotalArchivedEvents = eventCount?.TotalArchivedEvents ?? 0,
+                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0
+                    };
+                })
+                .ToList();
+        }
+
+        private static EventArchiveV2 AssignAddress(EventArchiveV2 eventArchiveV2, Guid eventAddressV2Id)
+        {
+            eventArchiveV2.EventAddressV2Id = eventAddressV2Id;
+
+            return eventArchiveV2;
+        }
+
+        private static ListenerEventArchiveV2 AssignAddress(
+            ListenerEventArchiveV2 listenerEventArchiveV2, Guid eventAddressV2Id)
+        {
+            listenerEventArchiveV2.EventAddressV2Id = eventAddressV2Id;
+
+            return listenerEventArchiveV2;
+        }
     }
 }
