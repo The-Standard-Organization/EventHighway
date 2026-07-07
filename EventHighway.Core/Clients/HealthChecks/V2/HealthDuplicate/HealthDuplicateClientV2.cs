@@ -27,10 +27,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         public HealthDuplicateClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
             this.healthV2CoordinationService = healthV2CoordinationService;
 
-        public ValueTask<DuplicateDetectionSummaryV2> RetrieveDuplicateDetectionSummaryV2Async(
+        public async ValueTask<DuplicateDetectionSummaryV2> RetrieveDuplicateDetectionSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            HealthReportV2 healthReport = await this.healthV2CoordinationService
+                .RetrieveDuplicateReportV2Async(period, windowStart, cancellationToken);
+
+            return healthReport.Duplicates;
+        }
     }
 }
