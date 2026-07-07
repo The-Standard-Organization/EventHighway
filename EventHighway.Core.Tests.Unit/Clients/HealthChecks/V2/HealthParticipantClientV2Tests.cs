@@ -7,26 +7,52 @@ using System.Collections.Generic;
 using System.Linq;
 using EventHighway.Core.Clients.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
-using EventHighway.Core.Services.Orchestrations.ParticipantSummaries.V2;
+using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
+using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 {
     public partial class HealthParticipantClientV2Tests
     {
-        private readonly Mock<IParticipantSummaryV2OrchestrationService> participantSummaryV2OrchestrationServiceMock;
+        private readonly Mock<IHealthV2CoordinationService> healthV2CoordinationServiceMock;
         private readonly IHealthParticipantClientV2 healthParticipantClientV2;
 
         public HealthParticipantClientV2Tests()
         {
-            this.participantSummaryV2OrchestrationServiceMock =
-                new Mock<IParticipantSummaryV2OrchestrationService>();
+            this.healthV2CoordinationServiceMock =
+                new Mock<IHealthV2CoordinationService>();
 
             this.healthParticipantClientV2 =
                 new HealthParticipantClientV2(
-                    participantSummaryV2OrchestrationService:
-                        this.participantSummaryV2OrchestrationServiceMock.Object);
+                    healthV2CoordinationService:
+                        this.healthV2CoordinationServiceMock.Object);
+        }
+
+        public static TheoryData<Xeption> ClientDependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+
+            return new TheoryData<Xeption>
+            {
+                new HealthV2CoordinationDependencyException(someMessage, someInnerException),
+                new HealthV2CoordinationServiceException(someMessage, someInnerException)
+            };
+        }
+
+        public static TheoryData<Xeption> ClientValidationExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption(someMessage);
+
+            return new TheoryData<Xeption>
+            {
+                new HealthV2CoordinationValidationException(someMessage, someInnerException),
+                new HealthV2CoordinationDependencyValidationException(someMessage, someInnerException)
+            };
         }
 
         private static string GetRandomString() =>
@@ -38,34 +64,17 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
         private static TrafficPeriodV2 GetRandomTrafficPeriodV2() =>
             TrafficPeriodV2.Day;
 
-        private static IEnumerable<ParticipantSummaryV2> CreateRandomParticipantSummaryV2s() =>
+        private static IReadOnlyList<ParticipantUsageV2> CreateRandomParticipantUsageV2s() =>
             Enumerable.Range(start: 0, count: new IntRange(min: 2, max: 9).GetValue())
-                .Select(_ => CreateRandomParticipantSummaryV2())
+                .Select(_ => new ParticipantUsageV2
+                {
+                    EventParticipantV2Id = Guid.NewGuid(),
+                    Name = GetRandomString(),
+                    ContactEmail = GetRandomString(),
+                    ContactPhone = GetRandomString(),
+                    IsActive = true,
+                    Status = HealthStatusV2.Green
+                })
                     .ToList();
-
-        private static ParticipantSummaryV2 CreateRandomParticipantSummaryV2() =>
-            new ParticipantSummaryV2
-            {
-                EventParticipantV2Id = Guid.NewGuid(),
-                Name = GetRandomString(),
-                ContactEmail = GetRandomString(),
-                ContactPhone = GetRandomString(),
-                IsActive = true,
-                Period = GetRandomTrafficPeriodV2(),
-                WindowStart = GetRandomDateTimeOffset(),
-                WindowEnd = GetRandomDateTimeOffset(),
-                WindowLabel = GetRandomString(),
-                TotalEventsSubmitted = new IntRange(min: 2, max: 9).GetValue(),
-                ActiveEventAddresses = new IntRange(min: 2, max: 9).GetValue(),
-                ActiveEventAddressNames = new List<string>(),
-                TotalListenerEvents = new IntRange(min: 2, max: 9).GetValue(),
-                OwnedListeners = new IntRange(min: 2, max: 9).GetValue(),
-                PublisherErrorRate = new IntRange(min: 0, max: 5).GetValue(),
-                ListenerErrorRate = new IntRange(min: 0, max: 5).GetValue(),
-                LoopsDetected = new IntRange(min: 0, max: 5).GetValue(),
-                DuplicatesDetected = new IntRange(min: 0, max: 5).GetValue(),
-                Status = HealthStatusV2.Green,
-                LastActivity = GetRandomDateTimeOffset()
-            };
     }
 }
