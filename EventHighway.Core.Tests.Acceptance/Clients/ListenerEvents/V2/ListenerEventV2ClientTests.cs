@@ -27,7 +27,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
         private readonly ClientBroker clientBroker;
         private readonly DelegateEventHandler delegateEventHandler;
 
-        public ListenerEventV2ClientTests()
+        public ListenerEventV2ClientTests(ClientBroker clientBroker)
         {
             this.wireMockServer = WireMockServer.Start();
 
@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
                     ResponseMessage = "OK"
                 }));
 
-            this.clientBroker = new ClientBroker();
+            this.clientBroker = clientBroker;
             this.clientBroker.RegisterEventHandler(this.delegateEventHandler);
         }
 
@@ -106,7 +106,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
             {
                 EventV2 randomEventV2 = CreateEventV2Filler(
                     eventAddressV2Id,
-                    scheduledDate: DateTimeOffset.Now.AddSeconds(1))
+                    scheduledDate: TruncateToMicroseconds(DateTimeOffset.UtcNow).AddSeconds(1))
                         .Create();
 
                 await this.clientBroker.SubmitEventV2Async(randomEventV2);
@@ -126,7 +126,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
 
         private EventListenerV2 CreateDelegateHandlerListenerV2(Guid eventAddressId)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
 
             return new EventListenerV2
             {
@@ -143,7 +143,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
 
         private static Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV2>();
 
             filler.Setup()
@@ -160,7 +160,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
             Guid eventAddressV2Id,
             DateTimeOffset scheduledDate)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventV2>();
 
             filler.Setup()
@@ -174,6 +174,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
                 .OnType<EventParticipantV2>().IgnoreIt();
 
             return filler;
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

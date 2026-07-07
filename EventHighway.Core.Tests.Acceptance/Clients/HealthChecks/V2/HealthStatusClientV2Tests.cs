@@ -3,20 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Tests.Acceptance.Brokers;
-using WireMock.Server;
 
-namespace EventHighway.Core.Tests.Acceptance.Clients.ReplayingEvents.V2
+namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
 {
     [Collection(nameof(ClientTestCollection))]
-    public partial class ReplayingEventV2ClientTests
+    public partial class HealthStatusClientV2Tests
     {
-        private readonly WireMockServer wireMockServer;
         private readonly ClientBroker clientBroker;
 
-        public ReplayingEventV2ClientTests(ClientBroker clientBroker)
-        {
-            this.wireMockServer = WireMockServer.Start();
+        public HealthStatusClientV2Tests(ClientBroker clientBroker) =>
             this.clientBroker = clientBroker;
-        }
     }
 }
