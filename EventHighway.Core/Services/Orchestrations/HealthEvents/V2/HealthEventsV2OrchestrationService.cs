@@ -173,7 +173,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 Traffic = MapToTrafficSnapshot(
                     period, windowStart, windowEnd, windowEvents, windowListenerEvents),
 
-                AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents)
+                AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
+
+                ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents)
             };
         }
 
@@ -387,6 +389,107 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
                         DeadEvents = listenerCount?.DeadEvents ?? 0
+                    };
+                })
+                .ToList();
+        }
+
+        private static IReadOnlyList<ParticipantUsageV2> MapToParticipantUsage(
+            IQueryable<EventV2> windowEvents,
+            IQueryable<ListenerEventV2> windowListenerEvents)
+        {
+            var eventCounts = windowEvents
+                .GroupBy(@event => @event.EventParticipantV2Id ?? Guid.Empty)
+                .Select(group => new
+                {
+                    EventParticipantV2Id = group.Key,
+                    TotalEventsSubmitted = group.LongCount(),
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                })
+                .ToList();
+
+            var listenerCounts = windowListenerEvents
+                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id ?? Guid.Empty)
+                .Select(group => new
+                {
+                    EventParticipantV2Id = group.Key,
+                    TotalListenerEvents = group.LongCount()
+                })
+                .ToList();
+
+            var sentCounts = windowEvents
+                .GroupBy(@event => new
+                {
+                    EventParticipantV2Id = @event.EventParticipantV2Id ?? Guid.Empty,
+                    @event.EventAddressV2Id
+                })
+                .Select(group => new
+                {
+                    group.Key.EventParticipantV2Id,
+                    group.Key.EventAddressV2Id,
+                    Sent = group.LongCount()
+                })
+                .ToList();
+
+            var receivedCounts = windowListenerEvents
+                .GroupBy(listenerEvent => new
+                {
+                    EventParticipantV2Id = listenerEvent.EventParticipantV2Id ?? Guid.Empty,
+                    listenerEvent.EventAddressV2Id
+                })
+                .Select(group => new
+                {
+                    group.Key.EventParticipantV2Id,
+                    group.Key.EventAddressV2Id,
+                    Received = group.LongCount()
+                })
+                .ToList();
+
+            return eventCounts.Select(count => count.EventParticipantV2Id)
+                .Union(listenerCounts.Select(count => count.EventParticipantV2Id))
+                .OrderBy(participantId => participantId)
+                .Select(participantId =>
+                {
+                    var eventCount =
+                        eventCounts.FirstOrDefault(count => count.EventParticipantV2Id == participantId);
+
+                    var listenerCount =
+                        listenerCounts.FirstOrDefault(count => count.EventParticipantV2Id == participantId);
+
+                    var participantSent = sentCounts
+                        .Where(count => count.EventParticipantV2Id == participantId)
+                        .ToList();
+
+                    var participantReceived = receivedCounts
+                        .Where(count => count.EventParticipantV2Id == participantId)
+                        .ToList();
+
+                    List<ParticipantAddressUsageV2> byAddress = participantSent
+                        .Select(count => count.EventAddressV2Id)
+                        .Union(participantReceived.Select(count => count.EventAddressV2Id))
+                        .OrderBy(addressId => addressId)
+                        .Select(addressId => new ParticipantAddressUsageV2
+                        {
+                            EventAddressV2Id = addressId,
+                            Sent = participantSent
+                                .Where(count => count.EventAddressV2Id == addressId)
+                                .Select(count => count.Sent)
+                                .FirstOrDefault(),
+                            Received = participantReceived
+                                .Where(count => count.EventAddressV2Id == addressId)
+                                .Select(count => count.Received)
+                                .FirstOrDefault()
+                        })
+                        .ToList();
+
+                    return new ParticipantUsageV2
+                    {
+                        EventParticipantV2Id = participantId,
+                        TotalEventsSubmitted = eventCount?.TotalEventsSubmitted ?? 0,
+                        LoopsDetected = eventCount?.LoopsDetected ?? 0,
+                        DuplicatesDetected = eventCount?.LoopsDetected ?? 0,
+                        TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
+                        ByAddress = byAddress
                     };
                 })
                 .ToList();
