@@ -64,8 +64,9 @@ else
     <Card CssClass="mt-4">
         <DataTable TItem="EventArchiveView" Items="FilteredEventArchives"
                    Columns="columns" Searchable="true"
-                   RowClass="@(a => a.Status == "Quarantined" ? "table-danger"
-                       : a.Status == "Active" && a.RemainingRetryAttempts == 0 ? "table-warning"
+                   RowClass="@(a => a.DispatchStatus is "Quarantined" or "Error" ? "table-danger"
+                       : a.DispatchStatus == "Partial Success" ? "table-warning"
+                       : a.DispatchStatus == "Success" ? "table-success"
                        : null)">
             <ExtraFilters>
                 <select class="form-select w-auto" value="@selectedType"
@@ -77,8 +78,10 @@ else
                 <select class="form-select w-auto" value="@selectedStatus"
                         @onchange="e => { selectedStatus = e.Value?.ToString() ?? string.Empty; }">
                     <option value="">All Statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Dead">Dead</option>
+                    <option value="Success">Success</option>
+                    <option value="Partial Success">Partial Success</option>
+                    <option value="Error">Error</option>
+                    <option value="Pending">Pending</option>
                     <option value="Quarantined">Quarantined</option>
                 </select>
             </ExtraFilters>
@@ -110,12 +113,7 @@ else
 
     private IEnumerable<EventArchiveView> FilteredEventArchives => eventArchives.Where(a =>
         (string.IsNullOrEmpty(selectedType) || a.Type == selectedType) &&
-        (string.IsNullOrEmpty(selectedStatus) ||
-            (selectedStatus == "Dead"
-                ? a.Status == "Active" && a.RemainingRetryAttempts == 0
-                : selectedStatus == "Active"
-                    ? a.Status == "Active" && a.RemainingRetryAttempts > 0
-                    : a.Status == selectedStatus)));
+        (string.IsNullOrEmpty(selectedStatus) || a.DispatchStatus == selectedStatus));
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,21 +126,23 @@ else
             new DataTableColumn<EventArchiveView>
             {
                 Title = "Status",
-                Value = a => a.Status,
+                Value = a => a.DispatchStatus,
                 CellTemplate = a =>
                 {
-                    var isDead = a.Status == "Active" && a.RemainingRetryAttempts == 0;
-                    var label = isDead ? "Dead" : a.Status;
-                    var color = a.Status == "Quarantined" ? "text-bg-danger"
-                        : isDead ? "text-bg-warning"
-                        : a.Status == "Active" ? "text-bg-success"
-                        : "text-bg-secondary";
-                    return @<span class="badge @color">@label</span>;
+                    var color = a.DispatchStatus switch
+                    {
+                        "Success" => "text-bg-success",
+                        "Partial Success" => "text-bg-warning",
+                        "Error" => "text-bg-danger",
+                        "Quarantined" => "text-bg-danger",
+                        _ => "text-bg-secondary"
+                    };
+                    return @<span class="badge @color">@a.DispatchStatus</span>;
                 }
             },
             new DataTableColumn<EventArchiveView>
             {
-                Title = "Retries Left", Value = a => a.RemainingRetryAttempts
+                Title = "Processed", Value = a => a.Processed
             },
             new DataTableColumn<EventArchiveView>
             {

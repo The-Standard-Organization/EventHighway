@@ -1,5 +1,8 @@
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
+// ----------------------------------------------------------------------------------
+
 using EventHighway.Portal.Web.Components;
-using EventHighway.Portal.Web.Components.Account;
 using EventHighway.Portal.Web.Data;
 using EventHighway.Portal.Web.Infrastructure;
 
@@ -34,15 +37,35 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-// A seed failure (e.g. a transient database error on a cold start) is logged but must not stop
-// the app from serving; the seed is idempotent and re-runs on the next start.
-try
+// A seed failure (e.g. a transient LocalDB cold-start error) is retried a few times so it can
+// self-heal in-process; after the final attempt it is logged but must not stop the app from
+// serving (the seed is idempotent and also re-runs on the next start).
+const int maxSeedAttempts = 5;
+
+for (int seedAttempt = 1; seedAttempt <= maxSeedAttempts; seedAttempt++)
 {
-    await SeedData.SeedAsync(app.Services);
-}
-catch (Exception seedException)
-{
-    app.Logger.LogError(seedException, "Identity seed failed at startup; continuing.");
+    try
+    {
+        await SeedData.SeedAsync(app.Services);
+        break;
+    }
+    catch (Exception seedException) when (seedAttempt < maxSeedAttempts)
+    {
+        app.Logger.LogWarning(
+            seedException,
+            "Identity seed attempt {Attempt}/{MaxAttempts} failed; retrying.",
+            seedAttempt,
+            maxSeedAttempts);
+
+        await Task.Delay(TimeSpan.FromSeconds(2));
+    }
+    catch (Exception seedException)
+    {
+        app.Logger.LogError(
+            seedException,
+            "Identity seed failed after {MaxAttempts} attempts; continuing.",
+            maxSeedAttempts);
+    }
 }
 
 app.Run();

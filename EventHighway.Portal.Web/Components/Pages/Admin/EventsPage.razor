@@ -51,8 +51,9 @@ else
 
     <Card>
         <DataTable TItem="EventView" Items="FilteredEvents" Columns="columns" Searchable="true"
-                   RowClass="@(e => e.Status == "Quarantined" ? "table-danger"
-                       : e.Status == "Active" && e.RemainingRetryAttempts == 0 ? "table-warning"
+                   RowClass="@(e => e.DispatchStatus is "Quarantined" or "Error" ? "table-danger"
+                       : e.DispatchStatus == "Partial Success" ? "table-warning"
+                       : e.DispatchStatus == "Success" ? "table-success"
                        : null)">
             <ExtraFilters>
                 <select class="form-select w-auto" value="@selectedType"
@@ -64,8 +65,10 @@ else
                 <select class="form-select w-auto" value="@selectedStatus"
                         @onchange="e => { selectedStatus = e.Value?.ToString() ?? string.Empty; }">
                     <option value="">All Statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Dead">Dead</option>
+                    <option value="Success">Success</option>
+                    <option value="Partial Success">Partial Success</option>
+                    <option value="Error">Error</option>
+                    <option value="Pending">Pending</option>
                     <option value="Quarantined">Quarantined</option>
                 </select>
             </ExtraFilters>
@@ -91,12 +94,7 @@ else
 
     private IEnumerable<EventView> FilteredEvents => events.Where(e =>
         (string.IsNullOrEmpty(selectedType) || e.Type == selectedType) &&
-        (string.IsNullOrEmpty(selectedStatus) ||
-            (selectedStatus == "Dead"
-                ? e.Status == "Active" && e.RemainingRetryAttempts == 0
-                : selectedStatus == "Active"
-                    ? e.Status == "Active" && e.RemainingRetryAttempts > 0
-                    : e.Status == selectedStatus)));
+        (string.IsNullOrEmpty(selectedStatus) || e.DispatchStatus == selectedStatus));
 
     private string? archiveMessage;
     private string archiveAlertClass = "alert-info";
@@ -112,21 +110,23 @@ else
             new DataTableColumn<EventView>
             {
                 Title = "Status",
-                Value = e => e.Status,
+                Value = e => e.DispatchStatus,
                 CellTemplate = e =>
                 {
-                    var isDead = e.Status == "Active" && e.RemainingRetryAttempts == 0;
-                    var label = isDead ? "Dead" : e.Status;
-                    var color = e.Status == "Quarantined" ? "text-bg-danger"
-                        : isDead ? "text-bg-warning"
-                        : e.Status == "Active" ? "text-bg-success"
-                        : "text-bg-secondary";
-                    return @<span class="badge @color">@label</span>;
+                    var color = e.DispatchStatus switch
+                    {
+                        "Success" => "text-bg-success",
+                        "Partial Success" => "text-bg-warning",
+                        "Error" => "text-bg-danger",
+                        "Quarantined" => "text-bg-danger",
+                        _ => "text-bg-secondary"
+                    };
+                    return @<span class="badge @color">@e.DispatchStatus</span>;
                 }
             },
             new DataTableColumn<EventView>
             {
-                Title = "Retries Left", Value = e => e.RemainingRetryAttempts
+                Title = "Processed", Value = e => e.Processed
             },
             new DataTableColumn<EventView>
             {

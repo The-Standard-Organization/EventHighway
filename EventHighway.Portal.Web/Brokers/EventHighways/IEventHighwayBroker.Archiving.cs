@@ -3,10 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -22,7 +24,11 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
         ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+        ValueTask<List<EventArchiveV2Summary>> RetrieveAllEventArchiveV2SummariesAsync(
+            CancellationToken cancellationToken = default);
+
+        ValueTask<EventArchiveV2Summary?> RetrieveEventArchiveV2SummaryByIdAsync(
+            Guid eventArchiveId,
             CancellationToken cancellationToken = default);
     }
 }

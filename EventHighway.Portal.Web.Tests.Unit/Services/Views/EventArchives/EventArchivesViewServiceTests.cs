@@ -3,9 +3,9 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Models.Views.EventArchives;
 using EventHighway.Portal.Web.Services.Views.EventArchives;
@@ -36,8 +36,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
-        private static EventArchiveV2 CreateRandomEventArchive(DateTimeOffset archivedDate) =>
-            new EventArchiveV2
+        private static EventArchiveV2Summary CreateRandomEventArchiveSummary(
+            DateTimeOffset archivedDate) =>
+            new EventArchiveV2Summary
             {
                 Id = Guid.NewGuid(),
                 EventName = GetRandomString(),
@@ -45,29 +46,31 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventArchives
                 Type = EventArchiveTypeV2.Scheduled,
                 Status = EventArchiveStatusV2.Active,
                 EventAddressV2Id = Guid.NewGuid(),
-                EventAddressV2 = new EventAddressV2 { Name = GetRandomString() },
+                EventAddressName = GetRandomString(),
                 EventParticipantV2Id = Guid.NewGuid(),
                 ScheduledDate = archivedDate,
                 CreatedDate = archivedDate,
-                UpdatedDate = archivedDate,
-                ArchivedDate = archivedDate
+                ArchivedDate = archivedDate,
+                ListenerEventCount = 3,
+                SucceededListenerEventCount = 2
             };
 
-        private static EventArchiveView MapToView(EventArchiveV2 eventArchive) =>
+        private static EventArchiveView MapToView(EventArchiveV2Summary eventArchiveSummary) =>
             new EventArchiveView
             {
-                Id = eventArchive.Id,
-                EventName = eventArchive.EventName,
-                Content = eventArchive.Content,
-                Type = eventArchive.Type.ToString(),
-                Status = eventArchive.Status.ToString(),
-                RemainingRetryAttempts = 0,
-                EventAddressV2Id = eventArchive.EventAddressV2Id,
-                EventAddressName = eventArchive.EventAddressV2?.Name ?? string.Empty,
-                EventParticipantV2Id = eventArchive.EventParticipantV2Id,
-                ScheduledDate = eventArchive.ScheduledDate,
-                CreatedDate = eventArchive.CreatedDate,
-                ArchivedDate = eventArchive.ArchivedDate
+                Id = eventArchiveSummary.Id,
+                EventName = eventArchiveSummary.EventName ?? string.Empty,
+                Content = eventArchiveSummary.Content ?? string.Empty,
+                Type = eventArchiveSummary.Type.ToString(),
+                Status = eventArchiveSummary.Status.ToString(),
+                EventAddressV2Id = eventArchiveSummary.EventAddressV2Id,
+                EventAddressName = eventArchiveSummary.EventAddressName ?? string.Empty,
+                EventParticipantV2Id = eventArchiveSummary.EventParticipantV2Id,
+                ScheduledDate = eventArchiveSummary.ScheduledDate,
+                CreatedDate = eventArchiveSummary.CreatedDate,
+                ArchivedDate = eventArchiveSummary.ArchivedDate,
+                ListenerEventCount = eventArchiveSummary.ListenerEventCount,
+                SucceededListenerEventCount = eventArchiveSummary.SucceededListenerEventCount
             };
     }
 }

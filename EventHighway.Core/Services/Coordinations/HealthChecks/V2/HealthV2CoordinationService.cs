@@ -819,13 +819,13 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 case ("Active Listeners", "Total Error"):
                     return HealthMetric.ErrorRate;
 
-                case ("Active Listeners", "Dead (No Retries)"):
+                case ("Active Listeners", "Dead (Items With No Retries)"):
                     return HealthMetric.DeadEvents;
 
                 case ("Archived Listeners", "Total Error"):
                     return HealthMetric.ArchiveErrorRate;
 
-                case ("Archived Listeners", "Dead (No Retries)"):
+                case ("Archived Listeners", "Dead (Items With No Retries)"):
                     return HealthMetric.DeadArchivedEvents;
 
                 default:

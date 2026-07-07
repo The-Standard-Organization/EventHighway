@@ -20,16 +20,16 @@ namespace EventHighway.Portal.Web.Components.CoreUI
         [Parameter]
         public string? Icon { get; set; }
 
-        // CoreUI theme colours (bg-success #2eb85c, bg-warning #f9b115, bg-danger #e55353,
-        // bg-secondary). text-white forces legible white text on every variant, including warning
-        // which Bootstrap would otherwise render with dark text.
+        // Rich gradient RAG variants (styled in StatTile.razor.css): deep crimson (Red), dark
+        // amber (Amber), forest green (Green), and a neutral slate (Na) — each with a subtle top
+        // sheen and matching border glow.
         public string VariantCssClass =>
             Variant switch
             {
-                StatTileVariant.Green => "bg-success text-white",
-                StatTileVariant.Amber => "bg-warning text-white",
-                StatTileVariant.Red => "bg-danger text-white",
-                _ => "bg-secondary text-white"
+                StatTileVariant.Green => "rag-green",
+                StatTileVariant.Amber => "rag-amber",
+                StatTileVariant.Red => "rag-red",
+                _ => "rag-na"
             };
     }
 }

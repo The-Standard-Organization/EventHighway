@@ -2,20 +2,24 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-// Reusable database hydrator for the EventHighway sample data. Inserts backdated EventV2 +
-// ListenerEventV2 rows directly through the internal StorageBroker, bypassing foundation
-// validation (which forbids a backdated CreatedDate). Any console app that references this
-// project can call DatabaseHydrator.HydrateNewReleasesAsync(connectionString) to top up the
-// database. Self-sufficient: the Ensure* helpers create the NFlix participant, the
-// NFlix-NewReleases address and its listeners when missing, so it runs against an empty database
-// on its own; when the ClientV2.SubstrateApp/BasicApp samples have already run it reconciles to
-// their rows via the shared well-known Guids instead of duplicating them.
+// Reusable database hydrator for the EventHighway sample data. Inserts a year's worth of
+// backdated EventV2 + ListenerEventV2 rows (and their EventArchiveV2 + ListenerEventArchiveV2
+// counterparts) directly through the internal StorageBroker, bypassing foundation validation
+// (which forbids a backdated CreatedDate). Any console app that references this project can call
+// DatabaseHydrator.HydrateNewReleasesAsync(connectionString) to top up the database. Self-sufficient:
+// the Ensure* helpers create the NFlix participant, the NFlix-NewReleases address and its listeners
+// when missing, so it runs against an empty database on its own; when the ClientV2.SubstrateApp/
+// BasicApp samples have already run it reconciles to their rows via the shared well-known Guids
+// instead of duplicating them. Re-running is safe: it only appends more traffic (fresh row Ids,
+// backdated across the trailing year) and never mutates the existing config rows.
 
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 
 namespace EventHighway.Portal.Seed
@@ -77,114 +81,212 @@ namespace EventHighway.Portal.Seed
                 FilterCriteria: null),
         };
 
-        // Volume targets (in addition to whatever already exists).
-        private const int ActiveEventCount = 500;
-        private const int QuarantinedEventCount = 50;
-        private const int DeadEventCount = 50;
+        // Volume targets per run (appended on top of whatever already exists), spread across the
+        // trailing year. Live events feed the live dashboard groups; archived events feed the
+        // Event Archives / Archived Listeners groups and the archived traffic series.
+        private const int PastDays = 365;
+        private const int LiveEventCount = 1825;      // ~5/day across the year
+        private const int ArchivedEventCount = 730;   // ~2/day across the year
 
-        private const int PastDays = 30;
+        // Outcome mix PER EVENT: ~80% fully-successful deliveries; the remainder is partial
+        // successes (1-2 listeners errored, the rest succeeded), complete failures, and
+        // loop-quarantined events (caught before dispatch, so no listener events). Errored
+        // deliveries carry the dead/critical/healthy retry split (see RandomErrorRemaining).
+        private const int AllSuccessPercent = 80;
+        private const int PartialSuccessPercent = 8;
+        private const int AllFailurePercent = 6;    // the remaining ~6% is quarantined
+
+        // A slice of events draw their content hash from a shared per-run pool so duplicate
+        // detection has repeated hashes to find.
+        private const double DuplicateRate = 0.10;
+        private const int DuplicateHashPoolSize = 12;
+        private const int RetryAttemptsAllowed = 5;
 
         public static async Task HydrateNewReleasesAsync(string connectionString)
         {
             var broker = new StorageBroker(connectionString);
-            DateTimeOffset setupNow = DateTimeOffset.UtcNow;
-
-            EventParticipantV2 nflix =
-                await EnsureParticipantAsync(broker, setupNow);
-
-            EventAddressV2 newReleases =
-                await EnsureAddressAsync(broker, setupNow);
-
-            List<EventListenerV2> addressListeners =
-                await EnsureListenersAsync(broker, newReleases.Id, setupNow);
-
-            // Fixed seed so re-runs are reproducible.
-            var rng = new Random(20260701);
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
+            EventParticipantV2 nflix = await EnsureParticipantAsync(broker, now);
+            EventAddressV2 newReleases = await EnsureAddressAsync(broker, now);
+
+            List<EventListenerV2> addressListeners =
+                await EnsureListenersAsync(broker, newReleases.Id, now);
+
+            var rng = new Random();
+
+            // Repeated hashes => duplicate detection has something to find.
+            string[] duplicateHashPool = Enumerable.Range(0, DuplicateHashPoolSize)
+                .Select(_ => "DUP-" + Guid.NewGuid().ToString("N")[..12])
+                .ToArray();
+
+            string NextContentHash() =>
+                rng.NextDouble() < DuplicateRate
+                    ? duplicateHashPool[rng.Next(duplicateHashPool.Length)]
+                    : "HASH-" + Guid.NewGuid().ToString("N")[..12];
+
+            // ---- Live events + listener events across the trailing year ----
             var events = new List<EventV2>();
             var listenerEvents = new List<ListenerEventV2>();
 
-            // ---- 500 active events with one ListenerEventV2 per listener ----
-            // Split into thirds: all-success, all-failure, mixed.
-            int allSuccessUpperBound = ActiveEventCount / 3;
-            int allFailureUpperBound = (ActiveEventCount / 3) * 2;
-
-            for (int index = 0; index < ActiveEventCount; index++)
+            for (int index = 0; index < LiveEventCount; index++)
             {
                 DateTimeOffset created = RandomPastMoment(rng, now);
-
                 bool isScheduled = rng.Next(0, 2) == 0;
+                EventOutcome outcome = RollOutcome(rng);
 
-                var eventV2 = BuildEvent(
-                    rng,
-                    newReleases.Id,
-                    nflix.Id,
-                    created,
-                    status: EventStatusV2.Active,
-                    type: isScheduled ? EventTypeV2.Scheduled : EventTypeV2.Immediate,
-                    scheduledDate: isScheduled ? created : (DateTimeOffset?)null,
-                    remainingRetryAttempts: rng.Next(2, 6));
+                var eventV2 = new EventV2
+                {
+                    Id = Guid.NewGuid(),
+                    Content = BuildContent(rng),
+                    EventName = NewReleaseEventName,
+                    ContentHash = NextContentHash(),
+                    Type = isScheduled ? EventTypeV2.Scheduled : EventTypeV2.Immediate,
+
+                    Status = outcome == EventOutcome.Quarantined
+                        ? EventStatusV2.Quarantined
+                        : EventStatusV2.Active,
+
+                    ScheduledDate = isScheduled ? created : (DateTimeOffset?)null,
+                    EventAddressV2Id = newReleases.Id,
+                    EventParticipantV2Id = nflix.Id,
+                    EventParticipantV2Secret = NFlixParticipantName,
+                    CreatedDate = created,
+                    UpdatedDate = created
+                };
 
                 events.Add(eventV2);
 
-                Outcome outcome =
-                    index < allSuccessUpperBound ? Outcome.AllSuccess
-                    : index < allFailureUpperBound ? Outcome.AllFailure
-                    : Outcome.Mixed;
-
-                foreach (EventListenerV2 listener in addressListeners)
+                // Quarantined events are caught by loop detection before dispatch.
+                if (outcome == EventOutcome.Quarantined)
                 {
-                    bool isError = outcome switch
-                    {
-                        Outcome.AllSuccess => false,
-                        Outcome.AllFailure => true,
-                        _ => rng.Next(0, 2) == 0
-                    };
+                    continue;
+                }
 
-                    listenerEvents.Add(BuildListenerEvent(eventV2, listener, isError));
+                HashSet<int> errorIndexes =
+                    PickErrorIndexes(rng, addressListeners.Count, outcome);
+
+                for (int listenerIndex = 0; listenerIndex < addressListeners.Count; listenerIndex++)
+                {
+                    EventListenerV2 listener = addressListeners[listenerIndex];
+                    bool isSuccess = errorIndexes.Contains(listenerIndex) is false;
+                    DateTimeOffset dispatched = created.AddSeconds(3);
+                    int remainingRetries = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng);
+
+                    listenerEvents.Add(new ListenerEventV2
+                    {
+                        Id = Guid.NewGuid(),
+                        Status = isSuccess ? ListenerEventStatusV2.Success : ListenerEventStatusV2.Error,
+                        Response = isSuccess ? "Event received" : "Handler failed",
+                        ResponseCode = isSuccess ? "200" : "503",
+                        ResponseMessage = isSuccess ? "OK" : "Service Unavailable",
+                        RemainingRetryAttempts = remainingRetries,
+                        RetryAttemptsAllowed = RetryAttemptsAllowed,
+
+                        NextRetryAttemptNotBefore = isSuccess is false && remainingRetries > 0
+                            ? dispatched.AddMinutes(rng.Next(5, 240))
+                            : (DateTimeOffset?)null,
+
+                        DispatchedDate = dispatched,
+                        EventV2Id = eventV2.Id,
+                        EventAddressV2Id = eventV2.EventAddressV2Id,
+                        EventListenerV2Id = listener.Id,
+                        EventParticipantV2Id = listener.EventParticipantV2Id,
+                        CreatedDate = dispatched,
+                        UpdatedDate = dispatched
+                    });
                 }
             }
 
-            // ---- 50 quarantined events ----
-            for (int index = 0; index < QuarantinedEventCount; index++)
+            // ---- Archived events + archived listener events across the trailing year ----
+            var eventArchives = new List<EventArchiveV2>();
+            var listenerEventArchives = new List<ListenerEventArchiveV2>();
+
+            for (int index = 0; index < ArchivedEventCount; index++)
             {
-                DateTimeOffset created = RandomPastMoment(rng, now);
+                DateTimeOffset archived = RandomPastMoment(rng, now);
+                DateTimeOffset created = archived.AddDays(-rng.Next(0, 7)).AddHours(-rng.Next(0, 24));
                 bool isScheduled = rng.Next(0, 2) == 0;
+                EventOutcome outcome = RollOutcome(rng);
 
-                events.Add(BuildEvent(
-                    rng,
-                    newReleases.Id,
-                    nflix.Id,
-                    created,
-                    status: EventStatusV2.Quarantined,
-                    type: isScheduled ? EventTypeV2.Scheduled : EventTypeV2.Immediate,
-                    scheduledDate: isScheduled ? created : (DateTimeOffset?)null,
-                    remainingRetryAttempts: rng.Next(2, 6)));
-            }
+                var eventArchive = new EventArchiveV2
+                {
+                    Id = Guid.NewGuid(),
+                    Content = BuildContent(rng),
+                    EventName = NewReleaseEventName,
+                    ContentHash = NextContentHash(),
+                    Type = isScheduled ? EventArchiveTypeV2.Scheduled : EventArchiveTypeV2.Immediate,
 
-            // ---- 50 immediate, 0-retry (dead) events ----
-            for (int index = 0; index < DeadEventCount; index++)
-            {
-                DateTimeOffset created = RandomPastMoment(rng, now);
+                    Status = outcome == EventOutcome.Quarantined
+                        ? EventArchiveStatusV2.Quarantined
+                        : EventArchiveStatusV2.Active,
 
-                events.Add(BuildEvent(
-                    rng,
-                    newReleases.Id,
-                    nflix.Id,
-                    created,
-                    status: EventStatusV2.Active,
-                    type: EventTypeV2.Immediate,
-                    scheduledDate: null,
-                    remainingRetryAttempts: 0));
+                    ScheduledDate = isScheduled ? created : (DateTimeOffset?)null,
+                    EventAddressV2Id = newReleases.Id,
+                    EventParticipantV2Id = nflix.Id,
+                    EventParticipantV2Secret = NFlixParticipantName,
+                    CreatedDate = created,
+                    UpdatedDate = created,
+                    ArchivedDate = archived
+                };
+
+                eventArchives.Add(eventArchive);
+
+                // Quarantined events were caught by loop detection before dispatch.
+                if (outcome == EventOutcome.Quarantined)
+                {
+                    continue;
+                }
+
+                HashSet<int> errorIndexes =
+                    PickErrorIndexes(rng, addressListeners.Count, outcome);
+
+                for (int listenerIndex = 0; listenerIndex < addressListeners.Count; listenerIndex++)
+                {
+                    EventListenerV2 listener = addressListeners[listenerIndex];
+                    bool isSuccess = errorIndexes.Contains(listenerIndex) is false;
+                    DateTimeOffset dispatched = created.AddSeconds(3);
+                    int remainingRetries = isSuccess ? RetryAttemptsAllowed : RandomErrorRemaining(rng);
+
+                    listenerEventArchives.Add(new ListenerEventArchiveV2
+                    {
+                        Id = Guid.NewGuid(),
+                        Status = isSuccess
+                            ? ListenerEventArchiveStatusV2.Success
+                            : ListenerEventArchiveStatusV2.Error,
+                        Response = isSuccess ? "Event received" : "Handler failed",
+                        ResponseCode = isSuccess ? "200" : "503",
+                        ResponseMessage = isSuccess ? "OK" : "Service Unavailable",
+                        RemainingRetryAttempts = remainingRetries,
+                        RetryAttemptsAllowed = RetryAttemptsAllowed,
+
+                        NextRetryAttemptNotBefore = isSuccess is false && remainingRetries > 0
+                            ? dispatched.AddMinutes(rng.Next(5, 240))
+                            : (DateTimeOffset?)null,
+
+                        DispatchedDate = dispatched,
+                        EventV2Id = Guid.NewGuid(),
+                        EventAddressV2Id = newReleases.Id,
+                        EventListenerV2Id = listener.Id,
+                        EventArchiveV2Id = eventArchive.Id,
+                        EventParticipantV2Id = listener.EventParticipantV2Id,
+                        CreatedDate = dispatched,
+                        UpdatedDate = dispatched,
+                        ArchivedDate = archived
+                    });
+                }
             }
 
             Console.WriteLine(
-                $"Inserting {events.Count} events and {listenerEvents.Count} listener events " +
-                $"on {newReleases.Name} ({addressListeners.Count} listeners)...");
+                $"Inserting {events.Count} events / {listenerEvents.Count} listener events and " +
+                $"{eventArchives.Count} archived events / {listenerEventArchives.Count} archived " +
+                $"listener events on {newReleases.Name} ({addressListeners.Count} listeners), " +
+                $"backdated across the past {PastDays} days...");
 
             await broker.BulkInsertEventV2sAsync(events);
             await broker.BulkInsertListenerEventV2sAsync(listenerEvents);
+            await broker.BulkInsertEventArchiveV2sAsync(eventArchives);
+            await broker.BulkInsertListenerEventArchiveV2sAsync(listenerEventArchives);
 
             Console.WriteLine("Hydration complete.");
         }
@@ -312,50 +414,56 @@ namespace EventHighway.Portal.Seed
                 .ToList();
         }
 
-        private static EventV2 BuildEvent(
+        private static string BuildContent(Random rng) =>
+            "{\"Title\":\"AddNewRelease\",\"Type\":\"Movie\",\"Rating\":\""
+                + (rng.Next(10, 100) / 10.0).ToString("0.0") + "\"}";
+
+        // Rolls the per-event outcome: ~80% all listeners succeed, ~8% partial success,
+        // ~6% complete failure, remaining ~6% quarantined by loop detection.
+        private static EventOutcome RollOutcome(Random rng)
+        {
+            int roll = rng.Next(0, 100);
+
+            return roll < AllSuccessPercent ? EventOutcome.AllSuccess
+                : roll < AllSuccessPercent + PartialSuccessPercent ? EventOutcome.PartialSuccess
+                : roll < AllSuccessPercent + PartialSuccessPercent + AllFailurePercent
+                    ? EventOutcome.AllFailure
+                    : EventOutcome.Quarantined;
+        }
+
+        // Picks which listeners error for the outcome: none, 1..(n-1) for partial, or all.
+        private static HashSet<int> PickErrorIndexes(
             Random rng,
-            Guid eventAddressId,
-            Guid participantId,
-            DateTimeOffset created,
-            EventStatusV2 status,
-            EventTypeV2 type,
-            DateTimeOffset? scheduledDate,
-            int remainingRetryAttempts) =>
-            new EventV2
+            int listenerCount,
+            EventOutcome outcome)
+        {
+            int errorCount = outcome switch
             {
-                Id = Guid.NewGuid(),
-                Content = "{\"Title\":\"AddNewRelease\",\"Type\":\"Movie\",\"Rating\":\""
-                    + (rng.Next(10, 100) / 10.0).ToString("0.0") + "\"}",
-                EventName = NewReleaseEventName,
-                ContentHash = "HASH-" + Guid.NewGuid().ToString("N")[..12],
-                Type = type,
-                Status = status,
-                ScheduledDate = scheduledDate,
-                EventAddressV2Id = eventAddressId,
-                EventParticipantV2Id = participantId,
-                EventParticipantV2Secret = "NFlix",
-                CreatedDate = created,
-                UpdatedDate = created
+                EventOutcome.AllSuccess => 0,
+                EventOutcome.AllFailure => listenerCount,
+                _ => rng.Next(1, Math.Max(2, listenerCount))
             };
 
-        private static ListenerEventV2 BuildListenerEvent(
-            EventV2 eventV2,
-            EventListenerV2 listener,
-            bool isError) =>
-            new ListenerEventV2
+            var errorIndexes = new HashSet<int>();
+
+            while (errorIndexes.Count < errorCount)
             {
-                Id = Guid.NewGuid(),
-                Status = isError ? ListenerEventStatusV2.Error : ListenerEventStatusV2.Success,
-                Response = isError ? "Handler failed" : "Event received",
-                ResponseCode = isError ? "503" : "200",
-                ResponseMessage = isError ? "Service Unavailable" : "OK",
-                EventV2Id = eventV2.Id,
-                EventAddressV2Id = eventV2.EventAddressV2Id,
-                EventListenerV2Id = listener.Id,
-                EventParticipantV2Id = listener.EventParticipantV2Id,
-                CreatedDate = eventV2.CreatedDate.AddSeconds(3),
-                UpdatedDate = eventV2.CreatedDate.AddSeconds(3)
-            };
+                errorIndexes.Add(rng.Next(0, listenerCount));
+            }
+
+            return errorIndexes;
+        }
+
+        // Errored deliveries carry a remaining-retry distribution so the Retry Health tiles have
+        // dead (0), critical (1-2) and healthy (3+) populations: 50% dead, 25% critical, 25% healthy.
+        private static int RandomErrorRemaining(Random rng)
+        {
+            int roll = rng.Next(0, 100);
+
+            return roll < 50 ? 0
+                : roll < 75 ? rng.Next(1, 3)
+                : rng.Next(3, RetryAttemptsAllowed + 1);
+        }
 
         private static DateTimeOffset RandomPastMoment(Random rng, DateTimeOffset now) =>
             now
@@ -364,11 +472,12 @@ namespace EventHighway.Portal.Seed
                 .AddMinutes(-rng.Next(0, 60))
                 .AddSeconds(-rng.Next(0, 60));
 
-        private enum Outcome
+        private enum EventOutcome
         {
             AllSuccess,
+            PartialSuccess,
             AllFailure,
-            Mixed
+            Quarantined
         }
 
         private sealed record ListenerSpec(

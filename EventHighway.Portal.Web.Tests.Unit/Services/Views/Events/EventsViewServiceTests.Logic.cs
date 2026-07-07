@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Views.Events;
 using FluentAssertions;
 using Moq;
@@ -22,11 +23,11 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
             // given
             IQueryable<EventV2> storageEvents = new[]
             {
-                CreateRandomEvent(EventStatusV2.Quarantined, remainingRetryAttempts: 3),
-                CreateRandomEvent(EventStatusV2.Quarantined, remainingRetryAttempts: 0),
-                CreateRandomEvent(EventStatusV2.Active, remainingRetryAttempts: 0),
-                CreateRandomEvent(EventStatusV2.Active, remainingRetryAttempts: 0),
-                CreateRandomEvent(EventStatusV2.Active, remainingRetryAttempts: 2)
+                CreateRandomEvent(EventStatusV2.Quarantined),
+                CreateRandomEvent(EventStatusV2.Quarantined),
+                CreateRandomEvent(EventStatusV2.Active),
+                CreateRandomEvent(EventStatusV2.Active),
+                CreateRandomEvent(EventStatusV2.Active)
             }.AsQueryable();
 
             int expectedCount = 2;
@@ -57,19 +58,19 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
             // given
             DateTimeOffset baseDate = GetRandomDateTimeOffset();
 
-            EventV2 oldest = CreateRandomEvent(baseDate.AddDays(-2));
-            EventV2 middle = CreateRandomEvent(baseDate.AddDays(-1));
-            EventV2 newest = CreateRandomEvent(baseDate);
+            EventV2Summary oldest = CreateRandomEventSummary(baseDate.AddDays(-2));
+            EventV2Summary middle = CreateRandomEventSummary(baseDate.AddDays(-1));
+            EventV2Summary newest = CreateRandomEventSummary(baseDate);
 
-            IQueryable<EventV2> storageEvents =
-                new[] { oldest, newest, middle }.AsQueryable();
+            List<EventV2Summary> storageEventSummaries =
+                new List<EventV2Summary> { oldest, newest, middle };
 
             List<EventView> expectedViews =
                 new[] { newest, middle, oldest }.Select(MapToView).ToList();
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(storageEvents);
+                broker.RetrieveAllEventV2SummariesAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(storageEventSummaries);
 
             // when
             List<EventView> actualViews =
@@ -81,7 +82,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
                 expectedViews, options => options.WithStrictOrdering());
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventV2SummariesAsync(It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
@@ -94,21 +95,14 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
             // given
             DateTimeOffset baseDate = GetRandomDateTimeOffset();
 
-            EventV2 targetEvent = CreateRandomEvent(baseDate);
-            Guid eventId = targetEvent.Id;
+            EventV2Summary targetEventSummary = CreateRandomEventSummary(baseDate);
+            Guid eventId = targetEventSummary.Id;
 
-            IQueryable<EventV2> storageEvents = new[]
-            {
-                CreateRandomEvent(baseDate.AddDays(-1)),
-                targetEvent,
-                CreateRandomEvent(baseDate.AddDays(-2))
-            }.AsQueryable();
-
-            EventView expectedView = MapToView(targetEvent);
+            EventView expectedView = MapToView(targetEventSummary);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(storageEvents);
+                broker.RetrieveEventV2SummaryByIdAsync(eventId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(targetEventSummary);
 
             // when
             EventView actualView =
@@ -119,7 +113,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Events
             actualView.Should().BeEquivalentTo(expectedView);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventV2sWithEventAddressV2Async(It.IsAny<CancellationToken>()),
+                broker.RetrieveEventV2SummaryByIdAsync(eventId, It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();

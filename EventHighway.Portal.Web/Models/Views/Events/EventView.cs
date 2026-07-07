@@ -14,10 +14,24 @@ namespace EventHighway.Portal.Web.Models.Views.Events
         public string EventAddressName { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public int RemainingRetryAttempts { get; set; }
+        public int ListenerEventCount { get; set; }
+        public int SucceededListenerEventCount { get; set; }
         public Guid EventAddressV2Id { get; set; }
         public Guid? EventParticipantV2Id { get; set; }
         public DateTimeOffset? ScheduledDate { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
+
+        // Aggregate delivery outcome across the event's listener events: all succeeded ->
+        // Success, all failed -> Error, some of each -> Partial Success. Quarantined events
+        // are never dispatched and events with no listener events yet are Pending.
+        public string DispatchStatus =>
+            Status == "Quarantined" ? "Quarantined"
+                : ListenerEventCount == 0 ? "Pending"
+                : SucceededListenerEventCount == ListenerEventCount ? "Success"
+                : SucceededListenerEventCount == 0 ? "Error"
+                : "Partial Success";
+
+        public string Processed =>
+            $"{SucceededListenerEventCount}/{ListenerEventCount}";
     }
 }

@@ -1,0 +1,103 @@
+/* Rich gradient RAG stat tile — deep crimson / dark amber / forest green / neutral slate,
+   with a subtle top sheen and matching border glow (see the health dashboard mockups). */
+
+.stat-tile {
+    position: relative;
+    height: 100%;
+    border-radius: 10px;
+    padding: 17px 17px 15px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: linear-gradient(160deg, #30333d 0%, #272a32 100%);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 3px 10px rgba(0, 0, 0, 0.35);
+    transition: transform 0.14s, box-shadow 0.14s;
+}
+
+/* subtle top sheen */
+.stat-tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+    border-radius: 10px 10px 0 0;
+    pointer-events: none;
+}
+
+.stat-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+.stat-tile-value {
+    position: relative;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 9px;
+    letter-spacing: -0.3px;
+}
+
+.stat-tile-label {
+    position: relative;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.78);
+    text-transform: uppercase;
+}
+
+.stat-tile-icon {
+    position: relative;
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Red — deep crimson */
+.stat-tile.rag-red {
+    background: linear-gradient(160deg, #c0393b 0%, #a82e30 100%);
+    border-color: rgba(255, 120, 120, 0.18);
+    box-shadow: 0 1px 0 rgba(255, 140, 140, 0.12) inset, 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stat-tile.rag-red:hover {
+    box-shadow: 0 1px 0 rgba(255, 140, 140, 0.18) inset, 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Amber — dark amber */
+.stat-tile.rag-amber {
+    background: linear-gradient(160deg, #c47e10 0%, #a96c0c 100%);
+    border-color: rgba(255, 195, 80, 0.18);
+    box-shadow: 0 1px 0 rgba(255, 210, 100, 0.12) inset, 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stat-tile.rag-amber:hover {
+    box-shadow: 0 1px 0 rgba(255, 210, 100, 0.18) inset, 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Green — forest green */
+.stat-tile.rag-green {
+    background: linear-gradient(160deg, #1f6e47 0%, #185c3b 100%);
+    border-color: rgba(52, 211, 153, 0.18);
+    box-shadow: 0 1px 0 rgba(52, 211, 153, 0.12) inset, 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stat-tile.rag-green:hover {
+    box-shadow: 0 1px 0 rgba(52, 211, 153, 0.18) inset, 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.stat-tile.rag-green .stat-tile-label {
+    color: rgba(195, 240, 220, 0.88);
+}
+
+.stat-tile.rag-red .stat-tile-label {
+    color: rgba(255, 210, 210, 0.9);
+}
+
+.stat-tile.rag-amber .stat-tile-label {
+    color: rgba(255, 232, 195, 0.92);
+}

@@ -13,16 +13,28 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Navigation
     public class NavMenuProviderTests
     {
         [Fact]
-        public void ShouldReturnDashboardAsFirstNavItem()
+        public void ShouldReturnStatusDashboardAsFirstNavItem()
         {
             // given . when
             IReadOnlyList<NavItem> navMenu = NavMenuProvider.GetNavMenu();
 
             // then
             navMenu.Should().NotBeEmpty();
-            navMenu[0].Title.Should().Be("Dashboard");
+            navMenu[0].Title.Should().Be("Dashboard - Status");
             navMenu[0].Href.Should().Be("");
             navMenu[0].Roles.Should().BeNull();
+        }
+
+        [Fact]
+        public void ShouldReturnStatsDashboardAsSecondNavItem()
+        {
+            // given . when
+            IReadOnlyList<NavItem> navMenu = NavMenuProvider.GetNavMenu();
+
+            // then
+            navMenu[1].Title.Should().Be("Dashboard - Stats");
+            navMenu[1].Href.Should().Be("stats");
+            navMenu[1].Roles.Should().BeNull();
         }
 
         [Fact]

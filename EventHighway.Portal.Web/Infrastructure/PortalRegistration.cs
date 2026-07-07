@@ -33,6 +33,10 @@ namespace EventHighway.Portal.Web.Infrastructure
 {
     public static class PortalRegistration
     {
+        // LocalDB "instance startup" transient (0x89c5010a) is not in EF Core's default
+        // transient-error set, so add it explicitly to the Identity DbContext retry policy.
+        private static readonly int[] LocalDbTransientErrorNumbers = new[] { -1983577846 };
+
         public static IServiceCollection AddPortalBrokers(
             this IServiceCollection services,
             IConfiguration configuration)
@@ -72,7 +76,12 @@ namespace EventHighway.Portal.Web.Infrastructure
                 .AddIdentityCookies();
 
             services.AddDbContext<SecurityDbContext>(options =>
-                options.UseSqlServer(securityConnectionString));
+                options.UseSqlServer(
+                    securityConnectionString,
+                    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(3),
+                        errorNumbersToAdd: LocalDbTransientErrorNumbers)));
 
             services.AddIdentityCore<AppUser>(options =>
             {

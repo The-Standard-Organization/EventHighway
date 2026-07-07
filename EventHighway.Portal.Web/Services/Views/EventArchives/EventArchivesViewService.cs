@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Models.Views.EventArchives;
 
@@ -47,12 +47,12 @@ namespace EventHighway.Portal.Web.Services.Views.EventArchives
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<EventArchiveV2> eventArchives =
-                await this.eventHighwayBroker
-                    .RetrieveAllEventArchiveV2sWithEventAddressV2Async(cancellationToken);
+            List<EventArchiveV2Summary> eventArchiveSummaries =
+                await this.eventHighwayBroker.RetrieveAllEventArchiveV2SummariesAsync(
+                    cancellationToken);
 
-            return eventArchives
-                .OrderByDescending(eventArchive => eventArchive.ArchivedDate)
+            return eventArchiveSummaries
+                .OrderByDescending(eventArchiveSummary => eventArchiveSummary.ArchivedDate)
                 .Select(AsView)
                 .ToList();
         });
@@ -62,30 +62,29 @@ namespace EventHighway.Portal.Web.Services.Views.EventArchives
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<EventArchiveV2> eventArchives =
-                await this.eventHighwayBroker
-                    .RetrieveAllEventArchiveV2sWithEventAddressV2Async(cancellationToken);
+            EventArchiveV2Summary eventArchiveSummary =
+                await this.eventHighwayBroker.RetrieveEventArchiveV2SummaryByIdAsync(
+                    eventArchiveId, cancellationToken);
 
-            EventArchiveV2 eventArchive = eventArchives
-                .FirstOrDefault(retrievedArchive => retrievedArchive.Id == eventArchiveId);
-
-            return eventArchive is null ? null : AsView(eventArchive);
+            return eventArchiveSummary is null ? null : AsView(eventArchiveSummary);
         });
 
-        private static EventArchiveView AsView(EventArchiveV2 eventArchive) =>
+        private static EventArchiveView AsView(EventArchiveV2Summary eventArchiveSummary) =>
             new EventArchiveView
             {
-                Id = eventArchive.Id,
-                EventName = eventArchive.EventName,
-                Content = eventArchive.Content,
-                Type = eventArchive.Type.ToString(),
-                Status = eventArchive.Status.ToString(),
-                EventAddressV2Id = eventArchive.EventAddressV2Id,
-                EventAddressName = eventArchive.EventAddressV2?.Name ?? string.Empty,
-                EventParticipantV2Id = eventArchive.EventParticipantV2Id,
-                ScheduledDate = eventArchive.ScheduledDate,
-                CreatedDate = eventArchive.CreatedDate,
-                ArchivedDate = eventArchive.ArchivedDate
+                Id = eventArchiveSummary.Id,
+                EventName = eventArchiveSummary.EventName ?? string.Empty,
+                Content = eventArchiveSummary.Content ?? string.Empty,
+                Type = eventArchiveSummary.Type.ToString(),
+                Status = eventArchiveSummary.Status.ToString(),
+                EventAddressV2Id = eventArchiveSummary.EventAddressV2Id,
+                EventAddressName = eventArchiveSummary.EventAddressName ?? string.Empty,
+                EventParticipantV2Id = eventArchiveSummary.EventParticipantV2Id,
+                ScheduledDate = eventArchiveSummary.ScheduledDate,
+                CreatedDate = eventArchiveSummary.CreatedDate,
+                ArchivedDate = eventArchiveSummary.ArchivedDate,
+                ListenerEventCount = eventArchiveSummary.ListenerEventCount,
+                SucceededListenerEventCount = eventArchiveSummary.SucceededListenerEventCount
             };
     }
 }
