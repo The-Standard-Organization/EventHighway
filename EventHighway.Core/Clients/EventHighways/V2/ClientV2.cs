@@ -44,6 +44,7 @@ using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
 using EventHighway.Core.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Core.Services.Orchestrations.EventParticipants.V2;
 using EventHighway.Core.Services.Orchestrations.Events.V2;
+using EventHighway.Core.Services.Orchestrations.HealthEvents.V2;
 using EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.LoopDetections.V2;
@@ -411,6 +412,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IHealthInfrastructureV2OrchestrationService,
                 HealthInfrastructureV2OrchestrationService>();
+
+            services.AddTransient<
+                IHealthEventsV2OrchestrationService,
+                HealthEventsV2OrchestrationService>();
         }
 
         private static void RegisterCoordinationServices(IServiceCollection services)
