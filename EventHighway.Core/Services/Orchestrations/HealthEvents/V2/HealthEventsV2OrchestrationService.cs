@@ -177,7 +177,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
 
                 ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents),
 
-                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents)
+                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
+
+                Duplicates = MapToDuplicates(period, windowStart, windowEnd, windowEvents)
             };
         }
 
@@ -527,6 +529,83 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 WindowEnd = windowEnd,
                 TotalActiveQuarantined = totalActiveQuarantined,
                 TotalInWindow = totalActiveQuarantined,
+                ByAddress = byAddress
+            };
+        }
+
+        private static DuplicateDetectionSummaryV2 MapToDuplicates(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<EventV2> windowEvents)
+        {
+            var groupCounts = windowEvents
+                .GroupBy(@event => new { @event.EventAddressV2Id, @event.EventParticipantV2Id })
+                .Select(group => new
+                {
+                    group.Key.EventAddressV2Id,
+                    group.Key.EventParticipantV2Id,
+                    TotalEvents = group.LongCount(),
+                    DistinctContentHashes = group.Select(@event => @event.ContentHash).Distinct().LongCount()
+                })
+                .ToList();
+
+            var duplicateHashDates = windowEvents
+                .GroupBy(@event => new
+                {
+                    @event.EventAddressV2Id,
+                    @event.EventParticipantV2Id,
+                    @event.ContentHash
+                })
+                .Where(group => group.LongCount() > 1)
+                .Select(group => new
+                {
+                    group.Key.EventAddressV2Id,
+                    group.Key.EventParticipantV2Id,
+                    LastSeen = group.Max(@event => @event.CreatedDate)
+                })
+                .ToList();
+
+            List<DuplicateDetailV2> byAddress = groupCounts
+                .Select(count =>
+                {
+                    long duplicates = count.TotalEvents - count.DistinctContentHashes;
+
+                    List<DateTimeOffset> lastSeenDates = duplicateHashDates
+                        .Where(hashDate => hashDate.EventAddressV2Id == count.EventAddressV2Id
+                            && hashDate.EventParticipantV2Id == count.EventParticipantV2Id)
+                        .Select(hashDate => hashDate.LastSeen)
+                        .ToList();
+
+                    return new DuplicateDetailV2
+                    {
+                        EventAddressV2Id = count.EventAddressV2Id,
+                        EventParticipantV2Id = count.EventParticipantV2Id,
+                        TotalEvents = count.TotalEvents,
+                        Duplicates = duplicates,
+                        DuplicateRate = count.TotalEvents > 0
+                            ? (decimal)duplicates / count.TotalEvents * 100
+                            : 0,
+                        LastDuplicateSeen = lastSeenDates.Count > 0
+                            ? lastSeenDates.Max()
+                            : (DateTimeOffset?)null
+                    };
+                })
+                .ToList();
+
+            long totalDuplicatesDetected = byAddress.Sum(detail => detail.Duplicates);
+            long totalEventsInWindow = byAddress.Sum(detail => detail.TotalEvents);
+
+            return new DuplicateDetectionSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+                TotalDuplicatesDetected = totalDuplicatesDetected,
+                TotalUniqueEvents = totalEventsInWindow - totalDuplicatesDetected,
+                OverallDuplicateRate = totalEventsInWindow > 0
+                    ? (decimal)totalDuplicatesDetected / totalEventsInWindow * 100
+                    : 0,
                 ByAddress = byAddress
             };
         }
