@@ -27,10 +27,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         public HealthRetryClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
             this.healthV2CoordinationService = healthV2CoordinationService;
 
-        public ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
+        public async ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            HealthReportV2 healthReport = await this.healthV2CoordinationService
+                .RetrieveRetryReportV2Async(period, windowStart, cancellationToken);
+
+            return healthReport.Retry;
+        }
     }
 }
