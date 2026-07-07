@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
@@ -26,8 +27,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             int randomSeconds = GetRandomNumber();
 
             DateTimeOffset scheduledDate =
-                DateTimeOffset.Now
-                    .AddSeconds(randomSeconds);
+                TruncateToMicroseconds(DateTimeOffset.UtcNow
+                    .AddSeconds(randomSeconds));
 
             EventV2 randomEventV2 =
                 await SubmitEventV2Async(
@@ -38,9 +39,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             EventV2 expectedEventV2 = randomEventV2;
 
             // when
-            IQueryable<EventV2> actualEventV2s =
-                await this.clientBroker
-                    .RetrieveAllEventV2sAsync();
+            List<EventV2> actualEventV2s =
+                (await this.clientBroker
+                    .RetrieveAllEventV2sAsync())
+                        .ToList();
 
             // then
             actualEventV2s.Should()
