@@ -264,27 +264,74 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             IQueryable<EventV2> windowEvents,
             IQueryable<ListenerEventV2> windowListenerEvents)
         {
+            // Bucket server-side by translatable date-parts (EF => GROUP BY DATEPART with
+            // COUNT_BIG(CASE ...)) then materialize only the small grouped result (one row per
+            // hour in the window) and re-fold into period buckets in memory. Grouping on the custom
+            // MapToBucketStart key is not EF-translatable; CreatedDate is stored UTC (DateTimeBroker
+            // => UtcNow) so the date-parts and the reconstructed UTC bucket-start agree.
             var eventBuckets = windowEvents
-                .GroupBy(@event => MapToBucketStart(period, @event.CreatedDate))
+                .GroupBy(@event => new
+                {
+                    @event.CreatedDate.Year,
+                    @event.CreatedDate.Month,
+                    @event.CreatedDate.Day,
+                    @event.CreatedDate.Hour
+                })
                 .Select(group => new
                 {
-                    PeriodStart = group.Key,
+                    group.Key.Year,
+                    group.Key.Month,
+                    group.Key.Day,
+                    group.Key.Hour,
                     Events = group.LongCount(),
                     ImmediateEvents = group.LongCount(@event => @event.Type == EventTypeV2.Immediate),
                     ScheduledEvents = group.LongCount(@event => @event.Type == EventTypeV2.Scheduled)
                 })
-                .ToList();
-
-            var listenerBuckets = windowListenerEvents
-                .GroupBy(listenerEvent => MapToBucketStart(period, listenerEvent.CreatedDate))
+                .ToList()
+                .GroupBy(bucket => MapToBucketStart(
+                    period,
+                    new DateTimeOffset(bucket.Year, bucket.Month, bucket.Day, bucket.Hour, 0, 0, TimeSpan.Zero)))
                 .Select(group => new
                 {
                     PeriodStart = group.Key,
+                    Events = group.Sum(bucket => bucket.Events),
+                    ImmediateEvents = group.Sum(bucket => bucket.ImmediateEvents),
+                    ScheduledEvents = group.Sum(bucket => bucket.ScheduledEvents)
+                })
+                .ToList();
+
+            var listenerBuckets = windowListenerEvents
+                .GroupBy(listenerEvent => new
+                {
+                    listenerEvent.CreatedDate.Year,
+                    listenerEvent.CreatedDate.Month,
+                    listenerEvent.CreatedDate.Day,
+                    listenerEvent.CreatedDate.Hour
+                })
+                .Select(group => new
+                {
+                    group.Key.Year,
+                    group.Key.Month,
+                    group.Key.Day,
+                    group.Key.Hour,
                     ListenerEvents = group.LongCount(),
                     Success = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Success),
                     Errors = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Error),
                     Pending = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Pending),
                     Replays = group.LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Replay)
+                })
+                .ToList()
+                .GroupBy(bucket => MapToBucketStart(
+                    period,
+                    new DateTimeOffset(bucket.Year, bucket.Month, bucket.Day, bucket.Hour, 0, 0, TimeSpan.Zero)))
+                .Select(group => new
+                {
+                    PeriodStart = group.Key,
+                    ListenerEvents = group.Sum(bucket => bucket.ListenerEvents),
+                    Success = group.Sum(bucket => bucket.Success),
+                    Errors = group.Sum(bucket => bucket.Errors),
+                    Pending = group.Sum(bucket => bucket.Pending),
+                    Replays = group.Sum(bucket => bucket.Replays)
                 })
                 .ToList();
 
@@ -542,6 +589,11 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             DateTimeOffset windowEnd,
             IQueryable<EventV2> windowEvents)
         {
+            // A content-hash duplicate is only meaningful among events that actually carry a hash.
+            // SQL COUNT(DISTINCT col) excludes NULLs whereas LINQ-to-Objects counts NULL as one
+            // distinct value, so measure duplicates over hashed events only (HashedEvents minus
+            // distinct hashes) to keep server-side execution equivalent to the intended semantics
+            // and free of null-hash over-counting.
             var groupCounts = windowEvents
                 .GroupBy(@event => new { @event.EventAddressV2Id, @event.EventParticipantV2Id })
                 .Select(group => new
@@ -549,11 +601,13 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                     group.Key.EventAddressV2Id,
                     group.Key.EventParticipantV2Id,
                     TotalEvents = group.LongCount(),
+                    HashedEvents = group.LongCount(@event => @event.ContentHash != null),
                     DistinctContentHashes = group.Select(@event => @event.ContentHash).Distinct().LongCount()
                 })
                 .ToList();
 
             var duplicateHashDates = windowEvents
+                .Where(@event => @event.ContentHash != null)
                 .GroupBy(@event => new
                 {
                     @event.EventAddressV2Id,
@@ -572,7 +626,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             List<DuplicateDetailV2> byAddress = groupCounts
                 .Select(count =>
                 {
-                    long duplicates = count.TotalEvents - count.DistinctContentHashes;
+                    long duplicates = count.HashedEvents - count.DistinctContentHashes;
 
                     List<DateTimeOffset> lastSeenDates = duplicateHashDates
                         .Where(hashDate => hashDate.EventAddressV2Id == count.EventAddressV2Id

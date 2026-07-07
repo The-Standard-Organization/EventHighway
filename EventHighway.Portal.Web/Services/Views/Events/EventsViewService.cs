@@ -34,7 +34,6 @@ namespace EventHighway.Portal.Web.Services.Views.Events
             IQueryable<EventV2> events =
                 await this.eventHighwayBroker.RetrieveAllEventV2sAsync(cancellationToken);
 
-            // TODO: listener-level dead count for archivable events - wire up in the Health overhaul
             return events.Count(@event => @event.Status == EventStatusV2.Quarantined);
         });
 
