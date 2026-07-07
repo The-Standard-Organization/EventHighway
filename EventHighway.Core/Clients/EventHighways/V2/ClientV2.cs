@@ -4,6 +4,7 @@
 
 using System;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Abstractions.Storages;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Hashings;
@@ -68,26 +69,28 @@ namespace EventHighway.Core.Clients.EventHighways.V2
     /// </summary>
     internal class ClientV2 : IClientV2
     {
-        private readonly string dataConnectionString;
+        private readonly IStorageBrokerProvider storageProvider;
         private readonly EventHighwayConfiguration configuration;
         private readonly EventHandlerBroker eventHandlerBroker;
         private IEventHandlerV2Service eventHandlerV2Service;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientV2"/> class with the specified
-        /// data connection string and configuration.
+        /// storage provider and configuration.
         /// </summary>
-        /// <param name="dataConnectionString">The connection string for the data storage.</param>
+        /// <param name="storageProvider">The database provider to use. Install a provider
+        /// package such as EventHighway.SqlServer and pass the corresponding provider
+        /// instance.</param>
         /// <param name="configuration">The EventHighway configuration. If null, a default
         /// configuration will be created.</param>
-        /// <exception cref="ArgumentException">Thrown when dataConnectionString is null or
-        /// empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when storageProvider is
+        /// null.</exception>
         /// <exception cref="InvalidOperationException">Thrown when required services cannot be
         /// configured or database cannot be initialized.</exception>
-        public ClientV2(string dataConnectionString, EventHighwayConfiguration configuration)
+        public ClientV2(IStorageBrokerProvider storageProvider, EventHighwayConfiguration configuration = null)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(dataConnectionString);
-            this.dataConnectionString = dataConnectionString;
+            ArgumentNullException.ThrowIfNull(storageProvider);
+            this.storageProvider = storageProvider;
             this.configuration = configuration ?? new EventHighwayConfiguration();
             this.eventHandlerBroker = new EventHandlerBroker();
             IServiceProvider serviceProvider = ConfigureDependencies();
@@ -233,7 +236,7 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IStorageBroker,
                 StorageBroker>(_ =>
-                    new StorageBroker(this.dataConnectionString));
+                    new StorageBroker(this.storageProvider));
 
             services.AddSingleton<IEventHandlerBroker>(this.eventHandlerBroker);
 

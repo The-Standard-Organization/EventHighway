@@ -14,7 +14,7 @@
 		<FileVersion>2.1.0.0</FileVersion>
 		<PackageId>EventHighway.EventHandlers</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Copyright>Hassan Habib 2026 (c)</Copyright>
+		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>

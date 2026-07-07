@@ -4,6 +4,7 @@
 
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses;
+using EventHighway.SqlServer;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners;
 using EventHighway.Core.Models.Services.Foundations.Events;
@@ -18,7 +19,8 @@ namespace EventHighway.ClientV1.App
                 "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
                 "Trusted_Connection=True;MultipleActiveResultSets=true");
 
-            var eventHighwayClient = new EventHighwayClient(inputConnectionString);
+            var eventHighwayClient =
+                new EventHighwayClient(new SqlServerStorageBrokerProvider(inputConnectionString));
 
             await eventHighwayClient.V2.EventAddressV2Client.RegisterEventAddressV2Async(
                 eventAddressV2: new EventAddressV2

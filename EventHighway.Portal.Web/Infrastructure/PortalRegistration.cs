@@ -6,6 +6,7 @@ using System;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Clients.EventHighways.V2;
 using EventHighway.Core.Models.Configurations;
+using EventHighway.SqlServer;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Identities;
@@ -145,7 +146,9 @@ namespace EventHighway.Portal.Web.Infrastructure
             var eventHighwayConfiguration = new EventHighwayConfiguration();
 
             var eventHighwayClient =
-                new EventHighwayClient(connectionString, eventHighwayConfiguration);
+                new EventHighwayClient(
+                    new SqlServerStorageBrokerProvider(connectionString),
+                    eventHighwayConfiguration);
 
             return eventHighwayClient.V2;
         }

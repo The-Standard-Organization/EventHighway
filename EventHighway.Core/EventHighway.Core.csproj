@@ -14,7 +14,7 @@
 		<FileVersion>2.1.0.0</FileVersion>
 		<PackageId>EventHighway</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Copyright>Hassan Habib 2026 (c)</Copyright>
+		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
@@ -28,13 +28,12 @@
 
 	<ItemGroup>
 		<PackageReference Include="EFxceptions" Version="10.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -46,6 +45,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="EventHighway.Core.Tests.Unit" />
+		<InternalsVisibleTo Include="EventHighway.SqlServer" />
 		<InternalsVisibleTo Include="EventHighway.Portal.Seed" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>

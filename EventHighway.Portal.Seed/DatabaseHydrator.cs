@@ -21,6 +21,7 @@ using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.SqlServer;
 
 namespace EventHighway.Portal.Seed
 {
@@ -104,7 +105,7 @@ namespace EventHighway.Portal.Seed
 
         public static async Task HydrateNewReleasesAsync(string connectionString)
         {
-            var broker = new StorageBroker(connectionString);
+            var broker = new StorageBroker(new SqlServerStorageBrokerProvider(connectionString));
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
             EventParticipantV2 nflix = await EnsureParticipantAsync(broker, now);
