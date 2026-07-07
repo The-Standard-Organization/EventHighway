@@ -66,9 +66,6 @@ else if (eventArchive is not null)
                 <dt class="col-sm-3">Status</dt>
                 <dd class="col-sm-9">@eventArchive.Status</dd>
 
-                <dt class="col-sm-3">Retries Left</dt>
-                <dd class="col-sm-9">@eventArchive.RemainingRetryAttempts</dd>
-
                 <dt class="col-sm-3">Event Address Id</dt>
                 <dd class="col-sm-9">@eventArchive.EventAddressV2Id</dd>
 
@@ -221,6 +218,25 @@ else
             new DataTableColumn<ListenerEventArchiveView> { Title = "Id", Value = a => a.Id },
             new DataTableColumn<ListenerEventArchiveView>
             {
+                Title = "Retry Status",
+                Value = a => RetryStatusOf(a),
+                CellTemplate = a =>
+                {
+                    var retryStatus = RetryStatusOf(a);
+                    var css = retryStatus == "Dead" ? "badge text-bg-danger"
+                        : retryStatus == "Critical" ? "badge text-bg-warning"
+                        : retryStatus == "Healthy" ? "badge text-bg-success"
+                        : string.Empty;
+                    return @<span class="@css">@retryStatus</span>;
+                }
+            },
+            new DataTableColumn<ListenerEventArchiveView>
+            {
+                Title = "Retries Left",
+                Value = a => $"{a.RemainingRetryAttempts}/{a.RetryAttemptsAllowed}"
+            },
+            new DataTableColumn<ListenerEventArchiveView>
+            {
                 Title = "Status",
                 Value = a => a.Status,
                 CellTemplate = a =>
@@ -318,6 +334,14 @@ else
             isReplaying = false;
         }
     }
+
+    // Mirrors the dashboard's retry-health classification: dead (no retries left),
+    // critical (1-2 left), healthy (3+ left). Only errored deliveries carry retry state.
+    private static string RetryStatusOf(ListenerEventArchiveView listenerEventArchive) =>
+        listenerEventArchive.Status != "Error" ? "—"
+            : listenerEventArchive.RemainingRetryAttempts == 0 ? "Dead"
+            : listenerEventArchive.RemainingRetryAttempts <= 2 ? "Critical"
+            : "Healthy";
 
     private static string DisplayOrDash(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "—" : value;
