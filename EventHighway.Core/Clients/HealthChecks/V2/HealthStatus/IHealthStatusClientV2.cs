@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,13 +18,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
     public interface IHealthStatusClientV2
     {
         /// <summary>
-        /// Retrieves a summary of health check items asynchronously. This operation collects
-        /// health status information from various system components.
+        /// Retrieves the whole-system RAG health check items for the requested period and window.
+        /// The items themselves are whole-system and ignore the window; the window is passed
+        /// through to the coordination for consistency with the other health surfaces.
         /// </summary>
+        /// <param name="period">The period granularity to aggregate over.</param>
+        /// <param name="windowStart">The inclusive UTC start of the window.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IEnumerable}"/> representing the asynchronous
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
         /// operation that returns a collection of health check items containing status
         /// information.</returns>
         /// <exception cref="HealthStatusClientV2ValidationException">Thrown when validation errors
@@ -34,7 +38,9 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         /// occurs during health check retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IEnumerable<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+        ValueTask<IReadOnlyList<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
             CancellationToken cancellationToken = default);
     }
 }
