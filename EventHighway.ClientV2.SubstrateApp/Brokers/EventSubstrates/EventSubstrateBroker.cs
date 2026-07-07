@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Configurations;
 
@@ -12,8 +13,8 @@ namespace EventHighway.ClientV2.SubstrateApp.Brokers.EventSubstrates
         private readonly EventHighwayClient eventHighwayClient;
 
         public EventSubstrateBroker(
-            string connectionString,
+            IStorageBrokerProvider storageBrokerProvider,
             EventHighwayConfiguration configuration) =>
-            this.eventHighwayClient = new EventHighwayClient(connectionString, configuration);
+            this.eventHighwayClient = new EventHighwayClient(storageBrokerProvider, configuration);
     }
 }

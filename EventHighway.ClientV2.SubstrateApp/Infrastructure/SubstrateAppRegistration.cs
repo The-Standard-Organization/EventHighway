@@ -10,6 +10,7 @@ using EventHighway.ClientV2.SubstrateApp.Brokers.Serializations;
 using EventHighway.ClientV2.SubstrateApp.Services.Foundations.ExternalMediaItems;
 using EventHighway.ClientV2.SubstrateApp.Services.Foundations.MediaItems;
 using EventHighway.Core.Models.Configurations;
+using EventHighway.SqlServer.Brokers;
 using Microsoft.Extensions.DependencyInjection;
 using WireMock.Server;
 
@@ -43,13 +44,16 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
 
         private static IEventSubstrateBroker CreateEventSubstrateBroker(IServiceProvider provider)
         {
+            SqlServerStorageBrokerProvider storageProvider =
+                new SqlServerStorageBrokerProvider(ConnectionString);
+
             EventHighwayConfiguration configuration =
                 provider.GetRequiredService<EventHighwayConfiguration>();
 
             MediaEventHandlers handlers =
                 provider.GetRequiredService<MediaEventHandlers>();
 
-            var broker = new EventSubstrateBroker(ConnectionString, configuration);
+            var broker = new EventSubstrateBroker(storageProvider, configuration);
 
             broker
                 .RegisterEventHandler(handlers.BingeBox)
