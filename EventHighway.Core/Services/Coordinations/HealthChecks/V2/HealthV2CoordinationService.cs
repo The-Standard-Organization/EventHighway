@@ -211,6 +211,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
+        public ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private static IReadOnlyList<EventAddressUsageV2> MergeAddressUsage(
             IReadOnlyList<EventAddressUsageV2> nameRows,
             IReadOnlyList<EventAddressUsageV2> liveCountRows,
