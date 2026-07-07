@@ -27,10 +27,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         public HealthLoopClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
             this.healthV2CoordinationService = healthV2CoordinationService;
 
-        public ValueTask<LoopDetectionSummaryV2> RetrieveLoopDetectionSummaryV2Async(
+        public async ValueTask<LoopDetectionSummaryV2> RetrieveLoopDetectionSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            HealthReportV2 healthReport = await this.healthV2CoordinationService
+                .RetrieveLoopDetectionReportV2Async(period, windowStart, cancellationToken);
+
+            return healthReport.LoopDetection;
+        }
     }
 }
