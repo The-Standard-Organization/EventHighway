@@ -179,7 +179,9 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
 
                 LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
 
-                Duplicates = MapToDuplicates(period, windowStart, windowEnd, windowEvents)
+                Duplicates = MapToDuplicates(period, windowStart, windowEnd, windowEvents),
+
+                Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
             };
         }
 
@@ -606,6 +608,62 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 OverallDuplicateRate = totalEventsInWindow > 0
                     ? (decimal)totalDuplicatesDetected / totalEventsInWindow * 100
                     : 0,
+                ByAddress = byAddress
+            };
+        }
+
+        private static RetryHealthSummaryV2 MapToRetry(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd,
+            IQueryable<ListenerEventV2> windowListenerEvents)
+        {
+            IQueryable<ListenerEventV2> errorEvents = windowListenerEvents
+                .Where(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Error);
+
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.LongCount()
+                })
+                .OrderBy(bucket => bucket.RemainingRetries)
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                    CriticalEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+                    HealthyEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.LongCount()
+                })
+                .OrderBy(detail => detail.EventAddressV2Id)
+                .ToList();
+
+            return new RetryHealthSummaryV2
+            {
+                Period = period,
+                WindowStart = windowStart,
+                WindowEnd = windowEnd,
+
+                TotalActiveEvents = errorEvents
+                    .LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts > 0),
+
+                DeadEvents = errorEvents
+                    .LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+
+                CriticalEvents = errorEvents.LongCount(listenerEvent =>
+                    listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+
+                HealthyEvents = errorEvents
+                    .LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+
+                Distribution = distribution,
                 ByAddress = byAddress
             };
         }
