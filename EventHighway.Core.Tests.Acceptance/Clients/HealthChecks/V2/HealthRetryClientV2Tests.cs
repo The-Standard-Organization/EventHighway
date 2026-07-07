@@ -11,7 +11,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
     {
         private readonly ClientBroker clientBroker;
 
-        public HealthRetryClientV2Tests() =>
-            this.clientBroker = new ClientBroker();
+        public HealthRetryClientV2Tests(ClientBroker clientBroker) =>
+            this.clientBroker = clientBroker;
     }
 }

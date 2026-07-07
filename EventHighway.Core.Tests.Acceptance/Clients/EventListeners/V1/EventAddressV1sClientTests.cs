@@ -18,10 +18,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
         private readonly WireMockServer wireMockServer;
         private readonly ClientBroker clientBroker;
 
-        public EventListenerV1sClientTests()
+        public EventListenerV1sClientTests(ClientBroker clientBroker)
         {
             this.wireMockServer = WireMockServer.Start();
-            this.clientBroker = new ClientBroker();
+            this.clientBroker = clientBroker;
         }
 
         private async ValueTask<EventAddressV1> CreateRandomEventAddressV1Async()
@@ -58,7 +58,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
 
         private static Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()
@@ -79,7 +79,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
         private static Filler<EventListenerV1> CreateEventListenerV1Filler(
             Guid eventAddressId)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventListenerV1>();
 
             filler.Setup()
@@ -95,6 +95,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }
