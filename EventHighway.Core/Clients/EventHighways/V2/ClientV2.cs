@@ -25,6 +25,7 @@ using EventHighway.Core.Clients.ListenerEvents.V2;
 using EventHighway.Core.Clients.ReplayingEvents.V2;
 using EventHighway.Core.Services.Coordinations.ArchivingEvents.V2;
 using EventHighway.Core.Services.Coordinations.Events.V2;
+using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Services.Coordinations.ReplayingEvents.V2;
 using EventHighway.Core.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
@@ -436,6 +437,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IReplayingEventV2CoordinationService,
                 ReplayingEventV2CoordinationService>();
+
+            services.AddTransient<
+                IHealthV2CoordinationService,
+                HealthV2CoordinationService>();
         }
 
         private static void RegisterClients(IServiceCollection services)
