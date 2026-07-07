@@ -14,9 +14,14 @@ namespace EventHighway.Portal.Web.Components.Navigation
             new[]
             {
                 new NavItem(
-                    Title: "Dashboard",
+                    Title: "Dashboard - Status",
                     Icon: "cil-speedometer",
                     Href: ""),
+
+                new NavItem(
+                    Title: "Dashboard - Stats",
+                    Icon: "cil-chart-line",
+                    Href: "stats"),
 
                 new NavItem(
                     Title: "Admin",

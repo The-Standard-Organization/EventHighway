@@ -1,0 +1,128 @@
+@page "/stats"
+@implements IDisposable
+@using EventHighway.Core.Models.Coordinations.HealthChecks.V2
+@using EventHighway.Portal.Web.Components.Dashboard
+
+<PageTitle>Health Stats</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Health Stats</h2>
+    <span class="badge text-bg-secondary">EventHighway</span>
+</div>
+
+<ControlBar Period="period"
+            WindowStart="windowStart"
+            SyncEnabled="syncEnabled"
+            AutoRefreshSeconds="autoRefreshSeconds"
+            CountdownSeconds="countdown"
+            CanGoNext="CanGoNext"
+            PeriodChanged="OnPeriodChanged"
+            PreviousRequested="OnPrevious"
+            NextRequested="OnNext"
+            CurrentRequested="OnCurrent"
+            ForceRefreshRequested="OnForceRefresh"
+            SyncChanged="OnSyncChanged"
+            AutoRefreshChanged="OnAutoRefreshChanged" />
+
+<TrafficPanel GlobalPeriod="period" GlobalWindowStart="windowStart"
+              SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<AddressUsagePanel GlobalPeriod="period" GlobalWindowStart="windowStart"
+                   SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<LoopPanel GlobalPeriod="period" GlobalWindowStart="windowStart"
+           SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<DuplicatePanel GlobalPeriod="period" GlobalWindowStart="windowStart"
+                SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<RetryPanel RefreshToken="refreshToken" />
+
+<ParticipantPanel GlobalPeriod="period" GlobalWindowStart="windowStart"
+                  SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+@code {
+    private TrafficPeriodV2 period = TrafficPeriodV2.Day;
+    private DateTimeOffset windowStart;
+    private bool syncEnabled = true;
+    private int autoRefreshSeconds = 60;
+    private int countdown = 60;
+    private int refreshToken;
+
+    private System.Timers.Timer? timer;
+
+    private static DateTimeOffset Now => DateTimeOffset.UtcNow;
+
+    private bool CanGoNext => WindowNavigator.CanGoNext(period, windowStart, Now);
+
+    protected override void OnInitialized()
+    {
+        windowStart = WindowNavigator.Current(period, Now);
+
+        timer = new System.Timers.Timer(1000) { AutoReset = true };
+        timer.Elapsed += OnTick;
+        timer.Start();
+    }
+
+    private void OnTick(object? sender, System.Timers.ElapsedEventArgs args)
+    {
+        if (autoRefreshSeconds <= 0)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            countdown--;
+
+            if (countdown <= 0)
+            {
+                refreshToken++;
+                countdown = autoRefreshSeconds;
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private void OnPeriodChanged(TrafficPeriodV2 newPeriod)
+    {
+        period = newPeriod;
+        windowStart = WindowNavigator.Current(period, Now);
+    }
+
+    private void OnPrevious() => windowStart = WindowNavigator.Previous(period, windowStart);
+
+    private void OnNext()
+    {
+        if (CanGoNext)
+        {
+            windowStart = WindowNavigator.Next(period, windowStart);
+        }
+    }
+
+    private void OnCurrent() => windowStart = WindowNavigator.Current(period, Now);
+
+    private void OnForceRefresh()
+    {
+        refreshToken++;
+        countdown = autoRefreshSeconds;
+    }
+
+    private void OnSyncChanged(bool value) => syncEnabled = value;
+
+    private void OnAutoRefreshChanged(int seconds)
+    {
+        autoRefreshSeconds = seconds;
+        countdown = seconds;
+    }
+
+    public void Dispose()
+    {
+        if (timer is not null)
+        {
+            timer.Elapsed -= OnTick;
+            timer.Dispose();
+        }
+    }
+}
