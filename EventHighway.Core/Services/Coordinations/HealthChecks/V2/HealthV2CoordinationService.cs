@@ -240,6 +240,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return report;
         });
 
+        public ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
+
         private static IReadOnlyList<ParticipantUsageV2> MergeParticipantUsage(
             IReadOnlyList<ParticipantUsageV2> nameRows,
             IReadOnlyList<ParticipantUsageV2> liveCountRows,
