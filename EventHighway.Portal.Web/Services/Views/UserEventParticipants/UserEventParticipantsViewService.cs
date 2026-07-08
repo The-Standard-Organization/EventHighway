@@ -107,10 +107,41 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             return views;
         }
 
-        public ValueTask<UserEventParticipantView> AddAssociationAsync(
+        public async ValueTask<UserEventParticipantView> AddAssociationAsync(
             Guid userId,
             Guid eventParticipantId,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+
+            EventParticipantV2 participant =
+                await this.eventHighwayBroker.RetrieveEventParticipantV2ByIdAsync(
+                    eventParticipantId, cancellationToken);
+
+            DateTimeOffset now =
+                await this.dateTimeBroker.GetCurrentDateTimeOffsetAsync();
+
+            var associationToAdd = new UserEventParticipant
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                EventParticipantId = eventParticipantId,
+                CreatedDate = now
+            };
+
+            UserEventParticipant addedAssociation =
+                await this.userEventParticipantBroker.InsertUserEventParticipantAsync(
+                    associationToAdd);
+
+            return new UserEventParticipantView
+            {
+                Id = addedAssociation.Id,
+                UserId = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                UserEmail = user.Email ?? string.Empty,
+                EventParticipantId = eventParticipantId,
+                EventParticipantName = participant.Name
+            };
+        }
     }
 }
