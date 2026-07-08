@@ -155,8 +155,17 @@ Current V2 capabilities include:
 - **Participants & Secrets** — attribute and authorize events to an `EventParticipantV2` via rotating secrets.
 - **Retries** — listener-level budgets with incremental (Fibonacci) backoff for resilient delivery.
 - **Archiving & Replay** — processed events are archived, then replayed in bulk or to a targeted listener for back-fill.
-- **Health & RAG Dashboards** — surfaced through the Operations Portal ([§0.2](#02-operations-portal)).
 - **Pluggable Storage Providers** — anything implementing the storage-provider contract; SQL Server ships today.
+- **Operations Portal** — a Standard-compliant Blazor Server console for operating an installation ([§0.2](#02---operations-portal)):
+  - **Health dashboards** — RAG status board (live) plus statistics dashboards (traffic, usage by address/participant, retries, loops, duplicates).
+  - **Events** — browse and inspect event content; archive processed events.
+  - **Archived events** — browse, purge by date, and replay a single item from its detail view.
+  - **Bulk replay** — re-deliver archived events scoped by address, listener, and/or date range.
+  - **Event participants & secrets** — manage participants and add/rotate/revoke their secrets.
+  - **Event addresses & listeners** — register and manage addresses and their listeners.
+  - **User administration** — roles, lockout, 2FA, disable/delete, and email-confirmation / password-reset links.
+  - **User ↔ participant associations** — link users to participants (from both the user and participant screens).
+  - **Self-service (My Account → Participant Management)** — association-scoped, read-only participant view with secret self-management; no admin bypass.
 
 ---
 
