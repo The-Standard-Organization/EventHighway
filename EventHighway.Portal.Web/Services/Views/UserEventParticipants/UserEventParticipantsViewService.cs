@@ -70,5 +70,10 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
 
             return views;
         }
+
+        public ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByParticipantIdAsync(
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }

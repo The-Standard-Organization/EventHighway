@@ -15,5 +15,9 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
         ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
             Guid userId,
             CancellationToken cancellationToken = default);
+
+        ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByParticipantIdAsync(
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default);
     }
 }
