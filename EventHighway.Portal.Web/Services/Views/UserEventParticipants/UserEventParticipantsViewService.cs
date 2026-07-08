@@ -125,6 +125,11 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                 await this.eventHighwayBroker.RetrieveEventParticipantV2ByIdAsync(
                     eventParticipantId, cancellationToken);
 
+            if (participant is null)
+            {
+                throw new NotFoundUserEventParticipantsViewException();
+            }
+
             DateTimeOffset now =
                 await this.dateTimeBroker.GetCurrentDateTimeOffsetAsync();
 
