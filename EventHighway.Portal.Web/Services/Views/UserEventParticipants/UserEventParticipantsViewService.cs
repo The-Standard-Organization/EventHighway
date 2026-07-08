@@ -167,16 +167,22 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             };
         });
 
-        public async ValueTask RemoveAssociationByIdAsync(
+        public ValueTask RemoveAssociationByIdAsync(
             Guid associationId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             UserEventParticipant association =
                 await this.userEventParticipantBroker.SelectUserEventParticipantByIdAsync(
                     associationId);
 
+            if (association is null)
+            {
+                throw new NotFoundUserEventParticipantsViewException();
+            }
+
             await this.userEventParticipantBroker.DeleteUserEventParticipantAsync(association);
-        }
+        });
 
         public ValueTask<bool> IsUserAssociatedWithParticipantAsync(
             Guid userId,
