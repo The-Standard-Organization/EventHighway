@@ -44,9 +44,10 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
 
         private const string ParticipantNotFoundName = "(participant not found)";
 
-        public async ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
+        public ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
             Guid userId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             List<UserEventParticipant> associations =
                 this.userEventParticipantBroker.SelectAllUserEventParticipants()
@@ -71,7 +72,7 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             }
 
             return views;
-        }
+        });
 
         public async ValueTask<List<UserEventParticipantView>>
             RetrieveAssociationsByParticipantIdAsync(
