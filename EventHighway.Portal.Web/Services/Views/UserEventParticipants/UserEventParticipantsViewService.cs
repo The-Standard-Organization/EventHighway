@@ -154,5 +154,11 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
 
             await this.userEventParticipantBroker.DeleteUserEventParticipantAsync(association);
         }
+
+        public ValueTask<bool> IsUserAssociatedWithParticipantAsync(
+            Guid userId,
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }

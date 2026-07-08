@@ -28,5 +28,10 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
         ValueTask RemoveAssociationByIdAsync(
             Guid associationId,
             CancellationToken cancellationToken = default);
+
+        ValueTask<bool> IsUserAssociatedWithParticipantAsync(
+            Guid userId,
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default);
     }
 }
