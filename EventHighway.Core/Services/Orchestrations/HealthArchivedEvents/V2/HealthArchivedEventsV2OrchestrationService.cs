@@ -124,7 +124,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
 
                     MapToRateHealthCheckItem(
                         grouping: "Archived Listeners",
-                        item: "Total Error",
+                        item: "Total Errors",
                         count: totalError,
                         total: totalListenerEvents,
                         description: "Archived listener events that ended in an error state."),

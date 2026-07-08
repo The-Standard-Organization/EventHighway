@@ -153,7 +153,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
 
                     MapToRateHealthCheckItem(
                         grouping: "Active Listeners",
-                        item: "Total Error",
+                        item: "Total Errors",
                         count: totalError,
                         total: totalListenerEvents,
                         description: "Listener events that ended in an error state."),

@@ -816,13 +816,13 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 case ("Active Events", "Duplicates Blocked"):
                     return HealthMetric.LoopsDetected;
 
-                case ("Active Listeners", "Total Error"):
+                case ("Active Listeners", "Total Errors"):
                     return HealthMetric.ErrorRate;
 
                 case ("Active Listeners", "Dead (Items With No Retries)"):
                     return HealthMetric.DeadEvents;
 
-                case ("Archived Listeners", "Total Error"):
+                case ("Archived Listeners", "Total Errors"):
                     return HealthMetric.ArchiveErrorRate;
 
                 case ("Archived Listeners", "Dead (Items With No Retries)"):

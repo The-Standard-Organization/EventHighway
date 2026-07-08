@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/Documentation/" />
+  <Folder Name="/Documentation/">
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/Documentation/EventHighway.Core/" />
   <Folder Name="/Documentation/EventHighway.Core/V2/">
     <File Path="Documentation/EventHighway.Core/V2/EventHighway.Core.V2.Design.md" />

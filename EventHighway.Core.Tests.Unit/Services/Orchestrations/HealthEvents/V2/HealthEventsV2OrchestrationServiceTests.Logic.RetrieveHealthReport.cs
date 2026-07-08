@@ -158,7 +158,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 new HealthCheckItemV2
                 {
                     Grouping = "Active Listeners",
-                    Item = "Total Error",
+                    Item = "Total Errors",
                     Value = FormatRateValue(totalError, totalListenerEvents),
                     Description = "Listener events that ended in an error state.",
                     StatusCode = (int)HealthStatusV2.NA,
