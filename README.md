@@ -7,160 +7,156 @@
 [![The Standard](https://img.shields.io/github/v/release/hassanhabib/The-Standard?style=default&label=Standard%20Version&color=2ea44f)](https://github.com/hassanhabib/The-Standard/releases/tag=latest)
 [![The Standard Community](https://img.shields.io/discord/934130100008538142?style=default&color=%237289da&label=The%20Standard%20Community&logo=Discord)](https://discord.gg/vdPZ7hS52X)
 
-# 0/ EventHighway
+# 0 - EventHighway
 
 EventHighway is Standard-Compliant .NET library for event-driven programming. It is designed to be simple, lightweight, and easy to use.
 
-## 0.1/ High-Level Flow
+## 0.1 - How It Works
 
-![High-Level Flow](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Diagrams/highlevel-flow.png)
+Publish an event once and it fans out to every matching listener, each producing a durable delivery record you can observe, retry, archive and replay. The full V2 flow — submission, filtering, loop detection, retries (Fibonacci backoff), archiving and replay — is documented in plain language here:
 
-## 0.2/ In-Depth Architecture
+📖 **[EventHighway V2 — Design & Flow](Documentation/EventHighway.Core/V2/EventHighway.Core.V2.Design.md)**
 
-![In-Depth Architecture](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Diagrams/indepth-architecture.png)
+## 0.2 - Operations Portal
 
-# 0/ Version Information
+A Standard-compliant Blazor Server console for operating an EventHighway installation: RAG health dashboards, event/archive browsing, bulk & single-item replay, participant and secret management, and user administration.
 
-Use the latest version when possible.
+📖 **[EventHighway Operations Portal — Design & User Guide](Documentation/EventHighway.Portal.Web/EventHighway.Portal.Web.Design.md)**
 
-`Version 0` introduced a **Fire and Forget** model — publish events and move on.
-`V1` (released in `v2.1.0`) evolves this into **Fire and Observe** — publish events and track what happened per listener with better visibility and operational confidence.
+![EventHighway Operations Portal — Health Status dashboard](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/Documentation/EventHighway.Portal.Web/Images/Portal-Dashboard-Status.png)
+
+# 1 - Version Information
+
+V2 Client is the latest version and should be used when possible. It is highly recommended to transition from previous versions to V2 for all new development, as support will end for older versions. The V2 client is available in the `v2.10` release and later.
+
 
 > [!NOTE]
-> ![Obsolete](https://img.shields.io/badge/Version_0-Obsolete-red?style=for-the-badge)
-> `Version 0` is the initial release and is now considered obsolete for new adoption. Emphasis is on `V1` for all new development, and existing users of `Version 0` are encouraged to upgrade to `V1` to benefit the new observability features.
+> ![Obsolete](https://img.shields.io/badge/Version_0_&_1-Obsolete-red?style=for-the-badge)
+> `Version 0 / Version 1` is now considered obsolete for new adoption. Emphasis is on `V2` for all new development, and existing users of `Version 0 / Version 1` are encouraged to upgrade to `V2` to benefit from the new features.
 
 > [!TIP]
-> ![Recommended](https://img.shields.io/badge/V1_(v2.10+)-Recommended-brightgreen?style=for-the-badge)
-> `V1` (released in `v2.10`) is the recommended version for teams that need observable, reliable event delivery.
+> ![Recommended](https://img.shields.io/badge/V2_(v2.10+)-Recommended-brightgreen?style=for-the-badge)
+> `V2` (released in `v2.10`) is the current recommended version for reliable event delivery.
 
 
-# 1/ How to Use Basics
+# 2 - How to Use Basics (V2)
 
-## 1.0/ Installation
+## 2.0 - Installation & Initialization
 
-You must define a connection string that points to a SQL DB Server when initializing the EventHighway client as follows:
+V2 runs against a SQL Server database. Construct the client with a storage provider and configuration — the database is created and migrated automatically on first use:
 
 ```csharp
-var eventHighway = new EventHighwayClient("Server=.;Database=EventHighwayDB;Trusted_Connection=True;");
+var configuration = new EventHighwayConfiguration();
+
+IClientV2 eventHighway = new EventHighwayClient(
+	new SqlServerStorageBrokerProvider(
+		"Server=.;Database=EventHighwayDB;Trusted_Connection=True;MultipleActiveResultSets=true"),
+	configuration).V2;
 ```
 
 ---
 
-## 1.1/ Registering Event Address
+## 2.1 - Registering a Handler
 
-In order for an event to be published, it must target a certain `EventAddressV1`. You can register an `EventAddressV1` as follows:
+V2 delivers events to **in-process handlers** — no HTTP endpoint required. Register a handler by its stable `HandlerId`:
 
 ```csharp
-DateTimeOffset now = DateTimeOffset.UtcNow;
+var handler = new DelegateEventHandler(
+	id: SomeStableHandlerId,
+	handleAsync: (content, cancellationToken) =>
+		ValueTask.FromResult(new EventHandlerResult { IsSuccess = true, ResponseCode = "200" }),
+	name: "Students Handler");
 
-var eventAddressV1 = new EventAddressV1
-{
-	Id = Guid.NewGuid(),
-	Name = "EventAddressName",
-	Description = "EventAddressDescription",
-	CreatedDate = now,
-	UpdatedDate = now
-};
-
-await eventHighway.EventAddressV1s.RegisterEventAddressV1Async(eventAddressV1);
+eventHighway.RegisterEventHandler(handler);
 ```
 
-Make sure you store your `EventAddressV1` Id in a safe place, as you will need it to publish events to that address.
+## 2.2 - Registering an Address & Listener
 
-## 1.2/ Registering Event Listeners
-
-In order to listen to events, you must register an `EventListenerV1` as follows:
+Events target an `EventAddressV2` (a named channel); an `EventListenerV2` subscribes a handler to that address:
 
 ```csharp
 DateTimeOffset now = DateTimeOffset.UtcNow;
 
-var eventListenerV1 = new EventListenerV1
+EventAddressV2 address = await eventHighway.EventAddressV2Client
+	.RetrieveOrRegisterEventAddressV2Async(new EventAddressV2
+	{
+		Id = Guid.NewGuid(),
+		Name = "students",
+		Description = "Student domain events",
+		CreatedDate = now,
+		UpdatedDate = now
+	});
+
+await eventHighway.EventListenerV2Client.RetrieveOrRegisterEventListenerV2Async(new EventListenerV2
 {
 	Id = Guid.NewGuid(),
 	Name = "Students API Listener",
-	Description = "Receives student domain events",
-	HeaderSecret = "super-secret-token",
-	Endpoint = "https://my.endpoint.com/api/v1.0/students",
-	EventAddressId = SomePreconfiguredEventAddressId,
+	HandlerId = handler.Id,
+	HandlerName = handler.Name,
+	EventAddressV2Id = address.Id,
 	CreatedDate = now,
 	UpdatedDate = now
-};
-
-await eventHighway.EventListenerV1s.RegisterEventListenerV1Async(eventListenerV1);
+});
 ```
 
-## 1.3/ Publishing Events
+A listener can optionally carry `PromotedProperties` + `FilterCriteria` so its handler only receives events that match (e.g. `double.Parse(meta("Rating")) >= 8.0`).
 
-You can publish an event as follows:
+## 2.3 - Publishing & Observing
 
 ```csharp
-DateTimeOffset now = DateTimeOffset.UtcNow;
-
-var eventV1 = new EventV1
+await eventHighway.EventV2Client.SubmitEventV2Async(new EventV2
 {
 	Id = Guid.NewGuid(),
-	EventAddressId = SomePreconfiguredEventAddressId,
-	Content = "SomeStringifiedJsonContent",
-	Type = EventV1Type.Immediate,
+	EventAddressV2Id = address.Id,
+	EventName = "StudentRegistered",
+	Content = "{ \"studentId\": 123 }",
+	// omit ScheduledDate for immediate dispatch; set it for a scheduled event
 	CreatedDate = now,
 	UpdatedDate = now
-};
+});
 
-EventV1 submittedEventV1 = await eventHighway.EventV1s.SubmitEventV1Async(eventV1);
-
-var listenerEvents = await eventHighway.ListenerEventV1s.RetrieveAllListenerEventV1sAsync();
-
-var deliveryResults = listenerEvents
-	.Where(listenerEventV1 => listenerEventV1.EventId == submittedEventV1.Id)
-	.ToList();
-
+IQueryable<ListenerEventV2> deliveries =
+	await eventHighway.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync();
 ```
 
-When an event is submitted, notifications are sent to all registered `EventListenerV1` entries for that `EventAddressV1`. This is the `Fire and Observe` behavior, where you can query `ListenerEventV1` records to inspect delivery status per listener.
+A published `EventV2` produces **one `ListenerEventV2` delivery record per matching listener** — each with a `Status` (`Pending` / `Success` / `Error` / `Replay`) and the handler's response. Scheduled events wait until you call `FireScheduledPendingEventV2sAsync()`. Events may be attributed to an `EventParticipantV2` and authorized with a participant secret.
 
 ---
 
-# Code Samples
+# 3 - Code Samples
 
-In-depth, version-specific guides and real-world type examples
+Runnable, end-to-end samples and in-depth guides:
 
-### V1 Guides
-
-| Guide | Description |
+| Sample | Description |
 |---|---|
-| [Installing EventHighway](EventHighway.Core/Resources/CodeSamples/V1/Installing-EventHighway.md) | NuGet setup, supported platforms, initialization, and platform-specific examples |
-| [EventHighway API Reference](EventHighway.Core/Resources/CodeSamples/V1/EventHighway-Apis.md) | Complete list of all available client methods, models, and usage examples |
-| [Real-Life Sample A — GlobalFoodBank](EventHighway.Core/Resources/CodeSamples/V1/Real-Life-Sample-A.md) | End-to-end scenario: goods receipt, distribution events, and delivery observation |
-| [Real-Life Sample B — ABCTech School](EventHighway.Core/Resources/CodeSamples/V1/Real-Life-Sample-B.md) | Azure-hosted scenario: class creation, student registration, and event-driven coordination |
-| [Real-Life Sample C — TodoTracker](EventHighway.Core/Resources/CodeSamples/V1/Real-Life-Sample-C.md) | Console app scenario: immediate completion events, scheduled reminders, and Fire and Observe |
+| [EventHighway V2 — Design & Flow](Documentation/EventHighway.Core/V2/EventHighway.Core.V2.Design.md) | Plain-language walkthrough of submit, dispatch, filtering, loop detection, retries, archiving and replay |
+| `EventHighway.ClientV2.BasicApp` | A complete console sample: register handlers, publish immediate & scheduled events, filtering, loop detection, targeted replay, and a health summary |
+| `EventHighway.ClientV2.SubstrateApp` | A service-to-service (in-process substrate) sample using the same V2 client |
+
+> Legacy `V1` guides remain under [`EventHighway.Core/Resources/CodeSamples/V1`](EventHighway.Core/Resources/CodeSamples/V1) for existing users, but new development should target `V2`.
 
 ---
 # Walk-through Video
 
-[![YouTube EventHighway Introduction](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Images/YT/intro-eventhighway.jpg)](https://www.youtube.com/watch?v=z3_wx29Cs9U)
-
-# Introduction to V1 Version
-[![YouTube EventHighway v2.1.0 V1 Introduction](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Images/YT/v1-eventhighway.jpg)](https://www.youtube.com/watch?v=54YWf9G5cE8&t=1407s)
-
+TBC
 ---
 
 # Note
 
-EventHighway is an officially released, Standard-Compliant Pub/Sub core library that can be deployed within an API or any Console Application. It is intentionally platform-agnostic so it can process events from anywhere to anywhere. With the introduction of `V1` (released in `v2.1.0`), the library moves beyond its initial fire-and-forget model to provide full observability, scheduled delivery, automatic archiving, and retry capabilities.
+EventHighway is an officially released, Standard-Compliant Pub/Sub core library that can be deployed within an API or any Console Application. It is intentionally platform-agnostic so it can process events from anywhere to anywhere. `V2` is an **in-process event bus with durable delivery records**, moving well beyond the original fire-and-forget model.
 
-Current V1 capabilities include:
+Current V2 capabilities include:
 
-- **Immediate & Scheduled Events** — `EventV1Type.Immediate` for instant dispatch, `EventV1Type.Scheduled` for time-deferred delivery.
-- **Delivery Observability** — per-listener `ListenerEventV1` records with `Pending`, `Success`, and `Error` statuses plus response details.
-- **Automatic Archiving** — processed events and listener results are archived into `EventArchiveV1` and `ListenerEventArchiveV1` for audit and replay.
-- **Retry Support** — configurable `RetryAttempts` on `EventV1` for resilient delivery.
-
-There are plans for further abstraction and customization, such as:
-
-- Enable plugging anything that implements `IStorageBroker` so consumers can use any storage mechanism or technology they prefer (e.g., PostgreSQL, CosmosDB, in-memory).
-- Enable eventing beyond RESTful APIs — such as running the library within one microservice from Service to Service in a LakeHouse model, or supporting message-queue transports.
-- Provide middleware hooks for custom serialization, filtering, and transformation of event payloads.
+- **In-Process Handlers** — deliver events to registered `IEventHandler` code by `HandlerId`; no HTTP endpoint required.
+- **Immediate & Scheduled Events** — instant dispatch, or time-deferred delivery fired by `FireScheduledPendingEventV2sAsync`.
+- **Filtering & Promoted Properties** — optional - listeners receive only events matching their `FilterCriteria` if specified.
+- **Delivery Observability** — one `ListenerEventV2` per (event × listener) with `Pending` / `Success` / `Error` / `Replay` status and the handler's response.
+- **Loop Detection & Quarantine** — configurable thresholds guard against runaway republishing.
+- **Participants & Secrets** — attribute and authorize events to an `EventParticipantV2` via rotating secrets.
+- **Retries** — listener-level budgets with incremental (Fibonacci) backoff for resilient delivery.
+- **Archiving & Replay** — processed events are archived, then replayed in bulk or to a targeted listener for back-fill.
+- **Health & RAG Dashboards** — surfaced through the Operations Portal ([§0.2](#02-operations-portal)).
+- **Pluggable Storage Providers** — anything implementing the storage-provider contract; SQL Server ships today.
 
 ---
 
