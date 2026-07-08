@@ -10,5 +10,6 @@ namespace EventHighway.Portal.Web.Models.Views.Navigations
         string Href,
         string[]? Roles = null,
         bool RequiresAuth = false,
-        NavItem[]? Children = null);
+        NavItem[]? Children = null,
+        bool ExactMatch = false);
 }
