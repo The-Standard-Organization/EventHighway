@@ -150,7 +150,7 @@ Current V2 capabilities include:
 - **In-Process Handlers** — deliver events to registered `IEventHandler` code by `HandlerId`; no HTTP endpoint required.
 - **Immediate & Scheduled Events** — instant dispatch, or time-deferred delivery fired by `FireScheduledPendingEventV2sAsync`.
 - **Filtering & Promoted Properties** — optional - listeners receive only events matching their `FilterCriteria` if specified.
-- **Delivery Observability** — one `ListenerEventV2` per (event × listener) with `Pending` / `Success` / `Error` / `Replay` status and the handler's response.
+- **Delivery Observability** — one `ListenerEventV2` per event listener with `Pending` / `Success` / `Error` / `Replay` status and the handler's response.
 - **Loop Detection & Quarantine** — configurable thresholds guard against runaway republishing.
 - **Participants & Secrets** — attribute and authorize events to an `EventParticipantV2` via rotating secrets.
 - **Retries** — listener-level budgets with incremental (Fibonacci) backoff for resilient delivery.
