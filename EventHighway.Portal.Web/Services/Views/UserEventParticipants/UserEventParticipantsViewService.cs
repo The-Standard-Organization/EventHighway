@@ -16,6 +16,7 @@ using EventHighway.Portal.Web.Brokers.UserEventParticipants;
 using EventHighway.Portal.Web.Models.Foundations.UserEventParticipants;
 using EventHighway.Portal.Web.Models.Foundations.Users;
 using EventHighway.Portal.Web.Models.Views.UserEventParticipants;
+using EventHighway.Portal.Web.Models.Views.UserEventParticipants.Exceptions;
 
 namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
 {
@@ -107,12 +108,18 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             return views;
         }
 
-        public async ValueTask<UserEventParticipantView> AddAssociationAsync(
+        public ValueTask<UserEventParticipantView> AddAssociationAsync(
             Guid userId,
             Guid eventParticipantId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+
+            if (user is null)
+            {
+                throw new NotFoundUserEventParticipantsViewException();
+            }
 
             EventParticipantV2 participant =
                 await this.eventHighwayBroker.RetrieveEventParticipantV2ByIdAsync(
@@ -142,7 +149,7 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                 EventParticipantId = eventParticipantId,
                 EventParticipantName = participant.Name
             };
-        }
+        });
 
         public async ValueTask RemoveAssociationByIdAsync(
             Guid associationId,
