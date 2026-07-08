@@ -160,9 +160,13 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             Guid eventParticipantId,
             CancellationToken cancellationToken = default)
         {
-            this.userEventParticipantBroker.SelectAllUserEventParticipants();
+            bool isAssociated =
+                this.userEventParticipantBroker.SelectAllUserEventParticipants()
+                    .Any(association =>
+                        association.UserId == userId
+                            && association.EventParticipantId == eventParticipantId);
 
-            return new ValueTask<bool>(true);
+            return new ValueTask<bool>(isAssociated);
         }
     }
 }
