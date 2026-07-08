@@ -4,13 +4,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Identities;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Brokers.UserEventParticipants;
+using EventHighway.Portal.Web.Models.Foundations.UserEventParticipants;
 using EventHighway.Portal.Web.Models.Views.UserEventParticipants;
 
 namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
@@ -39,9 +42,33 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
 
         private const string ParticipantNotFoundName = "(participant not found)";
 
-        public ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
+        public async ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
             Guid userId,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            List<UserEventParticipant> associations =
+                this.userEventParticipantBroker.SelectAllUserEventParticipants()
+                    .Where(association => association.UserId == userId)
+                    .ToList();
+
+            var views = new List<UserEventParticipantView>();
+
+            foreach (UserEventParticipant association in associations)
+            {
+                EventParticipantV2 participant =
+                    await this.eventHighwayBroker.RetrieveEventParticipantV2ByIdAsync(
+                        association.EventParticipantId, cancellationToken);
+
+                views.Add(new UserEventParticipantView
+                {
+                    Id = association.Id,
+                    UserId = association.UserId,
+                    EventParticipantId = association.EventParticipantId,
+                    EventParticipantName = participant.Name
+                });
+            }
+
+            return views;
+        }
     }
 }
