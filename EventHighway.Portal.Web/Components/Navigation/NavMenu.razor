@@ -5,7 +5,26 @@
 <ul class="sidebar-nav">
     @foreach (NavItem item in Items)
     {
-        @if (item.Roles is null || item.Roles.Length == 0)
+        @if (item.RequiresAuth && (item.Roles is null || item.Roles.Length == 0))
+        {
+            <AuthorizeView Context="authState">
+                <li class="nav-title">@item.Title</li>
+                @if (item.Children is not null)
+                {
+                    @foreach (NavItem child in item.Children)
+                    {
+                        <li class="nav-item">
+                            <NavLink class="nav-link"
+                                     href="@child.Href"
+                                     Match="@(child.ExactMatch ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+                                <i class="nav-icon @child.Icon"></i> @child.Title
+                            </NavLink>
+                        </li>
+                    }
+                }
+            </AuthorizeView>
+        }
+        else if (item.Roles is null || item.Roles.Length == 0)
         {
             <li class="nav-item">
                 <NavLink class="nav-link"

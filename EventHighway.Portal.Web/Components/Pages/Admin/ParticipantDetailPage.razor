@@ -3,10 +3,16 @@
 @using EventHighway.Portal.Web.Components.CoreUI
 @using EventHighway.Portal.Web.Models.Views.EventParticipants
 @using EventHighway.Portal.Web.Models.Views.EventParticipantSecrets
+@using EventHighway.Portal.Web.Models.Views.UserEventParticipants
+@using EventHighway.Portal.Web.Models.Views.Users
 @using EventHighway.Portal.Web.Services.Views.EventParticipants
 @using EventHighway.Portal.Web.Services.Views.EventParticipantSecrets
+@using EventHighway.Portal.Web.Services.Views.UserEventParticipants
+@using EventHighway.Portal.Web.Services.Views.Users
 @inject IEventParticipantsViewService ParticipantsViewService
 @inject IEventParticipantSecretsViewService SecretsViewService
+@inject IUserEventParticipantsViewService UserEventParticipantsViewService
+@inject IUsersViewService UsersViewService
 @inject NavigationManager Navigation
 
 <PageTitle>Participant</PageTitle>
@@ -177,6 +183,78 @@ else if (participant is not null)
             </div>
         </ChildContent>
     </Card>
+
+    <Card CssClass="mt-4">
+        <HeaderContent>Associated Users</HeaderContent>
+        <ChildContent>
+            @if (associationsError is not null)
+            {
+                <div class="alert alert-danger" role="alert">@associationsError</div>
+            }
+            @if (associations.Any())
+            {
+                <ul class="list-group mb-3">
+                    @foreach (UserEventParticipantView association in associations)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="fw-semibold">@association.UserName</span>
+                                <span class="text-body-secondary ms-2">@association.UserEmail</span>
+                            </span>
+                            <Button Color="danger"
+                                    CssClass="btn-sm"
+                                    OnClick="@(() => RemoveAssociationAsync(association.Id))">
+                                Remove
+                            </Button>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-body-secondary">No users are associated with this participant.</p>
+            }
+
+            <div class="d-flex gap-2 align-items-center mb-3">
+                <FormText Label="Find User" @bind-Value="userSearchTerm" />
+                <Button Color="secondary" OnClick="SearchUsersAsync">Search</Button>
+            </div>
+
+            @if (userSearchMessage is not null)
+            {
+                <p class="text-body-secondary">@userSearchMessage</p>
+            }
+
+            @if (userSearchResults.Any())
+            {
+                <ul class="list-group">
+                    @foreach (UserView result in userSearchResults)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="fw-semibold">@result.UserName</span>
+                                <span class="text-body-secondary ms-2">@result.Email</span>
+                            </span>
+                            @if (IsAssociated(result.Id))
+                            {
+                                <Button Color="secondary" CssClass="btn-sm" Disabled="true">
+                                    Added
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Color="primary"
+                                        CssClass="btn-sm"
+                                        OnClick="@(() => AddAssociationAsync(result.Id))">
+                                    Add
+                                </Button>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </ChildContent>
+    </Card>
 }
 
 <Modal Title="Edit Participant" Visible="showEditParticipantModal" OnClose="CloseEditParticipantModal">
@@ -247,12 +325,19 @@ else if (participant is not null)
     private string? confirmMessage;
     private Func<Task>? pendingConfirm;
 
+    private List<UserEventParticipantView> associations = new();
+    private string? associationsError;
+    private string? userSearchTerm;
+    private string? userSearchMessage;
+    private List<UserView> userSearchResults = new();
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             participant = await ParticipantsViewService.RetrieveParticipantByIdAsync(ParticipantId);
             await LoadSecretsAsync();
+            await LoadAssociationsAsync();
         }
         catch
         {
@@ -261,6 +346,88 @@ else if (participant is not null)
         finally
         {
             isLoading = false;
+        }
+    }
+
+    private async Task LoadAssociationsAsync()
+    {
+        try
+        {
+            associations =
+                await UserEventParticipantsViewService
+                    .RetrieveAssociationsByParticipantIdAsync(ParticipantId);
+
+            associationsError = null;
+        }
+        catch
+        {
+            associationsError = "Unable to load associated users.";
+        }
+    }
+
+    private bool IsAssociated(Guid userId) =>
+        associations.Any(association => association.UserId == userId);
+
+    private async Task SearchUsersAsync()
+    {
+        userSearchMessage = null;
+        userSearchResults = new List<UserView>();
+
+        if (string.IsNullOrWhiteSpace(userSearchTerm))
+        {
+            userSearchMessage = "Enter a username or email to search.";
+            return;
+        }
+
+        try
+        {
+            List<UserView> allUsers = await UsersViewService.RetrieveAllUsersAsync();
+
+            userSearchResults = allUsers
+                .Where(user =>
+                    (user.UserName is not null && user.UserName.Contains(
+                        userSearchTerm, StringComparison.OrdinalIgnoreCase))
+                    || (user.Email is not null && user.Email.Contains(
+                        userSearchTerm, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (userSearchResults.Count == 0)
+            {
+                userSearchMessage = "No users matched.";
+            }
+        }
+        catch
+        {
+            userSearchMessage = "No users matched.";
+        }
+    }
+
+    private async Task AddAssociationAsync(Guid userId)
+    {
+        try
+        {
+            await UserEventParticipantsViewService.AddAssociationAsync(userId, ParticipantId);
+            userSearchResults = new List<UserView>();
+            userSearchTerm = null;
+            await LoadAssociationsAsync();
+        }
+        catch
+        {
+            associationsError =
+                "This user is already associated with this participant, or the details are invalid.";
+        }
+    }
+
+    private async Task RemoveAssociationAsync(Guid associationId)
+    {
+        try
+        {
+            await UserEventParticipantsViewService.RemoveAssociationByIdAsync(associationId);
+            await LoadAssociationsAsync();
+        }
+        catch
+        {
+            associationsError = "Unable to remove the association. Please try again.";
         }
     }
 

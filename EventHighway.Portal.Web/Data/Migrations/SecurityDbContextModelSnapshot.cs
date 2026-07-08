@@ -50,6 +50,31 @@ namespace EventHighway.Portal.Web.Data.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
+            modelBuilder.Entity("EventHighway.Portal.Web.Models.Foundations.UserEventParticipants.UserEventParticipant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("EventParticipantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventParticipantId");
+
+                    b.HasIndex("UserId", "EventParticipantId")
+                        .IsUnique();
+
+                    b.ToTable("UserEventParticipants");
+                });
+
             modelBuilder.Entity("EventHighway.Portal.Web.Models.Foundations.Users.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -241,6 +266,15 @@ namespace EventHighway.Portal.Web.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("EventHighway.Portal.Web.Models.Foundations.UserEventParticipants.UserEventParticipant", b =>
+                {
+                    b.HasOne("EventHighway.Portal.Web.Models.Foundations.Users.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

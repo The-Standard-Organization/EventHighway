@@ -69,7 +69,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.EventParticipantSecr
             this.eventHighwayBrokerMock.Verify(broker =>
                 broker.AddEventParticipantSecretV2Async(
                     It.Is<EventParticipantSecretV2>(secret =>
-                        secret.Secret == inputView.Secret
+                        secret.Id != Guid.Empty
+                        && secret.Secret == inputView.Secret
                         && secret.EventParticipantV2Id == participantId
                         && secret.IsActive == inputView.IsActive
                         && secret.CreatedDate == now

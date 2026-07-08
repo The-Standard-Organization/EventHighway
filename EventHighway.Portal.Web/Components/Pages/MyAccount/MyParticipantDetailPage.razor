@@ -1,0 +1,414 @@
+@page "/my/participants/{ParticipantId:guid}"
+@attribute [Authorize]
+@using System.Security.Claims
+@using EventHighway.Portal.Web.Components.CoreUI
+@using EventHighway.Portal.Web.Models.Views.EventParticipants
+@using EventHighway.Portal.Web.Models.Views.EventParticipantSecrets
+@using EventHighway.Portal.Web.Services.Views.EventParticipants
+@using EventHighway.Portal.Web.Services.Views.EventParticipantSecrets
+@using EventHighway.Portal.Web.Services.Views.UserEventParticipants
+@inject IUserEventParticipantsViewService UserEventParticipantsViewService
+@inject IEventParticipantsViewService ParticipantsViewService
+@inject IEventParticipantSecretsViewService SecretsViewService
+@inject NavigationManager Navigation
+
+<PageTitle>Event Participant</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Event Participant</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="my/participants">Back to My Participants</a>
+</div>
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (accessDenied)
+{
+    <div class="alert alert-warning" role="alert">
+        You do not have access to this Event Participant. Contact Support if you think this is
+        incorrect.
+    </div>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+else if (participant is not null)
+{
+    <Card>
+        <HeaderContent>
+            <span class="fw-semibold">@participant.Name</span>
+        </HeaderContent>
+        <ChildContent>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Id</dt>
+                <dd class="col-sm-9">@participant.Id</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@participant.Description</dd>
+
+                <dt class="col-sm-3">Contact Email</dt>
+                <dd class="col-sm-9">@participant.ContactEmail</dd>
+
+                <dt class="col-sm-3">Contact Phone</dt>
+                <dd class="col-sm-9">@participant.ContactPhone</dd>
+
+                <dt class="col-sm-3">Active</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(participant.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                        @(participant.IsActive ? "Active" : "Inactive")
+                    </span>
+                </dd>
+            </dl>
+        </ChildContent>
+    </Card>
+
+    <Card CssClass="mt-4">
+        <HeaderContent>
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <span class="fw-semibold">Event Participant Secrets</span>
+                <Button Color="primary" CssClass="btn-sm" OnClick="OpenAddSecretModal">
+                    Add Secret
+                </Button>
+            </div>
+        </HeaderContent>
+        <ChildContent>
+            @if (secretsError is not null)
+            {
+                <div class="alert alert-danger" role="alert">@secretsError</div>
+            }
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Secret</th>
+                            <th style="width: 8rem;">Active</th>
+                            <th style="width: 12rem;">Active From</th>
+                            <th style="width: 12rem;">Active To</th>
+                            <th class="text-end" style="width: 12rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (secrets.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-body-secondary text-center py-3">
+                                    No secrets yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (EventParticipantSecretView secret in secrets)
+                        {
+                            <tr @key="secret.Id">
+                                <td>
+                                    <span class="font-monospace">@DisplaySecret(secret)</span>
+                                </td>
+                                @if (IsEditing(secret.Id))
+                                {
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               @bind="secret.IsActive" />
+                                    </td>
+                                    <td>
+                                        <input type="date"
+                                               class="form-control form-control-sm"
+                                               value="@FormatDate(secret.ActiveFrom)"
+                                               @onchange="args => secret.ActiveFrom = ParseDate(args.Value?.ToString())" />
+                                    </td>
+                                    <td>
+                                        <input type="date"
+                                               class="form-control form-control-sm"
+                                               value="@FormatDate(secret.ActiveTo)"
+                                               @onchange="args => secret.ActiveTo = ParseDate(args.Value?.ToString())" />
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <Button Color="primary"
+                                                    CssClass="btn-sm"
+                                                    OnClick="() => SaveSecretAsync(secret)">
+                                                Save
+                                            </Button>
+                                            <Button Color="danger"
+                                                    CssClass="btn-sm"
+                                                    OnClick="() => RequestDeleteSecret(secret)">
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <span class="badge @(secret.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                            @(secret.IsActive ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td>@DisplayDate(secret.ActiveFrom)</td>
+                                    <td>@DisplayDate(secret.ActiveTo)</td>
+                                    <td class="text-end">
+                                        <Button Color="outline-primary"
+                                                CssClass="btn-sm"
+                                                OnClick="() => EnterEdit(secret.Id)">
+                                            Edit
+                                        </Button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </ChildContent>
+    </Card>
+}
+
+<Modal Title="Add Secret" Visible="showAddSecretModal" OnClose="CloseAddSecretModal">
+    <ChildContent>
+        @if (addSecretError is not null)
+        {
+            <div class="alert alert-danger" role="alert">@addSecretError</div>
+        }
+        <FormText Label="Secret" @bind-Value="newSecret.Secret" />
+        <FormDate Label="Active From" @bind-Value="newSecret.ActiveFrom" />
+        <FormDate Label="Active To" @bind-Value="newSecret.ActiveTo" />
+        <FormSwitch Label="Active" @bind-Value="newSecret.IsActive" />
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="CloseAddSecretModal">Cancel</Button>
+        <Button Color="primary" OnClick="SubmitAddSecretAsync">Save</Button>
+    </FooterContent>
+</Modal>
+
+<ConfirmDialog Visible="confirmVisible"
+               Title="Confirm delete"
+               Message="@confirmMessage"
+               ConfirmText="OK"
+               CancelText="Cancel"
+               OnConfirm="ConfirmYesAsync"
+               OnCancel="ConfirmNo" />
+
+@code {
+    [Parameter]
+    public Guid ParticipantId { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    private bool isLoading = true;
+    private bool accessDenied;
+    private string? errorMessage;
+    private EventParticipantView? participant;
+
+    private List<EventParticipantSecretView> secrets = new();
+    private string? secretsError;
+    private readonly HashSet<Guid> revealedSecretIds = new();
+    private readonly HashSet<Guid> editingSecretIds = new();
+
+    private bool showAddSecretModal;
+    private string? addSecretError;
+    private EventParticipantSecretView newSecret = new();
+
+    private bool confirmVisible;
+    private string? confirmMessage;
+    private Func<Task>? pendingConfirm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Guid currentUserId = await GetCurrentUserIdAsync();
+
+            bool isAssociated =
+                await UserEventParticipantsViewService.IsUserAssociatedWithParticipantAsync(
+                    currentUserId, ParticipantId);
+
+            if (isAssociated is false)
+            {
+                accessDenied = true;
+                return;
+            }
+
+            participant = await ParticipantsViewService.RetrieveParticipantByIdAsync(ParticipantId);
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            errorMessage = "Unable to load this participant. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task<Guid> GetCurrentUserIdAsync()
+    {
+        if (AuthenticationStateTask is null)
+        {
+            return Guid.Empty;
+        }
+
+        AuthenticationState authenticationState = await AuthenticationStateTask;
+
+        string? idValue =
+            authenticationState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return Guid.TryParse(idValue, out Guid userId) ? userId : Guid.Empty;
+    }
+
+    private async Task<bool> IsStillAssociatedAsync()
+    {
+        Guid currentUserId = await GetCurrentUserIdAsync();
+
+        return await UserEventParticipantsViewService.IsUserAssociatedWithParticipantAsync(
+            currentUserId, ParticipantId);
+    }
+
+    private async Task LoadSecretsAsync()
+    {
+        try
+        {
+            secrets = await SecretsViewService.RetrieveSecretsByParticipantAsync(ParticipantId);
+            secretsError = null;
+        }
+        catch
+        {
+            secretsError = "Unable to load secrets.";
+        }
+    }
+
+    private static string FormatDate(DateTimeOffset? value) =>
+        value?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+    private static string DisplayDate(DateTimeOffset? value) =>
+        value?.ToString("yyyy-MM-dd") ?? "—";
+
+    private static DateTimeOffset? ParseDate(string? raw) =>
+        DateTimeOffset.TryParse(
+            raw,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal,
+            out DateTimeOffset value)
+                ? value
+                : null;
+
+    private bool IsRevealed(Guid secretId) =>
+        revealedSecretIds.Contains(secretId);
+
+    private string DisplaySecret(EventParticipantSecretView secret) =>
+        IsRevealed(secret.Id)
+            ? secret.Secret ?? string.Empty
+            : Mask(secret.Secret);
+
+    private static string Mask(string? secret) =>
+        string.IsNullOrEmpty(secret) ? string.Empty : new string('•', 8);
+
+    private bool IsEditing(Guid secretId) =>
+        editingSecretIds.Contains(secretId);
+
+    private void EnterEdit(Guid secretId) =>
+        editingSecretIds.Add(secretId);
+
+    private async Task SaveSecretAsync(EventParticipantSecretView secret)
+    {
+        if (await IsStillAssociatedAsync() is false)
+        {
+            accessDenied = true;
+            return;
+        }
+
+        try
+        {
+            await SecretsViewService.ModifySecretAsync(secret);
+            editingSecretIds.Remove(secret.Id);
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            secretsError = "Unable to save the secret. Please try again.";
+        }
+    }
+
+    private void RequestDeleteSecret(EventParticipantSecretView secret) =>
+        RequestConfirm(
+            "Deleting this secret is permanent and cannot be undone.",
+            () => DeleteSecretAsync(secret.Id));
+
+    private async Task DeleteSecretAsync(Guid secretId)
+    {
+        if (await IsStillAssociatedAsync() is false)
+        {
+            accessDenied = true;
+            return;
+        }
+
+        try
+        {
+            await SecretsViewService.RemoveSecretByIdAsync(secretId);
+            editingSecretIds.Remove(secretId);
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            secretsError = "Unable to delete the secret. Please try again.";
+        }
+    }
+
+    private void OpenAddSecretModal()
+    {
+        newSecret = new EventParticipantSecretView { EventParticipantV2Id = ParticipantId, IsActive = true };
+        addSecretError = null;
+        showAddSecretModal = true;
+    }
+
+    private void CloseAddSecretModal() =>
+        showAddSecretModal = false;
+
+    private async Task SubmitAddSecretAsync()
+    {
+        if (await IsStillAssociatedAsync() is false)
+        {
+            accessDenied = true;
+            showAddSecretModal = false;
+            return;
+        }
+
+        try
+        {
+            await SecretsViewService.AddSecretAsync(newSecret);
+            showAddSecretModal = false;
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            addSecretError = "Unable to add the secret. Please try again.";
+        }
+    }
+
+    private void RequestConfirm(string message, Func<Task> action)
+    {
+        confirmMessage = message;
+        pendingConfirm = action;
+        confirmVisible = true;
+    }
+
+    private async Task ConfirmYesAsync()
+    {
+        confirmVisible = false;
+        Func<Task>? action = pendingConfirm;
+        pendingConfirm = null;
+
+        if (action is not null)
+        {
+            await action();
+        }
+    }
+
+    private void ConfirmNo()
+    {
+        confirmVisible = false;
+        pendingConfirm = null;
+    }
+}

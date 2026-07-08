@@ -64,5 +64,44 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Navigation
                 .Select(anchor => anchor.GetAttribute("href"))
                 .Should().NotContain("admin/participants");
         }
+
+        [Fact]
+        public void ShouldRenderMyAccountGroupForAuthenticatedUser()
+        {
+            // given
+            BunitAuthorizationContext authorizationContext = AddAuthorization();
+            authorizationContext.SetAuthorized("user");
+
+            // when
+            IRenderedComponent<NavMenu> renderedNavMenu = Render<NavMenu>();
+
+            // then
+            renderedNavMenu.FindAll("a")
+                .Select(anchor => anchor.GetAttribute("href"))
+                .Should().Contain(new[]
+                {
+                    "Account/Manage",
+                    "my/participants"
+                });
+
+            renderedNavMenu.Markup.Should().Contain("My Account");
+        }
+
+        [Fact]
+        public void ShouldHideMyAccountGroupForAnonymousUser()
+        {
+            // given
+            AddAuthorization();
+
+            // when
+            IRenderedComponent<NavMenu> renderedNavMenu = Render<NavMenu>();
+
+            // then
+            renderedNavMenu.FindAll("a")
+                .Select(anchor => anchor.GetAttribute("href"))
+                .Should().NotContain("my/participants");
+
+            renderedNavMenu.Markup.Should().NotContain("My Account");
+        }
     }
 }

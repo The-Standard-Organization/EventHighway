@@ -60,5 +60,34 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Navigation
                 "admin/users"
             });
         }
+
+        [Fact]
+        public void ShouldReturnMyAccountGroupRequiringAuthentication()
+        {
+            // given . when
+            IReadOnlyList<NavItem> navMenu = NavMenuProvider.GetNavMenu();
+
+            // then
+            NavItem myAccountGroup =
+                navMenu.Single(item => item.Title == "My Account");
+
+            myAccountGroup.RequiresAuth.Should().BeTrue();
+            myAccountGroup.Roles.Should().BeNull();
+            myAccountGroup.Children.Should().NotBeNullOrEmpty();
+
+            myAccountGroup.Children!.Select(child => child.Href).Should().ContainInOrder(
+                "Account/Manage",
+                "Account/Manage/Email",
+                "Account/Manage/ChangePassword",
+                "Account/Manage/TwoFactorAuthentication",
+                "Account/Manage/Passkeys",
+                "my/participants",
+                "Account/Manage/PersonalData");
+
+            NavItem profileChild =
+                myAccountGroup.Children!.Single(child => child.Href == "Account/Manage");
+
+            profileChild.ExactMatch.Should().BeTrue();
+        }
     }
 }

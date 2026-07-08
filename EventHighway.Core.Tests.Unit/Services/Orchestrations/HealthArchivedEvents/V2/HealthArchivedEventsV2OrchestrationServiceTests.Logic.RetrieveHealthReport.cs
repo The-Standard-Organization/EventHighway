@@ -120,7 +120,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 new HealthCheckItemV2
                 {
                     Grouping = "Archived Listeners",
-                    Item = "Total Error",
+                    Item = "Total Errors",
                     Value = FormatRateValue(totalError, totalListenerEvents),
                     Description = "Archived listener events that ended in an error state.",
                     StatusCode = (int)HealthStatusV2.NA,
