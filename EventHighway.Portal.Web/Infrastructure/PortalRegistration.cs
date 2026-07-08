@@ -11,6 +11,7 @@ using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Identities;
 using EventHighway.Portal.Web.Brokers.Loggings;
+using EventHighway.Portal.Web.Brokers.UserEventParticipants;
 using EventHighway.Portal.Web.Components.Account;
 using EventHighway.Portal.Web.Data;
 using EventHighway.Portal.Web.Models.Foundations.Roles;
@@ -107,6 +108,7 @@ namespace EventHighway.Portal.Web.Infrastructure
             services.AddSingleton<IEmailSender<AppUser>, IdentityNoOpEmailSender>();
 
             services.AddTransient<IIdentityBroker, IdentityBroker>();
+            services.AddTransient<IUserEventParticipantBroker, UserEventParticipantBroker>();
 
             return services;
         }
