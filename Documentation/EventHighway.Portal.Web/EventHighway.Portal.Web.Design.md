@@ -671,9 +671,17 @@ Associated users reach their participants through **My Account → Participant M
   table with a **View** button. No *Add Participant* button. With no associations it shows:
   *"You do not currently have any Event Participant Associations. Contact Support if you think this
   is incorrect."*
+
+  ![My Participants list](Images/Portal-My-Participants.png)
+
 - **Detail** (`/my/participants/{id}`) — the participant profile **read-only** (no Edit, no Delete,
   no edit modal) plus the full **secrets** card: add, reveal/hide, inline-edit and delete secrets,
   exactly as [§7.2](#72-participant-details--secrets).
+
+  ![My Participant detail](Images/Portal-My-Participant-Detail.png)
+
+Note the sidebar in both screenshots: a `Users`-role account sees the **My Account** group but no
+**Admin** group.
 
 ### 13.3 The authorization model — association is the only key
 
