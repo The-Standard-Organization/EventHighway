@@ -57,6 +57,7 @@ namespace EventHighway.Portal.Web.Services.Views.EventParticipantSecrets
 
             var secretToAdd = new EventParticipantSecretV2
             {
+                Id = Guid.NewGuid(),
                 Secret = secret.Secret,
                 IsActive = secret.IsActive,
                 ActiveFrom = secret.ActiveFrom,
