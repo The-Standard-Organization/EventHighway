@@ -14,6 +14,7 @@ using EventHighway.Portal.Web.Brokers.Identities;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Brokers.UserEventParticipants;
 using EventHighway.Portal.Web.Models.Foundations.UserEventParticipants;
+using EventHighway.Portal.Web.Models.Foundations.Users;
 using EventHighway.Portal.Web.Models.Views.UserEventParticipants;
 
 namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
@@ -71,9 +72,39 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             return views;
         }
 
-        public ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByParticipantIdAsync(
-            Guid eventParticipantId,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        public async ValueTask<List<UserEventParticipantView>>
+            RetrieveAssociationsByParticipantIdAsync(
+                Guid eventParticipantId,
+                CancellationToken cancellationToken = default)
+        {
+            List<UserEventParticipant> associations =
+                this.userEventParticipantBroker.SelectAllUserEventParticipants()
+                    .Where(association => association.EventParticipantId == eventParticipantId)
+                    .ToList();
+
+            var views = new List<UserEventParticipantView>();
+
+            foreach (UserEventParticipant association in associations)
+            {
+                AppUser user =
+                    await this.identityBroker.SelectUserByIdAsync(association.UserId);
+
+                if (user is null)
+                {
+                    continue;
+                }
+
+                views.Add(new UserEventParticipantView
+                {
+                    Id = association.Id,
+                    UserId = association.UserId,
+                    UserName = user.UserName ?? string.Empty,
+                    UserEmail = user.Email ?? string.Empty,
+                    EventParticipantId = association.EventParticipantId
+                });
+            }
+
+            return views;
+        }
     }
 }
