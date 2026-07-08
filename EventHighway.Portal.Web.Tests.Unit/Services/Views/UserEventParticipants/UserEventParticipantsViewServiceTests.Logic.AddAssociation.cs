@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -54,6 +56,10 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.UserEventParticipant
                     inputParticipantId, It.IsAny<CancellationToken>()))
                         .ReturnsAsync(randomParticipant);
 
+            this.userEventParticipantBrokerMock.Setup(broker =>
+                broker.SelectAllUserEventParticipants())
+                    .Returns(Enumerable.Empty<UserEventParticipant>().AsQueryable());
+
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetCurrentDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
@@ -83,6 +89,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.UserEventParticipant
 
             this.dateTimeBrokerMock.Verify(broker =>
                 broker.GetCurrentDateTimeOffsetAsync(), Times.Once);
+
+            this.userEventParticipantBrokerMock.Verify(broker =>
+                broker.SelectAllUserEventParticipants(), Times.Once);
 
             this.userEventParticipantBrokerMock.Verify(broker =>
                 broker.InsertUserEventParticipantAsync(

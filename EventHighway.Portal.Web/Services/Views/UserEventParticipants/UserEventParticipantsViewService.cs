@@ -130,6 +130,17 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                 throw new NotFoundUserEventParticipantsViewException();
             }
 
+            bool alreadyExists =
+                this.userEventParticipantBroker.SelectAllUserEventParticipants()
+                    .Any(association =>
+                        association.UserId == userId
+                            && association.EventParticipantId == eventParticipantId);
+
+            if (alreadyExists)
+            {
+                throw new AlreadyExistsUserEventParticipantsViewException();
+            }
+
             DateTimeOffset now =
                 await this.dateTimeBroker.GetCurrentDateTimeOffsetAsync();
 

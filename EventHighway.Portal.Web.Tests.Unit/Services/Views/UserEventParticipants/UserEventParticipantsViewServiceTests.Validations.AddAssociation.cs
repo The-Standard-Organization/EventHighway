@@ -178,6 +178,13 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.UserEventParticipant
             // then
             actualException.Should().BeEquivalentTo(expectedValidationException);
 
+            this.identityBrokerMock.Verify(broker =>
+                broker.SelectUserByIdAsync(inputUserId), Times.Once);
+
+            this.eventHighwayBrokerMock.Verify(broker =>
+                broker.RetrieveEventParticipantV2ByIdAsync(
+                    inputParticipantId, It.IsAny<CancellationToken>()), Times.Once);
+
             this.userEventParticipantBrokerMock.Verify(broker =>
                 broker.SelectAllUserEventParticipants(), Times.Once);
 

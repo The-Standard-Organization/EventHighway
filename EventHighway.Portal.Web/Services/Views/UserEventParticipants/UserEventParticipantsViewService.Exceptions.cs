@@ -27,6 +27,12 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                 throw await CreateAndLogValidationExceptionAsync(
                     notFoundUserEventParticipantsViewException);
             }
+            catch (AlreadyExistsUserEventParticipantsViewException
+                alreadyExistsUserEventParticipantsViewException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    alreadyExistsUserEventParticipantsViewException);
+            }
             catch (Exception exception)
             {
                 var failedServiceException =
@@ -48,6 +54,12 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     notFoundUserEventParticipantsViewException);
+            }
+            catch (AlreadyExistsUserEventParticipantsViewException
+                alreadyExistsUserEventParticipantsViewException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    alreadyExistsUserEventParticipantsViewException);
             }
             catch (Exception exception)
             {
