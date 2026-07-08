@@ -189,7 +189,8 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
         public ValueTask<bool> IsUserAssociatedWithParticipantAsync(
             Guid userId,
             Guid eventParticipantId,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(() =>
         {
             bool isAssociated =
                 this.userEventParticipantBroker.SelectAllUserEventParticipants()
@@ -198,6 +199,6 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                             && association.EventParticipantId == eventParticipantId);
 
             return new ValueTask<bool>(isAssociated);
-        }
+        });
     }
 }
