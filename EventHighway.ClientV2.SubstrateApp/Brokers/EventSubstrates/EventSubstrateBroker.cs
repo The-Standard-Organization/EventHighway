@@ -4,6 +4,7 @@
 
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Configurations;
+using EventHighway.SqlServer;
 
 namespace EventHighway.ClientV2.SubstrateApp.Brokers.EventSubstrates
 {
@@ -14,6 +15,9 @@ namespace EventHighway.ClientV2.SubstrateApp.Brokers.EventSubstrates
         public EventSubstrateBroker(
             string connectionString,
             EventHighwayConfiguration configuration) =>
-            this.eventHighwayClient = new EventHighwayClient(connectionString, configuration);
+            this.eventHighwayClient =
+                new EventHighwayClient(
+                    new SqlServerStorageBrokerProvider(connectionString),
+                    configuration);
     }
 }

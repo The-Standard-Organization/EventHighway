@@ -4,6 +4,7 @@
     <Project Path="EventHighway.Core.Tests.Acceptance/EventHighway.Core.Tests.Acceptance.csproj" />
     <Project Path="EventHighway.Core.Tests.Unit/EventHighway.Core.Tests.Unit.csproj" />
     <Project Path="EventHighway.Core/EventHighway.Core.csproj" />
+    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" />
   </Folder>
   <Folder Name="/EventHighway.EventHandlers/">
     <Project Path="EventHighway.EventHandlers.Tests.Acceptance/EventHighway.EventHandlers.Tests.Acceptance.csproj" />

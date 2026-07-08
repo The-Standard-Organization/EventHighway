@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -6,9 +6,9 @@ using System;
 using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace EventHighway.Core
+namespace EventHighway.SqlServer
 {
-    internal class EventHighwayContextFactory : IDesignTimeDbContextFactory<StorageBroker>
+    internal class SqlServerContextFactory : IDesignTimeDbContextFactory<StorageBroker>
     {
         public StorageBroker CreateDbContext(string[] args)
         {
@@ -16,7 +16,7 @@ namespace EventHighway.Core
                 "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
                 "Trusted_Connection=True;MultipleActiveResultSets=true");
 
-            return new StorageBroker(connectionString);
+            return new StorageBroker(new SqlServerStorageBrokerProvider(connectionString));
         }
     }
 }

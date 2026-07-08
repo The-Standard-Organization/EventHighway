@@ -15,6 +15,7 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
+using EventHighway.SqlServer;
 
 public partial class Program
 {
@@ -40,7 +41,10 @@ public partial class Program
         configuration.LoopDetection.Threshold = 0;
         configuration.LoopDetection.Window = TimeSpan.FromMinutes(1);
 
-        var client = new EventHighwayClient(connectionString, configuration);
+        var client =
+            new EventHighwayClient(
+                new SqlServerStorageBrokerProvider(connectionString),
+                configuration);
 
         // =========================================================
         // 2) Create and register the handlers
