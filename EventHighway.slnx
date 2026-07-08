@@ -1,10 +1,17 @@
 <Solution>
-  <Folder Name="/EventHighway.Core/">
+  <Folder Name="/Documentation/" />
+  <Folder Name="/Documentation/EventHighway.Core/" />
+  <Folder Name="/Documentation/EventHighway.Core/V2/">
+    <File Path="Documentation/EventHighway.Core/V2/EventHighway.Core.V2.Design.md" />
+  </Folder>
+  <Folder Name="/Documentation/EventHighway.Portal.Web/" />
+  <Folder Name="/EventHighway.Abstractions/">
     <Project Path="EventHighway.Abstractions/EventHighway.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/EventHighway.Core/">
     <Project Path="EventHighway.Core.Tests.Acceptance/EventHighway.Core.Tests.Acceptance.csproj" />
     <Project Path="EventHighway.Core.Tests.Unit/EventHighway.Core.Tests.Unit.csproj" />
     <Project Path="EventHighway.Core/EventHighway.Core.csproj" />
-    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" />
   </Folder>
   <Folder Name="/EventHighway.EventHandlers/">
     <Project Path="EventHighway.EventHandlers.Tests.Acceptance/EventHighway.EventHandlers.Tests.Acceptance.csproj" />
@@ -22,10 +29,15 @@
     <Project Path="EventHighway.ClientV2.BasicApp/EventHighway.ClientV2.BasicApp.csproj" />
     <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
   </Folder>
+  <Folder Name="/EventHighway.StorageProviders/">
+    <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj">
+      <Build Solution="Debug|*" Project="false" />
+    </Project>
+  </Folder>
   <Folder Name="/Portal/">
-    <Project Path="EventHighway.Portal.Web/EventHighway.Portal.Web.csproj" />
-    <Project Path="EventHighway.Portal.Web.Tests.Unit/EventHighway.Portal.Web.Tests.Unit.csproj" />
     <Project Path="EventHighway.Portal.Seed/EventHighway.Portal.Seed.csproj" />
+    <Project Path="EventHighway.Portal.Web.Tests.Unit/EventHighway.Portal.Web.Tests.Unit.csproj" />
+    <Project Path="EventHighway.Portal.Web/EventHighway.Portal.Web.csproj" />
   </Folder>
   <Project Path="EventHighway.Infrastructure/EventHighway.Infrastructure.csproj" />
 </Solution>
