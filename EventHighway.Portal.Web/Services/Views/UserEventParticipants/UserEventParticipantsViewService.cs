@@ -158,7 +158,11 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
         public ValueTask<bool> IsUserAssociatedWithParticipantAsync(
             Guid userId,
             Guid eventParticipantId,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            this.userEventParticipantBroker.SelectAllUserEventParticipants();
+
+            return new ValueTask<bool>(true);
+        }
     }
 }
