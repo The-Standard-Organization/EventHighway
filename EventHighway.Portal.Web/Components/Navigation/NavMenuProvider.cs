@@ -48,6 +48,35 @@ namespace EventHighway.Portal.Web.Components.Navigation
 
                         new NavItem("Users", "cil-user", "admin/users",
                             Roles: new[] { "Administrators" }, RequiresAuth: true),
+                    }),
+
+                new NavItem(
+                    Title: "My Account",
+                    Icon: "cil-user",
+                    Href: "",
+                    RequiresAuth: true,
+                    Children: new[]
+                    {
+                        new NavItem("Profile", "cil-user", "Account/Manage",
+                            RequiresAuth: true, ExactMatch: true),
+
+                        new NavItem("Email", "cil-envelope-closed", "Account/Manage/Email",
+                            RequiresAuth: true),
+
+                        new NavItem("Password", "cil-lock-locked", "Account/Manage/ChangePassword",
+                            RequiresAuth: true),
+
+                        new NavItem("Two-factor Authentication", "cil-shield-alt",
+                            "Account/Manage/TwoFactorAuthentication", RequiresAuth: true),
+
+                        new NavItem("Passkeys", "cil-fingerprint", "Account/Manage/Passkeys",
+                            RequiresAuth: true),
+
+                        new NavItem("Participant Management", "cil-people", "my/participants",
+                            RequiresAuth: true),
+
+                        new NavItem("Personal Data", "cil-file", "Account/Manage/PersonalData",
+                            RequiresAuth: true),
                     })
             };
     }
