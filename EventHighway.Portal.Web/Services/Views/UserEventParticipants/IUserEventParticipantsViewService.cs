@@ -24,5 +24,9 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             Guid userId,
             Guid eventParticipantId,
             CancellationToken cancellationToken = default);
+
+        ValueTask RemoveAssociationByIdAsync(
+            Guid associationId,
+            CancellationToken cancellationToken = default);
     }
 }

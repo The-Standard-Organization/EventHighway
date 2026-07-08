@@ -143,5 +143,10 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                 EventParticipantName = participant.Name
             };
         }
+
+        public ValueTask RemoveAssociationByIdAsync(
+            Guid associationId,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
