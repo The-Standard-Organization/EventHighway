@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -119,6 +120,77 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.UserEventParticipant
             this.userEventParticipantBrokerMock.Verify(broker =>
                 broker.InsertUserEventParticipantAsync(
                     It.IsAny<UserEventParticipant>()), Times.Never);
+
+            this.identityBrokerMock.VerifyNoOtherCalls();
+            this.eventHighwayBrokerMock.VerifyNoOtherCalls();
+            this.userEventParticipantBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddAssociationWhenAlreadyExistsAsync()
+        {
+            // given
+            Guid inputUserId = GetRandomGuid();
+            Guid inputParticipantId = GetRandomGuid();
+
+            AppUser randomUser = CreateRandomUser(inputUserId);
+            EventParticipantV2 randomParticipant = CreateRandomParticipant(inputParticipantId);
+
+            UserEventParticipant existingAssociation =
+                CreateRandomAssociation(inputUserId, inputParticipantId);
+
+            var associations = new System.Collections.Generic.List<UserEventParticipant>
+            {
+                existingAssociation
+            };
+
+            var expectedAlreadyExistsException =
+                new AlreadyExistsUserEventParticipantsViewException();
+
+            var expectedValidationException =
+                new UserEventParticipantsViewValidationException(
+                    innerException: expectedAlreadyExistsException);
+
+            this.identityBrokerMock.Setup(broker =>
+                broker.SelectUserByIdAsync(inputUserId))
+                    .ReturnsAsync(randomUser);
+
+            this.eventHighwayBrokerMock.Setup(broker =>
+                broker.RetrieveEventParticipantV2ByIdAsync(
+                    inputParticipantId, It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(randomParticipant);
+
+            this.userEventParticipantBrokerMock.Setup(broker =>
+                broker.SelectAllUserEventParticipants())
+                    .Returns(associations.AsQueryable());
+
+            // when
+            ValueTask<Models.Views.UserEventParticipants.UserEventParticipantView> addTask =
+                this.userEventParticipantsViewService.AddAssociationAsync(
+                    inputUserId, inputParticipantId, TestContext.Current.CancellationToken);
+
+            UserEventParticipantsViewValidationException actualException =
+                await Assert.ThrowsAsync<UserEventParticipantsViewValidationException>(
+                    addTask.AsTask);
+
+            // then
+            actualException.Should().BeEquivalentTo(expectedValidationException);
+
+            this.userEventParticipantBrokerMock.Verify(broker =>
+                broker.SelectAllUserEventParticipants(), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedValidationException))), Times.Once);
+
+            this.userEventParticipantBrokerMock.Verify(broker =>
+                broker.InsertUserEventParticipantAsync(
+                    It.IsAny<UserEventParticipant>()), Times.Never);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTimeOffsetAsync(), Times.Never);
 
             this.identityBrokerMock.VerifyNoOtherCalls();
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
