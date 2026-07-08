@@ -74,10 +74,11 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             return views;
         });
 
-        public async ValueTask<List<UserEventParticipantView>>
+        public ValueTask<List<UserEventParticipantView>>
             RetrieveAssociationsByParticipantIdAsync(
                 Guid eventParticipantId,
-                CancellationToken cancellationToken = default)
+                CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             List<UserEventParticipant> associations =
                 this.userEventParticipantBroker.SelectAllUserEventParticipants()
@@ -107,7 +108,7 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
             }
 
             return views;
-        }
+        });
 
         public ValueTask<UserEventParticipantView> AddAssociationAsync(
             Guid userId,
