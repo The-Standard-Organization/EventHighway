@@ -64,7 +64,7 @@ namespace EventHighway.Portal.Web.Services.Views.UserEventParticipants
                     Id = association.Id,
                     UserId = association.UserId,
                     EventParticipantId = association.EventParticipantId,
-                    EventParticipantName = participant.Name
+                    EventParticipantName = participant?.Name ?? ParticipantNotFoundName
                 });
             }
 
