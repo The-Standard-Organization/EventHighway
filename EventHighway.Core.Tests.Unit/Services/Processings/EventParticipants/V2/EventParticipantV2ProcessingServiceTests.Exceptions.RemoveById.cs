@@ -1,0 +1,274 @@
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
+// ----------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
+using FluentAssertions;
+using Moq;
+using Xeptions;
+
+namespace EventHighway.Core.Tests.Unit.Services.Processings.EventParticipants.V2
+{
+    public partial class EventParticipantV2ProcessingServiceTests
+    {
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnRemoveByIdIfTimeoutOccursAndLogItAsync()
+        {
+            // given
+            Guid someEventParticipantV2Id = GetRandomId();
+            var operationCanceledException = new OperationCanceledException();
+
+            var timeoutException =
+                new TimeoutException("The dependency operation timed out.");
+
+            var timeoutEventParticipantV2ProcessingException =
+                new TimeoutEventParticipantV2ProcessingException(
+                    message: "Failed event participant processing timeout error occurred, contact support.",
+                    innerException: timeoutException,
+                    data: timeoutException.Data);
+
+            var expectedEventParticipantV2ProcessingDependencyException =
+                new EventParticipantV2ProcessingDependencyException(
+                    message: "Event participant dependency error occurred, contact support.",
+                    innerException: timeoutEventParticipantV2ProcessingException);
+
+            this.eventParticipantV2ServiceMock.Setup(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(operationCanceledException);
+
+            // when
+            ValueTask<EventParticipantV2> removeEventParticipantV2ByIdTask =
+                this.eventParticipantV2ProcessingService.RemoveEventParticipantV2ByIdAsync(
+                    someEventParticipantV2Id,
+                    TestContext.Current.CancellationToken);
+
+            EventParticipantV2ProcessingDependencyException actualEventParticipantV2ProcessingDependencyException =
+                await Assert.ThrowsAsync<EventParticipantV2ProcessingDependencyException>(
+                    removeEventParticipantV2ByIdTask.AsTask);
+
+            // then
+            actualEventParticipantV2ProcessingDependencyException.Should().BeEquivalentTo(
+                expectedEventParticipantV2ProcessingDependencyException);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2ProcessingDependencyException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRemoveByIdAsync()
+        {
+            // given
+            Guid someEventParticipantV2Id = GetRandomId();
+            var cancellationTokenSource = new CancellationTokenSource();
+            cancellationTokenSource.Cancel();
+            CancellationToken cancelledToken = cancellationTokenSource.Token;
+
+            // when
+            ValueTask<EventParticipantV2> removeEventParticipantV2ByIdTask =
+                this.eventParticipantV2ProcessingService.RemoveEventParticipantV2ByIdAsync(
+                    someEventParticipantV2Id,
+                    cancelledToken);
+
+            // then
+            OperationCanceledException actualException =
+                await Assert.ThrowsAsync<OperationCanceledException>(
+                    removeEventParticipantV2ByIdTask.AsTask);
+
+            actualException.Should().NotBeOfType<EventParticipantV2ProcessingDependencyException>();
+            actualException.Should().NotBeOfType<EventParticipantV2ProcessingServiceException>();
+            actualException.CancellationToken.IsCancellationRequested.Should().BeTrue();
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.IsAny<Xeption>()),
+                    Times.Never);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCriticalAsync(It.IsAny<Xeption>()),
+                    Times.Never);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidationExceptions))]
+        public async Task
+            ShouldThrowDependencyValidationExceptionOnRemoveByIdIfDependencyValidationErrorOccursAndLogItAsync(
+                Xeption validationException)
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid someEventParticipantV2Id = GetRandomId();
+
+            var expectedEventParticipantV2ProcessingDependencyValidationException =
+                new EventParticipantV2ProcessingDependencyValidationException(
+                    message: "Event participant validation error occurred, fix the errors and try again.",
+                    innerException: validationException.InnerException as Xeption);
+
+            this.eventParticipantV2ServiceMock.Setup(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(validationException);
+
+            // when
+            ValueTask<EventParticipantV2> removeEventParticipantV2ByIdTask =
+                this.eventParticipantV2ProcessingService.RemoveEventParticipantV2ByIdAsync(
+                    someEventParticipantV2Id,
+                    randomCancellationToken);
+
+            EventParticipantV2ProcessingDependencyValidationException
+                actualEventParticipantV2ProcessingDependencyValidationException =
+                    await Assert.ThrowsAsync<EventParticipantV2ProcessingDependencyValidationException>(
+                        removeEventParticipantV2ByIdTask.AsTask);
+
+            // then
+            actualEventParticipantV2ProcessingDependencyValidationException.Should().BeEquivalentTo(
+                expectedEventParticipantV2ProcessingDependencyValidationException);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2ProcessingDependencyValidationException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [MemberData(nameof(DependencyExceptions))]
+        public async Task ShouldThrowDependencyExceptionOnRemoveByIdIfDependencyExceptionOccursAndLogItAsync(
+            Xeption dependencyException)
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid someEventParticipantV2Id = GetRandomId();
+
+            var expectedEventParticipantV2ProcessingDependencyException =
+                new EventParticipantV2ProcessingDependencyException(
+                    message: "Event participant dependency error occurred, contact support.",
+                    innerException: dependencyException.InnerException as Xeption);
+
+            this.eventParticipantV2ServiceMock.Setup(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(dependencyException);
+
+            // when
+            ValueTask<EventParticipantV2> removeEventParticipantV2ByIdTask =
+                this.eventParticipantV2ProcessingService.RemoveEventParticipantV2ByIdAsync(
+                    someEventParticipantV2Id,
+                    randomCancellationToken);
+
+            EventParticipantV2ProcessingDependencyException
+                actualEventParticipantV2ProcessingDependencyException =
+                    await Assert.ThrowsAsync<EventParticipantV2ProcessingDependencyException>(
+                        removeEventParticipantV2ByIdTask.AsTask);
+
+            // then
+            actualEventParticipantV2ProcessingDependencyException.Should().BeEquivalentTo(
+                expectedEventParticipantV2ProcessingDependencyException);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2ProcessingDependencyException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRemoveByIdIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid someEventParticipantV2Id = GetRandomId();
+            var serviceException = new Exception();
+            serviceException.Data.Add("ErrorCode", new List<string> { "ServiceError" });
+
+            var failedEventParticipantV2ProcessingServiceException =
+                new FailedEventParticipantV2ProcessingServiceException(
+                    message: "Failed event participant service error occurred, contact support.",
+                    innerException: serviceException,
+                    data: serviceException.Data);
+
+            var expectedEventParticipantV2ProcessingServiceException =
+                new EventParticipantV2ProcessingServiceException(
+                    message: "Event participant service error occurred, contact support.",
+                    innerException: failedEventParticipantV2ProcessingServiceException);
+
+            this.eventParticipantV2ServiceMock.Setup(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()))
+                        .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<EventParticipantV2> removeEventParticipantV2ByIdTask =
+                this.eventParticipantV2ProcessingService.RemoveEventParticipantV2ByIdAsync(
+                    someEventParticipantV2Id,
+                    randomCancellationToken);
+
+            EventParticipantV2ProcessingServiceException
+                actualEventParticipantV2ProcessingServiceException =
+                    await Assert.ThrowsAsync<EventParticipantV2ProcessingServiceException>(
+                        removeEventParticipantV2ByIdTask.AsTask);
+
+            // then
+            actualEventParticipantV2ProcessingServiceException.Should()
+                .BeEquivalentTo(expectedEventParticipantV2ProcessingServiceException);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RemoveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2ProcessingServiceException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+    }
+}

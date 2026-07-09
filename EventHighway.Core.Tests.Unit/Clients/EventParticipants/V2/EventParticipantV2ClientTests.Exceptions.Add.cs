@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
-using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.Exceptions;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
 using FluentAssertions;
 using Moq;
 using Xeptions;
@@ -26,8 +26,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             EventParticipantV2 someEventParticipantV2 = CreateRandomEventParticipantV2();
             var someInnerException = new Xeption(message: GetRandomString());
 
-            var eventParticipantV2ValidationException =
-                new EventParticipantV2ValidationException(
+            var eventParticipantV2ProcessingValidationException =
+                new EventParticipantV2ProcessingValidationException(
                     message: "Event participant validation error occurred, fix the errors and try again.",
                     innerException: someInnerException);
 
@@ -37,11 +37,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     innerException: someInnerException,
                     data: someInnerException.Data);
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
-                        .ThrowsAsync(eventParticipantV2ValidationException);
+                        .ThrowsAsync(eventParticipantV2ProcessingValidationException);
 
             // when
             ValueTask<EventParticipantV2> addEventParticipantV2Task =
@@ -58,13 +58,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -78,8 +78,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             EventParticipantV2 someEventParticipantV2 = CreateRandomEventParticipantV2();
             var someInnerException = new Xeption(message: GetRandomString());
 
-            var eventParticipantV2DependencyValidationException =
-                new EventParticipantV2DependencyValidationException(
+            var eventParticipantV2ProcessingDependencyValidationException =
+                new EventParticipantV2ProcessingDependencyValidationException(
                     message: "Event participant validation error occurred, fix the errors and try again.",
                     innerException: someInnerException);
 
@@ -89,11 +89,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     innerException: someInnerException,
                     data: someInnerException.Data);
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
-                        .ThrowsAsync(eventParticipantV2DependencyValidationException);
+                        .ThrowsAsync(eventParticipantV2ProcessingDependencyValidationException);
 
             // when
             ValueTask<EventParticipantV2> addEventParticipantV2Task =
@@ -110,13 +110,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -130,8 +130,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             EventParticipantV2 someEventParticipantV2 = CreateRandomEventParticipantV2();
             var someInnerException = new Xeption(message: GetRandomString());
 
-            var eventParticipantV2DependencyException =
-                new EventParticipantV2DependencyException(
+            var eventParticipantV2ProcessingDependencyException =
+                new EventParticipantV2ProcessingDependencyException(
                     message: "Event participant dependency error occurred, contact support.",
                     innerException: someInnerException);
 
@@ -141,11 +141,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     innerException: someInnerException,
                     data: someInnerException.Data);
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
-                        .ThrowsAsync(eventParticipantV2DependencyException);
+                        .ThrowsAsync(eventParticipantV2ProcessingDependencyException);
 
             // when
             ValueTask<EventParticipantV2> addEventParticipantV2Task =
@@ -162,13 +162,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -182,8 +182,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             EventParticipantV2 someEventParticipantV2 = CreateRandomEventParticipantV2();
             var someInnerException = new Xeption(message: GetRandomString());
 
-            var eventParticipantV2ServiceException =
-                new EventParticipantV2ServiceException(
+            var eventParticipantV2ProcessingServiceException =
+                new EventParticipantV2ProcessingServiceException(
                     message: "Event participant service error occurred, contact support.",
                     innerException: someInnerException);
 
@@ -193,11 +193,11 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     innerException: someInnerException,
                     data: someInnerException.Data);
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
-                        .ThrowsAsync(eventParticipantV2ServiceException);
+                        .ThrowsAsync(eventParticipantV2ProcessingServiceException);
 
             // when
             ValueTask<EventParticipantV2> addEventParticipantV2Task =
@@ -214,13 +214,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -240,7 +240,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     innerException: someException as Xeption,
                     data: someException.Data);
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
@@ -261,13 +261,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2ClientServiceException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientServiceException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
 
         [Fact]
@@ -283,7 +283,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             var operationCanceledException =
                 new OperationCanceledException();
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
@@ -303,13 +303,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualException.Should()
                 .BeEquivalentTo(operationCanceledException);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
     }
 }
