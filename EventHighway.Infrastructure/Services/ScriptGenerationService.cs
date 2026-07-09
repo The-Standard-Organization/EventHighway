@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using ADotNet.Clients;
 using ADotNet.Models.Pipelines.GithubPipelines.DotNets;
-using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks;
-using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks.SetupDotNetTaskV5s;
 using EventHighway.Infrastructure.Models;
 
 namespace EventHighway.Infrastructure.Services
@@ -85,15 +83,9 @@ namespace EventHighway.Infrastructure.Services
                       ["PROVIDER"] =
                           "${{ matrix.provider }}",
 
-                      ["SQLSERVER_CONN"] =
-                          "Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True",
-
-                      ["POSTGRES_CONN"] =
-                          "Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres"
+                      ["CONNECTION_STRING"] =
+                          "${{ matrix.connection_string }}"
                   })
-                  .AddEnvironmentVariable(
-                      "CONNECTION_STRING",
-                      "${{ matrix.provider == 'sqlserver' && env.SQLSERVER_CONN || env.POSTGRES_CONN }}")
                   .AddCheckoutStep()
                   .AddSetupDotNetStep("10.0.100")
                   .AddRestoreStep()

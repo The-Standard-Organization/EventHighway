@@ -54,9 +54,7 @@ jobs:
           connection_string: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres
     env:
       PROVIDER: ${{ matrix.provider }}
-      SQLSERVER_CONN: Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True
-      POSTGRES_CONN: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres
-      CONNECTION_STRING: ${{ matrix.provider == 'sqlserver' && env.SQLSERVER_CONN || env.POSTGRES_CONN }}
+      CONNECTION_STRING: ${{ matrix.connection_string }}
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
