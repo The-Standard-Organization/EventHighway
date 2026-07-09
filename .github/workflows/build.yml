@@ -58,7 +58,7 @@ jobs:
         - postgres
         include:
         - provider: sqlserver
-          connection_string: Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;
+          connection_string: Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
           project: EventHighway.SqlServer/EventHighway.SqlServer.csproj
         - provider: postgres
           connection_string: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres

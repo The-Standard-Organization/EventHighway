@@ -46,7 +46,7 @@ namespace EventHighway.Infrastructure.Services
                         ["provider"] = "sqlserver",
 
                         ["connection_string"] =
-                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;",
+                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true",
 
                         ["project"] =
                                 "EventHighway.SqlServer/EventHighway.SqlServer.csproj"
