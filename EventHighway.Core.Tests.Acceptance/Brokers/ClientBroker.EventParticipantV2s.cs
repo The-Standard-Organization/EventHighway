@@ -16,6 +16,11 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
                 await this.eventHighwayClient.V2.EventParticipantV2Client
                     .AddEventParticipantV2Async(eventParticipantV2);
 
+        public async ValueTask<EventParticipantV2> RetrieveOrAddEventParticipantV2Async(
+            EventParticipantV2 eventParticipantV2) =>
+                await this.eventHighwayClient.V2.EventParticipantV2Client
+                    .RetrieveOrAddEventParticipantV2Async(eventParticipantV2);
+
         public async ValueTask<IEnumerable<EventParticipantV2>>
             RetrieveAllEventParticipantV2sAsync() =>
                 await this.eventHighwayClient.V2.EventParticipantV2Client

@@ -3,14 +3,14 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 
-namespace EventHighway.Core.Clients.EventParticipants.V2
+namespace EventHighway.Core.Services.Processings.EventParticipants.V2
 {
-    public interface IEventParticipantV2Client
+    internal interface IEventParticipantV2ProcessingService
     {
         ValueTask<EventParticipantV2> AddEventParticipantV2Async(
             EventParticipantV2 eventParticipantV2,
@@ -20,7 +20,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
+        ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
             CancellationToken cancellationToken = default);
 
         ValueTask<EventParticipantV2> RetrieveEventParticipantV2ByIdAsync(
