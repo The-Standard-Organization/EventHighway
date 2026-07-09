@@ -91,6 +91,9 @@ namespace EventHighway.Infrastructure.Services
                   .AddRestoreStep()
                   .AddBuildStep()
                   .AddGenericStep(
+                      name: "Install EF Core Tools",
+                      runCommand: "dotnet tool install --global dotnet-ef")
+                  .AddGenericStep(
                       name: "Apply Migrations",
                       runCommand: "dotnet ef database update")
                   .AddTestStep())
