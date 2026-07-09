@@ -18,7 +18,7 @@ namespace EventHighway.Core.Brokers.Storages
             model.HasKey(eventArchiveV2 => eventArchiveV2.Id);
 
             model.Property(eventArchiveV2 => eventArchiveV2.ContentHash)
-                .IsRequired(false)
+                .IsRequired(true)
                 .HasMaxLength(450);
 
             model.HasIndex(eventArchiveV2 => new

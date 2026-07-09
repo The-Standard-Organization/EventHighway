@@ -254,7 +254,7 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 CreatedDate = eventArchiveV2.CreatedDate,
                 UpdatedDate = eventArchiveV2.UpdatedDate,
                 ScheduledDate = null,
-                ContentHash = null,
+                ContentHash = eventArchiveV2.ContentHash,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id
             };
 

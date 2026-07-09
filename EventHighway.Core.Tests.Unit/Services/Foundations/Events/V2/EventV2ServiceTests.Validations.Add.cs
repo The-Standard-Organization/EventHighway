@@ -95,6 +95,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
                 values: "Required");
 
             invalidEventV2Exception.AddData(
+                key: nameof(EventV2.ContentHash),
+                values: "Required");
+
+            invalidEventV2Exception.AddData(
                 key: nameof(EventV2.EventName),
                 values: "Required");
 

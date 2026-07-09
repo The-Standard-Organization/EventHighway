@@ -4,6 +4,7 @@ using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventHighway.Core.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    partial class StorageBrokerModelSnapshot : ModelSnapshot
+    [Migration("20260709090527_UpdateEventV2WithRequiredContentHash")]
+    partial class UpdateEventV2WithRequiredContentHash
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -459,7 +462,6 @@ namespace EventHighway.Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContentHash")
-                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
