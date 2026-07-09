@@ -104,7 +104,13 @@ namespace EventHighway.Infrastructure.Services
                   .AddGenericStep(
                       name: "Apply Migrations",
                       runCommand: "dotnet ef database update --project ${{ matrix.project }}")
-                  .AddTestStep())
+                  .AddGenericStep(
+                      name: "Test",
+                      runCommand:
+                          "dotnet test EventHighway.Core.Tests.Unit --no-build --verbosity normal\n" +
+                          "dotnet test EventHighway.Core.Tests.Acceptance --no-build --verbosity normal\n" +
+                          "dotnet test EventHighway.EventHandlers.Tests.Unit --no-build --verbosity normal\n" +
+                          "dotnet test EventHighway.EventHandlers.Tests.Acceptance --no-build --verbosity normal"))
 
               .AddJob("add_tag", job => job
                   .WithName("Tag and Release")
