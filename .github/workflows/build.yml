@@ -37,6 +37,8 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+    - name: Install EF Core Tools
+      run: dotnet tool install --global dotnet-ef
     - name: Apply Migrations
       run: dotnet ef database update
     - name: Test
