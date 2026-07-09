@@ -25,6 +25,9 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
                 (Rule: IsInvalid(eventArchiveV2.Content),
                 Parameter: nameof(EventArchiveV2.Content)),
 
+                (Rule: IsInvalid(eventArchiveV2.ContentHash),
+                Parameter: nameof(EventArchiveV2.ContentHash)),
+
                 (Rule: IsInvalid(eventArchiveV2.EventName),
                 Parameter: nameof(EventArchiveV2.EventName)),
 
