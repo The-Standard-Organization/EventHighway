@@ -63,7 +63,7 @@ namespace EventHighway.Infrastructure.Services
                         },
                         Ports = new() { "1433:1433" },
                         Options =
-                        "--health-cmd \"/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' || exit 1\" " +
+                        "--health-cmd \"/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Your_password123! -N -C -Q 'SELECT 1' || exit 1\" " +
                         "--health-interval 10s --health-timeout 5s --health-retries 10"
                     })
                     .AddService("postgres", new Models.Service
