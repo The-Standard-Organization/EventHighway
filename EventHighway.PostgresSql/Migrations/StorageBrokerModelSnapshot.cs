@@ -382,6 +382,7 @@ namespace EventHighway.PostgresSql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 
@@ -486,6 +487,7 @@ namespace EventHighway.PostgresSql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 

@@ -12,9 +12,11 @@ namespace EventHighway.SqlServer
     {
         public StorageBroker CreateDbContext(string[] args)
         {
-            string connectionString = String.Concat(
-                "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
-                "Trusted_Connection=True;MultipleActiveResultSets=true");
+            string connectionString =
+                Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                    ?? String.Concat(
+                        "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
+                        "Trusted_Connection=True;MultipleActiveResultSets=true");
 
             return new StorageBroker(new SqlServerStorageBrokerProvider(connectionString));
         }

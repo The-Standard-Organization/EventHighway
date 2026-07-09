@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EventHighway.PostgresSql.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    [Migration("20260709113900_EventHighwayMigrations")]
+    [Migration("20260709220329_EventHighwayMigrations")]
     partial class EventHighwayMigrations
     {
         /// <inheritdoc />
@@ -385,6 +385,7 @@ namespace EventHighway.PostgresSql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 
@@ -489,6 +490,7 @@ namespace EventHighway.PostgresSql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 
