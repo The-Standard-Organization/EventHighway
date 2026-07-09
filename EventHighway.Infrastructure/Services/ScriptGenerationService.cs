@@ -83,7 +83,7 @@ namespace EventHighway.Infrastructure.Services
                   .AddEnvironmentVariables(new Dictionary<string, string>
                   {
                       ["PROVIDER"] =
-                          "${{ matrix.database }}",
+                          "${{ matrix.provider }}",
 
                       ["SQLSERVER_CONN"] =
                           "Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True",
@@ -93,7 +93,7 @@ namespace EventHighway.Infrastructure.Services
                   })
                   .AddEnvironmentVariable(
                       "CONNECTION_STRING",
-                      "${{ matrix.database == 'sqlserver' && env.SQLSERVER_CONN || env.POSTGRES_CONN }}")
+                      "${{ matrix.provider == 'sqlserver' && env.SQLSERVER_CONN || env.POSTGRES_CONN }}")
                   .AddCheckoutStep()
                   .AddSetupDotNetStep("10.0.100")
                   .AddRestoreStep()
