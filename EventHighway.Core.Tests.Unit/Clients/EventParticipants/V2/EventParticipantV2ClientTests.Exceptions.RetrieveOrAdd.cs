@@ -17,8 +17,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
     public partial class EventParticipantV2ClientTests
     {
         [Fact]
-        public async Task
-            ShouldThrowValidationExceptionOnModifyIfValidationExceptionOccursAndLogItAsync()
+        public async Task ShouldThrowValidationExceptionOnRetrieveOrAddIfValidationExceptionOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -39,28 +38,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(eventParticipantV2ProcessingValidationException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             EventParticipantV2ClientValidationException
                 actualEventParticipantV2ClientValidationException =
                     await Assert.ThrowsAsync<EventParticipantV2ClientValidationException>(
-                        modifyEventParticipantV2Task.AsTask);
+                        retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualEventParticipantV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
@@ -70,7 +69,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 
         [Fact]
         public async Task
-            ShouldThrowValidationExceptionOnModifyIfDependencyValidationExceptionOccursAndLogItAsync()
+            ShouldThrowValidationExceptionOnRetrieveOrAddIfDependencyValidationExceptionOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -91,28 +90,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(eventParticipantV2ProcessingDependencyValidationException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             EventParticipantV2ClientValidationException
                 actualEventParticipantV2ClientValidationException =
                     await Assert.ThrowsAsync<EventParticipantV2ClientValidationException>(
-                        modifyEventParticipantV2Task.AsTask);
+                        retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualEventParticipantV2ClientValidationException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
@@ -122,7 +121,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 
         [Fact]
         public async Task
-            ShouldThrowDependencyExceptionOnModifyIfDependencyExceptionOccursAndLogItAsync()
+            ShouldThrowDependencyExceptionOnRetrieveOrAddIfDependencyExceptionOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -143,28 +142,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(eventParticipantV2ProcessingDependencyException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             EventParticipantV2ClientDependencyException
                 actualEventParticipantV2ClientDependencyException =
                     await Assert.ThrowsAsync<EventParticipantV2ClientDependencyException>(
-                        modifyEventParticipantV2Task.AsTask);
+                        retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualEventParticipantV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
@@ -174,7 +173,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 
         [Fact]
         public async Task
-            ShouldThrowDependencyExceptionOnModifyIfServiceExceptionOccursAndLogItAsync()
+            ShouldThrowDependencyExceptionOnRetrieveOrAddIfServiceExceptionOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -195,28 +194,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(eventParticipantV2ProcessingServiceException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             EventParticipantV2ClientDependencyException
                 actualEventParticipantV2ClientDependencyException =
                     await Assert.ThrowsAsync<EventParticipantV2ClientDependencyException>(
-                        modifyEventParticipantV2Task.AsTask);
+                        retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualEventParticipantV2ClientDependencyException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
@@ -226,7 +225,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 
         [Fact]
         public async Task
-            ShouldThrowServiceExceptionOnModifyIfExceptionOccursAndLogItAsync()
+            ShouldThrowServiceExceptionOnRetrieveOrAddIfExceptionOccursAndLogItAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -242,28 +241,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(someException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             EventParticipantV2ClientServiceException
                 actualEventParticipantV2ClientServiceException =
                     await Assert.ThrowsAsync<EventParticipantV2ClientServiceException>(
-                        modifyEventParticipantV2Task.AsTask);
+                        retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualEventParticipantV2ClientServiceException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2ClientServiceException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
@@ -273,7 +272,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 
         [Fact]
         public async Task
-            ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnModifyAsync()
+            ShouldThrowOperationCanceledExceptionRawWhenCancellationIsRequestedOnRetrieveOrAddAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -285,27 +284,27 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 new OperationCanceledException();
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken))
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<EventParticipantV2> modifyEventParticipantV2Task =
-                this.eventParticipantV2Client.ModifyEventParticipantV2Async(
+            ValueTask<EventParticipantV2> retrieveOrAddEventParticipantV2Task =
+                this.eventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
-                    modifyEventParticipantV2Task.AsTask);
+                    retrieveOrAddEventParticipantV2Task.AsTask);
 
             // then
             actualException.Should()
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.ModifyEventParticipantV2Async(
+                service.RetrieveOrAddEventParticipantV2Async(
                     someEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
