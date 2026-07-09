@@ -37,9 +37,7 @@
     <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
   </Folder>
   <Folder Name="/EventHighway.StorageProviders/">
-    <Project Path="EventHighway.PostgresSql/EventHighway.PostgresSql.csproj">
-      <Build Solution="Debug|*" Project="false" />
-    </Project>
+    <Project Path="EventHighway.PostgresSql/EventHighway.PostgresSql.csproj" />
     <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" />
   </Folder>
   <Folder Name="/Portal/">
