@@ -5,50 +5,38 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<NoWarn>CS1998</NoWarn>
-		<Title>EventHighway</Title>
+		<Title>EventHighway.PostgresSql</Title>
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
-		<Product>EventHighway</Product>
+		<Product>EventHighway.PostgresSql</Product>
 		<Version>2.1.0</Version>
 		<AssemblyVersion>2.1.0.0</AssemblyVersion>
 		<FileVersion>2.1.0.0</FileVersion>
-		<PackageId>EventHighway</PackageId>
+		<PackageId>EventHighway.PostgresSql</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Description>Standard-Compliant Open-Source Pub/Sub .NET library for managing events in distributed systems.</Description>
+		<Description>PostgreSQL provider for EventHighway.</Description>
 		<PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/hassanhabib/EventHighway</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Event-Driven</PackageTags>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
-		<PackageReference Include="EFxceptions" Version="10.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
 			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
 			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="DynamicExpresso.Core" Version="2.*" />
-		<PackageReference Include="RESTFulSense" Version="3.2.0" />
-		<PackageReference Include="STX.EFCore.Client" Version="3.0.0" />
 	</ItemGroup>
-
 	<ItemGroup>
-		<InternalsVisibleTo Include="EventHighway.Core.Tests.Unit" />
-		<InternalsVisibleTo Include="EventHighway.SqlServer" />
-		<InternalsVisibleTo Include="EventHighway.PostgresSql" />
-		<InternalsVisibleTo Include="EventHighway.Portal.Seed" />
-		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+		<ProjectReference Include="..\EventHighway.Core\EventHighway.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -67,14 +55,6 @@
 			<PackagePath>\</PackagePath>
 			<Link>license.txt</Link>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Services\Foundations\EventAddresses\V2\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\EventHighway.Abstractions\EventHighway.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>
