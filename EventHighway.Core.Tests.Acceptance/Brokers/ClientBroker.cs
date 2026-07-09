@@ -4,8 +4,11 @@
 
 using System;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Abstractions.Storages;
 using EventHighway.Core.Clients.EventHighways;
+using EventHighway.PostgresSql.Brokers;
 using EventHighway.SqlServer;
+using Microsoft.Extensions.Configuration;
 
 namespace EventHighway.Core.Tests.Acceptance.Brokers
 {
@@ -15,12 +18,24 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
 
         public ClientBroker()
         {
-            string connectionString = String.Concat(
-                "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDb.Acceptance;",
-                "Trusted_Connection=True;MultipleActiveResultSets=true;Pooling=false");
+            IConfiguration configuration =
+              new ConfigurationBuilder()
+                  .SetBasePath(AppContext.BaseDirectory)
+                  .AddJsonFile("appsettings.json", optional: false)
+                  .AddEnvironmentVariables()
+                  .Build();
 
-            this.eventHighwayClient =
-                new EventHighwayClient(new SqlServerStorageBrokerProvider(connectionString));
+            string provider = configuration["PROVIDER"];
+            string connectionString = configuration["CONNECTION_STRING"];
+
+            IStorageBrokerProvider storageBrokerProvider =
+                provider switch
+            {
+                "postgres" => new PostgresSqlStorageBrokerProvider(connectionString),
+                _ => new SqlServerStorageBrokerProvider(connectionString)
+            };
+
+            this.eventHighwayClient = new EventHighwayClient(storageBrokerProvider);
         }
 
         public ClientBroker RegisterEventHandler(IEventHandler eventHandler)
