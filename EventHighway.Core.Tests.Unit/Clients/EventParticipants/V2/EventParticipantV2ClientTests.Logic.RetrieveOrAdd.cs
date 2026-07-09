@@ -2,7 +2,6 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -15,29 +14,28 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
     public partial class EventParticipantV2ClientTests
     {
         [Fact]
-        public async Task ShouldRemoveEventParticipantV2ByIdAsync()
+        public async Task ShouldRetrieveOrAddEventParticipantV2Async()
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            Guid randomEventParticipantV2Id = GetRandomId();
-            Guid inputEventParticipantV2Id = randomEventParticipantV2Id;
             EventParticipantV2 randomEventParticipantV2 = CreateRandomEventParticipantV2();
-            EventParticipantV2 removedEventParticipantV2 = randomEventParticipantV2;
-            EventParticipantV2 expectedEventParticipantV2 = removedEventParticipantV2.DeepClone();
+            EventParticipantV2 inputEventParticipantV2 = randomEventParticipantV2;
+            EventParticipantV2 retrievedOrAddedEventParticipantV2 = inputEventParticipantV2;
+            EventParticipantV2 expectedEventParticipantV2 = retrievedOrAddedEventParticipantV2.DeepClone();
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RemoveEventParticipantV2ByIdAsync(
-                    inputEventParticipantV2Id,
+                service.RetrieveOrAddEventParticipantV2Async(
+                    inputEventParticipantV2,
                     randomCancellationToken))
-                        .ReturnsAsync(removedEventParticipantV2);
+                        .ReturnsAsync(retrievedOrAddedEventParticipantV2);
 
             // when
             EventParticipantV2 actualEventParticipantV2 =
                 await this.eventParticipantV2Client
-                    .RemoveEventParticipantV2ByIdAsync(
-                        inputEventParticipantV2Id,
+                    .RetrieveOrAddEventParticipantV2Async(
+                        inputEventParticipantV2,
                         randomCancellationToken);
 
             // then
@@ -45,8 +43,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RemoveEventParticipantV2ByIdAsync(
-                    inputEventParticipantV2Id,
+                service.RetrieveOrAddEventParticipantV2Async(
+                    inputEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
