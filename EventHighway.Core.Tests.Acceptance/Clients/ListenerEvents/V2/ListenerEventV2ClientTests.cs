@@ -58,10 +58,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
 
             Guid inputEventAddressV2Id = randomEventAddressV2.Id;
 
-            await CreateRandomEventV2sAsync(inputEventAddressV2Id);
             await CreateRandomEventListenerV2sAsync(inputEventAddressV2Id);
-            await Task.Delay(TimeSpan.FromSeconds(2));
-            await this.clientBroker.FireScheduledPendingEventV2sAsync();
+            await CreateRandomEventV2sAsync(inputEventAddressV2Id);
 
             return await RetrieveAllListenerEventV2sUntilAsync(
                 listenerEventV2 => listenerEventV2.EventAddressV2Id == inputEventAddressV2Id);
@@ -105,8 +103,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
             for (int index = 0; index < randomNumber; index++)
             {
                 EventV2 randomEventV2 = CreateEventV2Filler(
-                    eventAddressV2Id,
-                    scheduledDate: DateTimeOffset.Now.AddSeconds(1))
+                    eventAddressV2Id)
                         .Create();
 
                 await this.clientBroker.SubmitEventV2Async(randomEventV2);
@@ -158,7 +155,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
 
         private static Filler<EventV2> CreateEventV2Filler(
             Guid eventAddressV2Id,
-            DateTimeOffset scheduledDate)
+            DateTimeOffset? scheduledDate = null)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventV2>();
