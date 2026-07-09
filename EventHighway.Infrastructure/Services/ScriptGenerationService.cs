@@ -44,14 +44,22 @@ namespace EventHighway.Infrastructure.Services
                     .AddMatrixInclude(new()
                     {
                         ["provider"] = "sqlserver",
+
                         ["connection_string"] =
-                            $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;"
+                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;",
+
+                        ["project"] =
+                                "EventHighway.SqlServer/EventHighway.SqlServer.csproj"
                     })
                     .AddMatrixInclude(new()
                     {
                         ["provider"] = "postgres",
+
                         ["connection_string"] =
-                            $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres"
+                            $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres",
+
+                        ["project"] =
+                            "EventHighway.PostgresSql/EventHighway.PostgresSql.csproj"
                     })
                     .AddService("sqlserver", new Models.Service
                     {
@@ -95,7 +103,7 @@ namespace EventHighway.Infrastructure.Services
                       runCommand: "dotnet tool install --global dotnet-ef")
                   .AddGenericStep(
                       name: "Apply Migrations",
-                      runCommand: "dotnet ef database update")
+                      runCommand: "dotnet ef database update --project ${{ matrix.project }}")
                   .AddTestStep())
 
               .AddJob("add_tag", job => job

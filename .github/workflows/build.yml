@@ -40,7 +40,7 @@ jobs:
     - name: Install EF Core Tools
       run: dotnet tool install --global dotnet-ef
     - name: Apply Migrations
-      run: dotnet ef database update
+      run: dotnet ef database update --project ${{ matrix.project }}
     - name: Test
       run: dotnet test --no-build --verbosity normal
     strategy:
@@ -52,8 +52,10 @@ jobs:
         include:
         - provider: sqlserver
           connection_string: Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
+          project: EventHighway.SqlServer/EventHighway.SqlServer.csproj
         - provider: postgres
           connection_string: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres
+          project: EventHighway.PostgresSql/EventHighway.PostgresSql.csproj
     env:
       PROVIDER: ${{ matrix.provider }}
       CONNECTION_STRING: ${{ matrix.connection_string }}
