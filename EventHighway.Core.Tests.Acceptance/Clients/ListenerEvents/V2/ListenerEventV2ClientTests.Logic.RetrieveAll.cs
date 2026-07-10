@@ -17,13 +17,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
         public async Task ShouldRetrieveAllListenerEventV2sAsync()
         {
             // given
-            IQueryable<ListenerEventV2> randomListenerEventV2s =
-                await CreateRandomListenerEventV2sAsync();
+            List<ListenerEventV2> randomListenerEventV2s =
+                (await CreateRandomListenerEventV2sAsync())
+                    .ToList();
 
-            IQueryable<ListenerEventV2> inputListenerEventV2s =
+            List<ListenerEventV2> inputListenerEventV2s =
                 randomListenerEventV2s;
 
-            IQueryable<ListenerEventV2> expectedListenerEventV2s =
+            List<ListenerEventV2> expectedListenerEventV2s =
                 inputListenerEventV2s.DeepClone();
 
             // when
