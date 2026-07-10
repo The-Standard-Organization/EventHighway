@@ -55,6 +55,7 @@ using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Processings.EventArchives.V2;
 using EventHighway.Core.Services.Processings.EventCalls.V2;
 using EventHighway.Core.Services.Processings.EventListeners.V2;
+using EventHighway.Core.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Services.Processings.Events.V2;
 using EventHighway.Core.Services.Processings.ListenerEventArchives.V2;
 using EventHighway.Core.Services.Processings.ListenerEvents.V2;
@@ -287,6 +288,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IListenerEventArchiveV2ProcessingService,
                 ListenerEventArchiveV2ProcessingService>();
+
+            services.AddTransient<
+                IEventParticipantV2ProcessingService,
+                EventParticipantV2ProcessingService>();
         }
 
         private static void RegisterOrchestrationServices(IServiceCollection services)

@@ -25,7 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             EventParticipantV2 addedEventParticipantV2 = inputEventParticipantV2;
             EventParticipantV2 expectedEventParticipantV2 = addedEventParticipantV2.DeepClone();
 
-            this.eventParticipantV2ServiceMock.Setup(service =>
+            this.eventParticipantV2ProcessingServiceMock.Setup(service =>
                 service.AddEventParticipantV2Async(
                     inputEventParticipantV2,
                     randomCancellationToken))
@@ -42,13 +42,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             actualEventParticipantV2.Should()
                 .BeEquivalentTo(expectedEventParticipantV2);
 
-            this.eventParticipantV2ServiceMock.Verify(service =>
+            this.eventParticipantV2ProcessingServiceMock.Verify(service =>
                 service.AddEventParticipantV2Async(
                     inputEventParticipantV2,
                     randomCancellationToken),
                         Times.Once);
 
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
         }
     }
 }

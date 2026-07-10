@@ -8,12 +8,14 @@
 // (which forbids a backdated CreatedDate). Any console app that references this project can call
 // DatabaseHydrator.HydrateNewReleasesAsync(connectionString) to top up the database. Self-sufficient:
 // the Ensure* helpers create the NFlix participant, the NFlix-NewReleases address and its listeners
-// when missing, so it runs against an empty database on its own; when the ClientV2.SubstrateApp/
+// when missing (through the EventHighway client's RetrieveOrAdd/RetrieveOrRegister operations where
+// available), so it runs against an empty database on its own; when the ClientV2.SubstrateApp/
 // BasicApp samples have already run it reconciles to their rows via the shared well-known Guids
 // instead of duplicating them. Re-running is safe: it only appends more traffic (fresh row Ids,
 // backdated across the trailing year) and never mutates the existing config rows.
 
 using EventHighway.Core.Brokers.Storages;
+using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -106,13 +108,17 @@ namespace EventHighway.Portal.Seed
         public static async Task HydrateNewReleasesAsync(string connectionString)
         {
             var broker = new StorageBroker(new SqlServerStorageBrokerProvider(connectionString));
+
+            var client =
+                new EventHighwayClient(new SqlServerStorageBrokerProvider(connectionString));
+
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
-            EventParticipantV2 nflix = await EnsureParticipantAsync(broker, now);
-            EventAddressV2 newReleases = await EnsureAddressAsync(broker, now);
+            EventParticipantV2 nflix = await EnsureParticipantAsync(client, now);
+            EventAddressV2 newReleases = await EnsureAddressAsync(client, now);
 
             List<EventListenerV2> addressListeners =
-                await EnsureListenersAsync(broker, newReleases.Id, now);
+                await EnsureListenersAsync(client, newReleases.Id, now);
 
             var rng = new Random();
 
@@ -292,91 +298,55 @@ namespace EventHighway.Portal.Seed
             Console.WriteLine("Hydration complete.");
         }
 
-        // Returns the existing NFlix participant (matched by the well-known Id or name), or inserts
-        // it with the fixed Id when it is missing.
+        // Returns the existing NFlix participant (matched by the well-known Id), or adds it with
+        // the fixed Id when it is missing.
         private static async Task<EventParticipantV2> EnsureParticipantAsync(
-            StorageBroker broker,
+            EventHighwayClient client,
             DateTimeOffset now)
         {
-            List<EventParticipantV2> participants =
-                (await broker.SelectAllEventParticipantV2sAsync()).ToList();
-
-            EventParticipantV2? existing =
-                participants.FirstOrDefault(participant => participant.Id == NFlixParticipantId)
-                    ?? participants.FirstOrDefault(participant =>
-                        participant.Name == NFlixParticipantName);
-
-            if (existing is not null)
-            {
-                return existing;
-            }
-
-            Console.WriteLine($"Creating missing participant '{NFlixParticipantName}'...");
-
-            return await broker.InsertEventParticipantV2Async(
-                new EventParticipantV2
-                {
-                    Id = NFlixParticipantId,
-                    Name = NFlixParticipantName,
-                    Description = "NFlix streaming platform.",
-                    IsActive = true,
-                    CreatedDate = now,
-                    UpdatedDate = now
-                });
+            return await client.V2.EventParticipantV2Client
+                .RetrieveOrAddEventParticipantV2Async(
+                    new EventParticipantV2
+                    {
+                        Id = NFlixParticipantId,
+                        Name = NFlixParticipantName,
+                        Description = "NFlix streaming platform.",
+                        IsActive = true,
+                        CreatedDate = now,
+                        UpdatedDate = now
+                    });
         }
 
-        // Returns the existing NFlix-NewReleases address (matched by the well-known Id or name), or
-        // inserts it with the fixed Id when it is missing.
+        // Returns the existing NFlix-NewReleases address (matched by the well-known Id), or
+        // registers it with the fixed Id when it is missing.
         private static async Task<EventAddressV2> EnsureAddressAsync(
-            StorageBroker broker,
+            EventHighwayClient client,
             DateTimeOffset now)
         {
-            List<EventAddressV2> addresses =
-                (await broker.SelectAllEventAddressV2sAsync()).ToList();
-
-            EventAddressV2? existing =
-                addresses.FirstOrDefault(address => address.Id == NewReleasesAddressId)
-                    ?? addresses.FirstOrDefault(address => address.Name == NewReleasesAddressName);
-
-            if (existing is not null)
-            {
-                return existing;
-            }
-
-            Console.WriteLine($"Creating missing address '{NewReleasesAddressName}'...");
-
-            return await broker.InsertEventAddressV2Async(
-                new EventAddressV2
-                {
-                    Id = NewReleasesAddressId,
-                    Name = NewReleasesAddressName,
-                    Description = "NFlix New Releases",
-                    CreatedDate = now,
-                    UpdatedDate = now
-                });
+            return await client.V2.EventAddressV2Client
+                .RetrieveOrRegisterEventAddressV2Async(
+                    new EventAddressV2
+                    {
+                        Id = NewReleasesAddressId,
+                        Name = NewReleasesAddressName,
+                        Description = "NFlix New Releases",
+                        CreatedDate = now,
+                        UpdatedDate = now
+                    });
         }
 
         // Registers the BasicApp listeners (and their owning participants) on the address when they
         // are missing, then returns every listener on the address. Re-uses the well-known Guids so
         // it is idempotent and reconciles with the sample console apps.
         private static async Task<List<EventListenerV2>> EnsureListenersAsync(
-            StorageBroker broker,
+            EventHighwayClient client,
             Guid eventAddressId,
             DateTimeOffset now)
         {
-            List<EventParticipantV2> participants =
-                (await broker.SelectAllEventParticipantV2sAsync()).ToList();
-
-            List<EventListenerV2> listeners =
-                (await broker.SelectAllEventListenerV2sAsync()).ToList();
-
             foreach (ListenerSpec spec in ListenerSpecs)
             {
-                if (participants.All(participant => participant.Id != spec.ParticipantId))
-                {
-                    Console.WriteLine($"Creating missing participant '{spec.ParticipantName}'...");
-
-                    await broker.InsertEventParticipantV2Async(
+                await client.V2.EventParticipantV2Client
+                    .RetrieveOrAddEventParticipantV2Async(
                         new EventParticipantV2
                         {
                             Id = spec.ParticipantId,
@@ -386,13 +356,9 @@ namespace EventHighway.Portal.Seed
                             CreatedDate = now,
                             UpdatedDate = now
                         });
-                }
 
-                if (listeners.All(listener => listener.Id != spec.ListenerId))
-                {
-                    Console.WriteLine($"Creating missing listener '{spec.ListenerName}'...");
-
-                    await broker.InsertEventListenerV2Async(
+                await client.V2.EventListenerV2Client
+                    .RetrieveOrRegisterEventListenerV2Async(
                         new EventListenerV2
                         {
                             Id = spec.ListenerId,
@@ -407,11 +373,10 @@ namespace EventHighway.Portal.Seed
                             CreatedDate = now,
                             UpdatedDate = now
                         });
-                }
             }
 
-            return (await broker.SelectAllEventListenerV2sAsync())
-                .Where(listener => listener.EventAddressV2Id == eventAddressId)
+            return (await client.V2.EventListenerV2Client
+                .RetrieveEventListenerV2sByEventAddressIdAsync(eventAddressId))
                 .ToList();
         }
 

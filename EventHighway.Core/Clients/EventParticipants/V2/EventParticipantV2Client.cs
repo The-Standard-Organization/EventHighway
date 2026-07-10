@@ -8,18 +8,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
-using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.Exceptions;
-using EventHighway.Core.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
+using EventHighway.Core.Services.Processings.EventParticipants.V2;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventParticipants.V2
 {
     internal class EventParticipantV2Client : IEventParticipantV2Client
     {
-        private readonly IEventParticipantV2Service eventParticipantV2Service;
+        private readonly IEventParticipantV2ProcessingService eventParticipantV2ProcessingService;
 
-        public EventParticipantV2Client(IEventParticipantV2Service eventParticipantV2Service) =>
-            this.eventParticipantV2Service = eventParticipantV2Service;
+        public EventParticipantV2Client(IEventParticipantV2ProcessingService eventParticipantV2ProcessingService) =>
+            this.eventParticipantV2ProcessingService = eventParticipantV2ProcessingService;
 
         public async ValueTask<EventParticipantV2> AddEventParticipantV2Async(
             EventParticipantV2 eventParticipantV2,
@@ -27,29 +27,75 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         {
             try
             {
-                return await this.eventParticipantV2Service
+                return await this.eventParticipantV2ProcessingService
                     .AddEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
-            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2ValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyValidationException
-                eventParticipantV2DependencyValidationException)
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2DependencyValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyException eventParticipantV2DependencyException)
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2DependencyException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
             }
-            catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2ServiceException.InnerException as Xeption);
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateClientServiceException(exception as Xeption);
+            }
+        }
+
+        public async ValueTask<EventParticipantV2> RetrieveOrAddEventParticipantV2Async(
+            EventParticipantV2 eventParticipantV2,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.eventParticipantV2ProcessingService
+                    .RetrieveOrAddEventParticipantV2Async(eventParticipantV2, cancellationToken);
+            }
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
+            {
+                throw CreateClientValidationException(
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
+            }
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
+            {
+                throw CreateClientValidationException(
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
+            }
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
+            {
+                throw CreateClientDependencyException(
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
+            }
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
+            {
+                throw CreateClientDependencyException(
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {
@@ -66,29 +112,32 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         {
             try
             {
-                return await this.eventParticipantV2Service
+                return await this.eventParticipantV2ProcessingService
                     .RetrieveAllEventParticipantV2sAsync(cancellationToken);
             }
-            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2ValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyValidationException
-                eventParticipantV2DependencyValidationException)
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2DependencyValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyException eventParticipantV2DependencyException)
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2DependencyException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
             }
-            catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2ServiceException.InnerException as Xeption);
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {
@@ -106,29 +155,32 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         {
             try
             {
-                return await this.eventParticipantV2Service
+                return await this.eventParticipantV2ProcessingService
                     .RetrieveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
-            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2ValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyValidationException
-                eventParticipantV2DependencyValidationException)
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2DependencyValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyException eventParticipantV2DependencyException)
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2DependencyException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
             }
-            catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2ServiceException.InnerException as Xeption);
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {
@@ -146,29 +198,32 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         {
             try
             {
-                return await this.eventParticipantV2Service
+                return await this.eventParticipantV2ProcessingService
                     .ModifyEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
-            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2ValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyValidationException
-                eventParticipantV2DependencyValidationException)
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2DependencyValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyException eventParticipantV2DependencyException)
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2DependencyException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
             }
-            catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2ServiceException.InnerException as Xeption);
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {
@@ -186,29 +241,32 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         {
             try
             {
-                return await this.eventParticipantV2Service
+                return await this.eventParticipantV2ProcessingService
                     .RemoveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
-            catch (EventParticipantV2ValidationException eventParticipantV2ValidationException)
+            catch (EventParticipantV2ProcessingValidationException
+                eventParticipantV2ProcessingValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2ValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyValidationException
-                eventParticipantV2DependencyValidationException)
+            catch (EventParticipantV2ProcessingDependencyValidationException
+                eventParticipantV2ProcessingDependencyValidationException)
             {
                 throw CreateClientValidationException(
-                    eventParticipantV2DependencyValidationException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyValidationException.InnerException as Xeption);
             }
-            catch (EventParticipantV2DependencyException eventParticipantV2DependencyException)
+            catch (EventParticipantV2ProcessingDependencyException
+                eventParticipantV2ProcessingDependencyException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2DependencyException.InnerException as Xeption);
+                    eventParticipantV2ProcessingDependencyException.InnerException as Xeption);
             }
-            catch (EventParticipantV2ServiceException eventParticipantV2ServiceException)
+            catch (EventParticipantV2ProcessingServiceException
+                eventParticipantV2ProcessingServiceException)
             {
                 throw CreateClientDependencyException(
-                    eventParticipantV2ServiceException.InnerException as Xeption);
+                    eventParticipantV2ProcessingServiceException.InnerException as Xeption);
             }
             catch (OperationCanceledException)
             {

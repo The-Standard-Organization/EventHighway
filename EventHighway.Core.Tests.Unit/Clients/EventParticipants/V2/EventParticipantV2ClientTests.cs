@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using EventHighway.Core.Clients.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
-using EventHighway.Core.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Services.Processings.EventParticipants.V2;
 using Moq;
 using Tynamix.ObjectFiller;
 
@@ -14,18 +14,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
 {
     public partial class EventParticipantV2ClientTests
     {
-        private readonly Mock<IEventParticipantV2Service> eventParticipantV2ServiceMock;
+        private readonly Mock<IEventParticipantV2ProcessingService> eventParticipantV2ProcessingServiceMock;
         private readonly IEventParticipantV2Client eventParticipantV2Client;
 
         public EventParticipantV2ClientTests()
         {
-            this.eventParticipantV2ServiceMock =
-                new Mock<IEventParticipantV2Service>();
+            this.eventParticipantV2ProcessingServiceMock =
+                new Mock<IEventParticipantV2ProcessingService>();
 
             this.eventParticipantV2Client =
                 new EventParticipantV2Client(
-                    eventParticipantV2Service:
-                        this.eventParticipantV2ServiceMock.Object);
+                    eventParticipantV2ProcessingService:
+                        this.eventParticipantV2ProcessingServiceMock.Object);
         }
 
         private static Guid GetRandomId() =>

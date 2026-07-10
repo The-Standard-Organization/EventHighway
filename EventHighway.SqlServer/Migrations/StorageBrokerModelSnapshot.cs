@@ -360,6 +360,7 @@ namespace EventHighway.Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
@@ -458,6 +459,7 @@ namespace EventHighway.Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContentHash")
+                        .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 

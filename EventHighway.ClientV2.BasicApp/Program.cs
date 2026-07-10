@@ -131,17 +131,6 @@ public partial class Program
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
-        // Idempotent on the (fixed) Id so re-running this app — or sharing the database with the
-        // SubstrateApp, which uses the same seed identifiers — reuses the existing rows.
-        async Task<EventParticipantV2> GetOrAddParticipantAsync(EventParticipantV2 participant)
-        {
-            IEnumerable<EventParticipantV2> existingParticipants =
-                await client.V2.EventParticipantV2Client.RetrieveAllEventParticipantV2sAsync();
-
-            return existingParticipants.FirstOrDefault(existing => existing.Id == participant.Id)
-                ?? await client.V2.EventParticipantV2Client.AddEventParticipantV2Async(participant);
-        }
-
         async Task GetOrAddSecretAsync(EventParticipantSecretV2 secret)
         {
             IEnumerable<EventParticipantSecretV2> existingSecrets =
@@ -156,8 +145,10 @@ public partial class Program
         // =========================================================
         // 3) Register the publishing participant (NFlix) and its secret
         // =========================================================
+        // Idempotent on the (fixed) Id so re-running this app — or sharing the database with the
+        // SubstrateApp, which uses the same seed identifiers — reuses the existing rows.
         EventParticipantV2 nflix =
-            await GetOrAddParticipantAsync(
+            await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
                     Id = SeedIdentifiers.NFlixParticipant,
@@ -196,8 +187,8 @@ public partial class Program
         // =========================================================
         // 5) SofaBox participant + listener (receives every release)
         // =========================================================
-        EventParticipantV2 sofaBox =
-            await GetOrAddParticipantAsync(
+        EventParticipantV2 bingeBox =
+            await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
                     Id = SeedIdentifiers.SofaBoxParticipant,
@@ -227,7 +218,7 @@ public partial class Program
         // 6) Joe participant + listener (only good movies)
         // =========================================================
         EventParticipantV2 joe =
-            await GetOrAddParticipantAsync(
+            await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
                     Id = SeedIdentifiers.JoeParticipant,
@@ -355,7 +346,7 @@ public partial class Program
         DateTimeOffset lateNow = DateTimeOffset.UtcNow;
 
         EventParticipantV2 ann =
-            await GetOrAddParticipantAsync(
+            await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
                     Id = SeedIdentifiers.AnnParticipant,

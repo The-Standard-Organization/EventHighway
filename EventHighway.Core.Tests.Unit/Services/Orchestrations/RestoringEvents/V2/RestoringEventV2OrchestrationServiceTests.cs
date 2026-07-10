@@ -143,7 +143,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 CreatedDate = eventArchiveV2.CreatedDate,
                 UpdatedDate = eventArchiveV2.UpdatedDate,
                 ScheduledDate = null,
-                ContentHash = null,
+                ContentHash = eventArchiveV2.ContentHash,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id
             };
 
