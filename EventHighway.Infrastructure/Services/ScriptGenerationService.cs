@@ -27,9 +27,9 @@ namespace EventHighway.Infrastructure.Services
               .OnPush(branchName)
               .OnPullRequest(branchName)
 
-              .AddJob("build-windows", job => job
-                  .WithName("Build (Windows)")
-                  .RunsOn(BuildMachines.WindowsLatest)
+              .AddJob("build", job => job
+                  .WithName("Build & Unit Tests")
+                  .RunsOn(BuildMachines.UbuntuLatest)
                   .AddCheckoutStep("Check out")
                   .AddSetupDotNetStep(dotNetVersion)
                   .AddRestoreStep()
@@ -119,9 +119,9 @@ namespace EventHighway.Infrastructure.Services
               .AddJob("add_tag", job => job
                   .WithName("Tag and Release")
                   .RunsOn(BuildMachines.UbuntuLatest)
-                  .DependsOn("build-windows", "build-integration")
+                  .DependsOn("build", "build-integration")
                   .WithCondition(
-                      "needs.build-windows.result == 'success' && " +
+                      "needs.build.result == 'success' && " +
                       "needs.build-integration.result == 'success' && " +
                       "github.event.pull_request.merged && " +
                       "github.event.pull_request.base.ref == 'main' && " +
