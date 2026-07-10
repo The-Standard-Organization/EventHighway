@@ -78,15 +78,18 @@ A couple of these are deliberately mischievous so we can see the platform's safe
 | John Wick (no participant) | 🚫 unauthorised | 🚫 unauthorised |
 
 So **BingeBox handles 4 releases** and **Joe handles 2** — exactly the two good movies.
-Running the sample prints this, ending with a per-subscriber summary.
+BingeBox logs each delivery to the console; Joe's deliveries are **POSTed to his REST
+API** (a WireMock stand-in started by the sample), so Joe produces no console lines of
+his own — his outcomes appear in the per-subscriber summary as the API's recorded
+response:
 
 ```
-[Joe] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
 [BingeBox] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
 [BingeBox] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
 ...
   BingeBox: handled 4 event(s)
   Joe: handled 2 event(s)
+    [Success] 200 OK Event received
 ```
 
 ### Ann, the late joiner
@@ -130,8 +133,8 @@ that one release:
 
 ```
 ── Replaying Spider-Verse to Joe ──
-[Joe] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
   Joe: handled 1 event(s)
+    [Success] 200 OK Event received
 ```
 
 ---
@@ -191,8 +194,24 @@ var bingeBoxHandler = new DelegateEventHandler(
 > `ResponseCode`, `ResponseMessage`, `IsSuccess`) is stored so you can audit exactly what
 > each subscriber did with each event.
 
-Joe's handler is the same shape (it prints `[Joe] …`). Both are then registered with the
-client:
+Joe's handler shows the other end of that spectrum: instead of an inline lambda, the
+function comes from a **packaged delegate client library**
+([`EventHighway.EventHandlers.Delegates.JoesRestApi`](../EventHighway.EventHandlers.Delegates.JoesRestApi/README.md)).
+Its exposed method matches the delegate signature exactly, so it is passed as a method
+group — the registered function **is** the library's method, which POSTs the raw event
+content to Joe's REST API using the url and `X-Highway` secret from `appsettings.json`
+(the sample binds a WireMock stand-in to that configured url):
+
+```csharp
+var joesRestApiDelegateClient = new JoesRestApiDelegateClient(appSettings);
+
+var joeHandler = new DelegateEventHandler(
+    SeedIdentifiers.JoeHandler,
+    joesRestApiDelegateClient.PostToJoesRestApiAsync,
+    name: "Joe");
+```
+
+Both are then registered with the client:
 
 ```csharp
 client.V2

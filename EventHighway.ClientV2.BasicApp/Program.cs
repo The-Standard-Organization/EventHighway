@@ -2,12 +2,14 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.ClientV2.Seed;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Configurations;
+using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -16,6 +18,8 @@ using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
 using EventHighway.SqlServer;
+using Microsoft.Extensions.Configuration;
+using WireMock.Server;
 
 public partial class Program
 {
@@ -32,6 +36,28 @@ public partial class Program
         string connectionString = string.Concat(
             "Server=(localdb)\\MSSQLLocalDB;Database=EventHighwayDB;",
             "Trusted_Connection=True;MultipleActiveResultSets=true");
+
+        // =========================================================
+        // 0) Stand-in for Joe's downstream REST API (WireMock)
+        // =========================================================
+        // Joe's delegate client reads its target url from appsettings, so the stand-in
+        // server is bound to the port that url points at — guaranteeing the
+        // configuration and the stand-in agree.
+        IConfiguration appSettings = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var joesApiUrl = new Uri(appSettings["JoesRestApi:Url"]!);
+        using WireMockServer wireMock = WireMockServer.Start(joesApiUrl.Port);
+
+        wireMock
+            .Given(WireMock.RequestBuilders.Request.Create()
+                .WithPath(joesApiUrl.AbsolutePath)
+                .UsingPost())
+            .RespondWith(WireMock.ResponseBuilders.Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithBody("Event received"));
 
         // =========================================================
         // 1) Configure loop detection: only allow 1 identical item per minute
@@ -69,24 +95,13 @@ public partial class Program
             },
             name: "BingeBox");
 
+        // Joe's deliveries run through the referenced delegate client library — the
+        // registered function IS the client's exposed method; identity stays here.
+        var joesRestApiDelegateClient = new JoesRestApiDelegateClient(appSettings);
+
         var joeHandler = new DelegateEventHandler(
             SeedIdentifiers.JoeHandler,
-            (content, cancellationToken) =>
-            {
-                MediaItem item = Deserialize(content);
-
-                Console.WriteLine(
-                    $"[Joe] New Release - {item.Title} " +
-                    $"({item.Type} with rating of {item.Rating})");
-
-                return ValueTask.FromResult(new EventHandlerResult
-                {
-                    IsSuccess = true,
-                    Response = item.Title,
-                    ResponseCode = "200",
-                    ResponseMessage = "OK"
-                });
-            },
+            joesRestApiDelegateClient.PostToJoesRestApiAsync,
             name: "Joe");
 
         var annHandler = new DelegateEventHandler(
