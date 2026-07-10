@@ -214,12 +214,28 @@ namespace EventHighway.Core.Services.Processings.Events.V2
             EventV2 eventV2, CancellationToken cancellationToken)
         {
             DateTimeOffset now =
-                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+                await this.GetCurrentDateTimeOffsetAsync();
 
             eventV2.Type = EventTypeV2.Immediate;
             eventV2.UpdatedDate = now;
 
             return await this.eventV2Service.ModifyEventV2Async(eventV2, cancellationToken);
+        }
+
+        private async ValueTask<DateTimeOffset> GetCurrentDateTimeOffsetAsync()
+        {
+            DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            return TruncateToMicroseconds(now);
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove =
+                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }
