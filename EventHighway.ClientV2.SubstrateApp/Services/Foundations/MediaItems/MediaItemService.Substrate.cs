@@ -2,48 +2,94 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.ClientV2.Seed;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
+using EventHighway.ClientV2.SubstrateApp.Models.MediaItems.Exceptions;
 using EventHighway.EventHandlers;
 
 namespace EventHighway.ClientV2.SubstrateApp.Services.Foundations.MediaItems
 {
-    public partial class MediaItemService
+    // The substrate seam — MediaItemService's ONLY subscription, wired to the listener on
+    // "NFlix-ExternalContributions". The substrate invokes the delegate with the raw event
+    // content — never the contributing participant's id or secret — and the handler binds it
+    // to a typed model, funnels it through AddMediaItemAsync and maps outcomes (including
+    // exceptions) to an EventHandlerResult.
+    internal partial class MediaItemService
     {
-        private DelegateEventHandler? mediaItemReceivedEventHandler;
+        private DelegateEventHandler externalMediaItemAddedEventHandler;
 
-        // The substrate seam: a delegate handler wired to a listener on "NFlix-NewReleases".
-        // It is given only the event content (the serialized MediaItem) — never the publishing
-        // participant's id or secret — and simply reports each received media item.
-        public IEventHandler MediaItemReceivedEventHandler =>
-            this.mediaItemReceivedEventHandler ??= new DelegateEventHandler(
+        public IEventHandler ExternalMediaItemAddedEventHandler =>
+            this.externalMediaItemAddedEventHandler ??= new DelegateEventHandler(
                 SeedIdentifiers.MediaItemServiceHandler,
-                HandleMediaItemReceivedAsync,
+                HandleExternalMediaItemAddedAsync,
                 name: "MediaItemService");
 
-        private async ValueTask<EventHandlerResult> HandleMediaItemReceivedAsync(
+        private async ValueTask<EventHandlerResult> HandleExternalMediaItemAddedAsync(
             string content,
             CancellationToken cancellationToken)
         {
-            MediaItem mediaItem =
-                await this.jsonSerializationBroker.DeserializeAsync<MediaItem>(content);
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("  [SUCCESS]");
-            Console.ResetColor();
-
-            Console.WriteLine(
-                $" Internal process received a new media item: {mediaItem.Title}, " +
-                $"({mediaItem.Type} - {mediaItem.Rating} rating)");
-
-            return new EventHandlerResult
+            try
             {
-                IsSuccess = true,
-                Response = mediaItem.Title,
-                ResponseCode = "200",
-                ResponseMessage = "OK"
-            };
+                MediaItem mediaItem =
+                    await this.jsonSerializationBroker.DeserializeAsync<MediaItem>(content);
+
+                MediaItem addedMediaItem = await AddMediaItemAsync(mediaItem);
+
+                WriteMarker(
+                    "  [SUCCESS]", ConsoleColor.Green,
+                    $" MediaItemService ingested {addedMediaItem.Title} " +
+                    $"({addedMediaItem.Type} - {addedMediaItem.Rating} rating) " +
+                    "and relayed MediaItemAdded");
+
+                return new EventHandlerResult
+                {
+                    IsSuccess = true,
+                    Response = addedMediaItem.Title,
+                    ResponseCode = "200",
+                    ResponseMessage = "OK"
+                };
+            }
+            catch (MediaItemValidationException mediaItemValidationException)
+            {
+                WriteMarker(
+                    "  [REJECTED]", ConsoleColor.Red,
+                    " MediaItemService rejected a contribution - " +
+                    $"{mediaItemValidationException.InnerException?.Message}");
+
+                return new EventHandlerResult
+                {
+                    IsSuccess = false,
+                    Response = mediaItemValidationException.InnerException?.Message ?? string.Empty,
+                    ResponseCode = "400",
+                    ResponseMessage = "Bad Request"
+                };
+            }
+            catch (Exception exception)
+            {
+                WriteMarker(
+                    "  [FAILED]", ConsoleColor.Red,
+                    $" MediaItemService could not ingest a contribution - {exception.Message}");
+
+                return new EventHandlerResult
+                {
+                    IsSuccess = false,
+                    Response = exception.Message,
+                    ResponseCode = "500",
+                    ResponseMessage = "Internal Server Error"
+                };
+            }
+        }
+
+        private static void WriteMarker(string marker, ConsoleColor color, string text)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(marker);
+            Console.ResetColor();
+            Console.WriteLine(text);
         }
     }
 }

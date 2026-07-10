@@ -35,6 +35,7 @@
   <Folder Name="/Samples/ClientV2/">
     <Project Path="EventHighway.ClientV2.BasicApp/EventHighway.ClientV2.BasicApp.csproj" />
     <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
+    <Project Path="EventHighway.EventHandlers.Delegates.JoesRestApi/EventHighway.EventHandlers.Delegates.JoesRestApi.csproj" />
   </Folder>
   <Folder Name="/EventHighway.StorageProviders/">
     <Project Path="EventHighway.SqlServer/EventHighway.SqlServer.csproj" />
