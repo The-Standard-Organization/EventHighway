@@ -1,0 +1,45 @@
+# Local development databases for EventHighway.
+# Start:  docker compose up -d
+# Stop:   docker compose stop        (data preserved in volumes)
+# Reset:  docker compose down -v     (wipes databases)
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: eventhighway-sqlserver
+    environment:
+      SA_PASSWORD: "Your_password123!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd",
+             "-S", "localhost", "-U", "sa", "-P", "Your_password123!",
+             "-Q", "SELECT 1", "-N", "-C"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:17
+    container_name: eventhighway-postgres
+    environment:
+      POSTGRES_DB: EventHighwayDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  sqlserver-data:
+  postgres-data:
