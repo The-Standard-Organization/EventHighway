@@ -83,7 +83,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
 
         private EventListenerV2 CreateDelegateHandlerListenerV2(Guid eventAddressId)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(
+                DateTimeOffset.UtcNow);
 
             return new EventListenerV2
             {
@@ -104,7 +105,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             EventV2 eventV2 = CreateEventV2Filler(
                 eventAddressV2Id,
-                scheduledDate: DateTimeOffset.Now.AddSeconds(1),
+                scheduledDate: TruncateToMicroseconds(
+                    DateTimeOffset.UtcNow.AddSeconds(1)),
                 content: content)
                     .Create();
 
@@ -191,7 +193,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
             DateTimeOffset scheduledDate,
             string content = null)
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventV2>();
 
             filler.Setup()
@@ -213,7 +215,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
 
         private static Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV2>();
 
             filler.Setup()
@@ -224,6 +226,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
                 .OnProperty(eventAddressV2 => eventAddressV2.EventArchiveV2s).IgnoreIt();
 
             return filler;
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

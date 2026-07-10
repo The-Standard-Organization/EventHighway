@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
@@ -108,7 +109,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
         private static EventV2 CreateRandomEventV2()
         {
             return CreateEventV2Filler(
-                dates: GetRandomDateTimeOffset(),
+                dates: TruncateToMicroseconds(GetRandomDateTimeOffset()),
                 eventV2Type: EventTypeV2.Immediate)
                     .Create();
         }
@@ -116,7 +117,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
         private static EventV2 CreateRandomEventV2(EventTypeV2 eventV2Type)
         {
             return CreateEventV2Filler(
-                dates: GetRandomDateTimeOffset(),
+                dates: TruncateToMicroseconds(GetRandomDateTimeOffset()),
                 eventV2Type: eventV2Type)
                     .Create();
         }
@@ -124,7 +125,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
         private static IQueryable<EventV2> CreateRandomEventV2s()
         {
             return CreateEventV2Filler(
-                dates: GetRandomDateTimeOffset(),
+                dates: TruncateToMicroseconds(GetRandomDateTimeOffset()),
                 eventV2Type: EventTypeV2.Immediate)
                     .Create(count: GetRandomNumber())
                         .AsQueryable();
@@ -171,6 +172,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
                 .OnType<EventParticipantV2>().IgnoreIt();
 
             return filler;
+        }
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove =
+                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

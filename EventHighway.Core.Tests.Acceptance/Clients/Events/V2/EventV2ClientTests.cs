@@ -95,7 +95,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
         {
             EventV2 eventV2 = CreateEventV2Filler(
                 eventAddressV2Id,
-                scheduledDate: TruncateToMicroseconds(DateTimeOffset.Now).AddSeconds(1),
+                scheduledDate: TruncateToMicroseconds(DateTimeOffset.UtcNow)
+                    .AddSeconds(1),
                 content: content)
                     .Create();
 

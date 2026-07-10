@@ -74,7 +74,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             for (int index = 0; index < randomNumber; index++)
             {
                 DateTimeOffset scheduledDate =
-                    TruncateToMicroseconds(DateTimeOffset.Now).AddSeconds(seconds: 1);
+                    TruncateToMicroseconds(DateTimeOffset.UtcNow)
+                        .AddSeconds(seconds: 1);
 
                 EventV1 randomPostedEntitlementV1 =
                     await SubmitEventV1Async(
@@ -181,6 +182,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
 
                 .OnProperty(eventV1 =>
                     eventV1.ScheduledDate).Use(scheduledDate)
+
+                .OnProperty(eventV1 => eventV1.RetryAttempts)
+                    .Use(new IntRange(min: 0, max: 3).GetValue())
 
                 .OnType<DateTimeOffset>().Use(now);
 
