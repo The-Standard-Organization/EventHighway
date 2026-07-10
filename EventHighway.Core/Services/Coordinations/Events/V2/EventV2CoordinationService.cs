@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 .ValidateEventParticipantsAsync(eventV2, cancellationToken);
 
             DateTimeOffset now =
-                await this.dateTimeBroker.GetDateTimeOffsetAsync();
+                await this.GetCurrentDateTimeOffsetAsync();
 
             eventV2.Type = eventV2.ScheduledDate switch
             {
@@ -130,9 +131,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IQueryable<EventV2> eventV2s =
-                await this.eventV2OrchestrationService
-                    .RetrieveScheduledPendingEventV2sAsync(cancellationToken);
+            List<EventV2> eventV2s =
+                  (await this.eventV2OrchestrationService
+                      .RetrieveScheduledPendingEventV2sAsync(cancellationToken))
+                          .ToList();
 
             foreach (EventV2 eventV2 in eventV2s)
             {
@@ -166,5 +168,21 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             return await this.eventV2OrchestrationService
                 .RemoveEventV2ByIdAsync(eventV2Id, cancellationToken);
         });
+
+        private async ValueTask<DateTimeOffset> GetCurrentDateTimeOffsetAsync()
+        {
+            DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
+
+            return TruncateToMicroseconds(now);
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove =
+                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
+        }
     }
 }
