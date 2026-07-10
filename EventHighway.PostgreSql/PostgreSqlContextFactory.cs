@@ -4,13 +4,11 @@
 
 using System;
 using EventHighway.Core.Brokers.Storages;
-using EventHighway.PostgresSql.Brokers;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Hosting;
 
-namespace EventHighway.PostgresSql
+namespace EventHighway.PostgreSql
 {
-    internal class PostgresSqlContextFactory : IDesignTimeDbContextFactory<StorageBroker>
+    internal class PostgreSqlContextFactory : IDesignTimeDbContextFactory<StorageBroker>
     {
         public StorageBroker CreateDbContext(string[] args)
         {
@@ -20,7 +18,7 @@ namespace EventHighway.PostgresSql
                         "Host=localhost;Port=5432;Database=EventHighwayDB;" +
                         "Username=postgres;Password=postgres");
 
-            return new StorageBroker(new PostgresSqlStorageBrokerProvider(connectionString));
+            return new StorageBroker(new PostgreSqlStorageBrokerProvider(connectionString));
         }
     }
 }

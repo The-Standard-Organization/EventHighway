@@ -59,7 +59,7 @@ namespace EventHighway.Infrastructure.Services
                             $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres",
 
                         ["project"] =
-                            "EventHighway.PostgresSql/EventHighway.PostgresSql.csproj"
+                            "EventHighway.PostgreSql/EventHighway.PostgreSql.csproj"
                     })
                     .AddService("sqlserver", new Models.Service
                     {

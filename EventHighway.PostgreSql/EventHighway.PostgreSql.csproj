@@ -5,14 +5,14 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<NoWarn>CS1998</NoWarn>
-		<Title>EventHighway.PostgresSql</Title>
+		<Title>EventHighway.PostgreSql</Title>
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
-		<Product>EventHighway.PostgresSql</Product>
+		<Product>EventHighway.PostgreSql</Product>
 		<Version>2.1.0</Version>
 		<AssemblyVersion>2.1.0.0</AssemblyVersion>
 		<FileVersion>2.1.0.0</FileVersion>
-		<PackageId>EventHighway.PostgresSql</PackageId>
+		<PackageId>EventHighway.PostgreSql</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>

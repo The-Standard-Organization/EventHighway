@@ -46,7 +46,7 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="EventHighway.Core.Tests.Unit" />
 		<InternalsVisibleTo Include="EventHighway.SqlServer" />
-		<InternalsVisibleTo Include="EventHighway.PostgresSql" />
+		<InternalsVisibleTo Include="EventHighway.PostgreSql" />
 		<InternalsVisibleTo Include="EventHighway.Portal.Seed" />
 		<InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
 	</ItemGroup>

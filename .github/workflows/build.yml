@@ -55,7 +55,7 @@ jobs:
           project: EventHighway.SqlServer/EventHighway.SqlServer.csproj
         - provider: postgres
           connection_string: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres
-          project: EventHighway.PostgresSql/EventHighway.PostgresSql.csproj
+          project: EventHighway.PostgreSql/EventHighway.PostgreSql.csproj
     env:
       PROVIDER: ${{ matrix.provider }}
       CONNECTION_STRING: ${{ matrix.connection_string }}

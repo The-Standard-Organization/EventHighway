@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EventHighway.PostgresSql.Migrations
+namespace EventHighway.PostgreSql.Migrations
 {
     /// <inheritdoc />
     public partial class EventHighwayMigrations : Migration

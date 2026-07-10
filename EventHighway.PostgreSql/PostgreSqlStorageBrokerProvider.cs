@@ -8,19 +8,19 @@ using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EventHighway.PostgresSql.Brokers
+namespace EventHighway.PostgreSql
 {
-    public sealed class PostgresSqlStorageBrokerProvider : IStorageBrokerProvider
+    public sealed class PostgreSqlStorageBrokerProvider : IStorageBrokerProvider
     {
         private readonly string connectionString;
 
-        public PostgresSqlStorageBrokerProvider(string connectionString) =>
+        public PostgreSqlStorageBrokerProvider(string connectionString) =>
             this.connectionString = connectionString;
 
         public void Configure(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseNpgsql(
                 this.connectionString,
-                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgresSql"));
+                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgreSql"));
 
         public void ConfigureModel(ModelBuilder modelBuilder)
         {

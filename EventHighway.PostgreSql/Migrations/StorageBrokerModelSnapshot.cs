@@ -3,20 +3,17 @@ using System;
 using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace EventHighway.PostgresSql.Migrations
+namespace EventHighway.PostgreSql.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    [Migration("20260709220329_EventHighwayMigrations")]
-    partial class EventHighwayMigrations
+    partial class StorageBrokerModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

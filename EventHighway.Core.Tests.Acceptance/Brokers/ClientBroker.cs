@@ -6,7 +6,7 @@ using System;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Abstractions.Storages;
 using EventHighway.Core.Clients.EventHighways;
-using EventHighway.PostgresSql.Brokers;
+using EventHighway.PostgreSql;
 using EventHighway.SqlServer;
 using Microsoft.Extensions.Configuration;
 
@@ -31,7 +31,7 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
             IStorageBrokerProvider storageBrokerProvider =
                 provider switch
             {
-                "postgres" => new PostgresSqlStorageBrokerProvider(connectionString),
+                "postgres" => new PostgreSqlStorageBrokerProvider(connectionString),
                 _ => new SqlServerStorageBrokerProvider(connectionString)
             };
 
