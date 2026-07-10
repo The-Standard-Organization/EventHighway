@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EventHighway.PostgreSql.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    [Migration("20260709220329_EventHighwayMigrations")]
-    partial class EventHighwayMigrations
+    [Migration("20260710155526_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
