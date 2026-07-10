@@ -28,9 +28,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
 
             // when
             List<ListenerEventV2> actualListenerEventV2s =
-              (await this.clientBroker
-                  .RetrieveAllListenerEventV2sAsync())
-                      .ToList();
+                (await this.clientBroker
+                    .RetrieveAllListenerEventV2sAsync())
+                        .ToList();
 
             // then
             actualListenerEventV2s.Should()

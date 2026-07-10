@@ -107,10 +107,9 @@ namespace EventHighway.Core.Services.Coordinations.Events.V1
         public ValueTask FireScheduledPendingEventV1sAsync() =>
         TryCatch(async () =>
         {
-            List<EventV1> eventV1s =
-                (await this.eventV1OrchestrationService
-                    .RetrieveScheduledPendingEventV1sAsync())
-                        .ToList();
+            IQueryable<EventV1> eventV1s =
+                await this.eventV1OrchestrationService
+                    .RetrieveScheduledPendingEventV1sAsync();
 
             foreach (EventV1 eventV1 in eventV1s)
             {
