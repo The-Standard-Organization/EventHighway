@@ -65,7 +65,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
             foreach (EventListenerV2 eventListenerV2 in eventListenerV2s)
             {
                 DateTimeOffset now =
-                    await this.GetCurrentDateTimeOffsetAsync();
+                    await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
                 ListenerEventV2 listenerEventV2 =
                     CreateListenerEventV2(
@@ -147,7 +147,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
             }
 
             listenerEventV2.UpdatedDate =
-                await this.GetCurrentDateTimeOffsetAsync();
+                await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             return await this.listenerEventV2ProcessingService
                 .ModifyListenerEventV2Async(listenerEventV2, cancellationToken);
@@ -175,22 +175,6 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 CreatedDate = now,
                 UpdatedDate = now,
             };
-        }
-
-        private async ValueTask<DateTimeOffset> GetCurrentDateTimeOffsetAsync()
-        {
-            DateTimeOffset now = await this.dateTimeBroker.GetDateTimeOffsetAsync();
-
-            return TruncateToMicroseconds(now);
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove =
-                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

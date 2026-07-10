@@ -151,14 +151,5 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
 
             return filler;
         }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove =
-                dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
-        }
     }
 }

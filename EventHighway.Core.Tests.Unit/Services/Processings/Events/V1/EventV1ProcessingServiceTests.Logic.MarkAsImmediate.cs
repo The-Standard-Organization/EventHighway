@@ -18,8 +18,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V1
         {
             // given
             DateTimeOffset randomDateTimeOffset =
-                TruncateToMicroseconds(
-                    GetRandomDateTimeOffset());
+                GetRandomDateTimeOffset();
 
             DateTimeOffset retrievedDateTimeOffset =
                 randomDateTimeOffset;
