@@ -46,7 +46,7 @@ namespace EventHighway.Infrastructure.Services
                         ["provider"] = "sqlserver",
 
                         ["connection_string"] =
-                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true",
+                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;Pooling=false",
 
                         ["project"] =
                                 "EventHighway.SqlServer/EventHighway.SqlServer.csproj"
@@ -56,7 +56,7 @@ namespace EventHighway.Infrastructure.Services
                         ["provider"] = "postgres",
 
                         ["connection_string"] =
-                            $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres",
+                            $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres;Pooling=false",
 
                         ["project"] =
                             "EventHighway.PostgreSql/EventHighway.PostgreSql.csproj"
