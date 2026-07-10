@@ -4,6 +4,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace EventHighway.ClientV2.SubstrateApp.Brokers.Serializations
 {

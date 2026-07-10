@@ -2,12 +2,14 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.ClientV2.Seed;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Configurations;
+using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -16,6 +18,8 @@ using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
 using EventHighway.SqlServer;
+using Microsoft.Extensions.Configuration;
+using WireMock.Server;
 
 public partial class Program
 {
@@ -34,6 +38,28 @@ public partial class Program
             "Trusted_Connection=True;MultipleActiveResultSets=true");
 
         // =========================================================
+        // 0) Stand-in for Joe's downstream REST API (WireMock)
+        // =========================================================
+        // Joe's delegate client reads its target url from appsettings, so the stand-in
+        // server is bound to the port that url points at — guaranteeing the
+        // configuration and the stand-in agree.
+        IConfiguration appSettings = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        var joesApiUrl = new Uri(appSettings["JoesRestApi:Url"]!);
+        using WireMockServer wireMock = WireMockServer.Start(joesApiUrl.Port);
+
+        wireMock
+            .Given(WireMock.RequestBuilders.Request.Create()
+                .WithPath(joesApiUrl.AbsolutePath)
+                .UsingPost())
+            .RespondWith(WireMock.ResponseBuilders.Response.Create()
+                .WithStatusCode(HttpStatusCode.OK)
+                .WithBody("Event received"));
+
+        // =========================================================
         // 1) Configure loop detection: only allow 1 identical item per minute
         // =========================================================
         var configuration = new EventHighwayConfiguration();
@@ -49,14 +75,14 @@ public partial class Program
         // =========================================================
         // 2) Create and register the handlers
         // =========================================================
-        var bingeBoxHandler = new DelegateEventHandler(
-            SeedIdentifiers.BingeBoxHandler,
+        var sofaBoxHandler = new DelegateEventHandler(
+            SeedIdentifiers.SofaBoxHandler,
             (content, cancellationToken) =>
             {
                 MediaItem item = Deserialize(content);
 
                 Console.WriteLine(
-                    $"[BingeBox] New Release - {item.Title} " +
+                    $"[SofaBox] New Release - {item.Title} " +
                     $"({item.Type} with rating of {item.Rating})");
 
                 return ValueTask.FromResult(new EventHandlerResult
@@ -67,26 +93,15 @@ public partial class Program
                     ResponseMessage = "OK"
                 });
             },
-            name: "BingeBox");
+            name: "SofaBox");
+
+        // Joe's deliveries run through the referenced delegate client library — the
+        // registered function IS the client's exposed method; identity stays here.
+        var joesRestApiDelegateClient = new JoesRestApiDelegateClient(appSettings);
 
         var joeHandler = new DelegateEventHandler(
             SeedIdentifiers.JoeHandler,
-            (content, cancellationToken) =>
-            {
-                MediaItem item = Deserialize(content);
-
-                Console.WriteLine(
-                    $"[Joe] New Release - {item.Title} " +
-                    $"({item.Type} with rating of {item.Rating})");
-
-                return ValueTask.FromResult(new EventHandlerResult
-                {
-                    IsSuccess = true,
-                    Response = item.Title,
-                    ResponseCode = "200",
-                    ResponseMessage = "OK"
-                });
-            },
+            joesRestApiDelegateClient.PostToJoesRestApiAsync,
             name: "Joe");
 
         var annHandler = new DelegateEventHandler(
@@ -110,7 +125,7 @@ public partial class Program
             name: "Ann");
 
         client.V2
-            .RegisterEventHandler(bingeBoxHandler)
+            .RegisterEventHandler(sofaBoxHandler)
             .RegisterEventHandler(joeHandler)
             .RegisterEventHandler(annHandler);
 
@@ -170,31 +185,31 @@ public partial class Program
                 });
 
         // =========================================================
-        // 5) BingeBox participant + listener (receives every release)
+        // 5) SofaBox participant + listener (receives every release)
         // =========================================================
-        EventParticipantV2 bingeBox =
+        EventParticipantV2 sofaBox =
             await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
-                    Id = SeedIdentifiers.BingeBoxParticipant,
-                    Name = "BingeBox",
-                    Description = "BingeBox a NFlix affiliate",
+                    Id = SeedIdentifiers.SofaBoxParticipant,
+                    Name = "SofaBox",
+                    Description = "SofaBox a NFlix affiliate",
                     IsActive = true,
                     CreatedDate = now,
                     UpdatedDate = now
                 });
 
-        var bingeBoxListener =
+        var sofaBoxListener =
             await client.V2.EventListenerV2Client.RetrieveOrRegisterEventListenerV2Async(
                 new EventListenerV2
                 {
-                    Id = SeedIdentifiers.BingeBoxNewReleasesListener,
-                    Name = "BingeBox New Releases Listener",
+                    Id = SeedIdentifiers.SofaBoxNewReleasesListener,
+                    Name = "SofaBox New Releases Listener",
                     Description = "Receives every NFlix new release.",
-                    HandlerId = bingeBoxHandler.Id,
-                    HandlerName = bingeBoxHandler.Name,
+                    HandlerId = sofaBoxHandler.Id,
+                    HandlerName = sofaBoxHandler.Name,
                     EventAddressV2Id = newReleases.Id,
-                    EventParticipantV2Id = bingeBox.Id,
+                    EventParticipantV2Id = sofaBox.Id,
                     CreatedDate = now,
                     UpdatedDate = now
                 });
@@ -318,7 +333,7 @@ public partial class Program
         // =========================================================
         await PrintListenerSummaryAsync(
             client,
-            (bingeBoxListener.Id, "BingeBox"),
+            (sofaBoxListener.Id, "SofaBox"),
             (joeListener.Id, "Joe"));
 
         // =========================================================

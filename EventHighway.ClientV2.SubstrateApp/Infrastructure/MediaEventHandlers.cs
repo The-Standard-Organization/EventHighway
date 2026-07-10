@@ -2,38 +2,48 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.ClientV2.Seed;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
 using EventHighway.EventHandlers;
+using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
 using WireMock.Server;
 
 namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
 {
     /// <summary>
-    /// Holds the event handlers wired into the substrate. BingeBox logs to the console;
-    /// Joe and Ann forward each release to a REST API (here, the WireMock server).
+    /// Holds the event handlers wired into the substrate. SofaBox logs to the console;
+    /// Joe and Ann forward each release to a REST API (here, the WireMock server) — Joe
+    /// through the packaged <c>JoesRestApi</c> delegate client, Ann through an inline
+    /// token + POST delegate.
     /// </summary>
     public sealed class MediaEventHandlers
     {
-        public DelegateEventHandler BingeBox { get; }
+        public DelegateEventHandler SofaBox { get; }
         public DelegateEventHandler Joe { get; }
         public DelegateEventHandler Ann { get; }
         public DelegateEventHandler FlakyBox { get; }
 
-        public MediaEventHandlers(WireMockServer wireMock)
+        public MediaEventHandlers(
+            WireMockServer wireMock,
+            IJoesRestApiDelegateClient joesRestApiDelegateClient)
         {
-            this.BingeBox = new DelegateEventHandler(
-                SeedIdentifiers.BingeBoxHandler,
+            this.SofaBox = new DelegateEventHandler(
+                SeedIdentifiers.SofaBoxHandler,
                 (content, cancellationToken) =>
                 {
                     MediaItem item = MediaItemSerializer.Deserialize(content);
 
                     Console.WriteLine(
-                        $"[BingeBox] New Release - {item.Title} " +
+                        $"[SofaBox] New Release - {item.Title} " +
                         $"({item.Type} with rating of {item.Rating})");
 
                     return ValueTask.FromResult(new EventHandlerResult
@@ -44,7 +54,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
                         ResponseMessage = "OK"
                     });
                 },
-                name: "BingeBox");
+                name: "SofaBox");
 
             // A downstream that is always unavailable. Used to seed partial-success events:
             // the reliable listener succeeds while this one errors, leaving a mix of statuses.
@@ -68,7 +78,13 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
                 },
                 name: "FlakyBox");
 
-            this.Joe = CreateRestHandler(SeedIdentifiers.JoeHandler, "Joe", wireMock);
+            // Joe's deliveries run through the referenced delegate client library — the
+            // registered function IS the client's exposed method; identity stays here.
+            this.Joe = new DelegateEventHandler(
+                SeedIdentifiers.JoeHandler,
+                joesRestApiDelegateClient.PostToJoesRestApiAsync,
+                name: "Joe");
+
             this.Ann = CreateRestHandler(SeedIdentifiers.AnnHandler, "Ann", wireMock);
         }
 
