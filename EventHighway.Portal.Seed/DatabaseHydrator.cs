@@ -40,7 +40,7 @@ namespace EventHighway.Portal.Seed
         private static readonly Guid NewReleasesAddressId =
             new Guid("be0dd6e0-b545-435d-9541-d1ac386469ce");
 
-        // BingeBox / Joe / Ann participants + listeners — the same set EventHighway.ClientV2.BasicApp
+        // SofaBox / Joe / Ann participants + listeners — the same set EventHighway.ClientV2.BasicApp
         // registers (same Guids as the shared SeedIdentifiers), so runs reconcile to the same rows.
         // Handler Ids are fixed here (BasicApp mints random ones at runtime) so the seeded listener
         // rows are stable across re-runs; the handlers themselves are in-memory dispatch objects.
@@ -48,13 +48,13 @@ namespace EventHighway.Portal.Seed
         {
             new ListenerSpec(
                 ParticipantId: new Guid("72edb46a-4e55-49dc-8b92-16baf040c6fd"),
-                ParticipantName: "BingeBox",
-                ParticipantDescription: "BingeBox a NFlix affiliate",
+                ParticipantName: "SofaBox",
+                ParticipantDescription: "SofaBox a NFlix affiliate",
                 ListenerId: new Guid("07864612-508c-4177-a0b6-061f9efa48d8"),
-                ListenerName: "BingeBox New Releases Listener",
+                ListenerName: "SofaBox New Releases Listener",
                 ListenerDescription: "Receives every NFlix new release.",
                 HandlerId: new Guid("6326cae3-04ff-411f-93fb-e606859390f6"),
-                HandlerName: "BingeBox",
+                HandlerName: "SofaBox",
                 PromotedProperties: null,
                 FilterCriteria: null),
             new ListenerSpec(

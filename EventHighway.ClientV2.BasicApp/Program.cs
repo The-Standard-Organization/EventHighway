@@ -75,14 +75,14 @@ public partial class Program
         // =========================================================
         // 2) Create and register the handlers
         // =========================================================
-        var bingeBoxHandler = new DelegateEventHandler(
-            SeedIdentifiers.BingeBoxHandler,
+        var sofaBoxHandler = new DelegateEventHandler(
+            SeedIdentifiers.SofaBoxHandler,
             (content, cancellationToken) =>
             {
                 MediaItem item = Deserialize(content);
 
                 Console.WriteLine(
-                    $"[BingeBox] New Release - {item.Title} " +
+                    $"[SofaBox] New Release - {item.Title} " +
                     $"({item.Type} with rating of {item.Rating})");
 
                 return ValueTask.FromResult(new EventHandlerResult
@@ -93,7 +93,7 @@ public partial class Program
                     ResponseMessage = "OK"
                 });
             },
-            name: "BingeBox");
+            name: "SofaBox");
 
         // Joe's deliveries run through the referenced delegate client library — the
         // registered function IS the client's exposed method; identity stays here.
@@ -125,7 +125,7 @@ public partial class Program
             name: "Ann");
 
         client.V2
-            .RegisterEventHandler(bingeBoxHandler)
+            .RegisterEventHandler(sofaBoxHandler)
             .RegisterEventHandler(joeHandler)
             .RegisterEventHandler(annHandler);
 
@@ -194,31 +194,31 @@ public partial class Program
                 });
 
         // =========================================================
-        // 5) BingeBox participant + listener (receives every release)
+        // 5) SofaBox participant + listener (receives every release)
         // =========================================================
-        EventParticipantV2 bingeBox =
+        EventParticipantV2 sofaBox =
             await GetOrAddParticipantAsync(
                 new EventParticipantV2
                 {
-                    Id = SeedIdentifiers.BingeBoxParticipant,
-                    Name = "BingeBox",
-                    Description = "BingeBox a NFlix affiliate",
+                    Id = SeedIdentifiers.SofaBoxParticipant,
+                    Name = "SofaBox",
+                    Description = "SofaBox a NFlix affiliate",
                     IsActive = true,
                     CreatedDate = now,
                     UpdatedDate = now
                 });
 
-        var bingeBoxListener =
+        var sofaBoxListener =
             await client.V2.EventListenerV2Client.RetrieveOrRegisterEventListenerV2Async(
                 new EventListenerV2
                 {
-                    Id = SeedIdentifiers.BingeBoxNewReleasesListener,
-                    Name = "BingeBox New Releases Listener",
+                    Id = SeedIdentifiers.SofaBoxNewReleasesListener,
+                    Name = "SofaBox New Releases Listener",
                     Description = "Receives every NFlix new release.",
-                    HandlerId = bingeBoxHandler.Id,
-                    HandlerName = bingeBoxHandler.Name,
+                    HandlerId = sofaBoxHandler.Id,
+                    HandlerName = sofaBoxHandler.Name,
                     EventAddressV2Id = newReleases.Id,
-                    EventParticipantV2Id = bingeBox.Id,
+                    EventParticipantV2Id = sofaBox.Id,
                     CreatedDate = now,
                     UpdatedDate = now
                 });
@@ -342,7 +342,7 @@ public partial class Program
         // =========================================================
         await PrintListenerSummaryAsync(
             client,
-            (bingeBoxListener.Id, "BingeBox"),
+            (sofaBoxListener.Id, "SofaBox"),
             (joeListener.Id, "Joe"));
 
         // =========================================================

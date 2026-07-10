@@ -18,7 +18,7 @@ namespace EventHighway.ClientV2.Seed
         public static readonly Guid MediaItemServiceParticipant =
             new Guid("7a7513d8-bc8f-4a7f-b740-b00bbca519c6");
 
-        public static readonly Guid BingeBoxParticipant =
+        public static readonly Guid SofaBoxParticipant =
             new Guid("72edb46a-4e55-49dc-8b92-16baf040c6fd");
 
         public static readonly Guid JoeParticipant =
@@ -49,7 +49,7 @@ namespace EventHighway.ClientV2.Seed
             new Guid("2cdc1b26-f5b6-43f4-9855-f2ca13ed02a9");
 
         // Event listeners
-        public static readonly Guid BingeBoxNewReleasesListener =
+        public static readonly Guid SofaBoxNewReleasesListener =
             new Guid("07864612-508c-4177-a0b6-061f9efa48d8");
 
         public static readonly Guid JoeGoodMoviesListener =
@@ -69,7 +69,7 @@ namespace EventHighway.ClientV2.Seed
         // Event handlers. Stable Ids (shared by both console apps and the Portal.Seed hydrator) so a
         // listener registered by one app references a handler the other app also registers under the
         // same Id — dispatch then works regardless of which app created the listener or the run order.
-        public static readonly Guid BingeBoxHandler =
+        public static readonly Guid SofaBoxHandler =
             new Guid("6326cae3-04ff-411f-93fb-e606859390f6");
 
         public static readonly Guid JoeHandler =

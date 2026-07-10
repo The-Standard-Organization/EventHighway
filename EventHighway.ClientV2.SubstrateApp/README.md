@@ -6,7 +6,7 @@ throughout as *the substrate* — the shared event backbone every party talks th
 - **NFlix** — an external streaming platform that contributes media items from outside.
 - **MediaItemService** — an internal catalogue service that owns its own database
   (`NFlixMediaDB`), ingests contributions, and announces every catalogue change.
-- **BingeBox, Joe, Ann, FlakyBox** — downstream affiliates who want to hear about new
+- **SofaBox, Joe, Ann, FlakyBox** — downstream affiliates who want to hear about new
   releases (console logging, REST forwarding, and one endpoint that is always down).
 
 Nobody calls anybody directly. Every hop goes through the substrate, which stores its own
@@ -75,7 +75,7 @@ flowchart LR
     A1 -->|"listener"| MIS["MediaItemService<br/>substrate handler"]
     MIS -->|"saves"| CAT[("NFlixMediaDB")]
     MIS -->|"emits MediaItemAdded<br/>as itself"| A2(["NFlix-NewReleases"])
-    A2 -->|"listener"| BB["BingeBox — console"]
+    A2 -->|"listener"| BB["SofaBox — console"]
     A2 -->|"listener, filtered"| JOE["Joe — REST, movies rated 8.0+"]
     A2 -->|"listener"| ANN["Ann — REST"]
     A2 -->|"listener"| FB["FlakyBox — always fails"]
@@ -158,7 +158,7 @@ Who gets a secret here tells you who publishes:
 |---|---|---|
 | NFlix | ✔ | Publishes contributions onto the intake address |
 | MediaItemService | ✔ | Publishes `MediaItemAdded/Updated/Deleted` onto the releases address |
-| BingeBox, Joe, Ann, FlakyBox | ✘ | They only *receive* — listening requires no credential |
+| SofaBox, Joe, Ann, FlakyBox | ✘ | They only *receive* — listening requires no credential |
 
 ### Step 2 — Addresses
 
@@ -215,7 +215,7 @@ Five listeners are registered:
 | Listener | Address | Handler | Extras |
 |---|---|---|---|
 | MediaItemService Contributions | ExternalContributions | MediaItemService's substrate handler | — |
-| BingeBox New Releases | NewReleases | BingeBox (console) | — |
+| SofaBox New Releases | NewReleases | SofaBox (console) | — |
 | Joe Good Movies | NewReleases | Joe (REST) | Filter: movies rated 8.0+ |
 | Ann New Releases | NewReleases | Ann (REST) | — |
 | FlakyBox New Releases | NewReleases | FlakyBox (always fails) | Seeds failure data |
@@ -280,23 +280,23 @@ Func<string, CancellationToken, ValueTask<EventHandlerResult>>
 
 Read that as: *"a variable that holds a method — give it the content string and a
 cancellation token, get back an `EventHandlerResult`"*. Any method or lambda with that
-shape fits. BingeBox is the simplest example
+shape fits. SofaBox is the simplest example
 ([`MediaEventHandlers.cs`](Infrastructure/MediaEventHandlers.cs)) — its whole behaviour
 is one lambda:
 
 ```csharp
-this.BingeBox = new DelegateEventHandler(
-    SeedIdentifiers.BingeBoxHandler,                 // stable Guid — listener rows reference this
+this.SofaBox = new DelegateEventHandler(
+    SeedIdentifiers.SofaBoxHandler,                 // stable Guid — listener rows reference this
     (content, cancellationToken) =>                  // the "method in a variable"
     {
         MediaItem item = MediaItemSerializer.Deserialize(content);
-        Console.WriteLine($"[BingeBox] New Release - {item.Title} ...");
+        Console.WriteLine($"[SofaBox] New Release - {item.Title} ...");
         return ValueTask.FromResult(new EventHandlerResult { IsSuccess = true, ... });
     },
-    name: "BingeBox");
+    name: "SofaBox");
 ```
 
-So: **one shared class, one instance per subscription.** BingeBox, Joe, Ann, FlakyBox and
+So: **one shared class, one instance per subscription.** SofaBox, Joe, Ann, FlakyBox and
 the catalogue's ingestion handler are five *instances* of `DelegateEventHandler`, each
 holding its own Guid, its own name, and its own function. No new handler classes are
 written anywhere in this app — even Joe's function is not written here: it comes from the
@@ -428,7 +428,7 @@ private static IEventSubstrateBroker CreateEventSubstrateBroker(IServiceProvider
     var broker = new EventSubstrateBroker(EventHighwayConnectionString, configuration);
 
     broker
-        .RegisterEventHandler(handlers.BingeBox)
+        .RegisterEventHandler(handlers.SofaBox)
         .RegisterEventHandler(handlers.Joe)
         .RegisterEventHandler(handlers.Ann)
         .RegisterEventHandler(handlers.FlakyBox);
@@ -610,7 +610,7 @@ Follow *Yellowstone* through the whole pipeline:
    registration. The substrate verifies *those* credentials and dispatches again.
 
 7. **Delivery to the affiliates.** Four listener rows exist on `NFlix-NewReleases`:
-   - **BingeBox** logs to the console and succeeds.
+   - **SofaBox** logs to the console and succeeds.
    - **Joe** has `FilterCriteria` — Yellowstone is a `Series`, so the substrate records
      a skip for Joe without invoking his handler at all.
    - **Ann** runs the REST handler: OAuth token from the in-process WireMock server,
@@ -629,7 +629,7 @@ sequenceDiagram
     participant Sub as Substrate (EventHighway)
     participant MIS as MediaItemService
     participant Cat as NFlixMediaDB
-    participant Aff as BingeBox / Joe / Ann / FlakyBox
+    participant Aff as SofaBox / Joe / Ann / FlakyBox
 
     Demo->>Ext: AddExternalMediaItemAsync(item, NFlix id + secret)
     Ext->>Sub: emit ExternalMediaItemAdded → [ExternalContributions]
@@ -652,7 +652,7 @@ the ingestion success line, which prints before the demo's "accepted" line, beca
 inner emit completes before the outer one returns:
 
 ```
-[BingeBox] New Release - Yellowstone (Series with rating of 8.6)     ← innermost: NewReleases delivery
+[SofaBox] New Release - Yellowstone (Series with rating of 8.6)     ← innermost: NewReleases delivery
 [Ann] New Release - Yellowstone (Series with rating of 8.6)
 [FlakyBox] FAILED to deliver - Yellowstone (Series with rating of 8.6)
   [SUCCESS] MediaItemService ingested Yellowstone ... and relayed MediaItemAdded   ← the intake handler
@@ -686,19 +686,19 @@ Both databases are created on first run if missing (`EventHighwayDB` by the subs
 output:
 
 ```
-[BingeBox] New Release - Yellowstone (Series with rating of 8.6)
+[SofaBox] New Release - Yellowstone (Series with rating of 8.6)
 [Ann] New Release - Yellowstone (Series with rating of 8.6)
 [FlakyBox] FAILED to deliver - Yellowstone (Series with rating of 8.6)
   [SUCCESS] MediaItemService ingested Yellowstone (Series - 8.6 rating) and relayed MediaItemAdded
   [Success] accepted  Yellowstone
-[BingeBox] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
+[SofaBox] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
 [Ann] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
 [FlakyBox] FAILED to deliver - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
   [SUCCESS] MediaItemService ingested Spider-Man: Across the Spider-Verse (Movie - 8.5 rating) and relayed MediaItemAdded
   [Success] accepted  Spider-Man: Across the Spider-Verse
   [ERROR] External media item validation error occurred, fix the errors and try again.
   [Fail]    blocked   Guardians of the Galaxy Vol. 3 - External media item is invalid, fix the errors and try again.
-[BingeBox] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
+[SofaBox] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
 [Ann] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
 [FlakyBox] FAILED to deliver - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
   [Success] accepted  Guardians of the Galaxy Vol. 3

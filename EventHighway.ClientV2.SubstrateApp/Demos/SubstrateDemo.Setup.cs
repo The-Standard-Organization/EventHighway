@@ -66,13 +66,13 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
                     UpdatedDate = now
                 });
 
-            this.bingeBox =
+            this.sofaBox =
                 await this.eventSubstrateBroker.AddParticipantAsync(
                     new EventParticipantV2
                     {
-                        Id = SeedIdentifiers.BingeBoxParticipant,
-                        Name = "BingeBox",
-                        Description = "BingeBox a NFlix affiliate",
+                        Id = SeedIdentifiers.SofaBoxParticipant,
+                        Name = "SofaBox",
+                        Description = "SofaBox a NFlix affiliate",
                         IsActive = true,
                         CreatedDate = now,
                         UpdatedDate = now
@@ -172,13 +172,13 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
             await this.eventSubstrateBroker.RegisterListenerAsync(
                 new EventListenerV2
                 {
-                    Id = SeedIdentifiers.BingeBoxNewReleasesListener,
-                    Name = "BingeBox New Releases Listener",
+                    Id = SeedIdentifiers.SofaBoxNewReleasesListener,
+                    Name = "SofaBox New Releases Listener",
                     Description = "Receives every NFlix new release.",
-                    HandlerId = this.mediaEventHandlers.BingeBox.Id,
-                    HandlerName = this.mediaEventHandlers.BingeBox.Name,
+                    HandlerId = this.mediaEventHandlers.SofaBox.Id,
+                    HandlerName = this.mediaEventHandlers.SofaBox.Name,
                     EventAddressV2Id = this.newReleases.Id,
-                    EventParticipantV2Id = this.bingeBox.Id,
+                    EventParticipantV2Id = this.sofaBox.Id,
                     CreatedDate = now,
                     UpdatedDate = now
                 });

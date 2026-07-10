@@ -23,7 +23,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
     /// their handlers — then media items created through the external intake (credentials
     /// required and verified by the substrate) or through the internal service (no credentials
     /// required). Every persisted item is relayed as a MediaItemAdded event to the
-    /// NFlix-NewReleases listeners: BingeBox, Joe, Ann and FlakyBox.
+    /// NFlix-NewReleases listeners: SofaBox, Joe, Ann and FlakyBox.
     /// </summary>
     internal sealed partial class SubstrateDemo
     {
@@ -35,7 +35,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
 
         private EventParticipantV2 nflix;
         private EventParticipantV2 mediaService;
-        private EventParticipantV2 bingeBox;
+        private EventParticipantV2 sofaBox;
         private EventParticipantV2 joe;
         private EventParticipantV2 ann;
         private EventParticipantV2 flakyBox;

@@ -95,7 +95,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
             var broker = new EventSubstrateBroker(EventHighwayConnectionString, configuration);
 
             broker
-                .RegisterEventHandler(handlers.BingeBox)
+                .RegisterEventHandler(handlers.SofaBox)
                 .RegisterEventHandler(handlers.Joe)
                 .RegisterEventHandler(handlers.Ann)
                 .RegisterEventHandler(handlers.FlakyBox);

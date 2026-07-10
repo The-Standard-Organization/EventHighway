@@ -29,17 +29,17 @@ Three parties are interested in NFlix's releases, and their interests are differ
 
 | Subscriber | Who they are | What they care about |
 |---|---|---|
-| **BingeBox** | A NFlix affiliate that re-lists everything | **Every** new release, no exceptions |
+| **SofaBox** | A NFlix affiliate that re-lists everything | **Every** new release, no exceptions |
 | **Joe** | An individual movie buff | **Only good movies** — a `Movie` (not a series) rated **8.0 or higher** |
 | **Ann** | A **late joiner** | Every release — but she signs up *after* the originals were already sent, so she needs the back-catalogue too |
 
-BingeBox and Joe are registered up front; Ann arrives later (see
+SofaBox and Joe are registered up front; Ann arrives later (see
 [Section 1 — Ann, the late joiner](#ann-the-late-joiner)). Each is registered as a
 **participant** and owns an **event listener** on the
 `NFlix-NewReleases` address. A listener is a standing subscription: "when something lands
 on this address, run my code."
 
-- **BingeBox's listener has no filter.** It receives every release and reacts to all of them.
+- **SofaBox's listener has no filter.** It receives every release and reacts to all of them.
 - **Joe's listener has a filter.** Before Joe's code is ever run, EventHighway checks the
   release against Joe's rule (`Type == "Movie"` **and** `Rating >= 8.0`). If the release
   does not match, Joe is quietly skipped — his code is never invoked for things he does
@@ -68,7 +68,7 @@ A couple of these are deliberately mischievous so we can see the platform's safe
 
 ### What each subscriber ends up seeing
 
-| Release | BingeBox (everything) | Joe (good movies only) |
+| Release | SofaBox (everything) | Joe (good movies only) |
 |---|---|---|
 | Yellowstone (Series, 8.6) | ✅ delivered | ⏭️ skipped (not a Movie) |
 | Spider-Verse (Movie, 8.5) | ✅ delivered | ✅ delivered |
@@ -77,17 +77,17 @@ A couple of these are deliberately mischievous so we can see the platform's safe
 | Top Gun #2–4 | 🚫 loop-detected | 🚫 loop-detected |
 | John Wick (no participant) | 🚫 unauthorised | 🚫 unauthorised |
 
-So **BingeBox handles 4 releases** and **Joe handles 2** — exactly the two good movies.
-BingeBox logs each delivery to the console; Joe's deliveries are **POSTed to his REST
+So **SofaBox handles 4 releases** and **Joe handles 2** — exactly the two good movies.
+SofaBox logs each delivery to the console; Joe's deliveries are **POSTed to his REST
 API** (a WireMock stand-in started by the sample), so Joe produces no console lines of
 his own — his outcomes appear in the per-subscriber summary as the API's recorded
 response:
 
 ```
-[BingeBox] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
-[BingeBox] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
+[SofaBox] New Release - Spider-Man: Across the Spider-Verse (Movie with rating of 8.5)
+[SofaBox] New Release - Guardians of the Galaxy Vol. 3 (Movie with rating of 7.9)
 ...
-  BingeBox: handled 4 event(s)
+  SofaBox: handled 4 event(s)
   Joe: handled 2 event(s)
     [Success] 200 OK Event received
 ```
@@ -96,13 +96,13 @@ response:
 
 Ann shows up **after** the four releases have already gone out. Going forward she would
 receive every new release automatically (her listener has no filter, just like
-BingeBox) — but she has missed everything published before she signed up, and she does
+SofaBox) — but she has missed everything published before she signed up, and she does
 not want a gap.
 
 To bridge that gap we use a **targeted replay**: we re-deliver the already-published
-releases, but **restricted to Ann's listener only**, so BingeBox and Joe are not
+releases, but **restricted to Ann's listener only**, so SofaBox and Joe are not
 re-notified of things they already handled. Ann ends up with the same four releases
-BingeBox got:
+SofaBox got:
 
 | Release | Ann (late joiner, back-filled by replay) |
 |---|---|
@@ -168,12 +168,12 @@ A handler is the code that runs when an event is delivered. The simplest kind is
 `DelegateEventHandler`: you give it a stable `Id`, a function, and (optionally) a **name**.
 
 ```csharp
-var bingeBoxHandler = new DelegateEventHandler(
+var sofaBoxHandler = new DelegateEventHandler(
     Guid.NewGuid(),
     (content, cancellationToken) =>
     {
         MediaItem item = Deserialize(content);
-        Console.WriteLine($"[BingeBox] New Release - {item.Title} ({item.Type} with rating of {item.Rating})");
+        Console.WriteLine($"[SofaBox] New Release - {item.Title} ({item.Type} with rating of {item.Rating})");
 
         return ValueTask.FromResult(new EventHandlerResult
         {
@@ -183,12 +183,12 @@ var bingeBoxHandler = new DelegateEventHandler(
             ResponseMessage = "OK"
         });
     },
-    name: "BingeBox");
+    name: "SofaBox");
 ```
 
 > **The handler is the integration point.** In this sample the function just **writes to
 > the console**, but that body is the place where your real business logic goes. It could
-> just as easily **call a REST API** to forward the release to BingeBox's catalogue
+> just as easily **call a REST API** to forward the release to SofaBox's catalogue
 > service, drop a message on a queue, write to a database, send an email, or run any other
 > in-process logic. Whatever you return in the `EventHandlerResult` (`Response`,
 > `ResponseCode`, `ResponseMessage`, `IsSuccess`) is stored so you can audit exactly what
@@ -215,12 +215,12 @@ Both are then registered with the client:
 
 ```csharp
 client.V2
-    .RegisterEventHandler(bingeBoxHandler)
+    .RegisterEventHandler(sofaBoxHandler)
     .RegisterEventHandler(joeHandler);
 ```
 
 > **Give each handler a distinct identity.** Handlers are resolved by their `Id`, which
-> must be unique per registration. The optional `name` ("BingeBox", "Joe") makes logs and
+> must be unique per registration. The optional `name` ("SofaBox", "Joe") makes logs and
 > health output readable.
 
 ### Step 3 — Register the publisher (NFlix) and its secret
@@ -267,22 +267,22 @@ EventAddressV2 newReleases =
     });
 ```
 
-### Step 5 — Subscribe BingeBox (everything)
+### Step 5 — Subscribe SofaBox (everything)
 
-BingeBox is a participant that owns a listener on the address. No filter means it receives
+SofaBox is a participant that owns a listener on the address. No filter means it receives
 every release.
 
 ```csharp
-EventParticipantV2 bingeBox = await client.V2.EventParticipantV2Client.AddEventParticipantV2Async(/* … */);
+EventParticipantV2 sofaBox = await client.V2.EventParticipantV2Client.AddEventParticipantV2Async(/* … */);
 
 await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventListenerV2
 {
     Id = Guid.NewGuid(),
-    Name = "BingeBox New Releases Listener",
-    HandlerId = bingeBoxHandler.Id,
-    HandlerName = bingeBoxHandler.Name,
+    Name = "SofaBox New Releases Listener",
+    HandlerId = sofaBoxHandler.Id,
+    HandlerName = sofaBoxHandler.Name,
     EventAddressId = newReleases.Id,
-    ParticipantId = bingeBox.Id,
+    ParticipantId = sofaBox.Id,
     CreatedDate = now,
     UpdatedDate = now
 });
@@ -290,7 +290,7 @@ await client.V2.EventListenerV2Client.RegisterEventListenerV2Async(new EventList
 
 ### Step 6 — Subscribe Joe (good movies only)
 
-Joe's listener adds two things on top of BingeBox's:
+Joe's listener adds two things on top of SofaBox's:
 
 - **`PromotedProperties`** — a comma-separated list of fields to lift out of the event
   content so they can be tested (`"Title,Type,Rating"`).
@@ -370,7 +370,7 @@ retrieves them and groups by subscriber to produce the final summary.
 IQueryable<ListenerEventV2> all =
     await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync();
 
-foreach (ListenerEventV2 listenerEvent in all.Where(e => e.EventListenerId == bingeBoxListener.Id))
+foreach (ListenerEventV2 listenerEvent in all.Where(e => e.EventListenerId == sofaBoxListener.Id))
 {
     // listenerEvent.Status, ResponseCode, ResponseMessage, Response
 }
@@ -406,7 +406,7 @@ public class MediaItem
 |---|---|---|
 | NFlix | Participant + secret | Authenticated publisher of releases |
 | `NFlix-NewReleases` | Event address | The single channel releases flow through |
-| BingeBox | Participant + listener (no filter) | Wants every release |
+| SofaBox | Participant + listener (no filter) | Wants every release |
 | Joe | Participant + listener (promoted props + filter) | Wants only Movies rated ≥ 8.0 |
 | Ann | Participant + listener (no filter), added late | A late joiner back-filled by replay |
 | A release | Event (`EventV2`) | One announcement, immediate or scheduled |
@@ -463,7 +463,7 @@ var annListener = await client.V2.EventListenerV2Client.RegisterEventListenerV2A
 
 The targeted overload of `ReplayEventArchiveV2sAsync` takes a **single archived event id**
 and the **listener ids** to deliver it to. We call it for each release Ann missed,
-restricting delivery to her listener so BingeBox and Joe are never re-notified.
+restricting delivery to her listener so SofaBox and Joe are never re-notified.
 
 ```csharp
 foreach (Guid eventId in acceptedEventIds)
@@ -550,5 +550,5 @@ await client.V2.ReplayingEventV2Client.ReplayEventArchiveV2sAsync(
 await client.V2.ReplayingEventV2Client.ProcessReplayedListenerEventV2sAsync();
 ```
 
-Joe re-handles that one release and nothing else — BingeBox and Ann are untouched, and no
+Joe re-handles that one release and nothing else — SofaBox and Ann are untouched, and no
 other events are re-sent.

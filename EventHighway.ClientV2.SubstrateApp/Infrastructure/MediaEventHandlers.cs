@@ -20,14 +20,14 @@ using WireMock.Server;
 namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
 {
     /// <summary>
-    /// Holds the event handlers wired into the substrate. BingeBox logs to the console;
+    /// Holds the event handlers wired into the substrate. SofaBox logs to the console;
     /// Joe and Ann forward each release to a REST API (here, the WireMock server) — Joe
     /// through the packaged <c>JoesRestApi</c> delegate client, Ann through an inline
     /// token + POST delegate.
     /// </summary>
     public sealed class MediaEventHandlers
     {
-        public DelegateEventHandler BingeBox { get; }
+        public DelegateEventHandler SofaBox { get; }
         public DelegateEventHandler Joe { get; }
         public DelegateEventHandler Ann { get; }
         public DelegateEventHandler FlakyBox { get; }
@@ -36,14 +36,14 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
             WireMockServer wireMock,
             IJoesRestApiDelegateClient joesRestApiDelegateClient)
         {
-            this.BingeBox = new DelegateEventHandler(
-                SeedIdentifiers.BingeBoxHandler,
+            this.SofaBox = new DelegateEventHandler(
+                SeedIdentifiers.SofaBoxHandler,
                 (content, cancellationToken) =>
                 {
                     MediaItem item = MediaItemSerializer.Deserialize(content);
 
                     Console.WriteLine(
-                        $"[BingeBox] New Release - {item.Title} " +
+                        $"[SofaBox] New Release - {item.Title} " +
                         $"({item.Type} with rating of {item.Rating})");
 
                     return ValueTask.FromResult(new EventHandlerResult
@@ -54,7 +54,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
                         ResponseMessage = "OK"
                     });
                 },
-                name: "BingeBox");
+                name: "SofaBox");
 
             // A downstream that is always unavailable. Used to seed partial-success events:
             // the reliable listener succeeds while this one errors, leaving a mix of statuses.
