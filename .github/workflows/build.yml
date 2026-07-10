@@ -30,7 +30,7 @@ jobs:
     - name: Test - Portal Unit
       run: dotnet test EventHighway.Portal.Web.Tests.Unit --no-build --verbosity normal
   build-integration:
-    name: Build & Test (DB matrix)
+    name: Build & Acceptance Tests (DB matrix)
     runs-on: ubuntu-latest
     steps:
     - name: Check out

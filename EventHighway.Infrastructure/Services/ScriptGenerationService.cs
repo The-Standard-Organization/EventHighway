@@ -56,7 +56,7 @@ namespace EventHighway.Infrastructure.Services
                           "--no-build --verbosity normal"))
 
               .AddJob("build-integration", job => job
-                  .WithName("Build & Test (DB matrix)")
+                  .WithName("Build & Acceptance Tests (DB matrix)")
                   .RunsOn(BuildMachines.UbuntuLatest)
                   .WithFailFast(false)
                   .AddMatrix("provider", "sqlserver", "postgres")
