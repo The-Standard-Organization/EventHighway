@@ -18,7 +18,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             // when
             IReadOnlyList<HealthCheckItemV2> actualHealthCheckItemV2s =
@@ -37,8 +38,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
-            DateTimeOffset currentHourStart = GetCurrentHourStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
+            DateTimeOffset currentHourStart = TruncateToMicroseconds(
+                GetCurrentHourStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 
@@ -72,7 +75,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 
@@ -99,7 +103,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 
@@ -122,7 +127,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 
@@ -147,7 +153,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 
@@ -172,7 +179,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         {
             // given
             TrafficPeriodV2 period = TrafficPeriodV2.Day;
-            DateTimeOffset windowStart = GetCurrentDayWindowStart();
+            DateTimeOffset windowStart = TruncateToMicroseconds(
+                GetCurrentDayWindowStart());
 
             SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
 

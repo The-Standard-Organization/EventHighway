@@ -23,7 +23,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             Guid inputEventAddressV2Id = randomEventAddressV2.Id;
 
             DateTimeOffset scheduledDate =
-                DateTimeOffset.Now.AddSeconds(GetRandomNumber());
+                TruncateToMicroseconds(DateTimeOffset.UtcNow)
+                    .AddSeconds(GetRandomNumber());
 
             EventV2 inputEventV2 =
                 CreateRandomEventV2(inputEventAddressV2Id, scheduledDate);
@@ -58,7 +59,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                 await CreateRandomEventParticipantV2Async();
 
             DateTimeOffset scheduledDate =
-                DateTimeOffset.Now.AddSeconds(GetRandomNumber());
+                TruncateToMicroseconds(DateTimeOffset.UtcNow)
+                    .AddSeconds(GetRandomNumber());
 
             EventV2 inputEventV2 =
                 CreateRandomEventV2(inputEventAddressV2Id, scheduledDate);
@@ -100,7 +102,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                     addedEventParticipantV2.Id);
 
             DateTimeOffset scheduledDate =
-                DateTimeOffset.Now.AddSeconds(GetRandomNumber());
+                TruncateToMicroseconds(DateTimeOffset.UtcNow)
+                    .AddSeconds(GetRandomNumber());
 
             EventV2 inputEventV2 =
                 CreateRandomEventV2(inputEventAddressV2Id, scheduledDate);

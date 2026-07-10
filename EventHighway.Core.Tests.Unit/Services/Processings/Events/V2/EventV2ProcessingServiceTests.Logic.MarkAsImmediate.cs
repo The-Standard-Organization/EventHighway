@@ -22,7 +22,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
                 TestContext.Current.CancellationToken;
 
             DateTimeOffset randomDateTimeOffset =
-                GetRandomDateTimeOffset();
+                TruncateToMicroseconds(GetRandomDateTimeOffset());
 
             DateTimeOffset retrievedDateTimeOffset =
                 randomDateTimeOffset;
