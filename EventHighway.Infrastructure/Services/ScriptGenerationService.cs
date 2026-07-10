@@ -202,6 +202,19 @@ namespace EventHighway.Infrastructure.Services
 
         public void GeneratePrLintScript(string branchName)
         {
+            var labelJob = new LabelJobV3(runsOn: BuildMachines.UbuntuLatest)
+            {
+                Name = "Label",
+                Permissions = new Dictionary<string, string>
+                {
+                    { "contents", "read" },
+                    { "pull-requests", "write" },
+                    { "issues", "write" }
+                }
+            };
+
+            labelJob.Steps[0].With["script"] = LabelScript;
+
             var githubPipeline = new ADotNet.Models.Pipelines.GithubPipelines.DotNets.GithubPipeline
             {
                 Name = "PR Linter",
@@ -218,16 +231,7 @@ namespace EventHighway.Infrastructure.Services
                 {
                     {
                         "label",
-                        new LabelJobV3(runsOn: BuildMachines.UbuntuLatest)
-                        {
-                            Name = "Label",
-                            Permissions = new Dictionary<string, string>
-                            {
-                                { "contents", "read" },
-                                { "pull-requests", "write" },
-                                { "issues", "write" }
-                            }
-                        }
+                        labelJob
                     },
                     {
                         "requireIssueOrTask",
@@ -251,5 +255,146 @@ namespace EventHighway.Infrastructure.Services
                 adoPipeline: githubPipeline,
                 path: buildScriptPath);
         }
+
+        // PR title prefixes recognised by the labeler. Canonical Standard list
+        // (ADotNet LabelJobV3 master) extended with prefixes used in this repo:
+        // PORTAL:, POC: and CONFIGURATIONS:.
+        private const string LabelScript =
+            """
+            const prefixes = [
+              'INFRA:',
+              'MINOR INFRA:',
+              'MEDIUM INFRA:',
+              'MAJOR INFRA:',
+              'PROVISIONS:',
+              'RELEASES:',
+              'DATA:',
+              'MINOR DATA:',
+              'MEDIUM DATA:',
+              'MAJOR DATA:',
+              'MIGRATIONS:',
+              'BROKERS:',
+              'MINOR BROKERS:',
+              'MEDIUM BROKERS:',
+              'MAJOR BROKERS:',
+              'PROVIDERS:',
+              'FOUNDATIONS:',
+              'MINOR FOUNDATIONS:',
+              'MEDIUM FOUNDATIONS:',
+              'MAJOR FOUNDATIONS:',
+              'PROCESSINGS:',
+              'MINOR PROCESSINGS:',
+              'MEDIUM PROCESSINGS:',
+              'MAJOR PROCESSINGS:',
+              'ORCHESTRATIONS:',
+              'MINOR ORCHESTRATIONS:',
+              'MEDIUM ORCHESTRATIONS:',
+              'MAJOR ORCHESTRATIONS:',
+              'COORDINATIONS:',
+              'MINOR COORDINATIONS:',
+              'MEDIUM COORDINATIONS:',
+              'MAJOR COORDINATIONS:',
+              'MANAGEMENTS:',
+              'MINOR MANAGEMENTS:',
+              'MEDIUM MANAGEMENTS:',
+              'MAJOR MANAGEMENTS:',
+              'AGGREGATIONS:',
+              'MINOR AGGREGATIONS:',
+              'MEDIUM AGGREGATIONS:',
+              'MAJOR AGGREGATIONS:',
+              'CONTROLLERS:',
+              'MINOR CONTROLLERS:',
+              'MEDIUM CONTROLLERS:',
+              'MAJOR CONTROLLERS:',
+              'CLIENTS:',
+              'MINOR CLIENTS:',
+              'MEDIUM CLIENTS:',
+              'MAJOR CLIENTS:',
+              'EXPOSERS:',
+              'MINOR EXPOSERS:',
+              'MEDIUM EXPOSERS:',
+              'MAJOR EXPOSERS:',
+              'BASE:',
+              'MINOR BASE:',
+              'MEDIUM BASE:',
+              'MAJOR BASE:',
+              'COMPONENTS:',
+              'MINOR COMPONENTS:',
+              'MEDIUM COMPONENTS:',
+              'MAJOR COMPONENTS:',
+              'VIEWS:',
+              'MINOR VIEWS:',
+              'MEDIUM VIEWS:',
+              'MAJOR VIEWS:',
+              'PAGES:',
+              'MINOR PAGES:',
+              'MEDIUM PAGES:',
+              'MAJOR PAGES:',
+              'PORTAL:',
+              'ACCEPTANCE:',
+              'MINOR ACCEPTANCE:',
+              'MEDIUM ACCEPTANCE:',
+              'MAJOR ACCEPTANCE:',
+              'INTEGRATIONS:',
+              'MINOR INTEGRATIONS:',
+              'MEDIUM INTEGRATIONS:',
+              'MAJOR INTEGRATIONS:',
+              'CODE RUB:',
+              'MINOR CODE RUB:',
+              'MEDIUM CODE RUB:',
+              'MAJOR CODE RUB:',
+              'MINOR FIX:',
+              'MEDIUM FIX:',
+              'MAJOR FIX:',
+              'DOCUMENTATION:',
+              'CONFIG:',
+              'CONFIGURATIONS:',
+              'STANDARD:',
+              'DESIGN:',
+              'MINOR DESIGN:',
+              'MEDIUM DESIGN:',
+              'MAJOR DESIGN:',
+              'BUSINESS:',
+              'POC:',
+              'PLANNING:',
+              'MINOR PLANNING:',
+              'MAJOR PLANNING:',
+              'MENTORSHIP:',
+              'MINOR MENTORSHIP:',
+              'MAJOR MENTORSHIP:',
+              'DISCUSSION:',
+              'MINOR DISCUSSION:',
+              'MAJOR DISCUSSION:',
+              'IMPORTS:',
+              'REVIEWS:',
+              'STATUS:'
+            ];
+
+            const pullRequest = context.payload.pull_request;
+
+            if (!pullRequest) {
+              console.log('No pull request context available.');
+              return;
+            }
+
+            const title = context.payload.pull_request.title;
+            const existingLabels = context.payload.pull_request.labels.map(label => label.name);
+
+            for (const prefix of prefixes) {
+              if (title.startsWith(prefix)) {
+                const label = prefix.slice(0, -1);
+                if (!existingLabels.includes(label)) {
+                  console.log(`Applying label: ${label}`);
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.payload.pull_request.number,
+                    labels: [label]
+                  });
+                }
+                break;
+              }
+            }
+            """;
     }
 }
