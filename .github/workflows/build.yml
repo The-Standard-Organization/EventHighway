@@ -37,10 +37,6 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Install EF Core Tools
-      run: dotnet tool install --global dotnet-ef
-    - name: Apply Migrations
-      run: dotnet ef database update --project ${{ matrix.project }}
     - name: Test
       run: dotnet test EventHighway.Core.Tests.Acceptance --no-build --verbosity normal
     strategy:
@@ -52,10 +48,8 @@ jobs:
         include:
         - provider: sqlserver
           connection_string: Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;Pooling=false
-          project: EventHighway.SqlServer/EventHighway.SqlServer.csproj
         - provider: postgres
           connection_string: Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres;Pooling=false
-          project: EventHighway.PostgreSql/EventHighway.PostgreSql.csproj
     env:
       PROVIDER: ${{ matrix.provider }}
       CONNECTION_STRING: ${{ matrix.connection_string }}
