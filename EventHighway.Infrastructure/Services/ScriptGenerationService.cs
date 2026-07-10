@@ -34,7 +34,26 @@ namespace EventHighway.Infrastructure.Services
                   .AddSetupDotNetStep(dotNetVersion)
                   .AddRestoreStep()
                   .AddBuildStep()
-                  .AddTestStep())
+                  .AddTestStep(
+                      name: "Test - Core Unit",
+                      command:
+                          "dotnet test EventHighway.Core.Tests.Unit " +
+                          "--no-build --verbosity normal")
+                  .AddTestStep(
+                      name: "Test - EventHandlers Unit",
+                      command:
+                          "dotnet test EventHighway.EventHandlers.Tests.Unit " +
+                          "--no-build --verbosity normal")
+                  .AddTestStep(
+                      name: "Test - EventHandlers Acceptance",
+                      command:
+                          "dotnet test EventHighway.EventHandlers.Tests.Acceptance " +
+                          "--no-build --verbosity normal")
+                  .AddTestStep(
+                      name: "Test - Portal Unit",
+                      command:
+                          "dotnet test EventHighway.Portal.Web.Tests.Unit " +
+                          "--no-build --verbosity normal"))
 
               .AddJob("build-integration", job => job
                   .WithName("Build & Test (DB matrix)")
