@@ -187,7 +187,7 @@ public partial class Program
         // =========================================================
         // 5) SofaBox participant + listener (receives every release)
         // =========================================================
-        EventParticipantV2 bingeBox =
+        EventParticipantV2 sofaBox =
             await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
                 {
