@@ -43,14 +43,24 @@ V2 Client is the latest version and should be used when possible. It is highly r
 
 ## 2.0 - Installation & Initialization
 
-V2 runs against a SQL Server database. Construct the client with a storage provider and configuration — the database is created and migrated automatically on first use:
+V2 runs against SQL Server or PostgreSQL. Install the provider package of your choice
+(`EventHighway.SqlServer` or `EventHighway.PostgreSql`), then construct the client with the
+corresponding storage provider and configuration — the database is created and migrated
+automatically on first use:
 
 ```csharp
 var configuration = new EventHighwayConfiguration();
 
+// SQL Server
 IClientV2 eventHighway = new EventHighwayClient(
 	new SqlServerStorageBrokerProvider(
 		"Server=.;Database=EventHighwayDB;Trusted_Connection=True;MultipleActiveResultSets=true"),
+	configuration).V2;
+
+// PostgreSQL
+IClientV2 eventHighway = new EventHighwayClient(
+	new PostgreSqlStorageBrokerProvider(
+		"Host=localhost;Port=5432;Database=EventHighwayDB;Username=postgres;Password=postgres"),
 	configuration).V2;
 ```
 
@@ -155,7 +165,7 @@ Current V2 capabilities include:
 - **Participants & Secrets** — attribute and authorize events to an `EventParticipantV2` via rotating secrets.
 - **Retries** — listener-level budgets with incremental (Fibonacci) backoff for resilient delivery.
 - **Archiving & Replay** — processed events are archived, then replayed in bulk or to a targeted listener for back-fill.
-- **Pluggable Storage Providers** — anything implementing the storage-provider contract; SQL Server ships today.
+- **Pluggable Storage Providers** — anything implementing the storage-provider contract; SQL Server and PostgreSQL ship today.
 - **Operations Portal** — a Standard-compliant Blazor Server console for operating an installation ([§0.2](#02---operations-portal)):
   - **Health dashboards** — RAG status board (live) plus statistics dashboards (traffic, usage by address/participant, retries, loops, duplicates).
   - **Events** — browse and inspect event content; archive processed events.

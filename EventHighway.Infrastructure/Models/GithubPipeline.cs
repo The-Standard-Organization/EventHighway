@@ -1,0 +1,25 @@
+﻿// ---------------------------------------------------------------------------
+// Copyright (c) Hassan Habib & Shri Humrudha Jagathisun All rights reserved.
+// Licensed under the MIT License.
+// See License.txt in the project root for license information.
+// ---------------------------------------------------------------------------
+
+using System.Collections.Generic;
+using YamlDotNet.Serialization;
+
+namespace EventHighway.Infrastructure.Models
+{
+    public class GithubPipeline
+    {
+        public string Name { get; set; }
+
+        [YamlMember(Alias = "on")]
+        public Events OnEvents { get; set; }
+
+        [YamlMember(Alias = "env", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
+        public Dictionary<string, string> EnvironmentVariables { get; set; }
+
+        [YamlMember(Alias = "jobs")]
+        public Dictionary<string, Job> Jobs { get; set; }
+    }
+}

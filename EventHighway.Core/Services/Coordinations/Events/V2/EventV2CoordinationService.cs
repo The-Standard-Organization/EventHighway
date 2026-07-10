@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -130,9 +131,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            IQueryable<EventV2> eventV2s =
-                await this.eventV2OrchestrationService
-                    .RetrieveScheduledPendingEventV2sAsync(cancellationToken);
+            List<EventV2> eventV2s =
+                  (await this.eventV2OrchestrationService
+                      .RetrieveScheduledPendingEventV2sAsync(cancellationToken))
+                          .ToList();
 
             foreach (EventV2 eventV2 in eventV2s)
             {

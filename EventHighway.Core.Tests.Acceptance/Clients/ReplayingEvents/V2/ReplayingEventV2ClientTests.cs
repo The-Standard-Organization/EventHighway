@@ -13,10 +13,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ReplayingEvents.V2
         private readonly WireMockServer wireMockServer;
         private readonly ClientBroker clientBroker;
 
-        public ReplayingEventV2ClientTests()
+        public ReplayingEventV2ClientTests(ClientBroker clientBroker)
         {
             this.wireMockServer = WireMockServer.Start();
-            this.clientBroker = new ClientBroker();
+            this.clientBroker = clientBroker;
         }
     }
 }

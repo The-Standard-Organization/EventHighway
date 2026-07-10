@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Title>EventHighway.PostgreSql</Title>
+		<Authors>Hassan Habib; Christo du Toit</Authors>
+		<Company>The Standard Organization</Company>
+		<Product>EventHighway.PostgreSql</Product>
+		<Version>2.1.0</Version>
+		<AssemblyVersion>2.1.0.0</AssemblyVersion>
+		<FileVersion>2.1.0.0</FileVersion>
+		<PackageId>EventHighway.PostgreSql</PackageId>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Copyright>The Standard Organization 2026 (c)</Copyright>
+		<PackageIcon>EventHighwayLogo.png</PackageIcon>
+		<PackageLicenseFile>license.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Description>PostgreSQL provider for EventHighway.</Description>
+		<PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/hassanhabib/EventHighway</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>Event-Driven</PackageTags>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\EventHighway.Core\EventHighway.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\EventHighwayLogo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+			<Link>EventHighwayLogo.png</Link>
+		</None>
+		<None Include="..\license.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+			<Link>license.txt</Link>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Migrations\" />
+	</ItemGroup>
+
+</Project>
