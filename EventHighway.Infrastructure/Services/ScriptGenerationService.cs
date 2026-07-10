@@ -204,13 +204,7 @@ namespace EventHighway.Infrastructure.Services
         {
             var labelJob = new LabelJobV3(runsOn: BuildMachines.UbuntuLatest)
             {
-                Name = "Label",
-                Permissions = new Dictionary<string, string>
-                {
-                    { "contents", "read" },
-                    { "pull-requests", "write" },
-                    { "issues", "write" }
-                }
+                Name = "Label"
             };
 
             labelJob.Steps[0].With["script"] = LabelScript;

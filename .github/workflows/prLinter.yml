@@ -159,8 +159,8 @@ jobs:
           }
     permissions:
       contents: read
-      pull-requests: write
       issues: write
+      pull-requests: write
   requireIssueOrTask:
     name: Require Issue Or Task Association
     runs-on: ubuntu-latest
