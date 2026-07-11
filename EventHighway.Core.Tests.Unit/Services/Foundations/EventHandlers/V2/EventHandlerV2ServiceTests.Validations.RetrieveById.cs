@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -59,6 +60,59 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
             this.eventHandlerBrokerMock.Verify(broker =>
                 broker.GetAll(),
                     Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventHandlerBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRetrieveByIdIfEventHandlerV2IsNotFoundAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid someEventHandlerV2Id = GetRandomId();
+
+            IEnumerable<IEventHandler> randomEventHandlers =
+                CreateRandomEventHandlers();
+
+            var notFoundEventHandlerV2Exception =
+                new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {someEventHandlerV2Id}.");
+
+            var expectedEventHandlerV2ValidationException =
+                new EventHandlerV2ValidationException(
+                    message: "Event handler validation error occurred, fix the errors and try again.",
+                    innerException: notFoundEventHandlerV2Exception);
+
+            this.eventHandlerBrokerMock.Setup(broker =>
+                broker.GetAll())
+                    .Returns(randomEventHandlers);
+
+            // when
+            ValueTask<IEventHandler> retrieveEventHandlerV2ByIdTask =
+                this.eventHandlerV2Service.RetrieveEventHandlerV2ByIdAsync(
+                    someEventHandlerV2Id, randomCancellationToken);
+
+            EventHandlerV2ValidationException actualEventHandlerV2ValidationException =
+                await Assert.ThrowsAsync<EventHandlerV2ValidationException>(
+                    retrieveEventHandlerV2ByIdTask.AsTask);
+
+            // then
+            actualEventHandlerV2ValidationException.Should().BeEquivalentTo(
+                expectedEventHandlerV2ValidationException);
+
+            this.eventHandlerBrokerMock.Verify(broker =>
+                broker.GetAll(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is<Xeption>(
+                    actual => actual.SameExceptionAs(
+                        expectedEventHandlerV2ValidationException))),
+                            Times.Once);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.eventHandlerBrokerMock.VerifyNoOtherCalls();

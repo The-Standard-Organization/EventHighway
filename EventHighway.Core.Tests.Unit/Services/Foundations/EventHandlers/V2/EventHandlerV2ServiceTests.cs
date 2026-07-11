@@ -40,6 +40,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
         private static string GetRandomString() =>
             new MnemonicString(1).GetValue();
 
+        private static Guid GetRandomId() =>
+            Guid.NewGuid();
+
         private static SqlException CreateSqlException() =>
             (SqlException)RuntimeHelpers.GetUninitializedObject(type: typeof(SqlException));
 
