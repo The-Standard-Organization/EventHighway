@@ -29,10 +29,11 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
         public EventHandlerV2Client(IEventHandlerV2ProcessingService eventHandlerV2ProcessingService) =>
             this.eventHandlerV2ProcessingService = eventHandlerV2ProcessingService;
 
-        public ValueTask<IEventHandler> RegisterEventHandlerV2Async(
+        public async ValueTask<IEventHandler> RegisterEventHandlerV2Async(
             IEventHandler eventHandler,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.eventHandlerV2ProcessingService.RegisterEventHandlerV2Async(
+                eventHandler, cancellationToken);
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
