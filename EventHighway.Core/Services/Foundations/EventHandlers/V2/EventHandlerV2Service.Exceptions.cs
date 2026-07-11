@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 using Xeptions;
@@ -14,6 +15,33 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
     {
         private delegate void ReturningVoidFunction();
         private delegate IEnumerable<IEventHandler> ReturningEventHandlersFunction();
+        private delegate ValueTask<IEventHandler> ReturningEventHandlerFunction();
+
+        private async ValueTask<IEventHandler> TryCatch(
+            ReturningEventHandlerFunction returningEventHandlerFunction)
+        {
+            try
+            {
+                return await returningEventHandlerFunction();
+            }
+            catch (NullEventHandlerV2Exception nullEventHandlerV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(nullEventHandlerV2Exception);
+            }
+        }
+
+        private async ValueTask<EventHandlerV2ValidationException>
+            CreateAndLogValidationExceptionAsync(Xeption exception)
+        {
+            var eventHandlerV2ValidationException =
+                new EventHandlerV2ValidationException(
+                    message: "Event handler validation error occurred, fix the errors and try again.",
+                    innerException: exception);
+
+            await this.loggingBroker.LogErrorAsync(eventHandlerV2ValidationException);
+
+            return eventHandlerV2ValidationException;
+        }
 
         private IEnumerable<IEventHandler> TryCatch(ReturningEventHandlersFunction returningEventHandlersFunction)
         {

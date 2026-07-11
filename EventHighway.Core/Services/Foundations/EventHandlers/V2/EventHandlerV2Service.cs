@@ -30,10 +30,13 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<IEventHandler> AddEventHandlerV2Async(
+        public ValueTask<IEventHandler> AddEventHandlerV2Async(
             IEventHandler eventHandler,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(new ReturningEventHandlerFunction(async () =>
         {
+            ValidateEventHandlerIsNotNull(eventHandler);
+
             var eventHandlerV2 = new EventHandlerV2
             {
                 Id = eventHandler.Id,
@@ -44,7 +47,7 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             this.eventHandlerBroker.Register(eventHandler);
 
             return eventHandler;
-        }
+        }));
 
         public void RegisterEventHandlerV2(IEventHandler eventHandler) =>
             TryCatch(() =>
