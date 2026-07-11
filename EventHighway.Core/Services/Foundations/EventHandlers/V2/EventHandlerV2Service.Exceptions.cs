@@ -28,6 +28,10 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             {
                 throw await CreateAndLogValidationExceptionAsync(nullEventHandlerV2Exception);
             }
+            catch (InvalidEventHandlerV2Exception invalidEventHandlerV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(invalidEventHandlerV2Exception);
+            }
         }
 
         private async ValueTask<EventHandlerV2ValidationException>
