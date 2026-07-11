@@ -38,9 +38,11 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 cancellationToken);
         }));
 
-        public ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
+        public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.eventHandlerV2Service.RemoveEventHandlerV2ByIdAsync(
+                eventHandlerV2Id,
+                cancellationToken);
     }
 }
