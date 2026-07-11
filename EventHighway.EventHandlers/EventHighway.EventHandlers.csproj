@@ -14,6 +14,7 @@
 		<FileVersion>2.1.0.0</FileVersion>
 		<PackageId>EventHighway.EventHandlers</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<IsPackable>true</IsPackable>
 		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
@@ -32,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
+		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
