@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Services.Foundations.EventHandlers.V2;
 
 namespace EventHighway.Core.Services.Processings.EventHandlers.V2
@@ -36,5 +37,10 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 eventHandler,
                 cancellationToken);
         }));
+
+        public ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
+            Guid eventHandlerV2Id,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
