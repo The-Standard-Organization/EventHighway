@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
@@ -16,7 +16,8 @@
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IsPackable>true</IsPackable>
 		<Copyright>The Standard Organization 2026 (c)</Copyright>
 		<Description>EventHighway abstractions: interfaces and contracts for custom event handlers.</Description>
 		<PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
@@ -35,7 +36,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
+		<None Include="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

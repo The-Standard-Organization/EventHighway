@@ -1,6 +1,6 @@
 ﻿![EventHighway](https://raw.githubusercontent.com/hassanhabib/EventHighway/refs/heads/main/EventHighway.Core/Resources/Images/eventhighway-gitlogo.png)
 
-[![BUILD](https://github.com/hassanhabib/EventHighway/actions/workflows/build.yml/badge.svg)](https://github.com/hassanhabib/RESTFulSense/actions/workflows/build.yml)
+[![BUILD](https://img.shields.io/github/actions/workflow/status/hassanhabib/EventHighway/build.yml?branch=main&label=EventHighway&logo=github)](https://github.com/hassanhabib/EventHighway/actions/workflows/build.yml)
 [![Nuget](https://img.shields.io/nuget/v/EventHighway?logo=nuget&style=default)](https://www.nuget.org/packages/EventHighway)
 [![Nuget](https://img.shields.io/nuget/dt/EventHighway?logo=nuget&style=default&color=blue&label=Downloads)](https://www.nuget.org/packages/EventHighway)
 [![The Standard - COMPLIANT](https://img.shields.io/badge/The_Standard-COMPLIANT-2ea44f?style=default)](https://github.com/hassanhabib/The-Standard)
@@ -144,6 +144,53 @@ Runnable, end-to-end samples and in-depth guides:
 | `EventHighway.ClientV2.SubstrateApp` | A service-to-service (in-process substrate) sample using the same V2 client |
 
 > Legacy `V1` guides remain under [`EventHighway.Core/Resources/CodeSamples/V1`](EventHighway.Core/Resources/CodeSamples/V1) for existing users, but new development should target `V2`.
+
+---
+
+# 4 - Contributing
+
+Everyone is welcome to contribute — whichever way suits you best:
+
+- **Suggest** — log a feature request or bug report under [Issues](https://github.com/hassanhabib/EventHighway/issues).
+- **Build** — pick up an open feature request and help with development.
+- **Verify** — help with testing, reviewing pull requests, or hardening acceptance coverage.
+
+All contributions follow [The Standard](https://github.com/hassanhabib/The-Standard) — test-driven, one layer at a time.
+
+## 4.1 - Database Migrations (Dual Provider)
+
+EventHighway ships **two storage providers — SQL Server and PostgreSQL** — and both must stay schema-identical. If your change touches the database (new entity, new column, index, etc.), you must add a matching EF Core migration to **both** provider projects:
+
+| Provider | Project |
+|---|---|
+| SQL Server | `EventHighway.SqlServer` |
+| PostgreSQL | `EventHighway.PostgreSql` |
+
+Each provider project contains its own design-time context factory, so migrations are generated directly against the provider project. By default the factories target a local database (`(localdb)\MSSQLLocalDB` for SQL Server, `localhost:5432` for PostgreSQL); set the `CONNECTION_STRING` environment variable to override.
+
+### .NET CLI
+
+From the solution root:
+
+```bash
+# SQL Server
+dotnet ef migrations add <YourMigrationName> --project EventHighway.SqlServer --startup-project EventHighway.SqlServer
+
+# PostgreSQL
+dotnet ef migrations add <YourMigrationName> --project EventHighway.PostgreSql --startup-project EventHighway.PostgreSql
+```
+
+### Visual Studio (Package Manager Console)
+
+```powershell
+# SQL Server
+Add-Migration <YourMigrationName> -Project EventHighway.SqlServer -StartupProject EventHighway.SqlServer
+
+# PostgreSQL
+Add-Migration <YourMigrationName> -Project EventHighway.PostgreSql -StartupProject EventHighway.PostgreSql
+```
+
+> Use the **same migration name** for both providers, and include both generated migrations (plus the updated model snapshots) in your pull request. The CI build runs acceptance tests against both providers, so a missing migration on either side will fail the build.
 
 ---
 # Walk-through Video
