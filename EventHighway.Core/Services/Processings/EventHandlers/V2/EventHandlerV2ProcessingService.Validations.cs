@@ -16,8 +16,16 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
         private static void ValidateOnRemoveEventHandlerV2ById(Guid eventHandlerV2Id) =>
             ValidateEventHandlerV2Id(eventHandlerV2Id);
 
-        private static void ValidateOnRetrieveOrRegisterEventHandlerV2(IEventHandler eventHandler) =>
+        private static void ValidateOnRetrieveOrRegisterEventHandlerV2(IEventHandler eventHandler)
+        {
             ValidateEventHandlerV2IsNotNull(eventHandler);
+
+            Validate(
+                message: "Event handler is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventHandler.Id),
+                Parameter: nameof(IEventHandler.Id)));
+        }
 
         private static void ValidateEventHandlerV2IsNotNull(IEventHandler eventHandler)
         {

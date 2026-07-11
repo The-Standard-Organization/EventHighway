@@ -112,6 +112,11 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     nullEventHandlerV2ProcessingException);
             }
+            catch (InvalidEventHandlerV2ProcessingException invalidEventHandlerV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventHandlerV2ProcessingException);
+            }
             catch (EventHandlerV2ValidationException eventHandlerV2ValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
