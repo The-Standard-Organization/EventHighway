@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
@@ -83,6 +84,25 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventHandlers.V2
 
         private static EventHandlerV2 CreateRandomEventHandlerV2() =>
             new Filler<EventHandlerV2>().Create();
+
+        private static int GetRandomNumber() =>
+            new IntRange(min: 2, max: 9).GetValue();
+
+        private static IQueryable<EventHandlerV2> CreateRandomEventHandlerV2s() =>
+            new Filler<EventHandlerV2>().Create(count: GetRandomNumber()).AsQueryable();
+
+        private static IQueryable<IEventHandler> CreateRandomEventHandlers()
+        {
+            int count = GetRandomNumber();
+            var eventHandlers = new List<IEventHandler>();
+
+            for (int index = 0; index < count; index++)
+            {
+                eventHandlers.Add(CreateRandomEventHandler());
+            }
+
+            return eventHandlers.AsQueryable();
+        }
 
         private static IEventHandler CreateRandomEventHandler()
         {
