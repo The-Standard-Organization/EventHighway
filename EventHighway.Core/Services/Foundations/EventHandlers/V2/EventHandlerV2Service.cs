@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -59,5 +60,9 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
 
         public IEnumerable<IEventHandler> RetrieveAllEventHandlerV2s() =>
             TryCatch(() => this.eventHandlerBroker.GetAll());
+
+        public ValueTask<IQueryable<IEventHandler>> RetrieveAllEventHandlerV2sAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
