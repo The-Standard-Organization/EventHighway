@@ -24,10 +24,60 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             {
                 return await returningEventHandlerV2Function();
             }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventHandlerV2ProcessingException =
+                    new TimeoutEventHandlerV2ProcessingException(
+                        message: "Failed event handler processing timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventHandlerV2ProcessingException);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (InvalidEventHandlerV2ProcessingException invalidEventHandlerV2ProcessingException)
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     invalidEventHandlerV2ProcessingException);
+            }
+            catch (EventHandlerV2ValidationException eventHandlerV2ValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventHandlerV2ValidationException);
+            }
+            catch (EventHandlerV2DependencyValidationException eventHandlerV2DependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventHandlerV2DependencyValidationException);
+            }
+            catch (EventHandlerV2DependencyException eventHandlerV2DependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventHandlerV2DependencyException);
+            }
+            catch (EventHandlerV2ServiceException eventHandlerV2ServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventHandlerV2ServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventHandlerV2ProcessingServiceException =
+                    new FailedEventHandlerV2ProcessingServiceException(
+                        message: "Failed event handler service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventHandlerV2ProcessingServiceException);
             }
         }
 
