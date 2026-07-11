@@ -77,5 +77,68 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.eventHandlerBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRemoveByIdIfEventHandlerV2IsNotFoundAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            Guid someEventHandlerV2Id = GetRandomId();
+            EventHandlerV2 noEventHandlerV2 = null;
+
+            var notFoundEventHandlerV2Exception =
+                new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {someEventHandlerV2Id}.");
+
+            var expectedEventHandlerV2ValidationException =
+                new EventHandlerV2ValidationException(
+                    message: "Event handler validation error occurred, fix the errors and try again.",
+                    innerException: notFoundEventHandlerV2Exception);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectEventHandlerV2ByIdAsync(
+                    someEventHandlerV2Id, randomCancellationToken))
+                        .ReturnsAsync(noEventHandlerV2);
+
+            // when
+            ValueTask<EventHandlerV2> removeEventHandlerV2ByIdTask =
+                this.eventHandlerV2Service.RemoveEventHandlerV2ByIdAsync(
+                    someEventHandlerV2Id, randomCancellationToken);
+
+            EventHandlerV2ValidationException actualEventHandlerV2ValidationException =
+                await Assert.ThrowsAsync<EventHandlerV2ValidationException>(
+                    removeEventHandlerV2ByIdTask.AsTask);
+
+            // then
+            actualEventHandlerV2ValidationException.Should().BeEquivalentTo(
+                expectedEventHandlerV2ValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectEventHandlerV2ByIdAsync(
+                    someEventHandlerV2Id, randomCancellationToken),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is<Xeption>(
+                    actual => actual.SameExceptionAs(
+                        expectedEventHandlerV2ValidationException))),
+                            Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.DeleteEventHandlerV2Async(
+                    It.IsAny<EventHandlerV2>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.eventHandlerBrokerMock.Verify(broker =>
+                broker.Remove(It.IsAny<Guid>()),
+                    Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.eventHandlerBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
