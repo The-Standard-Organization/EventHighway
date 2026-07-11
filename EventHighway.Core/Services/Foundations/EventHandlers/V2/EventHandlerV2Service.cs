@@ -97,6 +97,8 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
                 await this.storageBroker.SelectEventHandlerV2ByIdAsync(
                     eventHandlerV2Id, cancellationToken);
 
+            ValidateStorageEventHandlerV2Exists(maybeEventHandlerV2, eventHandlerV2Id);
+
             EventHandlerV2 deletedEventHandlerV2 =
                 await this.storageBroker.DeleteEventHandlerV2Async(
                     maybeEventHandlerV2, cancellationToken);

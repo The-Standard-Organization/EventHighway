@@ -4,6 +4,7 @@
 
 using System;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 
 namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
@@ -57,6 +58,17 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             Guid eventHandlerV2Id)
         {
             if (eventHandler is null)
+            {
+                throw new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {eventHandlerV2Id}.");
+            }
+        }
+
+        private static void ValidateStorageEventHandlerV2Exists(
+            EventHandlerV2 eventHandlerV2,
+            Guid eventHandlerV2Id)
+        {
+            if (eventHandlerV2 is null)
             {
                 throw new NotFoundEventHandlerV2Exception(
                     message: $"Could not find event handler with id: {eventHandlerV2Id}.");
