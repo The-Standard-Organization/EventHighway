@@ -24,9 +24,9 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<IEventHandler> RegisterEventHandlerV2Async(
+        public async ValueTask<IEventHandler> RegisterEventHandlerV2Async(
             IEventHandler eventHandler,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.eventHandlerV2Service.AddEventHandlerV2Async(eventHandler, cancellationToken);
     }
 }
