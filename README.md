@@ -27,7 +27,7 @@ A Standard-compliant Blazor Server console for operating an EventHighway install
 
 # 1 - Version Information
 
-V2 Client is the latest version and should be used when possible. It is highly recommended to transition from previous versions to V2 for all new development, as support will end for older versions. The V2 client is available in the `v2.10` release and later.
+V2 Client is the latest version and should be used when possible. It is highly recommended to transition from previous versions to V2 for all new development, as support will end for older versions. The V2 client is available in the `v2.11` release and later.
 
 
 > [!NOTE]
@@ -35,8 +35,8 @@ V2 Client is the latest version and should be used when possible. It is highly r
 > `Version 0 / Version 1` is now considered obsolete for new adoption. Emphasis is on `V2` for all new development, and existing users of `Version 0 / Version 1` are encouraged to upgrade to `V2` to benefit from the new features.
 
 > [!TIP]
-> ![Recommended](https://img.shields.io/badge/V2_(v2.10+)-Recommended-brightgreen?style=for-the-badge)
-> `V2` (released in `v2.10`) is the current recommended version for reliable event delivery.
+> ![Recommended](https://img.shields.io/badge/V2_(v2.11+)-Recommended-brightgreen?style=for-the-badge)
+> `V2` (released in `v2.11`) is the current recommended version for reliable event delivery.
 
 
 # 2 - How to Use Basics (V2)
