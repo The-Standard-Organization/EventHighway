@@ -3,7 +3,6 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,16 +49,6 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
 
             return eventHandler;
         }));
-
-        public void RegisterEventHandlerV2(IEventHandler eventHandler) =>
-            TryCatch(() =>
-            {
-                ValidateEventHandlerV2OnRegister(eventHandler);
-                this.eventHandlerBroker.Register(eventHandler);
-            });
-
-        public IEnumerable<IEventHandler> RetrieveAllEventHandlerV2s() =>
-            TryCatch(() => this.eventHandlerBroker.GetAll());
 
         public ValueTask<IQueryable<IEventHandler>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default) =>
