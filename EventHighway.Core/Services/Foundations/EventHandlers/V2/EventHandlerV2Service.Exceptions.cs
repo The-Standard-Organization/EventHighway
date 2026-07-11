@@ -20,6 +20,56 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
         private delegate ValueTask<IEventHandler> ReturningEventHandlerFunction();
         private delegate ValueTask<IQueryable<IEventHandler>> ReturningQueryableEventHandlersFunction();
         private delegate ValueTask<EventHandlerV2> ReturningEventHandlerV2Function();
+        private delegate ValueTask<IQueryable<EventHandlerV2>> ReturningEventHandlerV2sFunction();
+
+        private async ValueTask<IQueryable<EventHandlerV2>> TryCatch(
+            ReturningEventHandlerV2sFunction returningEventHandlerV2sFunction)
+        {
+            try
+            {
+                return await returningEventHandlerV2sFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventHandlerV2Exception =
+                    new TimeoutEventHandlerV2Exception(
+                        message: "Failed event handler timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventHandlerV2Exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventHandlerV2Exception =
+                    new FailedStorageEventHandlerV2Exception(
+                        message: "Failed event handler storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventHandlerV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventHandlerV2ServiceException =
+                    new FailedEventHandlerV2ServiceException(
+                        message: "Failed event handler service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventHandlerV2ServiceException);
+            }
+        }
 
         private async ValueTask<EventHandlerV2> TryCatch(
             ReturningEventHandlerV2Function returningEventHandlerV2Function)
