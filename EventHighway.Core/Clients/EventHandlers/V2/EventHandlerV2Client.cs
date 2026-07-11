@@ -6,8 +6,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Clients.EventHandlers.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
+using EventHighway.Core.Models.Services.Processings.EventHandlers.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventHandlers.V2;
+using Xeptions;
 
 namespace EventHighway.Core.Clients.EventHandlers.V2
 {
@@ -31,9 +34,73 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
 
         public async ValueTask<IEventHandler> RegisterEventHandlerV2Async(
             IEventHandler eventHandler,
-            CancellationToken cancellationToken = default) =>
-            await this.eventHandlerV2ProcessingService.RegisterEventHandlerV2Async(
-                eventHandler, cancellationToken);
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.eventHandlerV2ProcessingService
+                    .RegisterEventHandlerV2Async(eventHandler, cancellationToken);
+            }
+            catch (EventHandlerV2ProcessingValidationException
+                eventHandlerV2ProcessingValidationException)
+            {
+                throw CreateEventHandlerV2ClientValidationException(
+                    eventHandlerV2ProcessingValidationException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingDependencyValidationException
+                eventHandlerV2ProcessingDependencyValidationException)
+            {
+                throw CreateEventHandlerV2ClientValidationException(
+                    eventHandlerV2ProcessingDependencyValidationException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingDependencyException
+                eventHandlerV2ProcessingDependencyException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingDependencyException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingServiceException
+                eventHandlerV2ProcessingServiceException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+            }
+        }
+
+        private static EventHandlerV2ClientValidationException
+            CreateEventHandlerV2ClientValidationException(Xeption innerException)
+        {
+            return new EventHandlerV2ClientValidationException(
+                message: "Event handler client validation error occurred, fix the errors and try again.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static EventHandlerV2ClientDependencyException
+            CreateEventHandlerV2ClientDependencyException(Xeption innerException)
+        {
+            return new EventHandlerV2ClientDependencyException(
+                message: "Event handler client dependency error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
+
+        private static EventHandlerV2ClientServiceException
+            CreateEventHandlerV2ClientServiceException(Xeption innerException)
+        {
+            return new EventHandlerV2ClientServiceException(
+                message: "Event handler client service error occurred, contact support.",
+                innerException: innerException,
+                data: innerException?.Data);
+        }
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
