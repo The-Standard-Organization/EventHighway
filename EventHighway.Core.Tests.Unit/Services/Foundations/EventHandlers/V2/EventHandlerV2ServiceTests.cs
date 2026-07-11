@@ -5,9 +5,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.EventHandlers;
+using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Brokers.Storages;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Services.Foundations.EventHandlers.V2;
+using Microsoft.Data.SqlClient;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -17,21 +22,36 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
     public partial class EventHandlerV2ServiceTests
     {
         private readonly Mock<IEventHandlerBroker> eventHandlerBrokerMock;
+        private readonly Mock<IStorageBroker> storageBrokerMock;
+        private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventHandlerV2Service eventHandlerV2Service;
 
         public EventHandlerV2ServiceTests()
         {
             this.eventHandlerBrokerMock = new Mock<IEventHandlerBroker>();
+            this.storageBrokerMock = new Mock<IStorageBroker>();
+            this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.eventHandlerV2Service = new EventHandlerV2Service(
-                eventHandlerBroker: this.eventHandlerBrokerMock.Object);
+                eventHandlerBroker: this.eventHandlerBrokerMock.Object,
+                storageBroker: this.storageBrokerMock.Object,
+                loggingBroker: this.loggingBrokerMock.Object);
         }
 
         private static string GetRandomString() =>
             new MnemonicString(1).GetValue();
 
+        private static Guid GetRandomId() =>
+            Guid.NewGuid();
+
+        private static SqlException CreateSqlException() =>
+            (SqlException)RuntimeHelpers.GetUninitializedObject(type: typeof(SqlException));
+
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
+        private static EventHandlerV2 CreateRandomEventHandlerV2() =>
+            new Filler<EventHandlerV2>().Create();
 
         private static IEventHandler CreateRandomEventHandler()
         {

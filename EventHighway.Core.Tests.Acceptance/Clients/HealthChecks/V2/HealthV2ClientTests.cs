@@ -44,7 +44,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
                         ResponseCode = "200",
                         ResponseMessage = "OK"
                     });
-                });
+                },
+                name: $"HealthV2ClientTestsHandler-{Guid.NewGuid()}");
 
             this.clientBroker = new ClientBroker();
 
