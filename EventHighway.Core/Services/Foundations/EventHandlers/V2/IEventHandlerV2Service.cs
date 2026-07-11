@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,10 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             CancellationToken cancellationToken = default);
 
         ValueTask<IQueryable<IEventHandler>> RetrieveAllEventHandlerV2sAsync(
+            CancellationToken cancellationToken = default);
+
+        ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
+            Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default);
     }
 }
