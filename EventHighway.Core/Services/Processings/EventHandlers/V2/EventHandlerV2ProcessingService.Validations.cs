@@ -16,6 +16,9 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
         private static void ValidateOnRemoveEventHandlerV2ById(Guid eventHandlerV2Id) =>
             ValidateEventHandlerV2Id(eventHandlerV2Id);
 
+        private static void ValidateOnRetrieveOrRegisterEventHandlerV2(IEventHandler eventHandler) =>
+            ValidateEventHandlerV2IsNotNull(eventHandler);
+
         private static void ValidateEventHandlerV2IsNotNull(IEventHandler eventHandler)
         {
             if (eventHandler is null)
