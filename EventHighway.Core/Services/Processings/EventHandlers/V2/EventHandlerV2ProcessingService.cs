@@ -38,11 +38,17 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 cancellationToken);
         }));
 
-        public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
+        public ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default) =>
-            await this.eventHandlerV2Service.RemoveEventHandlerV2ByIdAsync(
+        TryCatch(new ReturningEventHandlerV2Function(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateOnRemoveEventHandlerV2ById(eventHandlerV2Id);
+
+            return await this.eventHandlerV2Service.RemoveEventHandlerV2ByIdAsync(
                 eventHandlerV2Id,
                 cancellationToken);
+        }));
     }
 }

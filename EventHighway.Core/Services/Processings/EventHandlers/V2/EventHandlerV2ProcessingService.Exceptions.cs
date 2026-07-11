@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 using EventHighway.Core.Models.Services.Processings.EventHandlers.V2.Exceptions;
 using Xeptions;
@@ -14,6 +15,21 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
     internal partial class EventHandlerV2ProcessingService
     {
         private delegate ValueTask<IEventHandler> ReturningEventHandlerFunction();
+        private delegate ValueTask<EventHandlerV2> ReturningEventHandlerV2Function();
+
+        private async ValueTask<EventHandlerV2> TryCatch(
+            ReturningEventHandlerV2Function returningEventHandlerV2Function)
+        {
+            try
+            {
+                return await returningEventHandlerV2Function();
+            }
+            catch (InvalidEventHandlerV2ProcessingException invalidEventHandlerV2ProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventHandlerV2ProcessingException);
+            }
+        }
 
         private async ValueTask<IEventHandler> TryCatch(
             ReturningEventHandlerFunction returningEventHandlerFunction)
