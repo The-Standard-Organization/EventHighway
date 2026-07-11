@@ -10,6 +10,7 @@ using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 
 namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
 {
@@ -29,10 +30,21 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<IEventHandler> AddEventHandlerV2Async(
+        public async ValueTask<IEventHandler> AddEventHandlerV2Async(
             IEventHandler eventHandler,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            var eventHandlerV2 = new EventHandlerV2
+            {
+                Id = eventHandler.Id,
+                Name = eventHandler.Name
+            };
+
+            await this.storageBroker.InsertEventHandlerV2Async(eventHandlerV2, cancellationToken);
+            this.eventHandlerBroker.Register(eventHandler);
+
+            return eventHandler;
+        }
 
         public void RegisterEventHandlerV2(IEventHandler eventHandler) =>
             TryCatch(() =>
