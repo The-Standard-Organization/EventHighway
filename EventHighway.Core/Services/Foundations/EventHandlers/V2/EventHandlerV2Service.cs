@@ -70,14 +70,17 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             return await ValueTask.FromResult(this.eventHandlerBroker.GetAll().AsQueryable());
         }));
 
-        public async ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
+        public ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(new ReturningEventHandlerFunction(async () =>
         {
+            ValidateEventHandlerV2Id(eventHandlerV2Id);
+
             IEventHandler maybeEventHandler = this.eventHandlerBroker.GetAll()
                 .FirstOrDefault(eventHandler => eventHandler.Id == eventHandlerV2Id);
 
             return await ValueTask.FromResult(maybeEventHandler);
-        }
+        }));
     }
 }

@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 
@@ -39,6 +40,16 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
                 (Rule: IsInvalid(eventHandler.Name),
                 Parameter: nameof(IEventHandler.Name),
                 Message: "Text required"));
+        }
+
+        private static void ValidateEventHandlerV2Id(Guid eventHandlerV2Id)
+        {
+            Validate(
+                message: "Event handler is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventHandlerV2Id),
+                Parameter: nameof(IEventHandler.Id),
+                Message: "Id required"));
         }
 
         private static void ValidateEventHandlerIsNotNull(IEventHandler eventHandler)
