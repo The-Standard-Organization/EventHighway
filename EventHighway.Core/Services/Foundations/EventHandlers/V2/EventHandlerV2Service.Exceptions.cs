@@ -31,6 +31,24 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             {
                 return await returningEventHandlerV2Function();
             }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventHandlerV2Exception =
+                    new TimeoutEventHandlerV2Exception(
+                        message: "Failed event handler timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventHandlerV2Exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (InvalidEventHandlerV2Exception invalidEventHandlerV2Exception)
             {
                 throw await CreateAndLogValidationExceptionAsync(invalidEventHandlerV2Exception);
@@ -38,6 +56,39 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             catch (NotFoundEventHandlerV2Exception notFoundEventHandlerV2Exception)
             {
                 throw await CreateAndLogValidationExceptionAsync(notFoundEventHandlerV2Exception);
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventHandlerV2Exception =
+                    new FailedStorageEventHandlerV2Exception(
+                        message: "Failed event handler storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventHandlerV2Exception);
+            }
+            catch (DbUpdateException dbUpdateException)
+            {
+                var failedStorageEventHandlerV2Exception =
+                    new FailedStorageEventHandlerV2Exception(
+                        message: "Failed event handler storage error occurred, contact support.",
+                        innerException: dbUpdateException,
+                        data: dbUpdateException.Data);
+
+                throw await CreateAndLogDependencyExceptionAsync(
+                    failedStorageEventHandlerV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventHandlerV2ServiceException =
+                    new FailedEventHandlerV2ServiceException(
+                        message: "Failed event handler service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventHandlerV2ServiceException);
             }
         }
 
