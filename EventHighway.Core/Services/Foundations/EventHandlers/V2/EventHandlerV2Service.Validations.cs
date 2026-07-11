@@ -52,6 +52,17 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
                 Message: "Id required"));
         }
 
+        private static void ValidateEventHandlerV2Exists(
+            IEventHandler eventHandler,
+            Guid eventHandlerV2Id)
+        {
+            if (eventHandler is null)
+            {
+                throw new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {eventHandlerV2Id}.");
+            }
+        }
+
         private static void ValidateEventHandlerIsNotNull(IEventHandler eventHandler)
         {
             if (eventHandler is null)

@@ -80,6 +80,8 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             IEventHandler maybeEventHandler = this.eventHandlerBroker.GetAll()
                 .FirstOrDefault(eventHandler => eventHandler.Id == eventHandlerV2Id);
 
+            ValidateEventHandlerV2Exists(maybeEventHandler, eventHandlerV2Id);
+
             return await ValueTask.FromResult(maybeEventHandler);
         }));
     }
