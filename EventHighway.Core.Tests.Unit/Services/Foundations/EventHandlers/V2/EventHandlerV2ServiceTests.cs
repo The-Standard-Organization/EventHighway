@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.EventHandlers;
+using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Services.Foundations.EventHandlers.V2;
 using Moq;
 using Tynamix.ObjectFiller;
@@ -17,14 +19,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
     public partial class EventHandlerV2ServiceTests
     {
         private readonly Mock<IEventHandlerBroker> eventHandlerBrokerMock;
+        private readonly Mock<IStorageBroker> storageBrokerMock;
+        private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventHandlerV2Service eventHandlerV2Service;
 
         public EventHandlerV2ServiceTests()
         {
             this.eventHandlerBrokerMock = new Mock<IEventHandlerBroker>();
+            this.storageBrokerMock = new Mock<IStorageBroker>();
+            this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.eventHandlerV2Service = new EventHandlerV2Service(
-                eventHandlerBroker: this.eventHandlerBrokerMock.Object);
+                eventHandlerBroker: this.eventHandlerBrokerMock.Object,
+                storageBroker: this.storageBrokerMock.Object,
+                loggingBroker: this.loggingBrokerMock.Object);
         }
 
         private static string GetRandomString() =>
