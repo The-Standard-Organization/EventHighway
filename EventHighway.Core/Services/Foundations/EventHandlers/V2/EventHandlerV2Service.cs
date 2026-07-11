@@ -86,10 +86,13 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             return await ValueTask.FromResult(maybeEventHandler);
         }));
 
-        public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
+        public ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(new ReturningEventHandlerV2Function(async () =>
         {
+            ValidateEventHandlerV2Id(eventHandlerV2Id);
+
             EventHandlerV2 maybeEventHandlerV2 =
                 await this.storageBroker.SelectEventHandlerV2ByIdAsync(
                     eventHandlerV2Id, cancellationToken);
@@ -101,6 +104,6 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             this.eventHandlerBroker.Remove(eventHandlerV2Id);
 
             return deletedEventHandlerV2;
-        }
+        }));
     }
 }

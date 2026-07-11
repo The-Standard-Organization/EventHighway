@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,20 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
         private delegate IEnumerable<IEventHandler> ReturningEventHandlersFunction();
         private delegate ValueTask<IEventHandler> ReturningEventHandlerFunction();
         private delegate ValueTask<IQueryable<IEventHandler>> ReturningQueryableEventHandlersFunction();
+        private delegate ValueTask<EventHandlerV2> ReturningEventHandlerV2Function();
+
+        private async ValueTask<EventHandlerV2> TryCatch(
+            ReturningEventHandlerV2Function returningEventHandlerV2Function)
+        {
+            try
+            {
+                return await returningEventHandlerV2Function();
+            }
+            catch (InvalidEventHandlerV2Exception invalidEventHandlerV2Exception)
+            {
+                throw await CreateAndLogValidationExceptionAsync(invalidEventHandlerV2Exception);
+            }
+        }
 
         private async ValueTask<IQueryable<IEventHandler>> TryCatch(
             ReturningQueryableEventHandlersFunction returningQueryableEventHandlersFunction)
