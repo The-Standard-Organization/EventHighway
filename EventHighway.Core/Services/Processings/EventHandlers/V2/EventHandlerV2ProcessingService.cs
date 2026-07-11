@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -51,9 +52,17 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 cancellationToken);
         }));
 
-        public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
+        public async ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<IEventHandler> allEventHandlers =
+                await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sAsync(cancellationToken);
+
+            IEventHandler maybeEventHandler =
+                allEventHandlers.FirstOrDefault(handler => handler.Id == eventHandler.Id);
+
+            return maybeEventHandler;
+        }
     }
 }
