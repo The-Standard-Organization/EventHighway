@@ -10,6 +10,7 @@ using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Services.Foundations.EventHandlers.V2;
 using Microsoft.Data.SqlClient;
 using Moq;
@@ -48,6 +49,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventHandlers.V2
 
         private static Expression<Func<Xeption, bool>> SameExceptionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
+        private static EventHandlerV2 CreateRandomEventHandlerV2() =>
+            new Filler<EventHandlerV2>().Create();
 
         private static IEventHandler CreateRandomEventHandler()
         {

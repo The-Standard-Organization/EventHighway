@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 
 namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
 {
@@ -24,6 +25,10 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             CancellationToken cancellationToken = default);
 
         ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
+            Guid eventHandlerV2Id,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default);
     }
