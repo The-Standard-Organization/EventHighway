@@ -102,10 +102,11 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
                 data: innerException?.Data);
         }
 
-        public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
+        public async ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.eventHandlerV2ProcessingService.RetrieveOrRegisterEventHandlerV2Async(
+                eventHandler, cancellationToken);
 
         public ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
