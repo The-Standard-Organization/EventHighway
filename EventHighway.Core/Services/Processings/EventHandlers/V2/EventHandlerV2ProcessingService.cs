@@ -57,6 +57,7 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             CancellationToken cancellationToken = default) =>
         TryCatch(new ReturningEventHandlerFunction(async () =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
             ValidateOnRetrieveOrRegisterEventHandlerV2(eventHandler);
 
             IQueryable<IEventHandler> allEventHandlers =
