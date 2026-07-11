@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
 using EventHighway.Abstractions.EventHandlers;
@@ -19,6 +20,45 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
         private delegate void ReturningVoidFunction();
         private delegate IEnumerable<IEventHandler> ReturningEventHandlersFunction();
         private delegate ValueTask<IEventHandler> ReturningEventHandlerFunction();
+        private delegate ValueTask<IQueryable<IEventHandler>> ReturningQueryableEventHandlersFunction();
+
+        private async ValueTask<IQueryable<IEventHandler>> TryCatch(
+            ReturningQueryableEventHandlersFunction returningQueryableEventHandlersFunction)
+        {
+            try
+            {
+                return await returningQueryableEventHandlersFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventHandlerV2Exception =
+                    new TimeoutEventHandlerV2Exception(
+                        message: "Failed event handler timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventHandlerV2Exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventHandlerV2ServiceException =
+                    new FailedEventHandlerV2ServiceException(
+                        message: "Failed event handler service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventHandlerV2ServiceException);
+            }
+        }
 
         private async ValueTask<IEventHandler> TryCatch(
             ReturningEventHandlerFunction returningEventHandlerFunction)
