@@ -62,7 +62,12 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             IEventHandler maybeEventHandler =
                 allEventHandlers.FirstOrDefault(handler => handler.Id == eventHandler.Id);
 
-            return maybeEventHandler;
+            if (maybeEventHandler is not null)
+                return maybeEventHandler;
+
+            return await this.eventHandlerV2Service.AddEventHandlerV2Async(
+                eventHandler,
+                cancellationToken);
         }
     }
 }
