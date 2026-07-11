@@ -19,5 +19,9 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
         ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default);
+
+        ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
+            IEventHandler eventHandler,
+            CancellationToken cancellationToken = default);
     }
 }

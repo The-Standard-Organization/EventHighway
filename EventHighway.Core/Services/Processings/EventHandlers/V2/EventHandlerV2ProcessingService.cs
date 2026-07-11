@@ -50,5 +50,10 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 eventHandlerV2Id,
                 cancellationToken);
         }));
+
+        public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
+            IEventHandler eventHandler,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
     }
 }
