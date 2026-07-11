@@ -147,8 +147,45 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
 
         public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
-            CancellationToken cancellationToken = default) =>
-            await this.eventHandlerV2ProcessingService.RemoveEventHandlerV2ByIdAsync(
-                eventHandlerV2Id, cancellationToken);
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.eventHandlerV2ProcessingService
+                    .RemoveEventHandlerV2ByIdAsync(eventHandlerV2Id, cancellationToken);
+            }
+            catch (EventHandlerV2ProcessingValidationException
+                eventHandlerV2ProcessingValidationException)
+            {
+                throw CreateEventHandlerV2ClientValidationException(
+                    eventHandlerV2ProcessingValidationException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingDependencyValidationException
+                eventHandlerV2ProcessingDependencyValidationException)
+            {
+                throw CreateEventHandlerV2ClientValidationException(
+                    eventHandlerV2ProcessingDependencyValidationException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingDependencyException
+                eventHandlerV2ProcessingDependencyException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingDependencyException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingServiceException
+                eventHandlerV2ProcessingServiceException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+            }
+        }
     }
 }
