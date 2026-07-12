@@ -38,6 +38,12 @@ namespace EventHighway.Portal.Web.Components.Dashboard
             TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset now) =>
             Next(period, windowStart) <= Current(period, now);
 
+        public static DateTimeOffset WindowEnd(TrafficPeriodV2 period, DateTimeOffset windowStart) =>
+            throw new NotImplementedException();
+
+        public static string Label(TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset windowEnd) =>
+            throw new NotImplementedException();
+
         public static string Label(TrafficPeriodV2 period, DateTimeOffset windowStart)
         {
             DateTimeOffset start = windowStart.ToUniversalTime();

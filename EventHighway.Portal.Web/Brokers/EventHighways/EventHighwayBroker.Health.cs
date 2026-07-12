@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthStatusClientV2
-                    .RetrieveHealthRagStatusV2Async(period, windowStart, cancellationToken),
+                    .RetrieveHealthRagStatusV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotV2Async(
@@ -27,7 +27,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthTrafficClientV2
-                    .RetrieveTrafficSnapshotV2Async(period, windowStart, cancellationToken),
+                    .RetrieveTrafficSnapshotV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<IReadOnlyList<EventAddressUsageV2>>
@@ -37,7 +37,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthAddressClientV2
-                    .RetrieveEventAddressSummaryV2Async(period, windowStart, cancellationToken),
+                    .RetrieveEventAddressSummaryV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<LoopDetectionSummaryV2> RetrieveLoopDetectionSummaryV2Async(
@@ -46,7 +46,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthLoopClientV2
-                    .RetrieveLoopDetectionSummaryV2Async(period, windowStart, cancellationToken),
+                    .RetrieveLoopDetectionSummaryV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<DuplicateDetectionSummaryV2>
@@ -56,7 +56,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthDuplicateClientV2
-                    .RetrieveDuplicateDetectionSummaryV2Async(period, windowStart, cancellationToken),
+                    .RetrieveDuplicateDetectionSummaryV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
@@ -65,7 +65,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthRetryClientV2
-                    .RetrieveRetryHealthV2Async(period, windowStart, cancellationToken),
+                    .RetrieveRetryHealthV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
 
         public ValueTask<IReadOnlyList<ParticipantUsageV2>>
@@ -75,7 +75,7 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.HealthClientV2.HealthParticipantClientV2
-                    .RetrieveParticipantSummaryV2Async(period, windowStart, cancellationToken),
+                    .RetrieveParticipantSummaryV2Async(period, windowStart, cancellationToken: cancellationToken),
                 cancellationToken);
     }
 }

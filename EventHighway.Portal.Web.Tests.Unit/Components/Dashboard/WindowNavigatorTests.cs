@@ -15,19 +15,23 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
             new DateTimeOffset(2026, 6, 24, 13, 45, 0, TimeSpan.Zero); // Wed 24 Jun 2026
 
         [Fact]
-        public void ShouldTruncateCurrentToPeriodStart()
+        public void ShouldAnchorCurrentToRollingWindowStart()
         {
+            // Past 24 hours: hour-aligned start covering now (window end = start + 24h = 14:00).
             WindowNavigator.Current(TrafficPeriodV2.Day, Now)
-                .Should().Be(new DateTimeOffset(2026, 6, 24, 0, 0, 0, TimeSpan.Zero));
+                .Should().Be(new DateTimeOffset(2026, 6, 23, 14, 0, 0, TimeSpan.Zero));
 
+            // Past week: day-aligned start covering today (window end = tomorrow midnight).
             WindowNavigator.Current(TrafficPeriodV2.Week, Now)
-                .Should().Be(new DateTimeOffset(2026, 6, 22, 0, 0, 0, TimeSpan.Zero)); // Monday
+                .Should().Be(new DateTimeOffset(2026, 6, 18, 0, 0, 0, TimeSpan.Zero));
 
+            // Past month: day-aligned start one month before tomorrow midnight.
             WindowNavigator.Current(TrafficPeriodV2.Month, Now)
-                .Should().Be(new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.Zero));
+                .Should().Be(new DateTimeOffset(2026, 5, 25, 0, 0, 0, TimeSpan.Zero));
 
+            // Past year: month-aligned start one year before the next month boundary.
             WindowNavigator.Current(TrafficPeriodV2.Year, Now)
-                .Should().Be(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+                .Should().Be(new DateTimeOffset(2025, 7, 1, 0, 0, 0, TimeSpan.Zero));
         }
 
         [Fact]
@@ -74,15 +78,59 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Dashboard
         }
 
         [Fact]
-        public void ShouldFormatWindowLabel()
+        public void ShouldComputeWindowEnd()
         {
+            var dayStart = new DateTimeOffset(2026, 6, 23, 14, 0, 0, TimeSpan.Zero);
+
+            WindowNavigator.WindowEnd(TrafficPeriodV2.Day, dayStart)
+                .Should().Be(new DateTimeOffset(2026, 6, 24, 14, 0, 0, TimeSpan.Zero));
+
+            var weekStart = new DateTimeOffset(2026, 6, 18, 0, 0, 0, TimeSpan.Zero);
+
+            WindowNavigator.WindowEnd(TrafficPeriodV2.Week, weekStart)
+                .Should().Be(new DateTimeOffset(2026, 6, 25, 0, 0, 0, TimeSpan.Zero));
+
+            var monthStart = new DateTimeOffset(2026, 5, 25, 0, 0, 0, TimeSpan.Zero);
+
+            WindowNavigator.WindowEnd(TrafficPeriodV2.Month, monthStart)
+                .Should().Be(new DateTimeOffset(2026, 6, 25, 0, 0, 0, TimeSpan.Zero));
+
+            var yearStart = new DateTimeOffset(2025, 7, 1, 0, 0, 0, TimeSpan.Zero);
+
+            WindowNavigator.WindowEnd(TrafficPeriodV2.Year, yearStart)
+                .Should().Be(new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.Zero));
+        }
+
+        [Fact]
+        public void ShouldFormatWindowLabelAsInclusiveRange()
+        {
+            // Rolling 24h windows show the exact hour bounds.
+            WindowNavigator.Label(TrafficPeriodV2.Day,
+                new DateTimeOffset(2026, 6, 23, 14, 0, 0, TimeSpan.Zero))
+                .Should().Be("23 Jun 2026 14:00 – 24 Jun 2026 14:00");
+
+            // Longer windows show an inclusive day range.
+            WindowNavigator.Label(TrafficPeriodV2.Week,
+                new DateTimeOffset(2026, 6, 18, 0, 0, 0, TimeSpan.Zero))
+                .Should().Be("18 Jun 2026 – 24 Jun 2026");
+
             WindowNavigator.Label(TrafficPeriodV2.Month,
-                new DateTimeOffset(2026, 6, 1, 0, 0, 0, TimeSpan.Zero))
-                .Should().Be("Jun 2026");
+                new DateTimeOffset(2026, 5, 25, 0, 0, 0, TimeSpan.Zero))
+                .Should().Be("25 May 2026 – 24 Jun 2026");
 
             WindowNavigator.Label(TrafficPeriodV2.Year,
-                new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero))
-                .Should().Be("2026");
+                new DateTimeOffset(2025, 7, 1, 0, 0, 0, TimeSpan.Zero))
+                .Should().Be("01 Jul 2025 – 30 Jun 2026");
+        }
+
+        [Fact]
+        public void ShouldFormatCustomWindowLabelFromExplicitEnd()
+        {
+            WindowNavigator.Label(
+                TrafficPeriodV2.Custom,
+                new DateTimeOffset(2026, 6, 6, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 6, 13, 0, 0, 0, TimeSpan.Zero))
+                .Should().Be("06 Jun 2026 – 12 Jun 2026");
         }
     }
 }
