@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventHandlers.V2
     public partial class EventHandlerV2ProcessingServiceTests
     {
         [Fact]
-        public async Task ShouldRetrieveAllRegisteredEventHandlerV2sAsync()
+        public async Task ShouldRetrieveAllRegisteredAndStorageEventHandlerV2sAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -24,16 +25,36 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventHandlers.V2
             IQueryable<IEventHandler> randomEventHandlers = CreateRandomEventHandlers();
             IQueryable<IEventHandler> registeredEventHandlers = randomEventHandlers;
 
-            IQueryable<EventHandlerV2> expectedEventHandlerV2s =
+            List<EventHandlerV2> registeredEventHandlerV2s =
                 registeredEventHandlers.Select(eventHandler => new EventHandlerV2
                 {
                     Id = eventHandler.Id,
                     Name = eventHandler.Name
-                });
+                }).ToList();
+
+            List<EventHandlerV2> storageOnlyEventHandlerV2s =
+                CreateRandomEventHandlerV2s().ToList();
+
+            var overlappingStorageEventHandlerV2 = new EventHandlerV2
+            {
+                Id = registeredEventHandlerV2s.First().Id,
+                Name = GetRandomString()
+            };
+
+            IQueryable<EventHandlerV2> storageEventHandlerV2s =
+                storageOnlyEventHandlerV2s.Append(overlappingStorageEventHandlerV2)
+                    .AsQueryable();
+
+            List<EventHandlerV2> expectedEventHandlerV2s =
+                registeredEventHandlerV2s.Concat(storageOnlyEventHandlerV2s).ToList();
 
             this.eventHandlerV2ServiceMock.Setup(service =>
                 service.RetrieveAllEventHandlerV2sAsync(randomCancellationToken))
                     .ReturnsAsync(registeredEventHandlers);
+
+            this.eventHandlerV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventHandlerV2sFromStorageAsync(randomCancellationToken))
+                    .ReturnsAsync(storageEventHandlerV2s);
 
             // when
             IQueryable<EventHandlerV2> actualEventHandlerV2s =
@@ -48,9 +69,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventHandlers.V2
                     Times.Once);
 
             this.eventHandlerV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventHandlerV2sFromStorageAsync(
-                    It.IsAny<CancellationToken>()),
-                        Times.Never);
+                service.RetrieveAllEventHandlerV2sFromStorageAsync(randomCancellationToken),
+                    Times.Once);
 
             this.eventHandlerV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
