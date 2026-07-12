@@ -331,8 +331,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = eventV2.CreatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
-                EventParticipantV2Id = eventV2.EventParticipantV2Id,
-                EventParticipantV2Secret = eventV2.EventParticipantV2Secret
+                EventParticipantV2Id = eventV2.EventParticipantV2Id
             };
         }
 

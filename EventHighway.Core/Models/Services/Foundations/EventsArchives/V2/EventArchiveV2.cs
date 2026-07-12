@@ -83,11 +83,6 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
         public IEnumerable<ListenerEventArchiveV2> ListenerEventArchiveV2s { get; set; }
 
         /// <summary>
-        /// Gets or sets the secret associated with the participant for this event.
-        /// </summary>
-        public string EventParticipantV2Secret { get; set; }
-
-        /// <summary>
         /// Gets or sets the identifier of the <see cref="EventParticipants.V2.EventParticipantV2"/> that created or is responsible for this archived event.
         /// A null value indicates no participant is associated with this event.
         /// </summary>

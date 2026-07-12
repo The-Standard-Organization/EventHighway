@@ -231,7 +231,6 @@ namespace EventHighway.Portal.Seed
                     ScheduledDate = isScheduled ? created : (DateTimeOffset?)null,
                     EventAddressV2Id = newReleases.Id,
                     EventParticipantV2Id = nflix.Id,
-                    EventParticipantV2Secret = NFlixParticipantName,
                     CreatedDate = created,
                     UpdatedDate = created,
                     ArchivedDate = archived
