@@ -9,6 +9,7 @@ using System.Threading;
 using Bunit;
 using EventHighway.Portal.Web.Components.Pages.Admin;
 using EventHighway.Portal.Web.Models.Views.EventAddresses;
+using EventHighway.Portal.Web.Models.Views.EventHandlers;
 using EventHighway.Portal.Web.Models.Views.EventListeners;
 using EventHighway.Portal.Web.Models.Views.EventParticipants;
 using FluentAssertions;
@@ -21,7 +22,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         private void SetupPage(
             EventAddressView address,
             List<EventListenerView> listeners,
-            List<EventParticipantView> participants)
+            List<EventParticipantView> participants,
+            List<EventHandlerView>? eventHandlers = null)
         {
             this.addressesViewServiceMock.Setup(service =>
                 service.RetrieveAllAddressesAsync(It.IsAny<CancellationToken>()))
@@ -30,6 +32,10 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
             this.participantsViewServiceMock.Setup(service =>
                 service.RetrieveAllParticipantsAsync(It.IsAny<CancellationToken>()))
                     .ReturnsAsync(participants);
+
+            this.eventHandlersViewServiceMock.Setup(service =>
+                service.RetrieveAllEventHandlersAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(eventHandlers ?? new List<EventHandlerView>());
 
             this.listenersViewServiceMock.Setup(service =>
                 service.RetrieveListenersByAddressAsync(
