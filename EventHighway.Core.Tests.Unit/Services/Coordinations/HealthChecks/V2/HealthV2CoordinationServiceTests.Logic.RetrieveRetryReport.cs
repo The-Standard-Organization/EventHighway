@@ -32,6 +32,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
 
             Guid addressIdX = GetRandomId();
             Guid addressIdY = GetRandomId();
+            Guid addressIdZ = GetRandomId();
 
             EventAddressUsageV2 nameRowX = CreateNameAddressUsage(addressIdX, GetRandomString());
 
@@ -53,10 +54,34 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 TotalEvents = GetRandomNumber()
             };
 
-            var distribution = new List<RetryBucketV2>
+            var archivedRowX = new RetryAddressDetailV2
+            {
+                EventAddressV2Id = addressIdX,
+                DeadEvents = GetRandomNumber(),
+                CriticalEvents = GetRandomNumber(),
+                HealthyEvents = GetRandomNumber(),
+                TotalEvents = GetRandomNumber()
+            };
+
+            var archivedRowZ = new RetryAddressDetailV2
+            {
+                EventAddressV2Id = addressIdZ,
+                DeadEvents = GetRandomNumber(),
+                CriticalEvents = GetRandomNumber(),
+                HealthyEvents = GetRandomNumber(),
+                TotalEvents = GetRandomNumber()
+            };
+
+            var liveDistribution = new List<RetryBucketV2>
             {
                 new RetryBucketV2 { RemainingRetries = 0, Count = GetRandomNumber() },
                 new RetryBucketV2 { RemainingRetries = 1, Count = GetRandomNumber() }
+            };
+
+            var archivedDistribution = new List<RetryBucketV2>
+            {
+                new RetryBucketV2 { RemainingRetries = 1, Count = GetRandomNumber() },
+                new RetryBucketV2 { RemainingRetries = 2, Count = GetRandomNumber() }
             };
 
             var liveRetry = new RetryHealthSummaryV2
@@ -65,13 +90,19 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 DeadEvents = GetRandomNumber(),
                 CriticalEvents = GetRandomNumber(),
                 HealthyEvents = GetRandomNumber(),
-                Distribution = distribution,
+                Distribution = liveDistribution,
                 ByAddress = new List<RetryAddressDetailV2> { liveRowX, liveRowY }
             };
 
             var archivedRetry = new RetryHealthSummaryV2
             {
-                ArchivedDeadEvents = GetRandomNumber()
+                TotalActiveEvents = GetRandomNumber(),
+                DeadEvents = GetRandomNumber(),
+                CriticalEvents = GetRandomNumber(),
+                HealthyEvents = GetRandomNumber(),
+                ArchivedDeadEvents = GetRandomNumber(),
+                Distribution = archivedDistribution,
+                ByAddress = new List<RetryAddressDetailV2> { archivedRowX, archivedRowZ }
             };
 
             var infrastructurePartialReport = new HealthReportV2
@@ -88,22 +119,43 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 WindowStart = inputWindowStart,
                 WindowEnd = expectedWindowEnd,
                 WindowLabel = expectedWindowLabel,
-                TotalActiveEvents = liveRetry.TotalActiveEvents,
-                DeadEvents = liveRetry.DeadEvents,
-                CriticalEvents = liveRetry.CriticalEvents,
-                HealthyEvents = liveRetry.HealthyEvents,
+                TotalActiveEvents = liveRetry.TotalActiveEvents + archivedRetry.TotalActiveEvents,
+                DeadEvents = liveRetry.DeadEvents + archivedRetry.DeadEvents,
+                CriticalEvents = liveRetry.CriticalEvents + archivedRetry.CriticalEvents,
+                HealthyEvents = liveRetry.HealthyEvents + archivedRetry.HealthyEvents,
                 ArchivedDeadEvents = archivedRetry.ArchivedDeadEvents,
-                Distribution = distribution,
+
+                Distribution = new List<RetryBucketV2>
+                {
+                    new RetryBucketV2
+                    {
+                        RemainingRetries = 0,
+                        Count = liveDistribution[0].Count
+                    },
+
+                    new RetryBucketV2
+                    {
+                        RemainingRetries = 1,
+                        Count = liveDistribution[1].Count + archivedDistribution[0].Count
+                    },
+
+                    new RetryBucketV2
+                    {
+                        RemainingRetries = 2,
+                        Count = archivedDistribution[1].Count
+                    }
+                },
+
                 ByAddress = new List<RetryAddressDetailV2>
                 {
                     new RetryAddressDetailV2
                     {
                         EventAddressV2Id = addressIdX,
                         EventAddressV2Name = nameRowX.Name,
-                        DeadEvents = liveRowX.DeadEvents,
-                        CriticalEvents = liveRowX.CriticalEvents,
-                        HealthyEvents = liveRowX.HealthyEvents,
-                        TotalEvents = liveRowX.TotalEvents
+                        DeadEvents = liveRowX.DeadEvents + archivedRowX.DeadEvents,
+                        CriticalEvents = liveRowX.CriticalEvents + archivedRowX.CriticalEvents,
+                        HealthyEvents = liveRowX.HealthyEvents + archivedRowX.HealthyEvents,
+                        TotalEvents = liveRowX.TotalEvents + archivedRowX.TotalEvents
                     },
 
                     new RetryAddressDetailV2
@@ -114,6 +166,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                         CriticalEvents = liveRowY.CriticalEvents,
                         HealthyEvents = liveRowY.HealthyEvents,
                         TotalEvents = liveRowY.TotalEvents
+                    },
+
+                    new RetryAddressDetailV2
+                    {
+                        EventAddressV2Id = addressIdZ,
+                        EventAddressV2Name = null,
+                        DeadEvents = archivedRowZ.DeadEvents,
+                        CriticalEvents = archivedRowZ.CriticalEvents,
+                        HealthyEvents = archivedRowZ.HealthyEvents,
+                        TotalEvents = archivedRowZ.TotalEvents
                     }
                 }
             };
