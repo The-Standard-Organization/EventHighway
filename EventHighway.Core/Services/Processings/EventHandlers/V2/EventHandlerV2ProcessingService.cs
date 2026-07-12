@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,17 +62,25 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             IQueryable<IEventHandler> registeredEventHandlers =
                 await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sAsync(cancellationToken);
 
-            if (registeredEventHandlers.Any())
-            {
-                return registeredEventHandlers.Select(eventHandler => new EventHandlerV2
+            List<EventHandlerV2> registeredEventHandlerV2s =
+                registeredEventHandlers.Select(eventHandler => new EventHandlerV2
                 {
                     Id = eventHandler.Id,
                     Name = eventHandler.Name
-                });
-            }
+                }).ToList();
 
-            return await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sFromStorageAsync(
-                cancellationToken);
+            List<EventHandlerV2> storageEventHandlerV2s =
+                (await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sFromStorageAsync(
+                    cancellationToken)).ToList();
+
+            // Registered handlers take precedence on id conflicts — they hold the live delegate.
+            IEnumerable<EventHandlerV2> unionedEventHandlerV2s =
+                registeredEventHandlerV2s.Concat(
+                    storageEventHandlerV2s.Where(storageEventHandlerV2 =>
+                        registeredEventHandlerV2s.All(registeredEventHandlerV2 =>
+                            registeredEventHandlerV2.Id != storageEventHandlerV2.Id)));
+
+            return unionedEventHandlerV2s.ToList().AsQueryable();
         }));
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(

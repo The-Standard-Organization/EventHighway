@@ -46,8 +46,9 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves all known event handlers asynchronously — the handlers registered in the
-        /// current process when any exist, otherwise the persisted event handler registrations.
+        /// Retrieves all known event handlers asynchronously — the union of the handlers
+        /// registered in the current process and the persisted event handler registrations,
+        /// with the registered handlers taking precedence on id conflicts.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
