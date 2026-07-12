@@ -617,6 +617,11 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         })
                         .ToList();
 
+                    long totalEventsSubmitted = liveRow?.TotalEventsSubmitted ?? 0;
+                    long totalListenerEvents = liveRow?.TotalListenerEvents ?? 0;
+                    long errorListenerEvents = liveRow?.ErrorListenerEvents ?? 0;
+                    long loopsDetected = liveRow?.LoopsDetected ?? 0;
+
                     return new ParticipantUsageV2
                     {
                         EventParticipantV2Id = eventParticipantV2Id,
@@ -625,14 +630,27 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         ContactPhone = nameRow?.ContactPhone,
                         IsActive = nameRow?.IsActive ?? false,
                         OwnedListeners = nameRow?.OwnedListeners ?? 0,
-                        TotalEventsSubmitted = liveRow?.TotalEventsSubmitted ?? 0,
-                        TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
-                        LoopsDetected = liveRow?.LoopsDetected ?? 0,
+                        TotalEventsSubmitted = totalEventsSubmitted,
+                        TotalListenerEvents = totalListenerEvents,
+                        ErrorListenerEvents = errorListenerEvents,
+                        LoopsDetected = loopsDetected,
                         DuplicatesDetected = liveRow?.DuplicatesDetected ?? 0,
+
+                        // A publisher error is an event the platform rejected (quarantined by
+                        // loop/duplicate detection) — the only error-like signal on the publish side.
+                        PublisherErrorRate = totalEventsSubmitted == 0
+                            ? 0
+                            : (decimal)loopsDetected * 100 / totalEventsSubmitted,
+
+                        ListenerErrorRate = totalListenerEvents == 0
+                            ? 0
+                            : (decimal)errorListenerEvents * 100 / totalListenerEvents,
+
+                        LastActivity = liveRow?.LastActivity,
                         ByAddress = byAddress,
 
                         Status = ComputeRagStatus(
-                            liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration)
+                            loopsDetected, HealthMetric.LoopsDetected, healthConfiguration)
                     };
                 })
                 .ToList();
