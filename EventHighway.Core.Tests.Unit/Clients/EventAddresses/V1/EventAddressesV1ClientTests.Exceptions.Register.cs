@@ -10,6 +10,7 @@ using FluentAssertions;
 using Moq;
 using Xeptions;
 
+#pragma warning disable CS0618 // Testing deprecated V1 exposure surface
 namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V1
 {
     public partial class EventAddressesV1ClientTests

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V1;
 
+#pragma warning disable CS0618 // Testing deprecated V1 exposure surface
 namespace EventHighway.Core.Tests.Acceptance.Brokers
 {
     public partial class ClientBroker

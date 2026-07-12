@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using Moq;
 
+#pragma warning disable CS0618 // Testing deprecated V1 exposure surface
 namespace EventHighway.Core.Tests.Unit.Clients.Events.V1
 {
     public partial class EventV1sClientTests

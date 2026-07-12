@@ -19,6 +19,7 @@ namespace EventHighway.Core.Clients.EventListeners.V1
         public EventListenerV1sClient(IEventListenerV1OrchestrationService eventListenerV1OrchestrationService) =>
             this.eventListenerV1OrchestrationService = eventListenerV1OrchestrationService;
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventListenerV1> RegisterEventListenerV1Async(
             EventListenerV1 eventListenerV1)
         {
@@ -57,6 +58,7 @@ namespace EventHighway.Core.Clients.EventListeners.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventListenerV1> RemoveEventListenerV1ByIdAsync(
             Guid eventListenerV1Id)
         {
