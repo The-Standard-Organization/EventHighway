@@ -3,42 +3,47 @@ using System;
 using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace EventHighway.Core.Migrations
+namespace EventHighway.PostgreSql.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    partial class StorageBrokerModelSnapshot : ModelSnapshot
+    [Migration("20260712020540_DropEventParticipantV2SecretFromEventV2AndEventArchiveV2")]
+    partial class DropEventParticipantV2SecretFromEventV2AndEventArchiveV2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "10.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventAddresses.EventAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -49,19 +54,21 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -72,26 +79,27 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("EventAddressV2s", (string)null);
                 });
@@ -100,12 +108,12 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -119,28 +127,30 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Endpoint")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("HeaderSecret")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -153,28 +163,30 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Endpoint")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("HeaderSecret")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -187,38 +199,40 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("FilterCriteria")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("HandlerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("HandlerName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("PromotedProperties")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -227,8 +241,7 @@ namespace EventHighway.Core.Migrations
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[Name] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("EventListenerV2s", (string)null);
                 });
@@ -237,37 +250,40 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ActiveFrom")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset?>("ActiveTo")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Secret")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("Id", "Secret")
-                        .IsUnique()
-                        .HasFilter("[Secret] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("EventParticipantSecretV2s", (string)null);
                 });
@@ -276,34 +292,38 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ActiveFrom")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset?>("ActiveTo")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("ContactEmail")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ContactPhone")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -314,19 +334,21 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -339,28 +361,31 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("RetryAttempts")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -373,53 +398,54 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_EventV2s_CreatedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Type" });
+                        .HasDatabaseName("IX_EventV2s_CreatedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Type" });
 
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("EventAddressV2Id", "CreatedDate")
-                        .HasDatabaseName("IX_EventV2s_AddressCreatedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "Type", "EventParticipantV2Id" });
+                        .HasDatabaseName("IX_EventV2s_AddressCreatedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status", "Type", "EventParticipantV2Id" });
 
                     b.HasIndex("Status", "Type")
                         .HasDatabaseName("IX_EventV2s_StatusType");
@@ -434,28 +460,32 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -466,42 +496,46 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -514,9 +548,8 @@ namespace EventHighway.Core.Migrations
                         .HasDatabaseName("IX_EventArchiveV2s_Status");
 
                     b.HasIndex("EventAddressV2Id", "ArchivedDate")
-                        .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
+                        .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
 
                     b.HasIndex("EventAddressV2Id", "ContentHash")
                         .HasDatabaseName("IX_EventArchiveV2s_ContentHash");
@@ -528,37 +561,40 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("EventArchiveV1Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Response")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseReasonPhrase")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -571,65 +607,69 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid?>("CorrelationId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset?>("DispatchedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventArchiveV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventListenerV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("NextRetryAttemptNotBefore")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("RemainingRetryAttempts")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Response")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseMessage")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("RetryAttemptsAllowed")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ArchivedDate")
-                        .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ArchivedDate"), new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
 
                     b.HasIndex("EventArchiveV2Id");
 
@@ -641,9 +681,8 @@ namespace EventHighway.Core.Migrations
                         .HasDatabaseName("IX_ListenerEventArchiveV2s_Status");
 
                     b.HasIndex("EventAddressV2Id", "ArchivedDate")
-                        .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
 
                     b.HasIndex("Status", "RemainingRetryAttempts")
                         .HasDatabaseName("IX_ListenerEventArchiveV2s_RetryClassification");
@@ -655,28 +694,30 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Response")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -693,31 +734,33 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Response")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseReasonPhrase")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
@@ -734,73 +777,74 @@ namespace EventHighway.Core.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("CorrelationId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<DateTimeOffset?>("DispatchedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventListenerV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("EventParticipantV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("EventV2Id")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("NextRetryAttemptNotBefore")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.Property<int>("RemainingRetryAttempts")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Response")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ResponseMessage")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("RetryAttemptsAllowed")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasColumnType("datetimeoffset");
+                        .HasPrecision(6)
+                        .HasColumnType("timestamptz");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_ListenerEventV2s_CreatedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventV2s_CreatedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
 
                     b.HasIndex("EventListenerV2Id");
 
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("EventV2Id")
-                        .HasDatabaseName("IX_ListenerEventV2s_ToBeArchived");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventV2Id"), new[] { "Status", "RemainingRetryAttempts", "DispatchedDate" });
+                        .HasDatabaseName("IX_ListenerEventV2s_ToBeArchived")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status", "RemainingRetryAttempts", "DispatchedDate" });
 
                     b.HasIndex("EventAddressV2Id", "CreatedDate")
-                        .HasDatabaseName("IX_ListenerEventV2s_AddressCreatedDate");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "RemainingRetryAttempts" });
+                        .HasDatabaseName("IX_ListenerEventV2s_AddressCreatedDate")
+                        .HasAnnotation("SqlServer:Include", new[] { "Status", "RemainingRetryAttempts" });
 
                     b.HasIndex("Status", "RemainingRetryAttempts")
                         .HasDatabaseName("IX_ListenerEventV2s_RetryClassification");

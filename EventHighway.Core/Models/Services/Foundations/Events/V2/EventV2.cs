@@ -80,6 +80,11 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V2
         /// </summary>
         public IEnumerable<ListenerEventV2> ListenerEventV2s { get; set; }
 
+        /// <summary>
+        /// Gets or sets the submitting participant's secret, validated against the participant's
+        /// registered secrets at submission time. Transient — never persisted; hosts supply it
+        /// from the HTTP request headers, not the request body.
+        /// </summary>
         public string EventParticipantV2Secret { get; set; }
         public Guid? EventParticipantV2Id { get; set; }
         public EventParticipantV2 EventParticipantV2 { get; set; }
