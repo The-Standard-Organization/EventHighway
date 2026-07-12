@@ -37,7 +37,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
         {
             IReadOnlyList<HealthCheckItemV2> healthCheckItems =
                 await this.eventHighwayBroker.RetrieveHealthRagStatusV2Async(
-                    period, windowStart, cancellationToken: cancellationToken);
+                    period, windowStart, windowEnd, cancellationToken);
 
             return healthCheckItems.Select(AsRagTile).ToList();
         });
@@ -49,7 +49,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
             await this.eventHighwayBroker.RetrieveTrafficSnapshotV2Async(
-                period, windowStart, cancellationToken: cancellationToken));
+                period, windowStart, windowEnd, cancellationToken));
 
         public ValueTask<List<EventAddressUsageV2>> RetrieveAddressSummariesAsync(
             TrafficPeriodV2 period,
@@ -60,7 +60,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
         {
             IReadOnlyList<EventAddressUsageV2> summaries =
                 await this.eventHighwayBroker.RetrieveEventAddressSummaryV2Async(
-                    period, windowStart, cancellationToken: cancellationToken);
+                    period, windowStart, windowEnd, cancellationToken);
 
             return summaries.ToList();
         });
@@ -72,7 +72,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
             await this.eventHighwayBroker.RetrieveLoopDetectionSummaryV2Async(
-                period, windowStart, cancellationToken: cancellationToken));
+                period, windowStart, windowEnd, cancellationToken));
 
         public ValueTask<DuplicateDetectionSummaryV2> RetrieveDuplicateSummaryAsync(
             TrafficPeriodV2 period,
@@ -81,7 +81,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
             await this.eventHighwayBroker.RetrieveDuplicateDetectionSummaryV2Async(
-                period, windowStart, cancellationToken: cancellationToken));
+                period, windowStart, windowEnd, cancellationToken));
 
         public ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthAsync(
             TrafficPeriodV2 period,
@@ -90,7 +90,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
             await this.eventHighwayBroker.RetrieveRetryHealthV2Async(
-                period, windowStart, cancellationToken: cancellationToken));
+                period, windowStart, windowEnd, cancellationToken));
 
         public ValueTask<List<ParticipantUsageV2>> RetrieveParticipantSummariesAsync(
             TrafficPeriodV2 period,
@@ -101,7 +101,7 @@ namespace EventHighway.Portal.Web.Services.Views.HealthDashboards
         {
             IReadOnlyList<ParticipantUsageV2> summaries =
                 await this.eventHighwayBroker.RetrieveParticipantSummaryV2Async(
-                    period, windowStart, cancellationToken: cancellationToken);
+                    period, windowStart, windowEnd, cancellationToken);
 
             return summaries.ToList();
         });
