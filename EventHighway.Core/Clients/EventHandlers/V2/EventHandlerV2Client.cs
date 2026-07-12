@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -144,6 +145,10 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
                 throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
             }
         }
+
+        public ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
 
         public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,

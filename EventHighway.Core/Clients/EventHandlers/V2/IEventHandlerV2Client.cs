@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -42,6 +43,18 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
         /// operation that returns the retrieved or registered event handler.</returns>
         ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Retrieves all known event handlers asynchronously — the handlers registered in the
+        /// current process when any exist, otherwise the persisted event handler registrations.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
+        /// operation that returns a queryable collection of event handlers.</returns>
+        ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default);
 
         /// <summary>

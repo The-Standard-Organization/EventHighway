@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Clients.EventHandlers.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
@@ -56,6 +57,12 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
 
         private static EventHandlerV2 CreateRandomEventHandlerV2() =>
             new Filler<EventHandlerV2>().Create();
+
+        private static int GetRandomNumber() =>
+            new IntRange(min: 2, max: 9).GetValue();
+
+        private static IQueryable<EventHandlerV2> CreateRandomEventHandlerV2s() =>
+            new Filler<EventHandlerV2>().Create(count: GetRandomNumber()).AsQueryable();
 
         private static IEventHandler CreateRandomEventHandler()
         {
