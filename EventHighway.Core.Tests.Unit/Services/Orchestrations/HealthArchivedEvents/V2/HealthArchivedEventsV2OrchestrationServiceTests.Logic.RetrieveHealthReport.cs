@@ -337,6 +337,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             {
                 case TrafficPeriodV2.Week:
                 case TrafficPeriodV2.Month:
+
+                // The custom tests use a 5-day span, which resolves to daily buckets.
+                case TrafficPeriodV2.Custom:
                     return new DateTimeOffset(
                         archivedDate.Year, archivedDate.Month, archivedDate.Day, 0, 0, 0, TimeSpan.Zero);
 
@@ -349,6 +352,77 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                         archivedDate.Year, archivedDate.Month, archivedDate.Day, archivedDate.Hour, 0, 0,
                         TimeSpan.Zero);
             }
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveArchivedTrafficForCustomPeriodOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(TrafficPeriodV2.Week);
+            DateTimeOffset inputWindowEnd = inputWindowStart.AddDays(5);
+            long windowSpanTicks = (inputWindowEnd - inputWindowStart).Ticks;
+
+            int inWindowEventCount = GetRandomNumber();
+
+            List<EventArchiveV2> inWindowEvents = Enumerable.Range(start: 0, count: inWindowEventCount)
+                .Select(index => CreateRandomEventArchiveV2WithArchivedDate(
+                    inputWindowStart.AddTicks(windowSpanTicks * (2 * index + 1) / (2 * inWindowEventCount))))
+                .ToList();
+
+            int inWindowListenerEventCount = GetRandomNumber();
+
+            List<ListenerEventArchiveV2> inWindowListenerEvents =
+                Enumerable.Range(start: 0, count: inWindowListenerEventCount)
+                    .Select(index => CreateRandomListenerEventArchiveV2WithArchivedDate(
+                        inputWindowStart.AddTicks(
+                            windowSpanTicks * (2 * index + 1) / (2 * inWindowListenerEventCount))))
+                    .ToList();
+
+            List<EventArchiveV2> randomArchivedEvents = inWindowEvents
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(inputWindowEnd))
+                .ToList();
+
+            List<ListenerEventArchiveV2> randomArchivedListenerEvents = inWindowListenerEvents
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(inputWindowEnd))
+                .ToList();
+
+            TrafficSnapshotV2 expectedTraffic = BuildExpectedTrafficSnapshot(
+                inputPeriod, inputWindowStart, inputWindowEnd, inWindowEvents, inWindowListenerEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedEvents.AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, inputWindowEnd, randomCancellationToken);
+
+            // then
+            actualHealthReport.Traffic.Should().BeEquivalentTo(expectedTraffic);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
         [Fact]
