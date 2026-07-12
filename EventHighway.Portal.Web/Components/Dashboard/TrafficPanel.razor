@@ -1,4 +1,4 @@
-@namespace EventHighway.Portal.Web.Components.Dashboard
+﻿@namespace EventHighway.Portal.Web.Components.Dashboard
 @inherits PeriodAwarePanelBase
 @using System.Linq
 @using EventHighway.Core.Models.Coordinations.HealthChecks.V2
@@ -10,9 +10,9 @@
     <HeaderContent>
         <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
             <span class="fw-semibold">Traffic</span>
-            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart"
+            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart" WindowEnd="EffectiveWindowEnd"
                              Disabled="NavDisabled" CanGoNext="CanGoNext"
-                             PeriodChanged="OnPeriodChanged" PreviousRequested="OnPrevious"
+                             PeriodChanged="OnPeriodChanged" CustomRangeChanged="OnCustomRangeChanged" PreviousRequested="OnPrevious"
                              NextRequested="OnNext" CurrentRequested="OnCurrent" />
         </div>
     </HeaderContent>
@@ -46,11 +46,11 @@
     private List<string> labels = new();
     private List<ChartDataset> datasets = new();
 
-    protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart)
+    protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset? windowEnd)
     {
         try
         {
-            snapshot = await HealthViewService.RetrieveTrafficSnapshotAsync(period, windowStart);
+            snapshot = await HealthViewService.RetrieveTrafficSnapshotAsync(period, windowStart, windowEnd);
 
             var buckets = (snapshot.Buckets ?? Enumerable.Empty<TrafficBucketV2>()).ToList();
             labels = buckets.Select(bucket => bucket.Label).ToList();

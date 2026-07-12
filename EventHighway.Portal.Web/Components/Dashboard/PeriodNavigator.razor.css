@@ -1,0 +1,11 @@
+/* The CoreUI FormDate wraps its input in a form group with bottom margin; inline in the
+   navigator row the pickers must stay compact and vertically centred. */
+.custom-range-pickers ::deep .mb-3 {
+    margin-bottom: 0 !important;
+}
+
+.custom-range-pickers ::deep input.form-control {
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+    font-size: 0.875rem;
+}

@@ -10,9 +10,11 @@
 
         <PeriodNavigator Period="Period"
                          WindowStart="WindowStart"
+                         WindowEnd="WindowEnd"
                          Disabled="@(!SyncEnabled)"
                          CanGoNext="CanGoNext"
                          PeriodChanged="PeriodChanged"
+                         CustomRangeChanged="CustomRangeChanged"
                          PreviousRequested="PreviousRequested"
                          NextRequested="NextRequested"
                          CurrentRequested="CurrentRequested" />
@@ -31,12 +33,14 @@
 @code {
     [Parameter] public TrafficPeriodV2 Period { get; set; }
     [Parameter] public DateTimeOffset WindowStart { get; set; }
+    [Parameter] public DateTimeOffset? WindowEnd { get; set; }
     [Parameter] public bool SyncEnabled { get; set; }
     [Parameter] public int AutoRefreshSeconds { get; set; }
     [Parameter] public int CountdownSeconds { get; set; }
     [Parameter] public bool CanGoNext { get; set; }
 
     [Parameter] public EventCallback<TrafficPeriodV2> PeriodChanged { get; set; }
+    [Parameter] public EventCallback<(DateTimeOffset Start, DateTimeOffset End)> CustomRangeChanged { get; set; }
     [Parameter] public EventCallback PreviousRequested { get; set; }
     [Parameter] public EventCallback NextRequested { get; set; }
     [Parameter] public EventCallback CurrentRequested { get; set; }
