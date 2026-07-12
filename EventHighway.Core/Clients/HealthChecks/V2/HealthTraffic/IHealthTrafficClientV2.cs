@@ -22,6 +22,9 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         /// <param name="period">The period granularity to aggregate over.</param>
         /// <param name="windowStart">The inclusive UTC start of the window, or
         /// <see cref="DateTimeOffset.MinValue"/> for the current period.</param>
+        /// <param name="windowEnd">The exclusive UTC end of the window; required when
+        /// <paramref name="period"/> is <see cref="TrafficPeriodV2.Custom"/>, derived from the
+        /// period otherwise.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
@@ -38,6 +41,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
     }
 }

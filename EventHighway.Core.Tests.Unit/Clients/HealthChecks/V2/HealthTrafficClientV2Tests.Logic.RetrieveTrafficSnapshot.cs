@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             TrafficSnapshotV2 actualTrafficSnapshotV2 =
                 await this.healthTrafficClientV2
                     .RetrieveTrafficSnapshotV2Async(
-                        randomPeriod, randomWindowStart, randomCancellationToken);
+                        randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             // then
             actualTrafficSnapshotV2.Should()
@@ -53,6 +53,52 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveTrafficReportV2Async(
                     randomPeriod, randomWindowStart, null, randomCancellationToken),
+                        Times.Once);
+
+            this.healthV2CoordinationServiceMock
+                .VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveTrafficSnapshotV2ForCustomPeriodAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+            DateTimeOffset randomWindowEnd = randomWindowStart.AddDays(5);
+
+            TrafficSnapshotV2 randomTrafficSnapshotV2 =
+                CreateRandomTrafficSnapshotV2();
+
+            var returnedHealthReport = new HealthReportV2
+            {
+                Traffic = randomTrafficSnapshotV2
+            };
+
+            TrafficSnapshotV2 expectedTrafficSnapshotV2 =
+                randomTrafficSnapshotV2.DeepClone();
+
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveTrafficReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
+
+            // when
+            TrafficSnapshotV2 actualTrafficSnapshotV2 =
+                await this.healthTrafficClientV2
+                    .RetrieveTrafficSnapshotV2Async(
+                        inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken);
+
+            // then
+            actualTrafficSnapshotV2.Should()
+                .BeEquivalentTo(expectedTrafficSnapshotV2);
+
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveTrafficReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock
