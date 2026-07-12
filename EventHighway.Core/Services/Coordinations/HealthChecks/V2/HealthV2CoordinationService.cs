@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -47,25 +47,26 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveHealthCheckItemsReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             IReadOnlyList<HealthCheckItemV2> healthCheckItems = MergeHealthCheckItems(
@@ -80,21 +81,22 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Traffic = MergeTraffic(
                 period,
@@ -181,25 +183,26 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveAddressUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.AddressUsage = MergeAddressUsage(
@@ -214,21 +217,22 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.ParticipantUsage = MergeParticipantUsage(
@@ -243,25 +247,26 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.LoopDetection = MergeLoopDetection(
@@ -281,21 +286,22 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveDuplicateReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Duplicates = EnrichDuplicates(
                 period,
@@ -312,25 +318,26 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Retry = MergeRetry(
                 period,
@@ -361,20 +368,34 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             List<EventAddressUsageV2> addressNames =
                 addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
 
+            List<RetryBucketV2> distribution = (liveRetry?.Distribution
+                ?? Enumerable.Empty<RetryBucketV2>())
+                .Concat(archivedRetry?.Distribution ?? Enumerable.Empty<RetryBucketV2>())
+                .GroupBy(bucket => bucket.RemainingRetries)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.Sum(bucket => bucket.Count)
+                })
+                .OrderBy(bucket => bucket.RemainingRetries)
+                .ToList();
+
             List<RetryAddressDetailV2> byAddress = (liveRetry?.ByAddress
                 ?? Enumerable.Empty<RetryAddressDetailV2>())
-                .Select(row => new RetryAddressDetailV2
+                .Concat(archivedRetry?.ByAddress ?? Enumerable.Empty<RetryAddressDetailV2>())
+                .GroupBy(row => row.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
                 {
-                    EventAddressV2Id = row.EventAddressV2Id,
+                    EventAddressV2Id = group.Key,
 
                     EventAddressV2Name = addressNames
                         .FirstOrDefault(addressName =>
-                            addressName.EventAddressV2Id == row.EventAddressV2Id)?.Name,
+                            addressName.EventAddressV2Id == group.Key)?.Name,
 
-                    DeadEvents = row.DeadEvents,
-                    CriticalEvents = row.CriticalEvents,
-                    HealthyEvents = row.HealthyEvents,
-                    TotalEvents = row.TotalEvents
+                    DeadEvents = group.Sum(row => row.DeadEvents),
+                    CriticalEvents = group.Sum(row => row.CriticalEvents),
+                    HealthyEvents = group.Sum(row => row.HealthyEvents),
+                    TotalEvents = group.Sum(row => row.TotalEvents)
                 })
                 .ToList();
 
@@ -384,12 +405,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
                 WindowLabel = windowLabel,
-                TotalActiveEvents = liveRetry?.TotalActiveEvents ?? 0,
-                DeadEvents = liveRetry?.DeadEvents ?? 0,
-                CriticalEvents = liveRetry?.CriticalEvents ?? 0,
-                HealthyEvents = liveRetry?.HealthyEvents ?? 0,
+
+                TotalActiveEvents =
+                    (liveRetry?.TotalActiveEvents ?? 0) + (archivedRetry?.TotalActiveEvents ?? 0),
+
+                DeadEvents = (liveRetry?.DeadEvents ?? 0) + (archivedRetry?.DeadEvents ?? 0),
+                CriticalEvents = (liveRetry?.CriticalEvents ?? 0) + (archivedRetry?.CriticalEvents ?? 0),
+                HealthyEvents = (liveRetry?.HealthyEvents ?? 0) + (archivedRetry?.HealthyEvents ?? 0),
                 ArchivedDeadEvents = archivedRetry?.ArchivedDeadEvents ?? 0,
-                Distribution = liveRetry?.Distribution ?? new List<RetryBucketV2>(),
+                Distribution = distribution,
                 ByAddress = byAddress
             };
         }
@@ -617,6 +641,11 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         })
                         .ToList();
 
+                    long totalEventsSubmitted = liveRow?.TotalEventsSubmitted ?? 0;
+                    long totalListenerEvents = liveRow?.TotalListenerEvents ?? 0;
+                    long errorListenerEvents = liveRow?.ErrorListenerEvents ?? 0;
+                    long loopsDetected = liveRow?.LoopsDetected ?? 0;
+
                     return new ParticipantUsageV2
                     {
                         EventParticipantV2Id = eventParticipantV2Id,
@@ -625,14 +654,27 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         ContactPhone = nameRow?.ContactPhone,
                         IsActive = nameRow?.IsActive ?? false,
                         OwnedListeners = nameRow?.OwnedListeners ?? 0,
-                        TotalEventsSubmitted = liveRow?.TotalEventsSubmitted ?? 0,
-                        TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
-                        LoopsDetected = liveRow?.LoopsDetected ?? 0,
+                        TotalEventsSubmitted = totalEventsSubmitted,
+                        TotalListenerEvents = totalListenerEvents,
+                        ErrorListenerEvents = errorListenerEvents,
+                        LoopsDetected = loopsDetected,
                         DuplicatesDetected = liveRow?.DuplicatesDetected ?? 0,
+
+                        // A publisher error is an event the platform rejected (quarantined by
+                        // loop/duplicate detection) — the only error-like signal on the publish side.
+                        PublisherErrorRate = totalEventsSubmitted == 0
+                            ? 0
+                            : (decimal)loopsDetected * 100 / totalEventsSubmitted,
+
+                        ListenerErrorRate = totalListenerEvents == 0
+                            ? 0
+                            : (decimal)errorListenerEvents * 100 / totalListenerEvents,
+
+                        LastActivity = liveRow?.LastActivity,
                         ByAddress = byAddress,
 
                         Status = ComputeRagStatus(
-                            liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration)
+                            loopsDetected, HealthMetric.LoopsDetected, healthConfiguration)
                     };
                 })
                 .ToList();
@@ -675,6 +717,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                     HealthStatusV2 loopsStatus = ComputeRagStatus(
                         liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration);
 
+                    long errorListenerEvents =
+                        (liveRow?.ErrorListenerEvents ?? 0) + (archivedRow?.ErrorListenerEvents ?? 0);
+
+                    long totalListenerEvents =
+                        (liveRow?.TotalListenerEvents ?? 0) + (archivedRow?.TotalArchivedListenerEvents ?? 0);
+
                     return new EventAddressUsageV2
                     {
                         EventAddressV2Id = eventAddressV2Id,
@@ -683,10 +731,20 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         ActiveListeners = nameRow?.ActiveListeners ?? 0,
                         TotalActiveEvents = liveRow?.TotalActiveEvents ?? 0,
                         TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
+                        ErrorListenerEvents = errorListenerEvents,
                         DeadEvents = liveRow?.DeadEvents ?? 0,
                         LoopsDetected = liveRow?.LoopsDetected ?? 0,
                         TotalArchivedEvents = archivedRow?.TotalArchivedEvents ?? 0,
                         TotalArchivedListenerEvents = archivedRow?.TotalArchivedListenerEvents ?? 0,
+
+                        ErrorRate = totalListenerEvents == 0
+                            ? 0
+                            : (decimal)errorListenerEvents * 100 / totalListenerEvents,
+
+                        LastActivity = new[] { liveRow?.LastActivity, archivedRow?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max(),
+
                         Status = WorstOf(deadStatus, loopsStatus)
                     };
                 })
@@ -737,6 +795,47 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
                     break;
 
+                // Custom windows derive their bucket granularity from the span: hourly up to 2 days,
+                // daily up to 62 days, monthly beyond. Enumeration starts from the window start
+                // truncated to the bucket boundary so it lines up with the orchestrations' server-side
+                // date-part truncation.
+                case TrafficPeriodV2.Custom:
+                    double spanDays = (windowEnd - windowStart).TotalDays;
+
+                    if (spanDays <= 2)
+                    {
+                        DateTimeOffset hourStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, windowStart.Day, windowStart.Hour, 0, 0,
+                            TimeSpan.Zero);
+
+                        for (DateTimeOffset start = hourStart; start < windowEnd; start = start.AddHours(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("HH:00", CultureInfo.InvariantCulture)));
+                        }
+                    }
+                    else if (spanDays <= 62)
+                    {
+                        DateTimeOffset dayStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, windowStart.Day, 0, 0, 0, TimeSpan.Zero);
+
+                        for (DateTimeOffset start = dayStart; start < windowEnd; start = start.AddDays(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("dd MMM", CultureInfo.InvariantCulture)));
+                        }
+                    }
+                    else
+                    {
+                        DateTimeOffset monthStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero);
+
+                        for (DateTimeOffset start = monthStart; start < windowEnd; start = start.AddMonths(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("MMM yyyy", CultureInfo.InvariantCulture)));
+                        }
+                    }
+
+                    break;
+
                 default:
                     for (int hour = 0; hour < 24; hour++)
                     {
@@ -752,17 +851,18 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
         private async ValueTask<HealthReportV2> BuildReportShellAsync(
             TrafficPeriodV2 period,
-            DateTimeOffset windowStart)
+            DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null)
         {
-            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+            DateTimeOffset resolvedWindowEnd = windowEnd ?? ComputeWindowEnd(period, windowStart);
             DateTimeOffset generatedDate = await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             return new HealthReportV2
             {
                 Period = period,
                 WindowStart = windowStart,
-                WindowEnd = windowEnd,
-                WindowLabel = BuildWindowLabel(period, windowStart, windowEnd),
+                WindowEnd = resolvedWindowEnd,
+                WindowLabel = BuildWindowLabel(period, windowStart, resolvedWindowEnd),
                 GeneratedDate = generatedDate
             };
         }
@@ -883,6 +983,9 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             return HealthStatusV2.NA;
         }
 
+        // Windows are rolling (anchored to the caller's start) rather than calendar-normalized, so a
+        // "past month/year" window ending now is expressible; callers align the start to the bucket
+        // granularity (hour/day/month) so server-side bucket truncation still lines up.
         private static DateTimeOffset ComputeWindowEnd(TrafficPeriodV2 period, DateTimeOffset windowStart)
         {
             switch (period)
@@ -891,11 +994,10 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
@@ -909,18 +1011,13 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         {
             switch (period)
             {
-                case TrafficPeriodV2.Week:
-                    return $"{windowStart.ToString("dd MMM", CultureInfo.InvariantCulture)} – " +
-                        $"{windowEnd.AddDays(-1).ToString("dd MMM yyyy", CultureInfo.InvariantCulture)}";
-
-                case TrafficPeriodV2.Month:
-                    return windowStart.ToString("MMM yyyy", CultureInfo.InvariantCulture);
-
-                case TrafficPeriodV2.Year:
-                    return windowStart.Year.ToString(CultureInfo.InvariantCulture);
+                case TrafficPeriodV2.Day:
+                    return $"{windowStart.ToString("dd MMM yyyy HH:00", CultureInfo.InvariantCulture)} – " +
+                        $"{windowEnd.ToString("dd MMM yyyy HH:00", CultureInfo.InvariantCulture)}";
 
                 default:
-                    return windowStart.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
+                    return $"{windowStart.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} – " +
+                        $"{windowEnd.AddDays(-1).ToString("dd MMM yyyy", CultureInfo.InvariantCulture)}";
             }
         }
     }

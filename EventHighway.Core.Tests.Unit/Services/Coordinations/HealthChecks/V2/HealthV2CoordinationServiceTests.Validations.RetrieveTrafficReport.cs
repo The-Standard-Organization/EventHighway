@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset invalidWindowStart = default;
 
             var invalidHealthV2CoordinationException =
@@ -40,7 +40,108 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveTrafficReportV2Async(
-                    inputPeriod, invalidWindowStart, randomCancellationToken);
+                    inputPeriod, invalidWindowStart, null, randomCancellationToken);
+
+            HealthV2CoordinationValidationException actualHealthV2CoordinationValidationException =
+                await Assert.ThrowsAsync<HealthV2CoordinationValidationException>(
+                    retrieveHealthReportTask.AsTask);
+
+            // then
+            actualHealthV2CoordinationValidationException.Should()
+                .BeEquivalentTo(expectedHealthV2CoordinationValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHealthV2CoordinationValidationException))),
+                        Times.Once);
+
+            this.healthInfrastructureV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthEventsV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthArchivedEventsV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRetrieveTrafficReportV2IfCustomWindowEndIsMissingAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(TrafficPeriodV2.Week);
+            DateTimeOffset? missingWindowEnd = null;
+
+            var invalidHealthV2CoordinationException =
+                new InvalidHealthV2CoordinationException(
+                    message: "Health coordination is invalid, fix the errors and try again.");
+
+            invalidHealthV2CoordinationException.UpsertDataList(
+                key: "WindowEnd",
+                value: "Required");
+
+            var expectedHealthV2CoordinationValidationException =
+                new HealthV2CoordinationValidationException(
+                    message: "Health coordination validation error occurred, fix the errors and try again.",
+                    innerException: invalidHealthV2CoordinationException);
+
+            // when
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
+                this.healthV2CoordinationService.RetrieveTrafficReportV2Async(
+                    inputPeriod, inputWindowStart, missingWindowEnd, randomCancellationToken);
+
+            HealthV2CoordinationValidationException actualHealthV2CoordinationValidationException =
+                await Assert.ThrowsAsync<HealthV2CoordinationValidationException>(
+                    retrieveHealthReportTask.AsTask);
+
+            // then
+            actualHealthV2CoordinationValidationException.Should()
+                .BeEquivalentTo(expectedHealthV2CoordinationValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedHealthV2CoordinationValidationException))),
+                        Times.Once);
+
+            this.healthInfrastructureV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthEventsV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.healthArchivedEventsV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.configurationBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task
+            ShouldThrowValidationExceptionOnRetrieveTrafficReportV2IfCustomWindowEndIsNotAfterWindowStartAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(TrafficPeriodV2.Week);
+            DateTimeOffset invalidWindowEnd = inputWindowStart;
+
+            var invalidHealthV2CoordinationException =
+                new InvalidHealthV2CoordinationException(
+                    message: "Health coordination is invalid, fix the errors and try again.");
+
+            invalidHealthV2CoordinationException.UpsertDataList(
+                key: "WindowEnd",
+                value: "Must be after WindowStart");
+
+            var expectedHealthV2CoordinationValidationException =
+                new HealthV2CoordinationValidationException(
+                    message: "Health coordination validation error occurred, fix the errors and try again.",
+                    innerException: invalidHealthV2CoordinationException);
+
+            // when
+            ValueTask<HealthReportV2> retrieveHealthReportTask =
+                this.healthV2CoordinationService.RetrieveTrafficReportV2Async(
+                    inputPeriod, inputWindowStart, invalidWindowEnd, randomCancellationToken);
 
             HealthV2CoordinationValidationException actualHealthV2CoordinationValidationException =
                 await Assert.ThrowsAsync<HealthV2CoordinationValidationException>(

@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -41,6 +41,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
         public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -49,7 +50,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
             // Infrastructure tables (addresses, listeners, participants) are config-scale and each
             // foundation exposes its IQueryable over its own DbContext instance; materialize them so
             // the whole-system counts and cross-joins evaluate in memory rather than composing a
-            // single EF query across multiple contexts (§0's server-side rule targets the large
+            // single EF query across multiple contexts (Â§0's server-side rule targets the large
             // event/history tables, not these bounded config tables).
             List<EventAddressV2> eventAddresses =
                 (await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(cancellationToken))

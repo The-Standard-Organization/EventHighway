@@ -36,6 +36,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
         public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -47,15 +48,15 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             IQueryable<ListenerEventV2> listenerEvents =
                 await this.listenerEventV2Service.RetrieveAllListenerEventV2sAsync(cancellationToken);
 
-            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+            DateTimeOffset resolvedWindowEnd = windowEnd ?? ComputeWindowEnd(period, windowStart);
 
             IQueryable<EventV2> windowEvents = events
                 .Where(@event => @event.CreatedDate >= windowStart
-                    && @event.CreatedDate < windowEnd);
+                    && @event.CreatedDate < resolvedWindowEnd);
 
             IQueryable<ListenerEventV2> windowListenerEvents = listenerEvents
                 .Where(listenerEvent => listenerEvent.CreatedDate >= windowStart
-                    && listenerEvent.CreatedDate < windowEnd);
+                    && listenerEvent.CreatedDate < resolvedWindowEnd);
 
             long totalEvents = events.LongCount();
 
@@ -172,17 +173,17 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 },
 
                 Traffic = MapToTrafficSnapshot(
-                    period, windowStart, windowEnd, windowEvents, windowListenerEvents),
+                    period, windowStart, resolvedWindowEnd, windowEvents, windowListenerEvents),
 
                 AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
 
                 ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents),
 
-                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
+                LoopDetection = MapToLoopDetection(period, windowStart, resolvedWindowEnd, windowEvents),
 
-                Duplicates = MapToDuplicates(period, windowStart, windowEnd, windowEvents),
+                Duplicates = MapToDuplicates(period, windowStart, resolvedWindowEnd, windowEvents),
 
-                Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
+                Retry = MapToRetry(period, windowStart, resolvedWindowEnd, windowListenerEvents)
             };
         });
 
@@ -255,8 +256,35 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 TotalReplays = windowListenerEvents
                     .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Replay),
 
-                Buckets = MapToTrafficBuckets(period, windowEvents, windowListenerEvents)
+                Buckets = MapToTrafficBuckets(
+                    ResolveBucketGranularity(period, windowStart, windowEnd),
+                    windowEvents,
+                    windowListenerEvents)
             };
+        }
+
+        // Custom windows derive their bucket granularity from the span: hourly up to 2 days,
+        // daily up to 62 days, monthly beyond; standard periods keep their fixed granularity.
+        private static TrafficPeriodV2 ResolveBucketGranularity(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd)
+        {
+            if (period != TrafficPeriodV2.Custom)
+            {
+                return period;
+            }
+
+            double spanDays = (windowEnd - windowStart).TotalDays;
+
+            if (spanDays <= 2)
+            {
+                return TrafficPeriodV2.Day;
+            }
+
+            return spanDays <= 62
+                ? TrafficPeriodV2.Week
+                : TrafficPeriodV2.Year;
         }
 
         private static IEnumerable<TrafficBucketV2> MapToTrafficBuckets(
@@ -369,11 +397,10 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
@@ -409,7 +436,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventAddressV2Id = group.Key,
                     TotalActiveEvents = group.LongCount(),
-                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined),
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -419,9 +447,15 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventAddressV2Id = group.Key,
                     TotalListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
                     DeadEvents = group.LongCount(listenerEvent =>
                         listenerEvent.Status == ListenerEventStatusV2.Error
-                        && listenerEvent.RemainingRetryAttempts == 0)
+                        && listenerEvent.RemainingRetryAttempts == 0),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -442,7 +476,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         TotalActiveEvents = eventCount?.TotalActiveEvents ?? 0,
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        DeadEvents = listenerCount?.DeadEvents ?? 0
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        DeadEvents = listenerCount?.DeadEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
@@ -458,7 +497,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventParticipantV2Id = group.Key,
                     TotalEventsSubmitted = group.LongCount(),
-                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined),
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -467,7 +507,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
-                    TotalListenerEvents = group.LongCount()
+                    TotalListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -543,7 +588,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         DuplicatesDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        ByAddress = byAddress
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        ByAddress = byAddress,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();

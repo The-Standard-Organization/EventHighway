@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), cancelledToken);
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), null, cancelledToken);
 
             // then
             OperationCanceledException actualException =
@@ -81,7 +81,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), null, randomCancellationToken);
 
             HealthEventsV2OrchestrationDependencyException
                 actualHealthEventsV2OrchestrationDependencyException =
@@ -128,7 +128,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), null, randomCancellationToken);
 
             HealthEventsV2OrchestrationDependencyException
                 actualHealthEventsV2OrchestrationDependencyException =
@@ -175,7 +175,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), null, randomCancellationToken);
 
             HealthEventsV2OrchestrationDependencyValidationException
                 actualHealthEventsV2OrchestrationDependencyValidationException =
@@ -229,7 +229,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), randomCancellationToken);
+                        TrafficPeriodV2.Day, GetRandomDateTimeOffset(), null, randomCancellationToken);
 
             HealthEventsV2OrchestrationServiceException
                 actualHealthEventsV2OrchestrationServiceException =

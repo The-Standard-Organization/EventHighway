@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomDateTimeOffset();
 
             List<EventArchiveV2> randomArchivedEvents =
@@ -160,7 +160,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Period.Should().Be(inputPeriod);
@@ -197,7 +197,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             long windowSpanTicks = (windowEnd - inputWindowStart).Ticks;
@@ -242,7 +242,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Traffic.Should().BeEquivalentTo(expectedTraffic);
@@ -337,6 +337,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             {
                 case TrafficPeriodV2.Week:
                 case TrafficPeriodV2.Month:
+
+                // The custom tests use a 5-day span, which resolves to daily buckets.
+                case TrafficPeriodV2.Custom:
                     return new DateTimeOffset(
                         archivedDate.Year, archivedDate.Month, archivedDate.Day, 0, 0, 0, TimeSpan.Zero);
 
@@ -352,13 +355,84 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
         }
 
         [Fact]
+        public async Task ShouldRetrieveArchivedTrafficForCustomPeriodOnRetrieveHealthReportV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(TrafficPeriodV2.Week);
+            DateTimeOffset inputWindowEnd = inputWindowStart.AddDays(5);
+            long windowSpanTicks = (inputWindowEnd - inputWindowStart).Ticks;
+
+            int inWindowEventCount = GetRandomNumber();
+
+            List<EventArchiveV2> inWindowEvents = Enumerable.Range(start: 0, count: inWindowEventCount)
+                .Select(index => CreateRandomEventArchiveV2WithArchivedDate(
+                    inputWindowStart.AddTicks(windowSpanTicks * (2 * index + 1) / (2 * inWindowEventCount))))
+                .ToList();
+
+            int inWindowListenerEventCount = GetRandomNumber();
+
+            List<ListenerEventArchiveV2> inWindowListenerEvents =
+                Enumerable.Range(start: 0, count: inWindowListenerEventCount)
+                    .Select(index => CreateRandomListenerEventArchiveV2WithArchivedDate(
+                        inputWindowStart.AddTicks(
+                            windowSpanTicks * (2 * index + 1) / (2 * inWindowListenerEventCount))))
+                    .ToList();
+
+            List<EventArchiveV2> randomArchivedEvents = inWindowEvents
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomEventArchiveV2WithArchivedDate(inputWindowEnd))
+                .ToList();
+
+            List<ListenerEventArchiveV2> randomArchivedListenerEvents = inWindowListenerEvents
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(inputWindowStart.AddTicks(-1)))
+                .Append(CreateRandomListenerEventArchiveV2WithArchivedDate(inputWindowEnd))
+                .ToList();
+
+            TrafficSnapshotV2 expectedTraffic = BuildExpectedTrafficSnapshot(
+                inputPeriod, inputWindowStart, inputWindowEnd, inWindowEvents, inWindowListenerEvents);
+
+            this.eventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedEvents.AsQueryable());
+
+            this.listenerEventArchiveV2ServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(randomArchivedListenerEvents.AsQueryable());
+
+            // when
+            HealthReportV2 actualHealthReport =
+                await this.healthArchivedEventsV2OrchestrationService
+                    .RetrieveHealthReportV2Async(
+                        inputPeriod, inputWindowStart, inputWindowEnd, randomCancellationToken);
+
+            // then
+            actualHealthReport.Traffic.Should().BeEquivalentTo(expectedTraffic);
+
+            this.eventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventArchiveV2ServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventArchiveV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.listenerEventArchiveV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldRetrieveArchivedAddressUsageCountsOnRetrieveHealthReportV2Async()
         {
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
@@ -378,6 +452,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     .Select(index => AssignAddress(
                         CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate),
                         addressIds[index % addressIds.Count]))
+                    .Concat(addressIds.Select(addressId => CreateErrorListenerEventArchiveV2(
+                        addressId, remainingRetryAttempts: GetRandomNumber(), inWindowDate)))
                     .ToList();
 
             List<EventArchiveV2> randomArchivedEvents = inWindowEvents
@@ -405,7 +481,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.AddressUsage.Should().BeEquivalentTo(expectedAddressUsage);
@@ -432,7 +508,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedEvents = (long)group.Count()
+                    TotalArchivedEvents = (long)group.Count(),
+                    LastActivity = group.Max(archivedEvent => archivedEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -441,7 +518,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedListenerEvents = (long)group.Count()
+                    TotalArchivedListenerEvents = (long)group.Count(),
+
+                    ErrorListenerEvents = (long)group.Count(listenerEvent =>
+                        listenerEvent.Status == ListenerEventArchiveStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -456,7 +538,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     {
                         EventAddressV2Id = addressId,
                         TotalArchivedEvents = eventCount?.TotalArchivedEvents ?? 0,
-                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0
+                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0,
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
@@ -484,7 +571,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset earlyDate = inputWindowStart;
@@ -522,7 +609,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.LoopDetection.Should().BeEquivalentTo(expectedLoopDetection);
@@ -600,13 +687,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
             DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
 
             Guid addressA = GetRandomId();
+            Guid addressB = GetRandomId();
 
             ListenerEventArchiveV2 successListenerEvent =
                 CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate);
@@ -615,8 +703,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             List<ListenerEventArchiveV2> randomArchivedListenerEvents = new List<ListenerEventArchiveV2>
             {
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
-                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 1, inWindowDate),
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 2, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 3, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressB, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressB, remainingRetryAttempts: 4, inWindowDate),
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, outOfWindowDate),
                 successListenerEvent
             };
@@ -636,7 +727,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Retry.Should().BeEquivalentTo(expectedRetry);
@@ -666,12 +757,43 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     && listenerEvent.ArchivedDate < windowEnd)
                 .ToList();
 
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.Count()
+                })
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                    CriticalEvents = group.Count(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+                    HealthyEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.Count()
+                })
+                .ToList();
+
             return new RetryHealthSummaryV2
             {
                 Period = period,
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
-                ArchivedDeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0)
+                TotalActiveEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 0),
+                DeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+
+                CriticalEvents = errorEvents.Count(listenerEvent =>
+                    listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+
+                HealthyEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                ArchivedDeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                Distribution = distribution,
+                ByAddress = byAddress
             };
         }
 

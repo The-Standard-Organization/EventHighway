@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -35,13 +35,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(coordinationValidationException);
 
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2ValidationException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2ValidationException>(
@@ -53,7 +53,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
@@ -79,13 +79,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(coordinationDependencyException);
 
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2DependencyException>(
@@ -97,7 +97,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
@@ -123,13 +123,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2ServiceException>(
@@ -141,7 +141,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();
@@ -162,13 +162,13 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -180,7 +180,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveDuplicateReportV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock.VerifyNoOtherCalls();

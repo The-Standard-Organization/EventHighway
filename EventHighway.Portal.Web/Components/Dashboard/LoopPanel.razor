@@ -1,4 +1,4 @@
-@namespace EventHighway.Portal.Web.Components.Dashboard
+﻿@namespace EventHighway.Portal.Web.Components.Dashboard
 @inherits PeriodAwarePanelBase
 @using System.Linq
 @using EventHighway.Core.Models.Coordinations.HealthChecks.V2
@@ -10,9 +10,9 @@
     <HeaderContent>
         <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
             <span class="fw-semibold">Loop Detection</span>
-            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart"
+            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart" WindowEnd="EffectiveWindowEnd"
                              Disabled="NavDisabled" CanGoNext="CanGoNext"
-                             PeriodChanged="OnPeriodChanged" PreviousRequested="OnPrevious"
+                             PeriodChanged="OnPeriodChanged" CustomRangeChanged="OnCustomRangeChanged" PreviousRequested="OnPrevious"
                              NextRequested="OnNext" CurrentRequested="OnCurrent" />
         </div>
     </HeaderContent>
@@ -57,11 +57,11 @@
         new DataTableColumn<LoopDetailV2> { Title = "Most Recent", Value = d => d.MostRecentDetection?.ToString("u") ?? "—" },
     };
 
-    protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart)
+    protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset? windowEnd)
     {
         try
         {
-            summary = await HealthViewService.RetrieveLoopSummaryAsync(period, windowStart);
+            summary = await HealthViewService.RetrieveLoopSummaryAsync(period, windowStart, windowEnd);
 
             details = (summary.ByAddress ?? Enumerable.Empty<LoopDetailV2>()).ToList();
             labels = details.Select(d => d.EventAddressV2Name).ToList();

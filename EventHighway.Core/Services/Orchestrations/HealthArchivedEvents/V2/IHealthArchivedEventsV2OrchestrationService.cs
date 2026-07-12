@@ -14,6 +14,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
         ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
     }
 }

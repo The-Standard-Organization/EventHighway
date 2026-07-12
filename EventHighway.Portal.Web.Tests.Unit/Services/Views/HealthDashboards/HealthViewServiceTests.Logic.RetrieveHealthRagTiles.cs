@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -30,14 +30,14 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveHealthRagStatusV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(),
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(returnedHealthCheckItems);
 
             // when
             List<HealthRagTile> actualHealthRagTiles =
                 await this.healthViewService.RetrieveHealthRagTilesAsync(
-                    TrafficPeriodV2.Day, DateTimeOffset.MinValue,
+                    TrafficPeriodV2.Day, DateTimeOffset.MinValue, null,
                     TestContext.Current.CancellationToken);
 
             // then
@@ -45,7 +45,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
 
             this.eventHighwayBrokerMock.Verify(broker =>
                 broker.RetrieveHealthRagStatusV2Async(
-                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(),
+                    It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 

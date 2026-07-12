@@ -19,9 +19,10 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
 
         public async ValueTask<TrafficSnapshotV2> RetrieveTrafficSnapshotV2Async(
             TrafficPeriodV2 period,
-            DateTimeOffset windowStart) =>
+            DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null) =>
             await this.eventHighwayClient.V2.HealthClientV2.HealthTrafficClientV2
-                .RetrieveTrafficSnapshotV2Async(period, windowStart);
+                .RetrieveTrafficSnapshotV2Async(period, windowStart, windowEnd);
 
         public async ValueTask<IReadOnlyList<EventAddressUsageV2>> RetrieveEventAddressSummaryV2Async(
             TrafficPeriodV2 period,

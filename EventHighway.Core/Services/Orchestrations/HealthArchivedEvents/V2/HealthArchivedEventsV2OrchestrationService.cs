@@ -36,6 +36,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
         public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -47,15 +48,15 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
             IQueryable<ListenerEventArchiveV2> archivedListenerEvents =
                 await this.listenerEventArchiveV2Service.RetrieveAllListenerEventArchiveV2sAsync(cancellationToken);
 
-            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+            DateTimeOffset resolvedWindowEnd = windowEnd ?? ComputeWindowEnd(period, windowStart);
 
             IQueryable<EventArchiveV2> windowEvents = archivedEvents
                 .Where(archivedEvent => archivedEvent.ArchivedDate >= windowStart
-                    && archivedEvent.ArchivedDate < windowEnd);
+                    && archivedEvent.ArchivedDate < resolvedWindowEnd);
 
             IQueryable<ListenerEventArchiveV2> windowListenerEvents = archivedListenerEvents
                 .Where(listenerEvent => listenerEvent.ArchivedDate >= windowStart
-                    && listenerEvent.ArchivedDate < windowEnd);
+                    && listenerEvent.ArchivedDate < resolvedWindowEnd);
 
             long totalEvents = archivedEvents.LongCount();
 
@@ -143,13 +144,13 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 },
 
                 Traffic = MapToTrafficSnapshot(
-                    period, windowStart, windowEnd, windowEvents, windowListenerEvents),
+                    period, windowStart, resolvedWindowEnd, windowEvents, windowListenerEvents),
 
                 AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
 
-                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
+                LoopDetection = MapToLoopDetection(period, windowStart, resolvedWindowEnd, windowEvents),
 
-                Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
+                Retry = MapToRetry(period, windowStart, resolvedWindowEnd, windowListenerEvents)
             };
         });
 
@@ -222,8 +223,35 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 TotalReplays = windowListenerEvents
                     .LongCount(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Replay),
 
-                Buckets = MapToTrafficBuckets(period, windowEvents, windowListenerEvents)
+                Buckets = MapToTrafficBuckets(
+                    ResolveBucketGranularity(period, windowStart, windowEnd),
+                    windowEvents,
+                    windowListenerEvents)
             };
+        }
+
+        // Custom windows derive their bucket granularity from the span: hourly up to 2 days,
+        // daily up to 62 days, monthly beyond; standard periods keep their fixed granularity.
+        private static TrafficPeriodV2 ResolveBucketGranularity(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd)
+        {
+            if (period != TrafficPeriodV2.Custom)
+            {
+                return period;
+            }
+
+            double spanDays = (windowEnd - windowStart).TotalDays;
+
+            if (spanDays <= 2)
+            {
+                return TrafficPeriodV2.Day;
+            }
+
+            return spanDays <= 62
+                ? TrafficPeriodV2.Week
+                : TrafficPeriodV2.Year;
         }
 
         private static IEnumerable<TrafficBucketV2> MapToTrafficBuckets(
@@ -331,6 +359,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 .ToList();
         }
 
+        // Rolling windows anchored to the caller's start (see HealthV2CoordinationService for rationale).
         private static DateTimeOffset ComputeWindowEnd(TrafficPeriodV2 period, DateTimeOffset windowStart)
         {
             switch (period)
@@ -339,11 +368,10 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
@@ -379,7 +407,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedEvents = group.LongCount()
+                    TotalArchivedEvents = group.LongCount(),
+                    LastActivity = group.Max(archivedEvent => archivedEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -388,7 +417,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedListenerEvents = group.LongCount()
+                    TotalArchivedListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventArchiveStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -407,7 +441,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                     {
                         EventAddressV2Id = eventAddressV2Id,
                         TotalArchivedEvents = eventCount?.TotalArchivedEvents ?? 0,
-                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0
+                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0,
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
@@ -453,16 +492,49 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
             DateTimeOffset windowEnd,
             IQueryable<ListenerEventArchiveV2> windowListenerEvents)
         {
-            long archivedDeadEvents = windowListenerEvents
-                .LongCount(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error
-                    && listenerEvent.RemainingRetryAttempts == 0);
+            IQueryable<ListenerEventArchiveV2> errorEvents = windowListenerEvents
+                .Where(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error);
+
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.LongCount()
+                })
+                .OrderBy(bucket => bucket.RemainingRetries)
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+
+                    CriticalEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+
+                    HealthyEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.LongCount()
+                })
+                .OrderBy(detail => detail.EventAddressV2Id)
+                .ToList();
+
+            long archivedDeadEvents = byAddress.Sum(detail => detail.DeadEvents);
 
             return new RetryHealthSummaryV2
             {
                 Period = period,
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
-                ArchivedDeadEvents = archivedDeadEvents
+                TotalActiveEvents = byAddress.Sum(detail => detail.TotalEvents) - archivedDeadEvents,
+                DeadEvents = archivedDeadEvents,
+                CriticalEvents = byAddress.Sum(detail => detail.CriticalEvents),
+                HealthyEvents = byAddress.Sum(detail => detail.HealthyEvents),
+                ArchivedDeadEvents = archivedDeadEvents,
+                Distribution = distribution,
+                ByAddress = byAddress
             };
         }
     }

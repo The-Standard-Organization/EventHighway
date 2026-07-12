@@ -60,6 +60,12 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public long OwnedListeners { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of listener events on listeners owned by this participant that
+        /// ended in an error state within the window.
+        /// </summary>
+        public long ErrorListenerEvents { get; set; }
+
+        /// <summary>
         /// Gets or sets the percentage of errors on events this participant submitted.
         /// </summary>
         public decimal PublisherErrorRate { get; set; }

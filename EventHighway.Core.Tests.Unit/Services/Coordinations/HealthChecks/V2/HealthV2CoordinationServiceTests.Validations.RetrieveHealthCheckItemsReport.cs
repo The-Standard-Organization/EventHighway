@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset invalidWindowStart = default;
 
             var invalidHealthV2CoordinationException =
@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveHealthCheckItemsReportV2Async(
-                    inputPeriod, invalidWindowStart, randomCancellationToken);
+                    inputPeriod, invalidWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationValidationException actualHealthV2CoordinationValidationException =
                 await Assert.ThrowsAsync<HealthV2CoordinationValidationException>(

@@ -1,4 +1,5 @@
 @namespace EventHighway.Portal.Web.Components.Dashboard
+@inherits PeriodAwarePanelBase
 @using System.Linq
 @using EventHighway.Core.Models.Coordinations.HealthChecks.V2
 @using EventHighway.Portal.Web.Components.CoreUI
@@ -6,7 +7,17 @@
 @inject IHealthViewService HealthViewService
 
 <Card CssClass="mb-4">
-    <HeaderContent><span class="fw-semibold">Retry Health</span></HeaderContent>
+    <HeaderContent>
+        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
+            <span class="fw-semibold">Retry Health</span>
+            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart"
+                             WindowEnd="EffectiveWindowEnd"
+                             Disabled="NavDisabled" CanGoNext="CanGoNext"
+                             PeriodChanged="OnPeriodChanged" CustomRangeChanged="OnCustomRangeChanged"
+                             PreviousRequested="OnPrevious"
+                             NextRequested="OnNext" CurrentRequested="OnCurrent" />
+        </div>
+    </HeaderContent>
     <ChildContent>
         @if (isLoading)
         {
@@ -33,8 +44,6 @@
 </Card>
 
 @code {
-    [Parameter] public int RefreshToken { get; set; }
-
     private bool isLoading = true;
     private string? errorMessage;
     private RetryHealthSummaryV2? summary;
@@ -42,10 +51,11 @@
     private List<string> labels = new();
     private List<ChartDataset> datasets = new();
     private List<DataTableColumn<RetryAddressDetailV2>> columns = new();
-    private int? loadedToken;
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         columns = new List<DataTableColumn<RetryAddressDetailV2>>
         {
             new DataTableColumn<RetryAddressDetailV2> { Title = "Address", Value = d => d.EventAddressV2Name },
@@ -55,17 +65,12 @@
         };
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task LoadAsync(
+        TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset? windowEnd)
     {
-        if (loadedToken == RefreshToken) return;
-        loadedToken = RefreshToken;
-
         try
         {
-            var windowStart = WindowNavigator.Current(TrafficPeriodV2.Day, DateTimeOffset.UtcNow);
-
-            summary = await HealthViewService.RetrieveRetryHealthAsync(
-                TrafficPeriodV2.Day, windowStart);
+            summary = await HealthViewService.RetrieveRetryHealthAsync(period, windowStart, windowEnd);
 
             var distribution = (summary.Distribution ?? Enumerable.Empty<RetryBucketV2>()).ToList();
             labels = distribution.Select(b => b.RemainingRetries.ToString()).ToList();
@@ -80,6 +85,7 @@
             };
 
             details = (summary.ByAddress ?? Enumerable.Empty<RetryAddressDetailV2>()).ToList();
+            errorMessage = null;
         }
         catch
         {
@@ -88,6 +94,7 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 }

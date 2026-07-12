@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -98,17 +98,32 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             return enumValues[new IntRange(min: 0, max: enumValues.Length - 1).GetValue()];
         }
 
+        // Custom is excluded: it requires an explicit window end and is exercised by dedicated tests.
+        private static TrafficPeriodV2 GetRandomTrafficPeriod()
+        {
+            TrafficPeriodV2[] standardPeriods = new[]
+            {
+                TrafficPeriodV2.Day,
+                TrafficPeriodV2.Week,
+                TrafficPeriodV2.Month,
+                TrafficPeriodV2.Year
+            };
+
+            return standardPeriods[new IntRange(min: 0, max: standardPeriods.Length - 1).GetValue()];
+        }
+
         private static DateTimeOffset GetRandomPeriodAlignedWindowStart(TrafficPeriodV2 period)
         {
             DateTimeOffset randomDate = GetRandomDateTimeOffset();
 
             switch (period)
             {
-                case TrafficPeriodV2.Month:
+                case TrafficPeriodV2.Year:
                     return new DateTimeOffset(randomDate.Year, randomDate.Month, 1, 0, 0, 0, TimeSpan.Zero);
 
-                case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(randomDate.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                case TrafficPeriodV2.Day:
+                    return new DateTimeOffset(
+                        randomDate.Year, randomDate.Month, randomDate.Day, randomDate.Hour, 0, 0, TimeSpan.Zero);
 
                 default:
                     return new DateTimeOffset(
@@ -124,11 +139,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);

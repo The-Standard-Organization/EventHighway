@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -37,14 +37,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveLoopDetectionReportV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken))
+                    randomPeriod, randomWindowStart, null, randomCancellationToken))
                         .ReturnsAsync(returnedHealthReport);
 
             // when
             LoopDetectionSummaryV2 actualSummary =
                 await this.healthLoopClientV2
                     .RetrieveLoopDetectionSummaryV2Async(
-                        randomPeriod, randomWindowStart, randomCancellationToken);
+                        randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             // then
             actualSummary.Should()
@@ -52,7 +52,53 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveLoopDetectionReportV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken),
+                    randomPeriod, randomWindowStart, null, randomCancellationToken),
+                        Times.Once);
+
+            this.healthV2CoordinationServiceMock
+                .VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveLoopDetectionSummaryV2ForCustomPeriodAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+            DateTimeOffset randomWindowEnd = randomWindowStart.AddDays(5);
+
+            LoopDetectionSummaryV2 randomSummary =
+                CreateRandomLoopDetectionSummaryV2();
+
+            var returnedHealthReport = new HealthReportV2
+            {
+                LoopDetection = randomSummary
+            };
+
+            LoopDetectionSummaryV2 expectedSummary =
+                randomSummary.DeepClone();
+
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveLoopDetectionReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
+
+            // when
+            LoopDetectionSummaryV2 actualSummary =
+                await this.healthLoopClientV2
+                    .RetrieveLoopDetectionSummaryV2Async(
+                        inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken);
+
+            // then
+            actualSummary.Should()
+                .BeEquivalentTo(expectedSummary);
+
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveLoopDetectionReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock
