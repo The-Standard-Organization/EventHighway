@@ -52,9 +52,18 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                 cancellationToken);
         }));
 
-        public ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        public async ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<IEventHandler> registeredEventHandlers =
+                await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sAsync(cancellationToken);
+
+            return registeredEventHandlers.Select(eventHandler => new EventHandlerV2
+            {
+                Id = eventHandler.Id,
+                Name = eventHandler.Name
+            });
+        }
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
