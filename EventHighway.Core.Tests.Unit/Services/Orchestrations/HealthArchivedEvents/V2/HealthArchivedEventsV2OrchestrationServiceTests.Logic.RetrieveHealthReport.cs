@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomDateTimeOffset();
 
             List<EventArchiveV2> randomArchivedEvents =
@@ -160,7 +160,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Period.Should().Be(inputPeriod);
@@ -197,7 +197,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             long windowSpanTicks = (windowEnd - inputWindowStart).Ticks;
@@ -242,7 +242,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Traffic.Should().BeEquivalentTo(expectedTraffic);
@@ -358,7 +358,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
@@ -407,7 +407,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.AddressUsage.Should().BeEquivalentTo(expectedAddressUsage);
@@ -497,7 +497,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset earlyDate = inputWindowStart;
@@ -535,7 +535,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.LoopDetection.Should().BeEquivalentTo(expectedLoopDetection);
@@ -613,7 +613,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
@@ -653,7 +653,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             HealthReportV2 actualHealthReport =
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Retry.Should().BeEquivalentTo(expectedRetry);

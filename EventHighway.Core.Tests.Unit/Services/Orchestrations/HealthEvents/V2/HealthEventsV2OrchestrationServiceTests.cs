@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -94,6 +94,20 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             T[] enumValues = Enum.GetValues<T>();
 
             return enumValues[new IntRange(min: 0, max: enumValues.Length - 1).GetValue()];
+        }
+
+        // Custom is excluded: it requires an explicit window end and is exercised by dedicated tests.
+        private static TrafficPeriodV2 GetRandomTrafficPeriod()
+        {
+            TrafficPeriodV2[] standardPeriods = new[]
+            {
+                TrafficPeriodV2.Day,
+                TrafficPeriodV2.Week,
+                TrafficPeriodV2.Month,
+                TrafficPeriodV2.Year
+            };
+
+            return standardPeriods[new IntRange(min: 0, max: standardPeriods.Length - 1).GetValue()];
         }
 
         private static DateTimeOffset GetRandomPeriodAlignedWindowStart(TrafficPeriodV2 period)

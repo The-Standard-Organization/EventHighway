@@ -28,6 +28,12 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         /// <summary>
         /// A one-year window divided into 12 monthly buckets.
         /// </summary>
-        Year = 3
+        Year = 3,
+
+        /// <summary>
+        /// A caller-supplied window with an explicit end; bucket granularity is derived from the
+        /// span (hourly up to 2 days, daily up to 62 days, monthly beyond).
+        /// </summary>
+        Custom = 4
     }
 }

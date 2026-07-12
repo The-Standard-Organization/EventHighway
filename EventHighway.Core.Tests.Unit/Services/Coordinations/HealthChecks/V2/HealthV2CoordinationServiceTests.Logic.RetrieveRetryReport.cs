@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset expectedWindowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
 
@@ -187,15 +187,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             var mockSequence = new MockSequence();
 
             this.healthInfrastructureV2OrchestrationServiceMock.InSequence(mockSequence).Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ReturnsAsync(infrastructurePartialReport);
 
             this.healthEventsV2OrchestrationServiceMock.InSequence(mockSequence).Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ReturnsAsync(eventsPartialReport);
 
             this.healthArchivedEventsV2OrchestrationServiceMock.InSequence(mockSequence).Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ReturnsAsync(archivedPartialReport);
 
             // when
@@ -218,15 +218,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             actualHealthReport.Duplicates.Should().BeNull();
 
             this.healthInfrastructureV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.healthEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.healthArchivedEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.dateTimeBrokerMock.Verify(broker =>

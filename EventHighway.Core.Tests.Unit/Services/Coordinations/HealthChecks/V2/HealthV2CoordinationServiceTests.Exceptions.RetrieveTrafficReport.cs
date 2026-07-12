@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             cancellationTokenSource.Cancel();
             CancellationToken cancelledToken = cancellationTokenSource.Token;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
 
             // when
@@ -62,7 +62,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
 
             var operationCanceledException = new OperationCanceledException();
@@ -82,7 +82,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     innerException: timeoutHealthV2CoordinationException);
 
             this.healthEventsV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ThrowsAsync(operationCanceledException);
 
             // when
@@ -99,7 +99,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 .BeEquivalentTo(expectedHealthV2CoordinationDependencyException);
 
             this.healthEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -124,7 +124,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
 
             var expectedHealthV2CoordinationDependencyException =
@@ -133,7 +133,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     innerException: dependencyException.InnerException as Xeption);
 
             this.healthEventsV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -150,7 +150,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 .BeEquivalentTo(expectedHealthV2CoordinationDependencyException);
 
             this.healthEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -175,7 +175,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
 
             var expectedHealthV2CoordinationDependencyValidationException =
@@ -184,7 +184,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     innerException: dependencyValidationException.InnerException as Xeption);
 
             this.healthEventsV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ThrowsAsync(dependencyValidationException);
 
             // when
@@ -202,7 +202,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 .BeEquivalentTo(expectedHealthV2CoordinationDependencyValidationException);
 
             this.healthEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -225,7 +225,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
-            TrafficPeriodV2 inputPeriod = GetRandomEnum<TrafficPeriodV2>();
+            TrafficPeriodV2 inputPeriod = GetRandomTrafficPeriod();
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
 
             var serviceException = new Exception();
@@ -243,7 +243,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     innerException: failedHealthV2CoordinationServiceException);
 
             this.healthEventsV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken))
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -260,7 +260,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 .BeEquivalentTo(expectedHealthV2CoordinationServiceException);
 
             this.healthEventsV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, randomCancellationToken),
+                service.RetrieveHealthReportV2Async(inputPeriod, inputWindowStart, null, randomCancellationToken),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

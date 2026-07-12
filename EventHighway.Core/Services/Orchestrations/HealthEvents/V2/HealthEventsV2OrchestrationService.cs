@@ -36,6 +36,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
         public ValueTask<HealthReportV2> RetrieveHealthReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -47,15 +48,15 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             IQueryable<ListenerEventV2> listenerEvents =
                 await this.listenerEventV2Service.RetrieveAllListenerEventV2sAsync(cancellationToken);
 
-            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+            DateTimeOffset resolvedWindowEnd = windowEnd ?? ComputeWindowEnd(period, windowStart);
 
             IQueryable<EventV2> windowEvents = events
                 .Where(@event => @event.CreatedDate >= windowStart
-                    && @event.CreatedDate < windowEnd);
+                    && @event.CreatedDate < resolvedWindowEnd);
 
             IQueryable<ListenerEventV2> windowListenerEvents = listenerEvents
                 .Where(listenerEvent => listenerEvent.CreatedDate >= windowStart
-                    && listenerEvent.CreatedDate < windowEnd);
+                    && listenerEvent.CreatedDate < resolvedWindowEnd);
 
             long totalEvents = events.LongCount();
 
@@ -172,17 +173,17 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 },
 
                 Traffic = MapToTrafficSnapshot(
-                    period, windowStart, windowEnd, windowEvents, windowListenerEvents),
+                    period, windowStart, resolvedWindowEnd, windowEvents, windowListenerEvents),
 
                 AddressUsage = MapToAddressUsage(windowEvents, windowListenerEvents),
 
                 ParticipantUsage = MapToParticipantUsage(windowEvents, windowListenerEvents),
 
-                LoopDetection = MapToLoopDetection(period, windowStart, windowEnd, windowEvents),
+                LoopDetection = MapToLoopDetection(period, windowStart, resolvedWindowEnd, windowEvents),
 
-                Duplicates = MapToDuplicates(period, windowStart, windowEnd, windowEvents),
+                Duplicates = MapToDuplicates(period, windowStart, resolvedWindowEnd, windowEvents),
 
-                Retry = MapToRetry(period, windowStart, windowEnd, windowListenerEvents)
+                Retry = MapToRetry(period, windowStart, resolvedWindowEnd, windowListenerEvents)
             };
         });
 
