@@ -58,11 +58,17 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             IQueryable<IEventHandler> registeredEventHandlers =
                 await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sAsync(cancellationToken);
 
-            return registeredEventHandlers.Select(eventHandler => new EventHandlerV2
+            if (registeredEventHandlers.Any())
             {
-                Id = eventHandler.Id,
-                Name = eventHandler.Name
-            });
+                return registeredEventHandlers.Select(eventHandler => new EventHandlerV2
+                {
+                    Id = eventHandler.Id,
+                    Name = eventHandler.Name
+                });
+            }
+
+            return await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sFromStorageAsync(
+                cancellationToken);
         }
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
