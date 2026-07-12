@@ -55,5 +55,47 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventHandlers.V2
             this.eventHandlerV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldRetrieveAllEventHandlerV2sFromStorageWhenNoneRegisteredAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            IQueryable<IEventHandler> emptyEventHandlers =
+                Enumerable.Empty<IEventHandler>().AsQueryable();
+
+            IQueryable<EventHandlerV2> randomEventHandlerV2s = CreateRandomEventHandlerV2s();
+            IQueryable<EventHandlerV2> storageEventHandlerV2s = randomEventHandlerV2s;
+            IQueryable<EventHandlerV2> expectedEventHandlerV2s = storageEventHandlerV2s;
+
+            this.eventHandlerV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventHandlerV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(emptyEventHandlers);
+
+            this.eventHandlerV2ServiceMock.Setup(service =>
+                service.RetrieveAllEventHandlerV2sFromStorageAsync(randomCancellationToken))
+                    .ReturnsAsync(storageEventHandlerV2s);
+
+            // when
+            IQueryable<EventHandlerV2> actualEventHandlerV2s =
+                await this.eventHandlerV2ProcessingService.RetrieveAllEventHandlerV2sAsync(
+                    randomCancellationToken);
+
+            // then
+            actualEventHandlerV2s.Should().BeEquivalentTo(expectedEventHandlerV2s);
+
+            this.eventHandlerV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventHandlerV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventHandlerV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventHandlerV2sFromStorageAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventHandlerV2ServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
