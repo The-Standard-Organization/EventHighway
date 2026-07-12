@@ -369,11 +369,10 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
