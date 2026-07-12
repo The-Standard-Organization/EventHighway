@@ -675,6 +675,12 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                     HealthStatusV2 loopsStatus = ComputeRagStatus(
                         liveRow?.LoopsDetected ?? 0, HealthMetric.LoopsDetected, healthConfiguration);
 
+                    long errorListenerEvents =
+                        (liveRow?.ErrorListenerEvents ?? 0) + (archivedRow?.ErrorListenerEvents ?? 0);
+
+                    long totalListenerEvents =
+                        (liveRow?.TotalListenerEvents ?? 0) + (archivedRow?.TotalArchivedListenerEvents ?? 0);
+
                     return new EventAddressUsageV2
                     {
                         EventAddressV2Id = eventAddressV2Id,
@@ -683,10 +689,20 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                         ActiveListeners = nameRow?.ActiveListeners ?? 0,
                         TotalActiveEvents = liveRow?.TotalActiveEvents ?? 0,
                         TotalListenerEvents = liveRow?.TotalListenerEvents ?? 0,
+                        ErrorListenerEvents = errorListenerEvents,
                         DeadEvents = liveRow?.DeadEvents ?? 0,
                         LoopsDetected = liveRow?.LoopsDetected ?? 0,
                         TotalArchivedEvents = archivedRow?.TotalArchivedEvents ?? 0,
                         TotalArchivedListenerEvents = archivedRow?.TotalArchivedListenerEvents ?? 0,
+
+                        ErrorRate = totalListenerEvents == 0
+                            ? 0
+                            : (decimal)errorListenerEvents * 100 / totalListenerEvents,
+
+                        LastActivity = new[] { liveRow?.LastActivity, archivedRow?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max(),
+
                         Status = WorstOf(deadStatus, loopsStatus)
                     };
                 })
