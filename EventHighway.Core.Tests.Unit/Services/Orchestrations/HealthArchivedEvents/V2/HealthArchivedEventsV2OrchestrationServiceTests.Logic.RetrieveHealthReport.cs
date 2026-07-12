@@ -378,6 +378,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     .Select(index => AssignAddress(
                         CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate),
                         addressIds[index % addressIds.Count]))
+                    .Concat(addressIds.Select(addressId => CreateErrorListenerEventArchiveV2(
+                        addressId, remainingRetryAttempts: GetRandomNumber(), inWindowDate)))
                     .ToList();
 
             List<EventArchiveV2> randomArchivedEvents = inWindowEvents
@@ -432,7 +434,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedEvents = (long)group.Count()
+                    TotalArchivedEvents = (long)group.Count(),
+                    LastActivity = group.Max(archivedEvent => archivedEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -441,7 +444,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedListenerEvents = (long)group.Count()
+                    TotalArchivedListenerEvents = (long)group.Count(),
+
+                    ErrorListenerEvents = (long)group.Count(listenerEvent =>
+                        listenerEvent.Status == ListenerEventArchiveStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -456,7 +464,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     {
                         EventAddressV2Id = addressId,
                         TotalArchivedEvents = eventCount?.TotalArchivedEvents ?? 0,
-                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0
+                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0,
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
