@@ -67,11 +67,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 DateTimeOffset now =
                     await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
+                DateTimeOffset truncatedNow = 
+                    TruncateToMicroseconds(now);
+
                 ListenerEventV2 listenerEventV2 =
                     CreateListenerEventV2(
                         eventV2,
                         eventListenerV2,
-                        now);
+                        truncatedNow);
 
                 ListenerEventV2 addedListenerEventV2 =
                     await this.listenerEventV2ProcessingService
@@ -175,6 +178,14 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 CreatedDate = now,
                 UpdatedDate = now,
             };
+        }
+
+        private static DateTimeOffset TruncateToMicroseconds(
+            DateTimeOffset dateTimeOffset)
+        {
+            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
+
+            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }
