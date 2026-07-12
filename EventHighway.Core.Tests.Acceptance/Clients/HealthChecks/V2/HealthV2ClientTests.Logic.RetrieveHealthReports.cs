@@ -94,6 +94,48 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
             seededAddressUsage.Should().NotBeNull();
             seededAddressUsage.TotalActiveEvents.Should().BeGreaterThanOrEqualTo(1);
 
+            // the coordination enriches every row with the most recent activity and error rate,
+            // both computed server-side (guards the GROUP BY ... MAX(CreatedDate) translation)
+            seededAddressUsage.LastActivity.Should().NotBeNull();
+            seededAddressUsage.ErrorRate.Should().BeGreaterThanOrEqualTo(0);
+
+            // cleanup
+            await CleanupSeededEventV2Async(seededEventV2);
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveTrafficSnapshotV2ForCustomPeriodAsync()
+        {
+            // given — a three-day custom window ending tomorrow resolves to daily buckets
+            TrafficPeriodV2 period = TrafficPeriodV2.Custom;
+            DateTimeOffset currentDayStart = TruncateToMicroseconds(GetCurrentDayWindowStart());
+            DateTimeOffset windowStart = currentDayStart.AddDays(-2);
+            DateTimeOffset windowEnd = currentDayStart.AddDays(1);
+
+            SeededEventV2 seededEventV2 = await SeedFiredEventV2Async();
+
+            // when
+            TrafficSnapshotV2 actualTrafficSnapshotV2 =
+                await this.clientBroker.RetrieveTrafficSnapshotV2Async(period, windowStart, windowEnd);
+
+            // then — the snapshot honors the explicit window and the seeded event lands in the
+            // current day's bucket (guards the span-derived daily bucketing translation)
+            actualTrafficSnapshotV2.Should().NotBeNull();
+            actualTrafficSnapshotV2.Period.Should().Be(period);
+            actualTrafficSnapshotV2.WindowStart.Should().Be(windowStart);
+            actualTrafficSnapshotV2.WindowEnd.Should().Be(windowEnd);
+            actualTrafficSnapshotV2.TotalEvents.Should().BeGreaterThanOrEqualTo(1);
+            actualTrafficSnapshotV2.Buckets.Should().NotBeNullOrEmpty();
+
+            TrafficBucketV2 currentDayBucket =
+                actualTrafficSnapshotV2.Buckets.SingleOrDefault(bucket =>
+                    bucket.PeriodStart == currentDayStart);
+
+            currentDayBucket.Should().NotBeNull(
+                "the seeded event's created day must have its own bucket");
+
+            currentDayBucket.Events.Should().BeGreaterThanOrEqualTo(1);
+
             // cleanup
             await CleanupSeededEventV2Async(seededEventV2);
         }
