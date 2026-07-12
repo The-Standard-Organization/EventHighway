@@ -132,11 +132,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
 
             switch (period)
             {
-                case TrafficPeriodV2.Month:
+                case TrafficPeriodV2.Year:
                     return new DateTimeOffset(randomDate.Year, randomDate.Month, 1, 0, 0, 0, TimeSpan.Zero);
 
-                case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(randomDate.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                case TrafficPeriodV2.Day:
+                    return new DateTimeOffset(
+                        randomDate.Year, randomDate.Month, randomDate.Day, randomDate.Hour, 0, 0, TimeSpan.Zero);
 
                 default:
                     return new DateTimeOffset(
@@ -152,11 +153,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
@@ -170,18 +170,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
         {
             switch (period)
             {
-                case TrafficPeriodV2.Week:
-                    return $"{windowStart.ToString("dd MMM", CultureInfo.InvariantCulture)} – " +
-                        $"{windowEnd.AddDays(-1).ToString("dd MMM yyyy", CultureInfo.InvariantCulture)}";
-
-                case TrafficPeriodV2.Month:
-                    return windowStart.ToString("MMM yyyy", CultureInfo.InvariantCulture);
-
-                case TrafficPeriodV2.Year:
-                    return windowStart.Year.ToString(CultureInfo.InvariantCulture);
+                case TrafficPeriodV2.Day:
+                    return $"{windowStart.ToString("dd MMM yyyy HH:00", CultureInfo.InvariantCulture)} – " +
+                        $"{windowEnd.ToString("dd MMM yyyy HH:00", CultureInfo.InvariantCulture)}";
 
                 default:
-                    return windowStart.ToString("dd MMM yyyy", CultureInfo.InvariantCulture);
+                    return $"{windowStart.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} – " +
+                        $"{windowEnd.AddDays(-1).ToString("dd MMM yyyy", CultureInfo.InvariantCulture)}";
             }
         }
 

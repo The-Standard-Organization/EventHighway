@@ -104,11 +104,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
 
             switch (period)
             {
-                case TrafficPeriodV2.Month:
+                case TrafficPeriodV2.Year:
                     return new DateTimeOffset(randomDate.Year, randomDate.Month, 1, 0, 0, 0, TimeSpan.Zero);
 
-                case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(randomDate.Year, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                case TrafficPeriodV2.Day:
+                    return new DateTimeOffset(
+                        randomDate.Year, randomDate.Month, randomDate.Day, randomDate.Hour, 0, 0, TimeSpan.Zero);
 
                 default:
                     return new DateTimeOffset(
@@ -124,11 +125,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     return windowStart.AddDays(7);
 
                 case TrafficPeriodV2.Month:
-                    return new DateTimeOffset(windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero)
-                        .AddMonths(1);
+                    return windowStart.AddMonths(1);
 
                 case TrafficPeriodV2.Year:
-                    return new DateTimeOffset(windowStart.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                    return windowStart.AddYears(1);
 
                 default:
                     return windowStart.AddHours(24);
