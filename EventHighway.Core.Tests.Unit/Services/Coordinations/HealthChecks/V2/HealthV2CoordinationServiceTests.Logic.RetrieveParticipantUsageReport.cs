@@ -43,14 +43,17 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             EventAddressUsageV2 nameRowY = CreateNameAddressUsage(addressIdY, GetRandomString());
 
             ParticipantUsageV2 nameRowA = CreateNameParticipantUsage(participantIdA, GetRandomString());
+            DateTimeOffset baseActivityDate = GetRandomDateTimeOffset();
 
             var liveRowA = new ParticipantUsageV2
             {
                 EventParticipantV2Id = participantIdA,
                 TotalEventsSubmitted = 10,
                 TotalListenerEvents = 20,
+                ErrorListenerEvents = 5,
                 LoopsDetected = 0,
                 DuplicatesDetected = GetRandomNumber(),
+                LastActivity = baseActivityDate.AddHours(1),
                 ByAddress = new List<ParticipantAddressUsageV2>
                 {
                     new ParticipantAddressUsageV2
@@ -67,8 +70,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 EventParticipantV2Id = participantIdB,
                 TotalEventsSubmitted = 30,
                 TotalListenerEvents = 60,
+                ErrorListenerEvents = 6,
                 LoopsDetected = 3,
                 DuplicatesDetected = GetRandomNumber(),
+                LastActivity = baseActivityDate,
                 ByAddress = new List<ParticipantAddressUsageV2>
                 {
                     new ParticipantAddressUsageV2
@@ -103,8 +108,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     OwnedListeners = nameRowA.OwnedListeners,
                     TotalEventsSubmitted = 10,
                     TotalListenerEvents = 20,
+                    ErrorListenerEvents = 5,
                     LoopsDetected = 0,
                     DuplicatesDetected = liveRowA.DuplicatesDetected,
+                    PublisherErrorRate = 0m,
+                    ListenerErrorRate = 25m,
+                    LastActivity = liveRowA.LastActivity,
                     ByAddress = new List<ParticipantAddressUsageV2>
                     {
                         new ParticipantAddressUsageV2
@@ -126,8 +135,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                     Name = "Unknown",
                     TotalEventsSubmitted = 30,
                     TotalListenerEvents = 60,
+                    ErrorListenerEvents = 6,
                     LoopsDetected = 3,
                     DuplicatesDetected = liveRowB.DuplicatesDetected,
+                    PublisherErrorRate = 10m,
+                    ListenerErrorRate = 10m,
+                    LastActivity = liveRowB.LastActivity,
                     ByAddress = new List<ParticipantAddressUsageV2>
                     {
                         new ParticipantAddressUsageV2
