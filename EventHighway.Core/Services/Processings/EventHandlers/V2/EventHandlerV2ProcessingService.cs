@@ -100,6 +100,23 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             if (maybeEventHandler is not null)
                 return maybeEventHandler;
 
+            IQueryable<EventHandlerV2> storageEventHandlerV2s =
+                await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sFromStorageAsync(
+                    cancellationToken);
+
+            EventHandlerV2 maybeStorageEventHandlerV2 =
+                storageEventHandlerV2s.FirstOrDefault(storageEventHandlerV2 =>
+                    storageEventHandlerV2.Id == eventHandler.Id);
+
+            // Already persisted by a previous process run — only the in-memory delegate
+            // registration is needed; inserting again would violate the stable-id key.
+            if (maybeStorageEventHandlerV2 is not null)
+            {
+                return await this.eventHandlerV2Service.RegisterEventHandlerV2Async(
+                    eventHandler,
+                    cancellationToken);
+            }
+
             return await this.eventHandlerV2Service.AddEventHandlerV2Async(
                 eventHandler,
                 cancellationToken);

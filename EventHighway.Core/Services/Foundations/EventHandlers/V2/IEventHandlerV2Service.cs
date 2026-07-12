@@ -17,6 +17,10 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             IEventHandler eventHandler,
             CancellationToken cancellationToken = default);
 
+        ValueTask<IEventHandler> RegisterEventHandlerV2Async(
+            IEventHandler eventHandler,
+            CancellationToken cancellationToken = default);
+
         ValueTask<IQueryable<IEventHandler>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default);
 
