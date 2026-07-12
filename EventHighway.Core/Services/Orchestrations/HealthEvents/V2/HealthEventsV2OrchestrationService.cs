@@ -256,8 +256,35 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 TotalReplays = windowListenerEvents
                     .LongCount(listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Replay),
 
-                Buckets = MapToTrafficBuckets(period, windowEvents, windowListenerEvents)
+                Buckets = MapToTrafficBuckets(
+                    ResolveBucketGranularity(period, windowStart, windowEnd),
+                    windowEvents,
+                    windowListenerEvents)
             };
+        }
+
+        // Custom windows derive their bucket granularity from the span: hourly up to 2 days,
+        // daily up to 62 days, monthly beyond; standard periods keep their fixed granularity.
+        private static TrafficPeriodV2 ResolveBucketGranularity(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset windowEnd)
+        {
+            if (period != TrafficPeriodV2.Custom)
+            {
+                return period;
+            }
+
+            double spanDays = (windowEnd - windowStart).TotalDays;
+
+            if (spanDays <= 2)
+            {
+                return TrafficPeriodV2.Day;
+            }
+
+            return spanDays <= 62
+                ? TrafficPeriodV2.Week
+                : TrafficPeriodV2.Year;
         }
 
         private static IEnumerable<TrafficBucketV2> MapToTrafficBuckets(
