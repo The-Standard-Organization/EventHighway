@@ -2,14 +2,16 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2.Exceptions;
 
 namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
 {
     internal partial class EventHandlerV2Service
     {
-        private void ValidateEventHandlerV2OnRegister(IEventHandler eventHandler)
+        private static void ValidateEventHandlerV2OnAdd(IEventHandler eventHandler)
         {
             ValidateEventHandlerIsNotNull(eventHandler);
 
@@ -23,6 +25,38 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
                 (Rule: IsInvalid(eventHandler.Name),
                 Parameter: nameof(IEventHandler.Name),
                 Message: "Text required"));
+        }
+
+        private static void ValidateEventHandlerV2Id(Guid eventHandlerV2Id)
+        {
+            Validate(
+                message: "Event handler is invalid, fix the errors and try again.",
+
+                (Rule: IsInvalid(eventHandlerV2Id),
+                Parameter: nameof(IEventHandler.Id),
+                Message: "Id required"));
+        }
+
+        private static void ValidateEventHandlerV2Exists(
+            IEventHandler eventHandler,
+            Guid eventHandlerV2Id)
+        {
+            if (eventHandler is null)
+            {
+                throw new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {eventHandlerV2Id}.");
+            }
+        }
+
+        private static void ValidateStorageEventHandlerV2Exists(
+            EventHandlerV2 eventHandlerV2,
+            Guid eventHandlerV2Id)
+        {
+            if (eventHandlerV2 is null)
+            {
+                throw new NotFoundEventHandlerV2Exception(
+                    message: $"Could not find event handler with id: {eventHandlerV2Id}.");
+            }
         }
 
         private static void ValidateEventHandlerIsNotNull(IEventHandler eventHandler)

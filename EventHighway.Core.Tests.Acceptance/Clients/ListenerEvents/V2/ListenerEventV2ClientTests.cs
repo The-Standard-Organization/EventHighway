@@ -39,7 +39,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
                     Response = "OK",
                     ResponseCode = "200",
                     ResponseMessage = "OK"
-                }));
+                }),
+                name: $"ListenerEventV2ClientTestsHandler-{Guid.NewGuid()}");
 
             this.clientBroker = clientBroker;
             this.clientBroker.RegisterEventHandler(this.delegateEventHandler);

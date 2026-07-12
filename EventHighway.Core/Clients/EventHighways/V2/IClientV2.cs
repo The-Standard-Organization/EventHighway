@@ -6,6 +6,7 @@ using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Clients.ArchivingEvents.V2;
 using EventHighway.Core.Clients.EventAddresses.V2;
 using EventHighway.Core.Clients.EventArchives.V2;
+using EventHighway.Core.Clients.EventHandlers.V2;
 using EventHighway.Core.Clients.EventListeners.V2;
 using EventHighway.Core.Clients.EventParticipantSecrets.V2;
 using EventHighway.Core.Clients.EventParticipants.V2;
@@ -25,12 +26,12 @@ namespace EventHighway.Core.Clients.EventHighways.V2
     public interface IClientV2
     {
         /// <summary>
-        /// Registers an event handler with the EventHighway V2 client. This method supports
+        /// Registers an event handler with the EventHighway V2 client, retrieving it if it was
+        /// already registered and persisting it to storage otherwise. This method supports
         /// method chaining by returning the current instance.
         /// </summary>
         /// <param name="eventHandler">The event handler to register.</param>
         /// <returns>The current <see cref="IClientV2"/> instance for method chaining.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when eventHandler is null.</exception>
         IClientV2 RegisterEventHandler(IEventHandler eventHandler);
 
         /// <summary>
@@ -47,6 +48,11 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         /// Gets the client for retrieving archived events in V2 API.
         /// </summary>
         IEventArchiveV2Client EventArchiveV2Client { get; }
+
+        /// <summary>
+        /// Gets the client for managing event handlers in V2 API.
+        /// </summary>
+        IEventHandlerV2Client EventHandlerV2Client { get; }
 
         /// <summary>
         /// Gets the client for managing event listeners in V2 API.

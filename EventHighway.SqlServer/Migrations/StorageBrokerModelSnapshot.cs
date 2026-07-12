@@ -96,6 +96,25 @@ namespace EventHighway.Core.Migrations
                     b.ToTable("EventAddressV2s", (string)null);
                 });
 
+            modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventHandler.V2.EventHandlerV2", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("EventHandlerV2s", (string)null);
+                });
+
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventListeners.EventListener", b =>
                 {
                     b.Property<Guid>("Id")

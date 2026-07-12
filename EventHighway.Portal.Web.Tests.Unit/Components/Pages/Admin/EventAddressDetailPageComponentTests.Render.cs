@@ -9,6 +9,7 @@ using System.Threading;
 using Bunit;
 using EventHighway.Portal.Web.Components.Pages.Admin;
 using EventHighway.Portal.Web.Models.Views.EventAddresses;
+using EventHighway.Portal.Web.Models.Views.EventHandlers;
 using EventHighway.Portal.Web.Models.Views.EventListeners;
 using EventHighway.Portal.Web.Models.Views.EventParticipants;
 using FluentAssertions;
@@ -21,7 +22,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         private void SetupPage(
             EventAddressView address,
             List<EventListenerView> listeners,
-            List<EventParticipantView> participants)
+            List<EventParticipantView> participants,
+            List<EventHandlerView>? eventHandlers = null)
         {
             this.addressesViewServiceMock.Setup(service =>
                 service.RetrieveAllAddressesAsync(It.IsAny<CancellationToken>()))
@@ -30,6 +32,10 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
             this.participantsViewServiceMock.Setup(service =>
                 service.RetrieveAllParticipantsAsync(It.IsAny<CancellationToken>()))
                     .ReturnsAsync(participants);
+
+            this.eventHandlersViewServiceMock.Setup(service =>
+                service.RetrieveAllEventHandlersAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(eventHandlers ?? new List<EventHandlerView>());
 
             this.listenersViewServiceMock.Setup(service =>
                 service.RetrieveListenersByAddressAsync(
@@ -57,7 +63,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         }
 
         [Fact]
-        public void ShouldShowRegisterListenerModalWithHandlerIdBeforeHandlerNameAndNewFields()
+        public void ShouldShowRegisterListenerModalWithHandlerAndNewFields()
         {
             // given
             EventAddressView address = CreateRandomAddress();
@@ -74,11 +80,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
             // then
             string markup = renderedPage.Markup;
 
-            markup.Should().Contain("Handler Id");
-            markup.Should().Contain("Handler Name");
-            markup.IndexOf("Handler Id", StringComparison.Ordinal)
-                .Should().BeLessThan(markup.IndexOf("Handler Name", StringComparison.Ordinal));
-
+            markup.Should().Contain("Handler");
             markup.Should().Contain("Participant");
             markup.Should().Contain("Promoted Properties");
             markup.Should().Contain("Filter Criteria");
@@ -90,17 +92,22 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
         }
 
         [Fact]
-        public void ShouldRegisterListenerWithSelectedParticipantAndNewFields()
+        public void ShouldRegisterListenerWithSelectedHandlerAndParticipantAndNewFields()
         {
             // given
             EventAddressView address = CreateRandomAddress();
             List<EventParticipantView> participants = CreateRandomParticipants(count: 2);
+            List<EventHandlerView> eventHandlers = CreateRandomEventHandlers(count: 3);
             EventParticipantView chosenParticipant = participants[1];
-            Guid handlerId = Guid.NewGuid();
+            EventHandlerView chosenEventHandler = eventHandlers[1];
             string promotedProperties = GetRandomString();
             string filterCriteria = GetRandomString();
 
-            SetupPage(address, CreateRandomListeners(address.Id, count: 0), participants);
+            SetupPage(
+                address,
+                CreateRandomListeners(address.Id, count: 0),
+                participants,
+                eventHandlers);
 
             EventListenerView? captured = null;
 
@@ -118,14 +125,16 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
             renderedPage.Find("button.btn-primary.btn-sm").Click();
 
             // Modal FormText inputs, in render order:
-            // 0 Name, 1 Description, 2 Handler Id, 3 Handler Name, 4 Promoted Properties, 5 Filter Criteria
+            // 0 Name, 1 Description, 2 Promoted Properties, 3 Filter Criteria
             var inputs = renderedPage.FindAll("input.form-control");
             inputs[0].Input(GetRandomString());
-            inputs[2].Input(handlerId.ToString());
-            inputs[4].Input(promotedProperties);
-            inputs[5].Input(filterCriteria);
+            inputs[2].Input(promotedProperties);
+            inputs[3].Input(filterCriteria);
 
-            renderedPage.Find("select.form-select").Change(chosenParticipant.Id.ToString());
+            // Modal selects, in render order: 0 Handler, 1 Participant
+            var selects = renderedPage.FindAll("select.form-select");
+            selects[0].Change(chosenEventHandler.Id.ToString());
+            selects[1].Change(chosenParticipant.Id.ToString());
 
             // when
             renderedPage.FindAll("button")
@@ -139,7 +148,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
                         Times.Once);
 
             captured.Should().NotBeNull();
-            captured!.HandlerId.Should().Be(handlerId);
+            captured!.HandlerId.Should().Be(chosenEventHandler.Id);
+            captured.HandlerName.Should().Be(chosenEventHandler.Name);
             captured.EventParticipantV2Id.Should().Be(chosenParticipant.Id);
             captured.PromotedProperties.Should().Be(promotedProperties);
             captured.FilterCriteria.Should().Be(filterCriteria);

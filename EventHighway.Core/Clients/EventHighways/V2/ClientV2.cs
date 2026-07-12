@@ -16,6 +16,7 @@ using EventHighway.Core.Models.Configurations;
 using EventHighway.Core.Clients.ArchivingEvents.V2;
 using EventHighway.Core.Clients.EventArchives.V2;
 using EventHighway.Core.Clients.EventAddresses.V2;
+using EventHighway.Core.Clients.EventHandlers.V2;
 using EventHighway.Core.Clients.EventListeners.V2;
 using EventHighway.Core.Clients.EventParticipantSecrets.V2;
 using EventHighway.Core.Clients.EventParticipants.V2;
@@ -54,6 +55,7 @@ using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Processings.EventArchives.V2;
 using EventHighway.Core.Services.Processings.EventCalls.V2;
+using EventHighway.Core.Services.Processings.EventHandlers.V2;
 using EventHighway.Core.Services.Processings.EventListeners.V2;
 using EventHighway.Core.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Services.Processings.Events.V2;
@@ -73,7 +75,7 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         private readonly IStorageBrokerProvider storageProvider;
         private readonly EventHighwayConfiguration configuration;
         private readonly EventHandlerBroker eventHandlerBroker;
-        private IEventHandlerV2Service eventHandlerV2Service;
+        private IEventHandlerV2ProcessingService eventHandlerV2ProcessingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientV2"/> class with the specified
@@ -99,15 +101,17 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         }
 
         /// <summary>
-        /// Registers an event handler with the V2 client. This method supports method chaining
-        /// by returning the current instance.
+        /// Registers an event handler with the V2 client, retrieving it if it was already
+        /// registered and persisting it to storage otherwise. This method supports method
+        /// chaining by returning the current instance.
         /// </summary>
         /// <param name="eventHandler">The event handler to register.</param>
         /// <returns>The current <see cref="IClientV2"/> instance for method chaining.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when eventHandler is null.</exception>
         public IClientV2 RegisterEventHandler(IEventHandler eventHandler)
         {
-            this.eventHandlerV2Service.RegisterEventHandlerV2(eventHandler);
+            this.eventHandlerV2ProcessingService.RetrieveOrRegisterEventHandlerV2Async(eventHandler)
+                .GetAwaiter().GetResult();
+
             return this;
         }
 
@@ -125,6 +129,11 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         /// Gets the client for retrieving archived events in V2 API.
         /// </summary>
         public IEventArchiveV2Client EventArchiveV2Client { get; private set; }
+
+        /// <summary>
+        /// Gets the client for managing event handlers in V2 API.
+        /// </summary>
+        public IEventHandlerV2Client EventHandlerV2Client { get; private set; }
 
         /// <summary>
         /// Gets the client for managing event listeners in V2 API.
@@ -174,8 +183,8 @@ namespace EventHighway.Core.Clients.EventHighways.V2
                 storageBroker.Database.Migrate();
             }
 
-            this.eventHandlerV2Service =
-                serviceProvider.GetRequiredService<IEventHandlerV2Service>();
+            this.eventHandlerV2ProcessingService =
+                serviceProvider.GetRequiredService<IEventHandlerV2ProcessingService>();
 
             this.ArchivingEventV2Client =
                 serviceProvider.GetRequiredService<IArchivingEventV2Client>();
@@ -185,6 +194,9 @@ namespace EventHighway.Core.Clients.EventHighways.V2
 
             this.EventArchiveV2Client =
                 serviceProvider.GetRequiredService<IEventArchiveV2Client>();
+
+            this.EventHandlerV2Client =
+                serviceProvider.GetRequiredService<IEventHandlerV2Client>();
 
             this.EventListenerV2Client =
                 serviceProvider.GetRequiredService<IEventListenerV2Client>();
@@ -268,6 +280,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IEventAddressV2ProcessingService,
                 EventAddressV2ProcessingService>();
+
+            services.AddTransient<
+                IEventHandlerV2ProcessingService,
+                EventHandlerV2ProcessingService>();
 
             services.AddTransient<
                 IEventListenerV2ProcessingService,
@@ -381,6 +397,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             services.AddTransient<
                 IEventArchiveV2Client,
                 EventArchiveV2Client>();
+
+            services.AddTransient<
+                IEventHandlerV2Client,
+                EventHandlerV2Client>();
 
             services.AddTransient<
                 IEventListenerV2Client,
