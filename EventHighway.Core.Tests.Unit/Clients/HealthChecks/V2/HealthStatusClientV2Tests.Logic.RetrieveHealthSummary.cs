@@ -45,7 +45,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             IReadOnlyList<HealthCheckItemV2> actualHealthCheckItemV2s =
                 await this.healthV2Client
                     .RetrieveHealthRagStatusV2Async(
-                        inputPeriod, inputWindowStart, randomCancellationToken);
+                        inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthCheckItemV2s.Should()
@@ -54,6 +54,52 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveHealthCheckItemsReportV2Async(
                     inputPeriod, inputWindowStart, null, randomCancellationToken),
+                        Times.Once);
+
+            this.healthV2CoordinationServiceMock
+                .VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveHealthRagStatusV2ForCustomPeriodAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset inputWindowStart = GetRandomDateTimeOffset();
+            DateTimeOffset inputWindowEnd = inputWindowStart.AddDays(5);
+
+            IReadOnlyList<HealthCheckItemV2> randomHealthCheckItemV2s =
+                CreateRandomHealthCheckItemV2s();
+
+            var returnedHealthReport = new HealthReportV2
+            {
+                HealthCheckItems = randomHealthCheckItemV2s
+            };
+
+            IReadOnlyList<HealthCheckItemV2> expectedHealthCheckItemV2s =
+                randomHealthCheckItemV2s.DeepClone();
+
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveHealthCheckItemsReportV2Async(
+                    inputPeriod, inputWindowStart, inputWindowEnd, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
+
+            // when
+            IReadOnlyList<HealthCheckItemV2> actualHealthCheckItemV2s =
+                await this.healthV2Client
+                    .RetrieveHealthRagStatusV2Async(
+                        inputPeriod, inputWindowStart, inputWindowEnd, randomCancellationToken);
+
+            // then
+            actualHealthCheckItemV2s.Should()
+                .BeEquivalentTo(expectedHealthCheckItemV2s);
+
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveHealthCheckItemsReportV2Async(
+                    inputPeriod, inputWindowStart, inputWindowEnd, randomCancellationToken),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock
