@@ -26,15 +26,16 @@ namespace EventHighway.Portal.Web.Services.Views.EventHandlers
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<List<EventHandlerView>> RetrieveAllEventHandlersAsync(
-            CancellationToken cancellationToken = default)
+        public ValueTask<List<EventHandlerView>> RetrieveAllEventHandlersAsync(
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
             IEnumerable<EventHandlerV2> eventHandlerV2s =
                 await this.eventHighwayBroker.RetrieveAllEventHandlerV2sAsync(
                     cancellationToken);
 
             return eventHandlerV2s.Select(AsView).ToList();
-        }
+        });
 
         private static EventHandlerView AsView(EventHandlerV2 eventHandlerV2) =>
             new EventHandlerView
