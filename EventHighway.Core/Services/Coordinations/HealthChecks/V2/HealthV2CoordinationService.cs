@@ -361,20 +361,34 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             List<EventAddressUsageV2> addressNames =
                 addressNameRows?.ToList() ?? new List<EventAddressUsageV2>();
 
+            List<RetryBucketV2> distribution = (liveRetry?.Distribution
+                ?? Enumerable.Empty<RetryBucketV2>())
+                .Concat(archivedRetry?.Distribution ?? Enumerable.Empty<RetryBucketV2>())
+                .GroupBy(bucket => bucket.RemainingRetries)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.Sum(bucket => bucket.Count)
+                })
+                .OrderBy(bucket => bucket.RemainingRetries)
+                .ToList();
+
             List<RetryAddressDetailV2> byAddress = (liveRetry?.ByAddress
                 ?? Enumerable.Empty<RetryAddressDetailV2>())
-                .Select(row => new RetryAddressDetailV2
+                .Concat(archivedRetry?.ByAddress ?? Enumerable.Empty<RetryAddressDetailV2>())
+                .GroupBy(row => row.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
                 {
-                    EventAddressV2Id = row.EventAddressV2Id,
+                    EventAddressV2Id = group.Key,
 
                     EventAddressV2Name = addressNames
                         .FirstOrDefault(addressName =>
-                            addressName.EventAddressV2Id == row.EventAddressV2Id)?.Name,
+                            addressName.EventAddressV2Id == group.Key)?.Name,
 
-                    DeadEvents = row.DeadEvents,
-                    CriticalEvents = row.CriticalEvents,
-                    HealthyEvents = row.HealthyEvents,
-                    TotalEvents = row.TotalEvents
+                    DeadEvents = group.Sum(row => row.DeadEvents),
+                    CriticalEvents = group.Sum(row => row.CriticalEvents),
+                    HealthyEvents = group.Sum(row => row.HealthyEvents),
+                    TotalEvents = group.Sum(row => row.TotalEvents)
                 })
                 .ToList();
 
@@ -384,12 +398,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
                 WindowLabel = windowLabel,
-                TotalActiveEvents = liveRetry?.TotalActiveEvents ?? 0,
-                DeadEvents = liveRetry?.DeadEvents ?? 0,
-                CriticalEvents = liveRetry?.CriticalEvents ?? 0,
-                HealthyEvents = liveRetry?.HealthyEvents ?? 0,
+
+                TotalActiveEvents =
+                    (liveRetry?.TotalActiveEvents ?? 0) + (archivedRetry?.TotalActiveEvents ?? 0),
+
+                DeadEvents = (liveRetry?.DeadEvents ?? 0) + (archivedRetry?.DeadEvents ?? 0),
+                CriticalEvents = (liveRetry?.CriticalEvents ?? 0) + (archivedRetry?.CriticalEvents ?? 0),
+                HealthyEvents = (liveRetry?.HealthyEvents ?? 0) + (archivedRetry?.HealthyEvents ?? 0),
                 ArchivedDeadEvents = archivedRetry?.ArchivedDeadEvents ?? 0,
-                Distribution = liveRetry?.Distribution ?? new List<RetryBucketV2>(),
+                Distribution = distribution,
                 ByAddress = byAddress
             };
         }
