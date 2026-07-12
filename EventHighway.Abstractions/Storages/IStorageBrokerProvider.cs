@@ -10,5 +10,6 @@ namespace EventHighway.Abstractions.Storages
     {
         void Configure(DbContextOptionsBuilder optionsBuilder);
         void ConfigureModel(ModelBuilder modelBuilder);
+        void ConfigureConventions(ModelConfigurationBuilder configurationBuilder);
     }
 }
