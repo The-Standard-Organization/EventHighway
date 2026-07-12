@@ -52,7 +52,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -86,7 +86,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
@@ -188,7 +188,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -222,7 +222,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -252,7 +252,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -291,7 +291,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
@@ -323,7 +323,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateOnRetrieveHealthReport(windowStart);
+            ValidateOnRetrieveHealthReport(period, windowStart, windowEnd);
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
