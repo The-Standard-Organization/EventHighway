@@ -146,9 +146,10 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             }
         }
 
-        public ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
+        public async ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            await this.eventHandlerV2ProcessingService.RetrieveAllEventHandlerV2sAsync(
+                cancellationToken);
 
         public async ValueTask<EventHandlerV2> RemoveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
