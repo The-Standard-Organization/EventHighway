@@ -409,7 +409,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventAddressV2Id = group.Key,
                     TotalActiveEvents = group.LongCount(),
-                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined),
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -419,9 +420,15 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventAddressV2Id = group.Key,
                     TotalListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
                     DeadEvents = group.LongCount(listenerEvent =>
                         listenerEvent.Status == ListenerEventStatusV2.Error
-                        && listenerEvent.RemainingRetryAttempts == 0)
+                        && listenerEvent.RemainingRetryAttempts == 0),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -442,7 +449,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         TotalActiveEvents = eventCount?.TotalActiveEvents ?? 0,
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        DeadEvents = listenerCount?.DeadEvents ?? 0
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        DeadEvents = listenerCount?.DeadEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
