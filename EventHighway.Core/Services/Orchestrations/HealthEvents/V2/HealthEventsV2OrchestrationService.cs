@@ -470,7 +470,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 {
                     EventParticipantV2Id = group.Key,
                     TotalEventsSubmitted = group.LongCount(),
-                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined)
+                    LoopsDetected = group.LongCount(@event => @event.Status == EventStatusV2.Quarantined),
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -479,7 +480,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
-                    TotalListenerEvents = group.LongCount()
+                    TotalListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -555,7 +561,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         DuplicatesDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        ByAddress = byAddress
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        ByAddress = byAddress,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
