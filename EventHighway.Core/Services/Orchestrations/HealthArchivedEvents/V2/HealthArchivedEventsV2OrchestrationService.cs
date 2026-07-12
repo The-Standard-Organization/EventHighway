@@ -464,16 +464,49 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
             DateTimeOffset windowEnd,
             IQueryable<ListenerEventArchiveV2> windowListenerEvents)
         {
-            long archivedDeadEvents = windowListenerEvents
-                .LongCount(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error
-                    && listenerEvent.RemainingRetryAttempts == 0);
+            IQueryable<ListenerEventArchiveV2> errorEvents = windowListenerEvents
+                .Where(listenerEvent => listenerEvent.Status == ListenerEventArchiveStatusV2.Error);
+
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.LongCount()
+                })
+                .OrderBy(bucket => bucket.RemainingRetries)
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+
+                    CriticalEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+
+                    HealthyEvents = group.LongCount(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.LongCount()
+                })
+                .OrderBy(detail => detail.EventAddressV2Id)
+                .ToList();
+
+            long archivedDeadEvents = byAddress.Sum(detail => detail.DeadEvents);
 
             return new RetryHealthSummaryV2
             {
                 Period = period,
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
-                ArchivedDeadEvents = archivedDeadEvents
+                TotalActiveEvents = byAddress.Sum(detail => detail.TotalEvents) - archivedDeadEvents,
+                DeadEvents = archivedDeadEvents,
+                CriticalEvents = byAddress.Sum(detail => detail.CriticalEvents),
+                HealthyEvents = byAddress.Sum(detail => detail.HealthyEvents),
+                ArchivedDeadEvents = archivedDeadEvents,
+                Distribution = distribution,
+                ByAddress = byAddress
             };
         }
     }
