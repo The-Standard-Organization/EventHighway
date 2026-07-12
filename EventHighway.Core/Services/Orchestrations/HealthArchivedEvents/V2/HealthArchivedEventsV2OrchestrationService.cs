@@ -379,7 +379,8 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedEvents = group.LongCount()
+                    TotalArchivedEvents = group.LongCount(),
+                    LastActivity = group.Max(archivedEvent => archivedEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -388,7 +389,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                 .Select(group => new
                 {
                     EventAddressV2Id = group.Key,
-                    TotalArchivedListenerEvents = group.LongCount()
+                    TotalArchivedListenerEvents = group.LongCount(),
+
+                    ErrorListenerEvents = group.LongCount(listenerEvent =>
+                        listenerEvent.Status == ListenerEventArchiveStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -407,7 +413,12 @@ namespace EventHighway.Core.Services.Orchestrations.HealthArchivedEvents.V2
                     {
                         EventAddressV2Id = eventAddressV2Id,
                         TotalArchivedEvents = eventCount?.TotalArchivedEvents ?? 0,
-                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0
+                        TotalArchivedListenerEvents = listenerCount?.TotalArchivedListenerEvents ?? 0,
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
