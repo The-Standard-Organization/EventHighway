@@ -1,0 +1,206 @@
+@page "/admin/event-archives"
+@attribute [Authorize(Roles = "Administrators")]
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventArchives
+@using EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
+@inject IEventArchivesViewService EventArchivesViewService
+@inject NavigationManager Navigation
+
+<PageTitle>Archived Events</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Archived Events</h2>
+</div>
+
+<p class="text-body-secondary">
+    Archived event maintenance. Live archive counts are shown on the Health Dashboard.
+</p>
+
+@if (message is not null)
+{
+    <div class="alert @alertClass" role="alert">@message</div>
+}
+
+<Card>
+    <HeaderContent>
+        <span class="fw-semibold">Purge old events</span>
+    </HeaderContent>
+    <ChildContent>
+        <p class="text-body-secondary">
+            Permanently remove archived events older than the chosen date.
+        </p>
+        <div class="d-flex flex-wrap align-items-end gap-3">
+            <div style="min-width: 14rem;">
+                <FormDate Label="Purge events older than" @bind-Value="purgeOlderThan" />
+            </div>
+            <div class="mb-3">
+                <Button Color="danger" OnClick="RequestPurge"
+                        Disabled="@(isWorking || purgeOlderThan is null)">
+                    Purge
+                </Button>
+            </div>
+        </div>
+    </ChildContent>
+</Card>
+
+<ConfirmDialog Visible="confirmVisible"
+               Title="Confirm purge"
+               Message="@confirmMessage"
+               ConfirmText="OK"
+               CancelText="Cancel"
+               OnConfirm="PurgeAsync"
+               OnCancel="@(() => confirmVisible = false)" />
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (listErrorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@listErrorMessage</div>
+}
+else
+{
+    <Card CssClass="mt-4">
+        <DataTable TItem="EventArchiveView" Items="FilteredEventArchives"
+                   Columns="columns" Searchable="true"
+                   RowClass="@(a => a.DispatchStatus is "Quarantined" or "Error" ? "table-danger"
+                       : a.DispatchStatus == "Partial Success" ? "table-warning"
+                       : a.DispatchStatus == "Success" ? "table-success"
+                       : null)">
+            <ExtraFilters>
+                <select class="form-select w-auto" value="@selectedType"
+                        @onchange="e => { selectedType = e.Value?.ToString() ?? string.Empty; }">
+                    <option value="">All Types</option>
+                    <option value="Immediate">Immediate</option>
+                    <option value="Scheduled">Scheduled</option>
+                </select>
+                <select class="form-select w-auto" value="@selectedStatus"
+                        @onchange="e => { selectedStatus = e.Value?.ToString() ?? string.Empty; }">
+                    <option value="">All Statuses</option>
+                    <option value="Success">Success</option>
+                    <option value="Partial Success">Partial Success</option>
+                    <option value="Error">Error</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Quarantined">Quarantined</option>
+                </select>
+            </ExtraFilters>
+            <RowActions Context="eventArchive">
+                <Button Color="primary" CssClass="btn-sm"
+                        OnClick="@(() => ViewArchive(eventArchive.Id))">
+                    VIEW
+                </Button>
+            </RowActions>
+        </DataTable>
+    </Card>
+}
+
+@code {
+    private bool isWorking;
+    private string? message;
+    private string alertClass = "alert-info";
+
+    private DateTimeOffset? purgeOlderThan;
+    private bool confirmVisible;
+    private string? confirmMessage;
+
+    private bool isLoading = true;
+    private string? listErrorMessage;
+    private List<EventArchiveView> eventArchives = new();
+    private List<DataTableColumn<EventArchiveView>> columns = new();
+    private string selectedType = string.Empty;
+    private string selectedStatus = string.Empty;
+
+    private IEnumerable<EventArchiveView> FilteredEventArchives => eventArchives.Where(a =>
+        (string.IsNullOrEmpty(selectedType) || a.Type == selectedType) &&
+        (string.IsNullOrEmpty(selectedStatus) || a.DispatchStatus == selectedStatus));
+
+    protected override async Task OnInitializedAsync()
+    {
+        columns = new List<DataTableColumn<EventArchiveView>>
+        {
+            new DataTableColumn<EventArchiveView> { Title = "Id", Value = a => a.Id },
+            new DataTableColumn<EventArchiveView> { Title = "Event Address", Value = a => a.EventAddressName },
+            new DataTableColumn<EventArchiveView> { Title = "Event Name", Value = a => a.EventName },
+            new DataTableColumn<EventArchiveView> { Title = "Type", Value = a => a.Type },
+            new DataTableColumn<EventArchiveView>
+            {
+                Title = "Status",
+                Value = a => a.DispatchStatus,
+                CellTemplate = a =>
+                {
+                    var color = a.DispatchStatus switch
+                    {
+                        "Success" => "text-bg-success",
+                        "Partial Success" => "text-bg-warning",
+                        "Error" => "text-bg-danger",
+                        "Quarantined" => "text-bg-danger",
+                        _ => "text-bg-secondary"
+                    };
+                    return @<span class="badge @color">@a.DispatchStatus</span>;
+                }
+            },
+            new DataTableColumn<EventArchiveView>
+            {
+                Title = "Processed", Value = a => a.Processed
+            },
+            new DataTableColumn<EventArchiveView>
+            {
+                Title = "Archived", Value = a => a.ArchivedDate.ToString("u")
+            },
+        };
+
+        try
+        {
+            eventArchives =
+                await EventArchivesViewService.RetrieveAllEventArchivesAsync();
+        }
+        catch
+        {
+            listErrorMessage = "Unable to load archived events. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ViewArchive(Guid eventArchiveId) =>
+        Navigation.NavigateTo($"/admin/event-archives/{eventArchiveId}");
+
+    private void RequestPurge()
+    {
+        if (purgeOlderThan is null)
+        {
+            return;
+        }
+
+        confirmMessage =
+            $"Purge all archived events created before {purgeOlderThan:yyyy-MM-dd}? This cannot be undone.";
+
+        confirmVisible = true;
+    }
+
+    private async Task PurgeAsync()
+    {
+        confirmVisible = false;
+        isWorking = true;
+        message = null;
+
+        try
+        {
+            await EventArchivesViewService.PurgeArchivesOlderThanAsync(purgeOlderThan!.Value);
+            alertClass = "alert-success";
+            message = "Old archived events purged.";
+        }
+        catch
+        {
+            alertClass = "alert-danger";
+            message = "Unable to purge archived events. Please try again.";
+        }
+        finally
+        {
+            isWorking = false;
+        }
+    }
+}

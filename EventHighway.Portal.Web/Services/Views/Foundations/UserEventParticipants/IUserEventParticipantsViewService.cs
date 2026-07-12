@@ -1,0 +1,37 @@
+// ----------------------------------------------------------------------------------
+// Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
+// ----------------------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using EventHighway.Portal.Web.Models.Services.Views.Foundations.UserEventParticipants;
+
+namespace EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipants
+{
+    public interface IUserEventParticipantsViewService
+    {
+        ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByUserIdAsync(
+            Guid userId,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<List<UserEventParticipantView>> RetrieveAssociationsByParticipantIdAsync(
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<UserEventParticipantView> AddAssociationAsync(
+            Guid userId,
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default);
+
+        ValueTask RemoveAssociationByIdAsync(
+            Guid associationId,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<bool> IsUserAssociatedWithParticipantAsync(
+            Guid userId,
+            Guid eventParticipantId,
+            CancellationToken cancellationToken = default);
+    }
+}

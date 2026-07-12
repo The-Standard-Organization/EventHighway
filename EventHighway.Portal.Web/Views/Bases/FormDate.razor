@@ -1,0 +1,12 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+<div class="mb-3">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="form-label">@Label</label>
+    }
+    <input type="date"
+           class="form-control"
+           value="@FormattedValue"
+           @onchange="OnChangeAsync" />
+</div>

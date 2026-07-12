@@ -6,8 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EventHighway.Portal.Web.Models.Foundations.Roles;
-using EventHighway.Portal.Web.Models.Foundations.Users;
+using EventHighway.Portal.Web.Models.Services.Domains.Foundations.Roles;
+using EventHighway.Portal.Web.Models.Services.Domains.Foundations.Users;
 using Microsoft.AspNetCore.Identity;
 
 namespace EventHighway.Portal.Web.Brokers.Identities

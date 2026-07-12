@@ -1,0 +1,68 @@
+﻿@namespace EventHighway.Portal.Web.Views.Components.Foundations.Dashboards
+@inherits PeriodAwarePanelBase
+@using System.Linq
+@using EventHighway.Core.Models.Coordinations.HealthChecks.V2
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Services.Views.Foundations.HealthDashboards
+@inject IHealthViewService HealthViewService
+
+<Card CssClass="mb-4">
+    <HeaderContent>
+        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
+            <span class="fw-semibold">Usage by Participant</span>
+            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart" WindowEnd="EffectiveWindowEnd"
+                             Disabled="NavDisabled" CanGoNext="CanGoNext"
+                             PeriodChanged="OnPeriodChanged" CustomRangeChanged="OnCustomRangeChanged" PreviousRequested="OnPrevious"
+                             NextRequested="OnNext" CurrentRequested="OnCurrent" />
+        </div>
+    </HeaderContent>
+    <ChildContent>
+        @if (isLoading)
+        {
+            <Spinner />
+        }
+        else if (errorMessage is not null)
+        {
+            <div class="alert alert-danger mb-0" role="alert">@errorMessage</div>
+        }
+        else
+        {
+            <DataTable TItem="ParticipantUsageV2" Items="summaries" Columns="columns" />
+        }
+    </ChildContent>
+</Card>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<ParticipantUsageV2> summaries = new();
+
+    private readonly List<DataTableColumn<ParticipantUsageV2>> columns = new()
+    {
+        new DataTableColumn<ParticipantUsageV2> { Title = "Participant", Value = p => string.IsNullOrEmpty(p.Name) ? "Unknown" : p.Name },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Addresses", Value = p => p.ByAddress is null ? "—" : string.Join(", ", p.ByAddress.Select(a => a.EventAddressV2Name)) },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Submitted", Value = p => p.TotalEventsSubmitted },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Received", Value = p => p.TotalListenerEvents },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Pub Err %", Value = p => p.PublisherErrorRate.ToString("0.00") },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Lis Err %", Value = p => p.ListenerErrorRate.ToString("0.00") },
+        new DataTableColumn<ParticipantUsageV2> { Title = "Last Activity", Value = p => p.LastActivity?.ToString("u") ?? "—" },
+    };
+
+    protected override async Task LoadAsync(TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset? windowEnd)
+    {
+        try
+        {
+            summaries = await HealthViewService.RetrieveParticipantSummariesAsync(period, windowStart, windowEnd);
+            errorMessage = null;
+        }
+        catch
+        {
+            errorMessage = "Unable to load participant usage.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

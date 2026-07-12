@@ -2,7 +2,6 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-using EventHighway.Portal.Web.Infrastructure;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {

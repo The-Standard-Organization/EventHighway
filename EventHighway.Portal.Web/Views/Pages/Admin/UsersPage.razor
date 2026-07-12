@@ -1,0 +1,127 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Administrators")]
+@using System.Collections.Generic
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.Users
+@using EventHighway.Portal.Web.Services.Views.Foundations.Users
+@inject IUsersViewService UsersViewService
+@inject NavigationManager Navigation
+
+<PageTitle>Users</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Users</h2>
+    <Button Color="primary" OnClick="OpenAddModal">Add User</Button>
+</div>
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+else
+{
+    <Card>
+        <DataTable TItem="UserView" Items="users" Columns="columns">
+            <RowActions Context="user">
+                <Button Color="primary"
+                        CssClass="btn-sm"
+                        OnClick="@(() => ViewUser(user.Id))">
+                    VIEW
+                </Button>
+            </RowActions>
+        </DataTable>
+    </Card>
+}
+
+<Modal Title="Add User" Visible="showAddModal" OnClose="CloseAddModal">
+    <ChildContent>
+        @if (addErrorMessage is not null)
+        {
+            <div class="alert alert-danger" role="alert">@addErrorMessage</div>
+        }
+        <FormText Label="Username" @bind-Value="newUser.UserName" />
+        <FormText Label="Email" @bind-Value="newUser.Email" />
+        <FormText Label="Password" @bind-Value="newUserPassword" />
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="CloseAddModal">Cancel</Button>
+        <Button Color="primary" OnClick="SubmitAddAsync">Save</Button>
+    </FooterContent>
+</Modal>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<UserView> users = new();
+    private List<DataTableColumn<UserView>> columns = new();
+
+    private bool showAddModal;
+    private string? addErrorMessage;
+    private UserView newUser = new();
+    private string newUserPassword = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        columns = new List<DataTableColumn<UserView>>
+        {
+            new DataTableColumn<UserView>
+            {
+                Title = "Username", Value = user => user.UserName
+            },
+            new DataTableColumn<UserView>
+            {
+                Title = "Email", Value = user => user.Email
+            },
+        };
+
+        await LoadUsersAsync();
+    }
+
+    private async Task LoadUsersAsync()
+    {
+        try
+        {
+            users = await UsersViewService.RetrieveAllUsersAsync();
+        }
+        catch
+        {
+            errorMessage = "Unable to load users. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ViewUser(Guid userId) =>
+        Navigation.NavigateTo($"/admin/users/{userId}");
+
+    private void OpenAddModal()
+    {
+        newUser = new UserView();
+        newUserPassword = string.Empty;
+        addErrorMessage = null;
+        showAddModal = true;
+    }
+
+    private void CloseAddModal() =>
+        showAddModal = false;
+
+    private async Task SubmitAddAsync()
+    {
+        try
+        {
+            await UsersViewService.AddUserAsync(newUser, newUserPassword);
+            showAddModal = false;
+            users = await UsersViewService.RetrieveAllUsersAsync();
+        }
+        catch
+        {
+            addErrorMessage = "Unable to add the user. Please check the details and try again.";
+        }
+    }
+}

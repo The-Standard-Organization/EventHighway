@@ -1,0 +1,11 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+<Modal Title="@Title" Visible="Visible" OnClose="OnCancel">
+    <ChildContent>
+        <p class="mb-0">@Message</p>
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="OnCancel">@CancelText</Button>
+        <Button Color="@ConfirmColor" OnClick="OnConfirm">@ConfirmText</Button>
+    </FooterContent>
+</Modal>

@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using EventHighway.Portal.Web.Models.Foundations.UserEventParticipants;
+using EventHighway.Portal.Web.Models.Services.Domains.Foundations.UserEventParticipants;
 
 namespace EventHighway.Portal.Web.Brokers.UserEventParticipants
 {

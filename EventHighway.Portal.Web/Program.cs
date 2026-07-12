@@ -2,9 +2,8 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
-using EventHighway.Portal.Web.Components;
-using EventHighway.Portal.Web.Data;
-using EventHighway.Portal.Web.Infrastructure;
+using EventHighway.Portal.Web;
+using EventHighway.Portal.Web.Brokers.Storages;
 
 var builder = WebApplication.CreateBuilder(args);
 

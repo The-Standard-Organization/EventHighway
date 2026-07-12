@@ -1,0 +1,143 @@
+@page "/my/participants"
+@attribute [Authorize]
+@using System.Collections.Generic
+@using System.Security.Claims
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipants
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.UserEventParticipants
+@using EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
+@using EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipants
+@inject IUserEventParticipantsViewService UserEventParticipantsViewService
+@inject IEventParticipantsViewService ParticipantsViewService
+@inject NavigationManager Navigation
+
+<PageTitle>My Participants</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">My Participants</h2>
+</div>
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+else
+{
+    <Card>
+        @if (participants.Any())
+        {
+            <DataTable TItem="EventParticipantView" Items="participants" Columns="columns">
+                <RowActions Context="participant">
+                    <Button Color="primary"
+                            CssClass="btn-sm"
+                            OnClick="@(() => ViewParticipant(participant.Id))">
+                        VIEW
+                    </Button>
+                </RowActions>
+            </DataTable>
+        }
+        else
+        {
+            <p class="text-body-secondary mb-0">You do not currently have any Event Participant Associations. Contact Support if you think this is incorrect.</p>
+        }
+    </Card>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<EventParticipantView> participants = new();
+    private List<DataTableColumn<EventParticipantView>> columns = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        columns = new List<DataTableColumn<EventParticipantView>>
+        {
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Id", Value = participant => participant.Id
+            },
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Name", Value = participant => participant.Name
+            },
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Description", Value = participant => participant.Description
+            },
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Contact Email", Value = participant => participant.ContactEmail
+            },
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Active", Value = participant => participant.IsActive ? "Yes" : "No"
+            },
+        };
+
+        try
+        {
+            Guid currentUserId = await GetCurrentUserIdAsync();
+
+            List<UserEventParticipantView> associations =
+                await UserEventParticipantsViewService.RetrieveAssociationsByUserIdAsync(
+                    currentUserId);
+
+            var visibleParticipants = new List<EventParticipantView>();
+
+            foreach (UserEventParticipantView association in associations)
+            {
+                try
+                {
+                    EventParticipantView participant =
+                        await ParticipantsViewService.RetrieveParticipantByIdAsync(
+                            association.EventParticipantId);
+
+                    if (participant is not null)
+                    {
+                        visibleParticipants.Add(participant);
+                    }
+                }
+                catch
+                {
+                    // Skip participants that can no longer be resolved (orphaned association).
+                }
+            }
+
+            participants = visibleParticipants;
+        }
+        catch
+        {
+            errorMessage = "Unable to load your participants. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task<Guid> GetCurrentUserIdAsync()
+    {
+        if (AuthenticationStateTask is null)
+        {
+            return Guid.Empty;
+        }
+
+        AuthenticationState authenticationState = await AuthenticationStateTask;
+
+        string? idValue =
+            authenticationState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return Guid.TryParse(idValue, out Guid userId) ? userId : Guid.Empty;
+    }
+
+    private void ViewParticipant(Guid participantId) =>
+        Navigation.NavigateTo($"/my/participants/{participantId}");
+}

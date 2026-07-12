@@ -1,0 +1,59 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+@inject IJSRuntime JS
+
+<li class="nav-item dropdown">
+    <button class="btn btn-link nav-link py-2 px-2 d-flex align-items-center"
+            type="button" data-coreui-toggle="dropdown" aria-expanded="false"
+            title="Toggle color mode">
+        <i class="@ActiveIcon"></i>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <button class="dropdown-item d-flex align-items-center gap-2 @ActiveClass("light")"
+                    type="button" @onclick="@(() => SetModeAsync("light"))">
+                <i class="cil-sun"></i> Light
+            </button>
+        </li>
+        <li>
+            <button class="dropdown-item d-flex align-items-center gap-2 @ActiveClass("dark")"
+                    type="button" @onclick="@(() => SetModeAsync("dark"))">
+                <i class="cil-moon"></i> Dark
+            </button>
+        </li>
+        <li>
+            <button class="dropdown-item d-flex align-items-center gap-2 @ActiveClass("auto")"
+                    type="button" @onclick="@(() => SetModeAsync("auto"))">
+                <i class="cil-contrast"></i> Auto
+            </button>
+        </li>
+    </ul>
+</li>
+
+@code {
+    private string mode = "auto";
+
+    private string ActiveIcon => mode switch
+    {
+        "light" => "cil-sun",
+        "dark" => "cil-moon",
+        _ => "cil-contrast"
+    };
+
+    private string ActiveClass(string value) =>
+        mode == value ? "active" : string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            mode = await JS.InvokeAsync<string>("eventHighwayTheme.getMode");
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetModeAsync(string value)
+    {
+        mode = value;
+        await JS.InvokeVoidAsync("eventHighwayTheme.setMode", value);
+    }
+}

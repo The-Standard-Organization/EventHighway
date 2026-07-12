@@ -1,0 +1,11 @@
+@using EventHighway.Portal.Web.Views.Pages.Account.Shared
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Views.Pages.NotFound)">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Views.Components.Foundations.Layouts.MainLayout)">
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

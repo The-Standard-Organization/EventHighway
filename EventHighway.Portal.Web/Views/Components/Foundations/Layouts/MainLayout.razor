@@ -1,0 +1,30 @@
+@namespace EventHighway.Portal.Web.Views.Components.Foundations.Layouts
+@inherits LayoutComponentBase
+@using EventHighway.Portal.Web.Views.Components.Foundations.Navigations
+
+<div class="sidebar sidebar-dark sidebar-fixed" id="sidebar">
+    <div class="sidebar-header border-bottom">
+        <div class="sidebar-brand">
+            <span class="sidebar-brand-full">EventHighway</span>
+        </div>
+    </div>
+    <NavMenu />
+</div>
+
+<div class="wrapper d-flex flex-column min-vh-100">
+    <Header />
+
+    <div class="body flex-grow-1">
+        <div class="container-lg px-4">
+            @Body
+        </div>
+    </div>
+
+    <Footer />
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
