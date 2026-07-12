@@ -178,8 +178,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = quarantinedEventV2.CreatedDate,
                 ScheduledDate = quarantinedEventV2.ScheduledDate,
                 EventAddressV2Id = quarantinedEventV2.EventAddressV2Id,
-                EventParticipantV2Id = quarantinedEventV2.EventParticipantV2Id,
-                EventParticipantV2Secret = quarantinedEventV2.EventParticipantV2Secret
+                EventParticipantV2Id = quarantinedEventV2.EventParticipantV2Id
             };
 
             List<EventArchiveV2> expectedEventArchiveV2s =
