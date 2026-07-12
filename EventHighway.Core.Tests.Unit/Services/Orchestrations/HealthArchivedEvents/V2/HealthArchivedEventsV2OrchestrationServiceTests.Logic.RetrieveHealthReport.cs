@@ -620,6 +620,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
 
             Guid addressA = GetRandomId();
+            Guid addressB = GetRandomId();
 
             ListenerEventArchiveV2 successListenerEvent =
                 CreateRandomListenerEventArchiveV2WithArchivedDate(inWindowDate);
@@ -628,8 +629,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
             List<ListenerEventArchiveV2> randomArchivedListenerEvents = new List<ListenerEventArchiveV2>
             {
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
-                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 1, inWindowDate),
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 2, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 3, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressB, remainingRetryAttempts: 0, inWindowDate),
+                CreateErrorListenerEventArchiveV2(addressB, remainingRetryAttempts: 4, inWindowDate),
                 CreateErrorListenerEventArchiveV2(addressA, remainingRetryAttempts: 0, outOfWindowDate),
                 successListenerEvent
             };
@@ -679,12 +683,43 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                     && listenerEvent.ArchivedDate < windowEnd)
                 .ToList();
 
+            List<RetryBucketV2> distribution = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.RemainingRetryAttempts)
+                .Select(group => new RetryBucketV2
+                {
+                    RemainingRetries = group.Key,
+                    Count = group.Count()
+                })
+                .ToList();
+
+            List<RetryAddressDetailV2> byAddress = errorEvents
+                .GroupBy(listenerEvent => listenerEvent.EventAddressV2Id)
+                .Select(group => new RetryAddressDetailV2
+                {
+                    EventAddressV2Id = group.Key,
+                    DeadEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                    CriticalEvents = group.Count(listenerEvent =>
+                        listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+                    HealthyEvents = group.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                    TotalEvents = group.Count()
+                })
+                .ToList();
+
             return new RetryHealthSummaryV2
             {
                 Period = period,
                 WindowStart = windowStart,
                 WindowEnd = windowEnd,
-                ArchivedDeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0)
+                TotalActiveEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 0),
+                DeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+
+                CriticalEvents = errorEvents.Count(listenerEvent =>
+                    listenerEvent.RemainingRetryAttempts == 1 || listenerEvent.RemainingRetryAttempts == 2),
+
+                HealthyEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts > 2),
+                ArchivedDeadEvents = errorEvents.Count(listenerEvent => listenerEvent.RemainingRetryAttempts == 0),
+                Distribution = distribution,
+                ByAddress = byAddress
             };
         }
 
