@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveDuplicateReportV2Async(
-                    inputPeriod, inputWindowStart, cancelledToken);
+                    inputPeriod, inputWindowStart, null, cancelledToken);
 
             // then
             OperationCanceledException actualException =
@@ -88,7 +88,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveDuplicateReportV2Async(
-                    inputPeriod, inputWindowStart, randomCancellationToken);
+                    inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationDependencyException actualHealthV2CoordinationDependencyException =
                 await Assert.ThrowsAsync<HealthV2CoordinationDependencyException>(
@@ -139,7 +139,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveDuplicateReportV2Async(
-                    inputPeriod, inputWindowStart, randomCancellationToken);
+                    inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationDependencyException actualHealthV2CoordinationDependencyException =
                 await Assert.ThrowsAsync<HealthV2CoordinationDependencyException>(
@@ -190,7 +190,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveDuplicateReportV2Async(
-                    inputPeriod, inputWindowStart, randomCancellationToken);
+                    inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationDependencyValidationException
                 actualHealthV2CoordinationDependencyValidationException =
@@ -249,7 +249,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveDuplicateReportV2Async(
-                    inputPeriod, inputWindowStart, randomCancellationToken);
+                    inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationServiceException actualHealthV2CoordinationServiceException =
                 await Assert.ThrowsAsync<HealthV2CoordinationServiceException>(

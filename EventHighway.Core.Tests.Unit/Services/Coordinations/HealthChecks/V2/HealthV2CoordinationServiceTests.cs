@@ -252,6 +252,15 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
 
                     break;
 
+                // The custom tests use a 5-day span, which resolves to daily buckets.
+                case TrafficPeriodV2.Custom:
+                    for (DateTimeOffset start = windowStart; start < windowEnd; start = start.AddDays(1))
+                    {
+                        bucketStarts.Add((start, start.ToString("dd MMM", CultureInfo.InvariantCulture)));
+                    }
+
+                    break;
+
                 default:
                     for (int hour = 0; hour < 24; hour++)
                     {

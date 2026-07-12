@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             ValueTask<HealthReportV2> retrieveHealthReportTask =
                 this.healthV2CoordinationService.RetrieveHealthCheckItemsReportV2Async(
-                    inputPeriod, invalidWindowStart, randomCancellationToken);
+                    inputPeriod, invalidWindowStart, null, randomCancellationToken);
 
             HealthV2CoordinationValidationException actualHealthV2CoordinationValidationException =
                 await Assert.ThrowsAsync<HealthV2CoordinationValidationException>(

@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             try
             {
                 HealthReportV2 healthReport = await this.healthV2CoordinationService
-                    .RetrieveTrafficReportV2Async(period, windowStart, cancellationToken);
+                    .RetrieveTrafficReportV2Async(period, windowStart, cancellationToken: cancellationToken);
 
                 return healthReport.Traffic;
             }

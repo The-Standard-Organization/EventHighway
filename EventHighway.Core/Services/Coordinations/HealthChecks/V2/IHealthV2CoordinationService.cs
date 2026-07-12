@@ -14,36 +14,43 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         ValueTask<HealthReportV2> RetrieveHealthCheckItemsReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveAddressUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveDuplicateReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
 
         ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
     }
 }

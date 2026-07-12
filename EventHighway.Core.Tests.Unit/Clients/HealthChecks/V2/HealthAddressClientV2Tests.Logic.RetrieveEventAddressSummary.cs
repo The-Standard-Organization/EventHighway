@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Setup(service =>
                 service.RetrieveAddressUsageReportV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken))
+                    randomPeriod, randomWindowStart, null, randomCancellationToken))
                         .ReturnsAsync(returnedHealthReport);
 
             // when
@@ -53,7 +53,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
 
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveAddressUsageReportV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken),
+                    randomPeriod, randomWindowStart, null, randomCancellationToken),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock

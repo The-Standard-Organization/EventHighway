@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -47,6 +47,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveHealthCheckItemsReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -55,15 +56,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
@@ -80,6 +81,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveTrafficReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -88,11 +90,11 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
 
@@ -181,6 +183,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveAddressUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -189,15 +192,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
@@ -214,6 +217,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveParticipantUsageReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -222,11 +226,11 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
@@ -243,6 +247,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveLoopDetectionReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -251,15 +256,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
@@ -281,6 +286,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveDuplicateReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -289,11 +295,11 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
 
@@ -312,6 +318,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         public ValueTask<HealthReportV2> RetrieveRetryReportV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
@@ -320,15 +327,15 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
             HealthReportV2 infrastructurePartialReport =
                 await this.healthInfrastructureV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 eventsPartialReport =
                 await this.healthEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 archivedEventsPartialReport =
                 await this.healthArchivedEventsV2OrchestrationService
-                    .RetrieveHealthReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
             HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
 

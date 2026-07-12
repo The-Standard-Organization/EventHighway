@@ -201,7 +201,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             // when
             HealthReportV2 actualHealthReport =
                 await this.healthV2CoordinationService.RetrieveRetryReportV2Async(
-                    inputPeriod, inputWindowStart, randomCancellationToken);
+                    inputPeriod, inputWindowStart, null, randomCancellationToken);
 
             // then
             actualHealthReport.Period.Should().Be(inputPeriod);
