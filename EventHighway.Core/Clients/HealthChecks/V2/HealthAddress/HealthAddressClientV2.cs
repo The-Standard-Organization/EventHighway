@@ -40,7 +40,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             try
             {
                 HealthReportV2 healthReport = await this.healthV2CoordinationService
-                    .RetrieveAddressUsageReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveAddressUsageReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
                 return healthReport.AddressUsage;
             }
