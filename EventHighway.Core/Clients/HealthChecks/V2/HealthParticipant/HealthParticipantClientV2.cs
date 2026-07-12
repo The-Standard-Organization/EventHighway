@@ -34,6 +34,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         public async ValueTask<IReadOnlyList<ParticipantUsageV2>> RetrieveParticipantSummaryV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default)
         {
             try
