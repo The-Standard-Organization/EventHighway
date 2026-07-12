@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                     innerException: clientValidationException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(clientValidationException);
 
             // when
@@ -61,6 +61,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                     retrieveTask =
                         this.healthViewService.RetrieveHealthRagTilesAsync(
                         TrafficPeriodV2.Day, System.DateTimeOffset.MinValue,
+                        null,
                         TestContext.Current.CancellationToken);
 
             HealthViewDependencyValidationException actualException =
@@ -72,7 +73,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                 expectedHealthViewDependencyValidationException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -93,7 +94,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                 new HealthViewDependencyException(innerException: dependencyException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -101,13 +102,14 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                 await Assert.ThrowsAsync<HealthViewDependencyException>(
                     async () => await this.healthViewService.RetrieveHealthRagTilesAsync(
                         TrafficPeriodV2.Day, System.DateTimeOffset.MinValue,
+                        null,
                         TestContext.Current.CancellationToken));
 
             // then
             actualException.Should().BeEquivalentTo(expectedHealthViewDependencyException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -132,7 +134,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                     innerException: failedHealthViewServiceException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -140,13 +142,14 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.HealthDashboards
                 await Assert.ThrowsAsync<HealthViewServiceException>(
                     async () => await this.healthViewService.RetrieveHealthRagTilesAsync(
                         TrafficPeriodV2.Day, System.DateTimeOffset.MinValue,
+                        null,
                         TestContext.Current.CancellationToken));
 
             // then
             actualException.Should().BeEquivalentTo(expectedHealthViewServiceException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+                broker.RetrieveHealthRagStatusV2Async(It.IsAny<TrafficPeriodV2>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset?>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
