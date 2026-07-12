@@ -39,7 +39,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             try
             {
                 HealthReportV2 healthReport = await this.healthV2CoordinationService
-                    .RetrieveRetryReportV2Async(period, windowStart, cancellationToken: cancellationToken);
+                    .RetrieveRetryReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
                 return healthReport.Retry;
             }
