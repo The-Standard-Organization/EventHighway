@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading.Tasks;
-using EventHighway.ClientV2.SubstrateApp.Models.ExternalMediaItems;
 using EventHighway.ClientV2.SubstrateApp.Models.ExternalMediaItems.Exceptions;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
 using Xeptions;

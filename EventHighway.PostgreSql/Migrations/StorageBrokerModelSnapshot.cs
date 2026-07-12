@@ -418,9 +418,6 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<Guid?>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("EventParticipantV2Secret")
-                        .HasColumnType("text");
-
                     b.Property<DateTimeOffset?>("ScheduledDate")
                         .HasPrecision(6)
                         .HasColumnType("timestamptz");
@@ -522,9 +519,6 @@ namespace EventHighway.PostgreSql.Migrations
 
                     b.Property<Guid?>("EventParticipantV2Id")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("EventParticipantV2Secret")
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
                         .HasPrecision(6)

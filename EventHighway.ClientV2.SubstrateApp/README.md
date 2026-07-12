@@ -70,7 +70,7 @@ Two addresses, chained together by `MediaItemService`:
 
 ```mermaid
 flowchart LR
-    NFLIX["NFlix<br/>external contributor"] -->|"media item +<br/>participantId + secret"| EXT["ExternalMediaItemService"]
+    NFLIX["NFlix<br/>external contributor"] -->|"media item (body) +<br/>participantId + secret<br/>(request headers)"| EXT["ExternalMediaItemService"]
     EXT -->|"emits<br/>ExternalMediaItemAdded"| A1(["NFlix-ExternalContributions"])
     A1 -->|"listener"| MIS["MediaItemService<br/>substrate handler"]
     MIS -->|"saves"| CAT[("NFlixMediaDB")]
@@ -571,8 +571,12 @@ await substrateDemo.CreateMediaItemViaInternalServiceAsync(guardians);          
 Follow *Yellowstone* through the whole pipeline:
 
 1. **Submission.** The demo calls
-   `ExternalMediaItemService.AddExternalMediaItemAsync` with the media item **plus
-   NFlix's participant id and secret**. The service validates that everything is present.
+   `ExternalMediaItemService.AddExternalMediaItemAsync(mediaItem, participantId, participantSecret)`
+   with the media item **plus NFlix's participant id and secret**. In a real host the
+   `participantId` and `participantSecret` values are **extracted from the HTTP client
+   request headers — they are never part of the request body**; only the media item
+   travels as the payload. The service validates that everything is present and that the
+   id is a well-formed GUID.
 
 2. **Onto the substrate.** The service wraps the item in an `EventEnvelope<MediaItem>`
    and calls `EmitAsync`. The broker serializes the content to JSON and builds an
@@ -583,10 +587,10 @@ Follow *Yellowstone* through the whole pipeline:
        new EventEnvelope<MediaItem>
        {
            EventName = "ExternalMediaItemAdded",
-           Content = externalMediaItem.MediaItem,
+           Content = mediaItem,
            EventAddressId = SeedIdentifiers.NFlixExternalContributionsAddress,
-           ParticipantId = externalMediaItem.ParticipantId,   // NFlix
-           Secret = externalMediaItem.Secret,                 // verified by the core
+           ParticipantId = Guid.Parse(participantId),   // NFlix, from the request headers
+           Secret = participantSecret,                  // from the headers; verified by the core
            OccurredAt = now
        });
    ```

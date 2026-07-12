@@ -14,6 +14,7 @@ namespace EventHighway.Core.Brokers.Storages
         {
             model.ToTable("EventV2s");
             model.HasKey(eventV2 => eventV2.Id);
+            model.Ignore(eventV2 => eventV2.EventParticipantV2Secret);
 
             model.Property(eventV2 => eventV2.ContentHash)
                 .IsRequired(true)
