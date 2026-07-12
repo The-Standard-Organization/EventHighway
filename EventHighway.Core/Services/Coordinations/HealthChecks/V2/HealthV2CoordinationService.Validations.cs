@@ -17,7 +17,8 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
         {
             Validate(
                 (Rule: IsInvalid(windowStart), Parameter: "WindowStart"),
-                (Rule: IsMissingForCustomPeriod(period, windowEnd), Parameter: "WindowEnd"));
+                (Rule: IsMissingForCustomPeriod(period, windowEnd), Parameter: "WindowEnd"),
+                (Rule: IsNotAfterWindowStart(period, windowStart, windowEnd), Parameter: "WindowEnd"));
         }
 
         private static dynamic IsInvalid(DateTimeOffset date) => new
@@ -31,6 +32,18 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
             Condition = period == TrafficPeriodV2.Custom && windowEnd is null,
             Message = "Required"
         };
+
+        private static dynamic IsNotAfterWindowStart(
+            TrafficPeriodV2 period,
+            DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd) => new
+            {
+                Condition = period == TrafficPeriodV2.Custom
+                    && windowEnd is not null
+                    && windowEnd <= windowStart,
+
+                Message = "Must be after WindowStart"
+            };
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
