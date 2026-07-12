@@ -3,7 +3,6 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using EventHighway.ClientV2.SubstrateApp.Models.ExternalMediaItems;
 using EventHighway.ClientV2.SubstrateApp.Models.ExternalMediaItems.Exceptions;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
 
@@ -11,35 +10,28 @@ namespace EventHighway.ClientV2.SubstrateApp.Services.Foundations.ExternalMediaI
 {
     public partial class ExternalMediaItemService
     {
-        private static void ValidateExternalMediaItemOnAdd(ExternalMediaItem externalMediaItem)
+        private static void ValidateExternalMediaItemOnAdd(
+            MediaItem mediaItem,
+            string participantId,
+            string participantSecret)
         {
-            ValidateExternalMediaItemIsNotNull(externalMediaItem);
-            ValidateMediaItemIsNotNull(externalMediaItem.MediaItem);
+            ValidateMediaItemIsNotNull(mediaItem);
 
             Validate(
-                (Rule: IsInvalid(externalMediaItem.ParticipantId),
-                    Parameter: nameof(ExternalMediaItem.ParticipantId)),
+                (Rule: IsInvalidId(participantId),
+                    Parameter: nameof(participantId)),
 
-                (Rule: IsInvalid(externalMediaItem.Secret),
-                    Parameter: nameof(ExternalMediaItem.Secret)),
+                (Rule: IsInvalid(participantSecret),
+                    Parameter: nameof(participantSecret)),
 
-                (Rule: IsInvalid(externalMediaItem.MediaItem.Id),
+                (Rule: IsInvalid(mediaItem.Id),
                     Parameter: nameof(MediaItem.Id)),
 
-                (Rule: IsInvalid(externalMediaItem.MediaItem.Title),
+                (Rule: IsInvalid(mediaItem.Title),
                     Parameter: nameof(MediaItem.Title)),
 
-                (Rule: IsInvalid(externalMediaItem.MediaItem.Type),
+                (Rule: IsInvalid(mediaItem.Type),
                     Parameter: nameof(MediaItem.Type)));
-        }
-
-        private static void ValidateExternalMediaItemIsNotNull(ExternalMediaItem externalMediaItem)
-        {
-            if (externalMediaItem is null)
-            {
-                throw new NullExternalMediaItemException(
-                    message: "External media item is null.");
-            }
         }
 
         private static void ValidateMediaItemIsNotNull(MediaItem mediaItem)
@@ -55,6 +47,14 @@ namespace EventHighway.ClientV2.SubstrateApp.Services.Foundations.ExternalMediaI
         {
             Condition = id == Guid.Empty,
             Message = "Id is required"
+        };
+
+        private static dynamic IsInvalidId(string participantId) => new
+        {
+            Condition = Guid.TryParse(participantId, out Guid parsedParticipantId) is false
+                || parsedParticipantId == Guid.Empty,
+
+            Message = "Id is required and must be a valid non-empty GUID"
         };
 
         private static dynamic IsInvalid(string text) => new

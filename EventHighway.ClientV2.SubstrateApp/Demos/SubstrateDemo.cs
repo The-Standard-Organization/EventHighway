@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using EventHighway.ClientV2.SubstrateApp.Brokers.EventSubstrates;
 using EventHighway.ClientV2.SubstrateApp.Brokers.Storages;
 using EventHighway.ClientV2.SubstrateApp.Infrastructure;
-using EventHighway.ClientV2.SubstrateApp.Models.ExternalMediaItems;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
 using EventHighway.ClientV2.SubstrateApp.Services.Foundations.ExternalMediaItems;
 using EventHighway.ClientV2.SubstrateApp.Services.Foundations.MediaItems;
@@ -84,8 +83,10 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
 
         /// <summary>
         /// The public intake: submits a media item with the contributing participant's
-        /// credentials, which the substrate verifies. Accepted contributions flow through
-        /// ExternalMediaItemService -> [NFlix-ExternalContributions] -> MediaItemService's
+        /// credentials, which the substrate verifies. In a real host the id and secret are
+        /// extracted from the HTTP client request headers (never the request body) — the
+        /// strings passed here stand in for those header values. Accepted contributions flow
+        /// through ExternalMediaItemService -> [NFlix-ExternalContributions] -> MediaItemService's
         /// substrate handler (persist + MediaItemAdded) -> [NFlix-NewReleases] -> listeners.
         /// </summary>
         public async ValueTask CreateMediaItemViaExternalServiceAsync(
@@ -96,12 +97,9 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
             try
             {
                 await this.externalMediaItemService.AddExternalMediaItemAsync(
-                    new ExternalMediaItem
-                    {
-                        MediaItem = mediaItem,
-                        ParticipantId = participantId,
-                        Secret = participantSecret
-                    });
+                    mediaItem,
+                    participantId.ToString(),
+                    participantSecret);
 
                 WriteMarker("  [Success]", ConsoleColor.Green, $" accepted  {mediaItem.Title}");
             }
