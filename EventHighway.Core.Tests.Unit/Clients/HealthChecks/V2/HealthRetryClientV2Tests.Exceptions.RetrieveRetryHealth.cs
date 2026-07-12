@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<RetryHealthSummaryV2> retrieveTask =
                 this.healthRetryClientV2.RetrieveRetryHealthV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthRetryClientV2ValidationException actualException =
                 await Assert.ThrowsAsync<HealthRetryClientV2ValidationException>(
@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<RetryHealthSummaryV2> retrieveTask =
                 this.healthRetryClientV2.RetrieveRetryHealthV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthRetryClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthRetryClientV2DependencyException>(
@@ -129,7 +129,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<RetryHealthSummaryV2> retrieveTask =
                 this.healthRetryClientV2.RetrieveRetryHealthV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthRetryClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthRetryClientV2ServiceException>(
@@ -168,7 +168,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<RetryHealthSummaryV2> retrieveTask =
                 this.healthRetryClientV2.RetrieveRetryHealthV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(

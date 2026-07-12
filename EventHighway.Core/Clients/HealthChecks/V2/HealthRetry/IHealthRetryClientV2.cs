@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -38,6 +38,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         ValueTask<RetryHealthSummaryV2> RetrieveRetryHealthV2Async(
             TrafficPeriodV2 period,
             DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default);
     }
 }
