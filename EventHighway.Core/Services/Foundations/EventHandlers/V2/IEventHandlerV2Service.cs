@@ -20,6 +20,9 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
         ValueTask<IQueryable<IEventHandler>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default);
 
+        ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sFromStorageAsync(
+            CancellationToken cancellationToken = default);
+
         ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default);

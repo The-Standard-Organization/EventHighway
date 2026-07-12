@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -22,6 +23,9 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
 
         ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
             CancellationToken cancellationToken = default);
     }
 }

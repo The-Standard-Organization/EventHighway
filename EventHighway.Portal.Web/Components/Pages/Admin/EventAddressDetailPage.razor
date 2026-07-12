@@ -3,12 +3,15 @@
 @using System.Linq
 @using EventHighway.Portal.Web.Components.CoreUI
 @using EventHighway.Portal.Web.Models.Views.EventAddresses
+@using EventHighway.Portal.Web.Models.Views.EventHandlers
 @using EventHighway.Portal.Web.Models.Views.EventListeners
 @using EventHighway.Portal.Web.Models.Views.EventParticipants
 @using EventHighway.Portal.Web.Services.Views.EventAddresses
+@using EventHighway.Portal.Web.Services.Views.EventHandlers
 @using EventHighway.Portal.Web.Services.Views.EventListeners
 @using EventHighway.Portal.Web.Services.Views.EventParticipants
 @inject IEventAddressesViewService AddressesViewService
+@inject IEventHandlersViewService EventHandlersViewService
 @inject IEventListenersViewService ListenersViewService
 @inject IEventParticipantsViewService ParticipantsViewService
 @inject NavigationManager Navigation
@@ -100,9 +103,18 @@ else
         }
         <FormText Label="Name" @bind-Value="newListener.Name" />
         <FormText Label="Description" @bind-Value="newListener.Description" />
-        <FormText Label="Handler Id" @bind-Value="newListenerHandlerId"
-                  Placeholder="00000000-0000-0000-0000-000000000000" />
-        <FormText Label="Handler Name" @bind-Value="newListener.HandlerName" />
+
+        <div class="mb-3">
+            <label class="form-label">Handler</label>
+            <select class="form-select" value="@newListenerHandlerId"
+                    @onchange="e => { newListenerHandlerId = e.Value?.ToString() ?? string.Empty; }">
+                <option value="">(select a handler)</option>
+                @foreach (EventHandlerView eventHandler in eventHandlers)
+                {
+                    <option value="@eventHandler.Id">@eventHandler.Name</option>
+                }
+            </select>
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Participant</label>
@@ -148,9 +160,10 @@ else
     private bool showRegisterListenerModal;
     private string? registerListenerError;
     private EventListenerView newListener = new();
-    private string? newListenerHandlerId;
+    private string newListenerHandlerId = string.Empty;
     private string newListenerParticipantId = string.Empty;
     private List<EventParticipantView> participants = new();
+    private List<EventHandlerView> eventHandlers = new();
 
     private string? deleteError;
 
@@ -176,6 +189,7 @@ else
             if (address is not null)
             {
                 participants = await ParticipantsViewService.RetrieveAllParticipantsAsync();
+                eventHandlers = await EventHandlersViewService.RetrieveAllEventHandlersAsync();
                 await LoadListenersAsync();
             }
         }
@@ -205,7 +219,7 @@ else
     private void OpenRegisterListenerModal()
     {
         newListener = new EventListenerView { EventAddressV2Id = AddressId };
-        newListenerHandlerId = null;
+        newListenerHandlerId = string.Empty;
         newListenerParticipantId = string.Empty;
         registerListenerError = null;
         showRegisterListenerModal = true;
@@ -216,13 +230,18 @@ else
 
     private async Task SubmitRegisterListenerAsync()
     {
-        if (!Guid.TryParse(newListenerHandlerId, out Guid handlerId))
+        EventHandlerView? selectedEventHandler =
+            eventHandlers.FirstOrDefault(eventHandler =>
+                eventHandler.Id.ToString() == newListenerHandlerId);
+
+        if (selectedEventHandler is null)
         {
-            registerListenerError = "Handler Id must be a valid GUID.";
+            registerListenerError = "Select a handler.";
             return;
         }
 
-        newListener.HandlerId = handlerId;
+        newListener.HandlerId = selectedEventHandler.Id;
+        newListener.HandlerName = selectedEventHandler.Name;
 
         newListener.EventParticipantV2Id =
             Guid.TryParse(newListenerParticipantId, out Guid participantId)

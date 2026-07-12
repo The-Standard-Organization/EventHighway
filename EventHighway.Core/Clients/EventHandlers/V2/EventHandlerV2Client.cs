@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -122,6 +123,36 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             {
                 throw CreateEventHandlerV2ClientValidationException(
                     eventHandlerV2ProcessingDependencyValidationException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingDependencyException
+                eventHandlerV2ProcessingDependencyException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingDependencyException.InnerException as Xeption);
+            }
+            catch (EventHandlerV2ProcessingServiceException
+                eventHandlerV2ProcessingServiceException)
+            {
+                throw CreateEventHandlerV2ClientDependencyException(
+                    eventHandlerV2ProcessingServiceException.InnerException as Xeption);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+            }
+        }
+
+        public async ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sAsync(
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.eventHandlerV2ProcessingService
+                    .RetrieveAllEventHandlerV2sAsync(cancellationToken);
             }
             catch (EventHandlerV2ProcessingDependencyException
                 eventHandlerV2ProcessingDependencyException)

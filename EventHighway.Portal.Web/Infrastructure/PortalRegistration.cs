@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using EventHighway.Portal.Web.Services.Views.EventAddresses;
+using EventHighway.Portal.Web.Services.Views.EventHandlers;
 using EventHighway.Portal.Web.Services.Views.EventListeners;
 using EventHighway.Portal.Web.Services.Views.EventParticipants;
 using EventHighway.Portal.Web.Services.Views.EventParticipantSecrets;
@@ -123,6 +124,7 @@ namespace EventHighway.Portal.Web.Infrastructure
                 IEventParticipantSecretsViewService,
                 EventParticipantSecretsViewService>();
             services.AddTransient<IEventAddressesViewService, EventAddressesViewService>();
+            services.AddTransient<IEventHandlersViewService, EventHandlersViewService>();
             services.AddTransient<IEventListenersViewService, EventListenersViewService>();
             services.AddTransient<IListenerEventsViewService, ListenerEventsViewService>();
             services.AddTransient<

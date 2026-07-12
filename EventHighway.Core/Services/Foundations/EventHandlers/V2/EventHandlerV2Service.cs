@@ -59,6 +59,15 @@ namespace EventHighway.Core.Services.Foundations.EventHandlers.V2
             return await ValueTask.FromResult(this.eventHandlerBroker.GetAll().AsQueryable());
         }));
 
+        public ValueTask<IQueryable<EventHandlerV2>> RetrieveAllEventHandlerV2sFromStorageAsync(
+            CancellationToken cancellationToken = default) =>
+        TryCatch(new ReturningEventHandlerV2sFunction(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return await this.storageBroker.SelectAllEventHandlerV2sAsync(cancellationToken);
+        }));
+
         public ValueTask<IEventHandler> RetrieveEventHandlerV2ByIdAsync(
             Guid eventHandlerV2Id,
             CancellationToken cancellationToken = default) =>
