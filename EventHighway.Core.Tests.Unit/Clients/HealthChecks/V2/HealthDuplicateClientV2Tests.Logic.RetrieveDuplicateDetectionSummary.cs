@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             DuplicateDetectionSummaryV2 actualSummary =
                 await this.healthDuplicateClientV2
                     .RetrieveDuplicateDetectionSummaryV2Async(
-                        randomPeriod, randomWindowStart, randomCancellationToken);
+                        randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             // then
             actualSummary.Should()
@@ -53,6 +53,52 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             this.healthV2CoordinationServiceMock.Verify(service =>
                 service.RetrieveDuplicateReportV2Async(
                     randomPeriod, randomWindowStart, null, randomCancellationToken),
+                        Times.Once);
+
+            this.healthV2CoordinationServiceMock
+                .VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldRetrieveDuplicateDetectionSummaryV2ForCustomPeriodAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            TrafficPeriodV2 inputPeriod = TrafficPeriodV2.Custom;
+            DateTimeOffset randomWindowStart = GetRandomDateTimeOffset();
+            DateTimeOffset randomWindowEnd = randomWindowStart.AddDays(5);
+
+            DuplicateDetectionSummaryV2 randomSummary =
+                CreateRandomDuplicateDetectionSummaryV2();
+
+            var returnedHealthReport = new HealthReportV2
+            {
+                Duplicates = randomSummary
+            };
+
+            DuplicateDetectionSummaryV2 expectedSummary =
+                randomSummary.DeepClone();
+
+            this.healthV2CoordinationServiceMock.Setup(service =>
+                service.RetrieveDuplicateReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken))
+                        .ReturnsAsync(returnedHealthReport);
+
+            // when
+            DuplicateDetectionSummaryV2 actualSummary =
+                await this.healthDuplicateClientV2
+                    .RetrieveDuplicateDetectionSummaryV2Async(
+                        inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken);
+
+            // then
+            actualSummary.Should()
+                .BeEquivalentTo(expectedSummary);
+
+            this.healthV2CoordinationServiceMock.Verify(service =>
+                service.RetrieveDuplicateReportV2Async(
+                    inputPeriod, randomWindowStart, randomWindowEnd, randomCancellationToken),
                         Times.Once);
 
             this.healthV2CoordinationServiceMock

@@ -41,7 +41,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2ValidationException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2ValidationException>(
@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2DependencyException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2DependencyException>(
@@ -129,7 +129,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             HealthDuplicateClientV2ServiceException actualException =
                 await Assert.ThrowsAsync<HealthDuplicateClientV2ServiceException>(
@@ -168,7 +168,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             // when
             ValueTask<DuplicateDetectionSummaryV2> retrieveTask =
                 this.healthDuplicateClientV2.RetrieveDuplicateDetectionSummaryV2Async(
-                    randomPeriod, randomWindowStart, randomCancellationToken);
+                    randomPeriod, randomWindowStart, null, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
