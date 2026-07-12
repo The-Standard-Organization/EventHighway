@@ -16,6 +16,8 @@ namespace EventHighway.ClientV2.SubstrateApp.Brokers.EventSubstrates
             CancellationToken cancellationToken = default) =>
             await this.eventHighwayClient.V2.HealthClientV2.HealthStatusClientV2
                 .RetrieveHealthRagStatusV2Async(
-                    TrafficPeriodV2.Day, DateTimeOffset.UtcNow, cancellationToken);
+                    TrafficPeriodV2.Day,
+                    DateTimeOffset.UtcNow,
+                    cancellationToken: cancellationToken);
     }
 }
