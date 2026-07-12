@@ -549,6 +549,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset laterInWindowDate = inputWindowStart.AddTicks((windowEnd - inputWindowStart).Ticks / 2);
             DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
 
             List<Guid?> participantIds = new List<Guid?> { GetRandomId(), GetRandomId(), null };
@@ -567,6 +568,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                         CreateRandomListenerEventV2WithCreatedDate(inWindowDate),
                         participantIds[index % participantIds.Count],
                         addressIds[index % addressIds.Count]))
+                    .Concat(participantIds.Select((participantId, index) => WithStatus(
+                        AssignParticipantAndAddress(
+                            CreateRandomListenerEventV2WithCreatedDate(laterInWindowDate),
+                            participantId,
+                            addressIds[index % addressIds.Count]),
+                        ListenerEventStatusV2.Error)))
                     .ToList();
 
             List<EventV2> randomEvents = inWindowEvents
@@ -622,7 +629,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 {
                     EventParticipantV2Id = group.Key,
                     TotalEventsSubmitted = (long)group.Count(),
-                    LoopsDetected = (long)group.Count(@event => @event.Status == EventStatusV2.Quarantined)
+                    LoopsDetected = (long)group.Count(@event => @event.Status == EventStatusV2.Quarantined),
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -631,7 +639,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
-                    TotalListenerEvents = (long)group.Count()
+                    TotalListenerEvents = (long)group.Count(),
+
+                    ErrorListenerEvents = (long)group.Count(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
                 })
                 .ToList();
 
@@ -705,7 +718,12 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         DuplicatesDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        ByAddress = byAddress
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        ByAddress = byAddress,
+
+                        LastActivity = new[] { eventCount?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
@@ -843,6 +861,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             eventV2.Status = status;
 
             return eventV2;
+        }
+
+        private static ListenerEventV2 WithStatus(ListenerEventV2 listenerEventV2, ListenerEventStatusV2 status)
+        {
+            listenerEventV2.Status = status;
+
+            return listenerEventV2;
         }
 
         [Fact]
