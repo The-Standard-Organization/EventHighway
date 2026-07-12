@@ -54,6 +54,12 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public long ActiveListeners { get; set; }
 
         /// <summary>
+        /// Gets or sets the number of listener events on this address that ended in an error state
+        /// within the window. On merged rows this combines live and archived counts.
+        /// </summary>
+        public long ErrorListenerEvents { get; set; }
+
+        /// <summary>
         /// Gets or sets the number of dead deliveries (retry budget exhausted) on this address.
         /// </summary>
         public long DeadEvents { get; set; }

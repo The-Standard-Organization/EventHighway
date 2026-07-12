@@ -396,6 +396,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             DateTimeOffset inputWindowStart = GetRandomPeriodAlignedWindowStart(inputPeriod);
             DateTimeOffset windowEnd = GetWindowEnd(inputPeriod, inputWindowStart);
             DateTimeOffset inWindowDate = inputWindowStart;
+            DateTimeOffset laterInWindowDate = inputWindowStart.AddTicks((windowEnd - inputWindowStart).Ticks / 2);
             DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
 
             List<Guid> addressIds = Enumerable.Range(start: 0, count: 3)
@@ -410,6 +411,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             List<ListenerEventV2> inWindowListenerEvents = Enumerable.Range(start: 0, count: GetRandomNumber())
                 .Select(index => AssignAddress(
                     CreateRandomListenerEventV2WithCreatedDate(inWindowDate), addressIds[index % addressIds.Count]))
+                .Concat(addressIds.Select(addressId => CreateErrorListenerEventV2(
+                    addressId, remainingRetryAttempts: GetRandomNumber(), laterInWindowDate)))
                 .ToList();
 
             List<EventV2> randomEvents = inWindowEvents
@@ -473,9 +476,24 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 {
                     EventAddressV2Id = group.Key,
                     TotalListenerEvents = (long)group.Count(),
+
+                    ErrorListenerEvents = (long)group.Count(listenerEvent =>
+                        listenerEvent.Status == ListenerEventStatusV2.Error),
+
                     DeadEvents = (long)group.Count(listenerEvent =>
                         listenerEvent.Status == ListenerEventStatusV2.Error
-                        && listenerEvent.RemainingRetryAttempts == 0)
+                        && listenerEvent.RemainingRetryAttempts == 0),
+
+                    LastActivity = group.Max(listenerEvent => listenerEvent.CreatedDate)
+                })
+                .ToList();
+
+            var eventLastActivities = windowEvents
+                .GroupBy(@event => @event.EventAddressV2Id)
+                .Select(group => new
+                {
+                    EventAddressV2Id = group.Key,
+                    LastActivity = group.Max(@event => @event.CreatedDate)
                 })
                 .ToList();
 
@@ -486,13 +504,21 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                     var eventCount = eventCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
                     var listenerCount = listenerCounts.FirstOrDefault(count => count.EventAddressV2Id == addressId);
 
+                    var eventLastActivity = eventLastActivities
+                        .FirstOrDefault(lastActivity => lastActivity.EventAddressV2Id == addressId);
+
                     return new EventAddressUsageV2
                     {
                         EventAddressV2Id = addressId,
                         TotalActiveEvents = eventCount?.TotalActiveEvents ?? 0,
                         LoopsDetected = eventCount?.LoopsDetected ?? 0,
                         TotalListenerEvents = listenerCount?.TotalListenerEvents ?? 0,
-                        DeadEvents = listenerCount?.DeadEvents ?? 0
+                        ErrorListenerEvents = listenerCount?.ErrorListenerEvents ?? 0,
+                        DeadEvents = listenerCount?.DeadEvents ?? 0,
+
+                        LastActivity = new[] { eventLastActivity?.LastActivity, listenerCount?.LastActivity }
+                            .Where(lastActivity => lastActivity is not null)
+                            .Max()
                     };
                 })
                 .ToList();
