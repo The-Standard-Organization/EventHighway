@@ -4,12 +4,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using AngleSharp.Dom;
 using Bunit;
 using EventHighway.Portal.Web.Components.Pages.Admin;
 using EventHighway.Portal.Web.Models.Views.EventAddresses;
 using EventHighway.Portal.Web.Models.Views.EventHandlers;
+using EventHighway.Portal.Web.Models.Views.EventListeners;
 using FluentAssertions;
+using Moq;
 
 namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
 {
@@ -48,6 +51,40 @@ namespace EventHighway.Portal.Web.Tests.Unit.Components.Pages.Admin
 
             renderedPage.Markup.Should().NotContain("Handler Id");
             renderedPage.Markup.Should().NotContain("Handler Name");
+        }
+
+        [Fact]
+        public void ShouldShowErrorWhenNoHandlerIsSelectedOnRegisterListener()
+        {
+            // given
+            EventAddressView address = CreateRandomAddress();
+            List<EventHandlerView> eventHandlers = CreateRandomEventHandlers(count: 3);
+
+            SetupPage(
+                address,
+                CreateRandomListeners(address.Id, count: 0),
+                CreateRandomParticipants(count: 2),
+                eventHandlers);
+
+            IRenderedComponent<EventAddressDetailPage> renderedPage =
+                Render<EventAddressDetailPage>(parameters =>
+                    parameters.Add(page => page.AddressId, address.Id));
+
+            renderedPage.Find("button.btn-primary.btn-sm").Click();
+
+            // when
+            renderedPage.FindAll("button")
+                .First(button => button.TextContent.Trim() == "Save")
+                .Click();
+
+            // then
+            renderedPage.Markup.Should().Contain("Select a handler.");
+
+            this.listenersViewServiceMock.Verify(service =>
+                service.RegisterListenerAsync(
+                    It.IsAny<EventListenerView>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
         }
     }
 }
