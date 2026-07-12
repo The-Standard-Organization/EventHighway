@@ -66,7 +66,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             IReadOnlyList<HealthCheckItemV2> healthCheckItems = MergeHealthCheckItems(
@@ -96,7 +96,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Traffic = MergeTraffic(
                 period,
@@ -202,7 +202,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.AddressUsage = MergeAddressUsage(
@@ -232,7 +232,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.ParticipantUsage = MergeParticipantUsage(
@@ -266,7 +266,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
             HealthConfiguration healthConfiguration = this.configurationBroker.GetHealthConfiguration();
 
             report.LoopDetection = MergeLoopDetection(
@@ -301,7 +301,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Duplicates = EnrichDuplicates(
                 period,
@@ -337,7 +337,7 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                 await this.healthArchivedEventsV2OrchestrationService
                     .RetrieveHealthReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
-            HealthReportV2 report = await BuildReportShellAsync(period, windowStart);
+            HealthReportV2 report = await BuildReportShellAsync(period, windowStart, windowEnd);
 
             report.Retry = MergeRetry(
                 period,
@@ -795,6 +795,47 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
                     break;
 
+                // Custom windows derive their bucket granularity from the span: hourly up to 2 days,
+                // daily up to 62 days, monthly beyond. Enumeration starts from the window start
+                // truncated to the bucket boundary so it lines up with the orchestrations' server-side
+                // date-part truncation.
+                case TrafficPeriodV2.Custom:
+                    double spanDays = (windowEnd - windowStart).TotalDays;
+
+                    if (spanDays <= 2)
+                    {
+                        DateTimeOffset hourStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, windowStart.Day, windowStart.Hour, 0, 0,
+                            TimeSpan.Zero);
+
+                        for (DateTimeOffset start = hourStart; start < windowEnd; start = start.AddHours(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("HH:00", CultureInfo.InvariantCulture)));
+                        }
+                    }
+                    else if (spanDays <= 62)
+                    {
+                        DateTimeOffset dayStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, windowStart.Day, 0, 0, 0, TimeSpan.Zero);
+
+                        for (DateTimeOffset start = dayStart; start < windowEnd; start = start.AddDays(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("dd MMM", CultureInfo.InvariantCulture)));
+                        }
+                    }
+                    else
+                    {
+                        DateTimeOffset monthStart = new DateTimeOffset(
+                            windowStart.Year, windowStart.Month, 1, 0, 0, 0, TimeSpan.Zero);
+
+                        for (DateTimeOffset start = monthStart; start < windowEnd; start = start.AddMonths(1))
+                        {
+                            bucketStarts.Add((start, start.ToString("MMM yyyy", CultureInfo.InvariantCulture)));
+                        }
+                    }
+
+                    break;
+
                 default:
                     for (int hour = 0; hour < 24; hour++)
                     {
@@ -810,17 +851,18 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
 
         private async ValueTask<HealthReportV2> BuildReportShellAsync(
             TrafficPeriodV2 period,
-            DateTimeOffset windowStart)
+            DateTimeOffset windowStart,
+            DateTimeOffset? windowEnd = null)
         {
-            DateTimeOffset windowEnd = ComputeWindowEnd(period, windowStart);
+            DateTimeOffset resolvedWindowEnd = windowEnd ?? ComputeWindowEnd(period, windowStart);
             DateTimeOffset generatedDate = await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             return new HealthReportV2
             {
                 Period = period,
                 WindowStart = windowStart,
-                WindowEnd = windowEnd,
-                WindowLabel = BuildWindowLabel(period, windowStart, windowEnd),
+                WindowEnd = resolvedWindowEnd,
+                WindowLabel = BuildWindowLabel(period, windowStart, resolvedWindowEnd),
                 GeneratedDate = generatedDate
             };
         }
