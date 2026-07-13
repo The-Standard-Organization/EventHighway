@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.Events.V1.Exceptions;
 using EventHighway.Core.Models.Services.Coordinations.Events.V1.Exceptions;
@@ -17,6 +18,7 @@ namespace EventHighway.Core.Clients.Events.V1
         public EventV1sClientV1(IEventV1CoordinationServiceV1 eventV1CoordinationServiceV1) =>
             this.eventV1CoordinationServiceV1 = eventV1CoordinationServiceV1;
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask ArchiveDeadEventV1sAsync()
         {
             try

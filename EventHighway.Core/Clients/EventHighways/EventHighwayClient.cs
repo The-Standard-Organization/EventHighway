@@ -151,41 +151,49 @@ namespace EventHighway.Core.Clients.EventHighways
         /// <summary>
         /// Gets the client for managing event addresses.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventAddressesClient EventAddresses { get; private set; }
 
         /// <summary>
         /// Gets the client for managing event listeners.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventListenersClient EventListeners { get; private set; }
 
         /// <summary>
         /// Gets the client for managing events.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventsClient Events { get; private set; }
 
         /// <summary>
         /// Gets the client for managing events in V1 API.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventV1sClient EventV1s { get; private set; }
 
         /// <summary>
         /// Gets the client for managing events in V1 API with V1 operations.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventV1sClientV1 EventV1sV1 { get; private set; }
 
         /// <summary>
         /// Gets the client for managing event addresses in V1 API.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventAddressesV1Client EventAddressV1s { get; private set; }
 
         /// <summary>
         /// Gets the client for managing event listeners in V1 API.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IEventListenerV1sClient EventListenerV1s { get; private set; }
 
         /// <summary>
         /// Gets the client for managing listener events in V1 API.
         /// </summary>
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public IListenerEventV1sClient ListenerEventV1s { get; private set; }
 
         /// <summary>
@@ -201,6 +209,7 @@ namespace EventHighway.Core.Clients.EventHighways
                 storageBroker.Database.Migrate();
             }
 
+#pragma warning disable CS0618 // Type or member is obsolete
             this.EventAddresses =
                 serviceProvider.GetRequiredService<IEventAddressesClient>();
 
@@ -224,6 +233,7 @@ namespace EventHighway.Core.Clients.EventHighways
 
             this.ListenerEventV1s =
                 serviceProvider.GetRequiredService<IListenerEventV1sClient>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
             this.V2 = new ClientV2(this.storageProvider, this.configuration);
         }

@@ -21,6 +21,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
         public EventAddressesV1Client(IEventAddressV1Service eventAddressV1Service) =>
             this.eventAddressV1Service = eventAddressV1Service;
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventAddressV1> RegisterEventAddressV1Async(EventAddressV1 eventAddressV1)
         {
             try
@@ -53,6 +54,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<IQueryable<EventAddressV1>> RetrieveAllEventAddressV1sAsync()
         {
             try
@@ -76,6 +78,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventAddressV1> RemoveEventAddressV1ByIdAsync(Guid eventAddressV1Id)
         {
             try
