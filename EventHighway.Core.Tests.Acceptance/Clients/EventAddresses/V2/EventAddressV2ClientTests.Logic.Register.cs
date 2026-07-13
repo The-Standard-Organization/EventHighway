@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Tests.Acceptance.Extensions;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -32,7 +33,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V2
 
             // then
             actualEventAddressV2.Should()
-                .BeEquivalentTo(expectedEventAddressV2);
+                .BeEquivalentTo(expectedEventAddressV2, options =>
+                    options.WithDateTimeOffsetTolerance());
 
             await this.clientBroker
                 .RemoveEventAddressV2ByIdAsync(

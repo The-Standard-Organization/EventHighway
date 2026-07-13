@@ -52,15 +52,16 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             return randomEventListenerV2;
         }
 
-        private EventListenerV2 CreateRandomEventListenerV2(Guid eventAddressId) =>
+        private static EventListenerV2 CreateRandomEventListenerV2(Guid eventAddressId) =>
             CreateEventListenerV2Filler(eventAddressId).Create();
 
-        private EventAddressV2 CreateRandomEventAddressV2() =>
+        private static EventAddressV2 CreateRandomEventAddressV2() =>
             CreateEventAddressV2Filler().Create();
 
-        private Filler<EventAddressV2> CreateEventAddressV2Filler()
+        private static Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
-            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventAddressV2>();
 
             filler.Setup()
@@ -81,10 +82,11 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             return filler;
         }
 
-        private Filler<EventListenerV2> CreateEventListenerV2Filler(
+        private static Filler<EventListenerV2> CreateEventListenerV2Filler(
             Guid eventAddressId)
         {
-            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventListenerV2>();
 
             filler.Setup()
