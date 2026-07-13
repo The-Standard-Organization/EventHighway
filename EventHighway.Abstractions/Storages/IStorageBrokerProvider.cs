@@ -9,6 +9,7 @@ namespace EventHighway.Abstractions.Storages
     public interface IStorageBrokerProvider
     {
         void Configure(DbContextOptionsBuilder optionsBuilder);
+        void ConfigureConventions(ModelConfigurationBuilder configurationBuilder);
         void ConfigureModel(ModelBuilder modelBuilder);
     }
 }
