@@ -1,0 +1,66 @@
+@page "/"
+@implements IDisposable
+@using EventHighway.Portal.Web.Views.Components.Foundations.Dashboards
+
+<PageTitle>Health Status</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
+    <h2 class="mb-0">Health Status</h2>
+    <div class="d-flex align-items-center gap-3">
+        <span class="small text-body-secondary font-monospace">
+            Auto-refresh in @countdown s
+        </span>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="OnForceRefresh">
+            <i class="cil-reload"></i> Refresh
+        </button>
+    </div>
+</div>
+
+<RagTileRow RefreshToken="refreshToken" />
+
+@code {
+    private const int RefreshIntervalSeconds = 60;
+
+    private int countdown = RefreshIntervalSeconds;
+    private int refreshToken;
+
+    private System.Timers.Timer? timer;
+
+    protected override void OnInitialized()
+    {
+        timer = new System.Timers.Timer(1000) { AutoReset = true };
+        timer.Elapsed += OnTick;
+        timer.Start();
+    }
+
+    private void OnTick(object? sender, System.Timers.ElapsedEventArgs args)
+    {
+        _ = InvokeAsync(() =>
+        {
+            countdown--;
+
+            if (countdown <= 0)
+            {
+                refreshToken++;
+                countdown = RefreshIntervalSeconds;
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private void OnForceRefresh()
+    {
+        refreshToken++;
+        countdown = RefreshIntervalSeconds;
+    }
+
+    public void Dispose()
+    {
+        if (timer is not null)
+        {
+            timer.Elapsed -= OnTick;
+            timer.Dispose();
+        }
+    }
+}

@@ -1,0 +1,12 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+<div class="mb-3">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="form-label">@Label</label>
+    }
+    <input class="form-control"
+           value="@Value"
+           placeholder="@Placeholder"
+           @oninput="OnInputAsync" />
+</div>

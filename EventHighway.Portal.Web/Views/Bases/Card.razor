@@ -1,0 +1,23 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+<div class="card @CssClass">
+    @if (Title is not null || HeaderContent is not null)
+    {
+        <div class="card-header">
+            @if (Title is not null)
+            {
+                <span class="fw-semibold">@Title</span>
+            }
+            @HeaderContent
+        </div>
+    }
+    <div class="card-body">
+        @ChildContent
+    </div>
+    @if (FooterContent is not null)
+    {
+        <div class="card-footer">
+            @FooterContent
+        </div>
+    }
+</div>

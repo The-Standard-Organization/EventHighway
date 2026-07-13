@@ -1,0 +1,174 @@
+@page "/stats"
+@implements IDisposable
+@using EventHighway.Core.Models.Coordinations.HealthChecks.V2
+@using EventHighway.Portal.Web.Views.Components.Foundations.Dashboards
+
+<PageTitle>Health Stats</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Health Stats</h2>
+    <span class="badge text-bg-secondary">EventHighway</span>
+</div>
+
+<ControlBar Period="period"
+            WindowStart="windowStart"
+            WindowEnd="windowEnd"
+            SyncEnabled="syncEnabled"
+            AutoRefreshSeconds="autoRefreshSeconds"
+            CountdownSeconds="countdown"
+            CanGoNext="CanGoNext"
+            PeriodChanged="OnPeriodChanged"
+            CustomRangeChanged="OnCustomRangeChanged"
+            PreviousRequested="OnPrevious"
+            NextRequested="OnNext"
+            CurrentRequested="OnCurrent"
+            ForceRefreshRequested="OnForceRefresh"
+            SyncChanged="OnSyncChanged"
+            AutoRefreshChanged="OnAutoRefreshChanged" />
+
+<TrafficPanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+              SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<AddressUsagePanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+                   SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<LoopPanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+           SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<DuplicatePanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+                SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<RetryPanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+            SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+<ParticipantPanel GlobalPeriod="period" GlobalWindowStart="windowStart" GlobalWindowEnd="windowEnd"
+                  SyncEnabled="syncEnabled" RefreshToken="refreshToken" />
+
+@code {
+    private TrafficPeriodV2 period = TrafficPeriodV2.Week;
+    private DateTimeOffset windowStart;
+    private DateTimeOffset? windowEnd;
+    private bool syncEnabled = true;
+    private int autoRefreshSeconds = 60;
+    private int countdown = 60;
+    private int refreshToken;
+
+    // While the user stays on the current (rolling) window, every refresh re-anchors it to now so
+    // an open dashboard keeps sliding forward; navigating back stops the sliding until "Current".
+    private bool anchoredToNow = true;
+
+    private System.Timers.Timer? timer;
+
+    private static DateTimeOffset Now => DateTimeOffset.UtcNow;
+
+    private bool CanGoNext => WindowNavigator.CanGoNext(period, windowStart, Now);
+
+    protected override void OnInitialized()
+    {
+        windowStart = WindowNavigator.Current(period, Now);
+
+        timer = new System.Timers.Timer(1000) { AutoReset = true };
+        timer.Elapsed += OnTick;
+        timer.Start();
+    }
+
+    private void OnTick(object? sender, System.Timers.ElapsedEventArgs args)
+    {
+        if (autoRefreshSeconds <= 0)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            countdown--;
+
+            if (countdown <= 0)
+            {
+                ReAnchorIfCurrent();
+                refreshToken++;
+                countdown = autoRefreshSeconds;
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private void ReAnchorIfCurrent()
+    {
+        if (anchoredToNow && period != TrafficPeriodV2.Custom)
+        {
+            windowStart = WindowNavigator.Current(period, Now);
+        }
+    }
+
+    private void OnPeriodChanged(TrafficPeriodV2 newPeriod)
+    {
+        period = newPeriod;
+
+        if (newPeriod == TrafficPeriodV2.Custom)
+        {
+            // Default a custom range to the past week; the pickers adjust it from there.
+            windowStart = WindowNavigator.Current(TrafficPeriodV2.Week, Now);
+            windowEnd = WindowNavigator.WindowEnd(TrafficPeriodV2.Week, windowStart);
+            anchoredToNow = false;
+        }
+        else
+        {
+            windowStart = WindowNavigator.Current(newPeriod, Now);
+            windowEnd = null;
+            anchoredToNow = true;
+        }
+    }
+
+    private void OnCustomRangeChanged((DateTimeOffset Start, DateTimeOffset End) range)
+    {
+        windowStart = range.Start;
+        windowEnd = range.End;
+    }
+
+    private void OnPrevious()
+    {
+        windowStart = WindowNavigator.Previous(period, windowStart);
+        anchoredToNow = false;
+    }
+
+    private void OnNext()
+    {
+        if (CanGoNext)
+        {
+            windowStart = WindowNavigator.Next(period, windowStart);
+            anchoredToNow = WindowNavigator.CanGoNext(period, windowStart, Now) == false;
+        }
+    }
+
+    private void OnCurrent()
+    {
+        windowStart = WindowNavigator.Current(period, Now);
+        anchoredToNow = true;
+    }
+
+    private void OnForceRefresh()
+    {
+        ReAnchorIfCurrent();
+        refreshToken++;
+        countdown = autoRefreshSeconds;
+    }
+
+    private void OnSyncChanged(bool value) => syncEnabled = value;
+
+    private void OnAutoRefreshChanged(int seconds)
+    {
+        autoRefreshSeconds = seconds;
+        countdown = seconds;
+    }
+
+    public void Dispose()
+    {
+        if (timer is not null)
+        {
+            timer.Elapsed -= OnTick;
+            timer.Dispose();
+        }
+    }
+}

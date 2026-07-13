@@ -1,0 +1,8 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+<button type="@Type"
+        class="btn @($"btn-{Color}") @CssClass"
+        disabled="@Disabled"
+        @onclick="OnClick">
+    @ChildContent
+</button>

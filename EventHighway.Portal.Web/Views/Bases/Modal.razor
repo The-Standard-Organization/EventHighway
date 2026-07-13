@@ -1,0 +1,26 @@
+@namespace EventHighway.Portal.Web.Views.Bases
+
+@if (Visible)
+{
+    <div class="modal fade show" style="display:block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered @SizeClass @ScrollableClass" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title fs-5">@Title</div>
+                    <button type="button" class="btn-close" aria-label="Close"
+                            @onclick="OnClose"></button>
+                </div>
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                @if (FooterContent is not null)
+                {
+                    <div class="modal-footer">
+                        @FooterContent
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}

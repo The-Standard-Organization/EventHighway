@@ -1,0 +1,115 @@
+@page "/admin/event-addresses"
+@attribute [Authorize(Roles = "Administrators")]
+@using System.Collections.Generic
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventAddresses
+@using EventHighway.Portal.Web.Services.Views.Foundations.EventAddresses
+@inject IEventAddressesViewService AddressesViewService
+@inject NavigationManager Navigation
+
+<PageTitle>Event Addresses</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Event Addresses</h2>
+    <Button Color="primary" OnClick="OpenRegisterModal">Register Address</Button>
+</div>
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+else
+{
+    <Card>
+        <DataTable TItem="EventAddressView" Items="addresses" Columns="columns">
+            <RowActions Context="address">
+                <Button Color="primary" CssClass="btn-sm"
+                        OnClick="@(() => ViewAddress(address.Id))">
+                    VIEW
+                </Button>
+            </RowActions>
+        </DataTable>
+    </Card>
+}
+
+<Modal Title="Register Address" Visible="showRegisterModal" OnClose="CloseRegisterModal">
+    <ChildContent>
+        @if (registerError is not null)
+        {
+            <div class="alert alert-danger" role="alert">@registerError</div>
+        }
+        <FormText Label="Name" @bind-Value="newAddress.Name" />
+        <FormText Label="Description" @bind-Value="newAddress.Description" />
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="CloseRegisterModal">Cancel</Button>
+        <Button Color="primary" OnClick="SubmitRegisterAsync">Save</Button>
+    </FooterContent>
+</Modal>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private List<EventAddressView> addresses = new();
+    private List<DataTableColumn<EventAddressView>> columns = new();
+
+    private bool showRegisterModal;
+    private string? registerError;
+    private EventAddressView newAddress = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        columns = new List<DataTableColumn<EventAddressView>>
+        {
+            new DataTableColumn<EventAddressView> { Title = "Id", Value = a => a.Id },
+            new DataTableColumn<EventAddressView> { Title = "Name", Value = a => a.Name },
+            new DataTableColumn<EventAddressView> { Title = "Description", Value = a => a.Description },
+        };
+
+        await LoadAsync();
+        isLoading = false;
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            addresses = await AddressesViewService.RetrieveAllAddressesAsync();
+            errorMessage = null;
+        }
+        catch
+        {
+            errorMessage = "Unable to load event addresses. Please try again.";
+        }
+    }
+
+    private void ViewAddress(Guid addressId) =>
+        Navigation.NavigateTo($"/admin/event-addresses/{addressId}");
+
+    private void OpenRegisterModal()
+    {
+        newAddress = new EventAddressView();
+        registerError = null;
+        showRegisterModal = true;
+    }
+
+    private void CloseRegisterModal() => showRegisterModal = false;
+
+    private async Task SubmitRegisterAsync()
+    {
+        try
+        {
+            await AddressesViewService.RegisterAddressAsync(newAddress);
+            showRegisterModal = false;
+            await LoadAsync();
+        }
+        catch
+        {
+            registerError = "Unable to register the address. Please try again.";
+        }
+    }
+}

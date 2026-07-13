@@ -1,0 +1,639 @@
+@page "/admin/participants/{ParticipantId:guid}"
+@attribute [Authorize(Roles = "Administrators")]
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipants
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipantSecrets
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.UserEventParticipants
+@using EventHighway.Portal.Web.Models.Services.Views.Foundations.Users
+@using EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
+@using EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSecrets
+@using EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipants
+@using EventHighway.Portal.Web.Services.Views.Foundations.Users
+@inject IEventParticipantsViewService ParticipantsViewService
+@inject IEventParticipantSecretsViewService SecretsViewService
+@inject IUserEventParticipantsViewService UserEventParticipantsViewService
+@inject IUsersViewService UsersViewService
+@inject NavigationManager Navigation
+
+<PageTitle>Participant</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center py-3">
+    <h2 class="mb-0">Event Participant</h2>
+    <a class="btn btn-outline-secondary btn-sm" href="admin/participants">Back to list</a>
+</div>
+
+@if (isLoading)
+{
+    <Spinner />
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+else if (participant is not null)
+{
+    <Card>
+        <HeaderContent>
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <span class="fw-semibold">@participant.Name</span>
+                <div class="d-flex gap-2">
+                    <Button Color="primary" CssClass="btn-sm" OnClick="OpenEditParticipantModal">
+                        Edit
+                    </Button>
+                    <Button Color="danger" CssClass="btn-sm" OnClick="RequestDeleteParticipant">
+                        Delete
+                    </Button>
+                </div>
+            </div>
+        </HeaderContent>
+        <ChildContent>
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Id</dt>
+                <dd class="col-sm-9">@participant.Id</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@participant.Description</dd>
+
+                <dt class="col-sm-3">Contact Email</dt>
+                <dd class="col-sm-9">@participant.ContactEmail</dd>
+
+                <dt class="col-sm-3">Contact Phone</dt>
+                <dd class="col-sm-9">@participant.ContactPhone</dd>
+
+                <dt class="col-sm-3">Active</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(participant.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                        @(participant.IsActive ? "Active" : "Inactive")
+                    </span>
+                </dd>
+            </dl>
+        </ChildContent>
+    </Card>
+
+    <Card CssClass="mt-4">
+        <HeaderContent>
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <span class="fw-semibold">Event Participant Secrets</span>
+                <Button Color="primary" CssClass="btn-sm" OnClick="OpenAddSecretModal">
+                    Add Secret
+                </Button>
+            </div>
+        </HeaderContent>
+        <ChildContent>
+            @if (secretsError is not null)
+            {
+                <div class="alert alert-danger" role="alert">@secretsError</div>
+            }
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Secret</th>
+                            <th style="width: 8rem;">Active</th>
+                            <th style="width: 12rem;">Active From</th>
+                            <th style="width: 12rem;">Active To</th>
+                            <th class="text-end" style="width: 12rem;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (secrets.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-body-secondary text-center py-3">
+                                    No secrets yet.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (EventParticipantSecretView secret in secrets)
+                        {
+                            <tr @key="secret.Id">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="font-monospace">@DisplaySecret(secret)</span>
+                                        <button type="button"
+                                                class="btn btn-sm btn-ghost-secondary p-1 lh-1"
+                                                title="@(IsRevealed(secret.Id) ? "Hide secret" : "Reveal secret")"
+                                                @onclick="() => ToggleReveal(secret.Id)">
+                                            @if (IsRevealed(secret.Id))
+                                            {
+                                                @EyeSlashIcon
+                                            }
+                                            else
+                                            {
+                                                @EyeIcon
+                                            }
+                                        </button>
+                                    </div>
+                                </td>
+                                @if (IsEditing(secret.Id))
+                                {
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               @bind="secret.IsActive" />
+                                    </td>
+                                    <td>
+                                        <input type="date"
+                                               class="form-control form-control-sm"
+                                               value="@FormatDate(secret.ActiveFrom)"
+                                               @onchange="args => secret.ActiveFrom = ParseDate(args.Value?.ToString())" />
+                                    </td>
+                                    <td>
+                                        <input type="date"
+                                               class="form-control form-control-sm"
+                                               value="@FormatDate(secret.ActiveTo)"
+                                               @onchange="args => secret.ActiveTo = ParseDate(args.Value?.ToString())" />
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <Button Color="primary"
+                                                    CssClass="btn-sm"
+                                                    OnClick="() => SaveSecretAsync(secret)">
+                                                Save
+                                            </Button>
+                                            <Button Color="danger"
+                                                    CssClass="btn-sm"
+                                                    OnClick="() => RequestDeleteSecret(secret)">
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <span class="badge @(secret.IsActive ? "text-bg-success" : "text-bg-secondary")">
+                                            @(secret.IsActive ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td>@DisplayDate(secret.ActiveFrom)</td>
+                                    <td>@DisplayDate(secret.ActiveTo)</td>
+                                    <td class="text-end">
+                                        <Button Color="outline-primary"
+                                                CssClass="btn-sm"
+                                                OnClick="() => EnterEdit(secret.Id)">
+                                            Edit
+                                        </Button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </ChildContent>
+    </Card>
+
+    <Card CssClass="mt-4">
+        <HeaderContent>Associated Users</HeaderContent>
+        <ChildContent>
+            @if (associationsError is not null)
+            {
+                <div class="alert alert-danger" role="alert">@associationsError</div>
+            }
+            @if (associations.Any())
+            {
+                <ul class="list-group mb-3">
+                    @foreach (UserEventParticipantView association in associations)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="fw-semibold">@association.UserName</span>
+                                <span class="text-body-secondary ms-2">@association.UserEmail</span>
+                            </span>
+                            <Button Color="danger"
+                                    CssClass="btn-sm"
+                                    OnClick="@(() => RemoveAssociationAsync(association.Id))">
+                                Remove
+                            </Button>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-body-secondary">No users are associated with this participant.</p>
+            }
+
+            <div class="d-flex gap-2 align-items-center mb-3">
+                <FormText Label="Find User" @bind-Value="userSearchTerm" />
+                <Button Color="secondary" OnClick="SearchUsersAsync">Search</Button>
+            </div>
+
+            @if (userSearchMessage is not null)
+            {
+                <p class="text-body-secondary">@userSearchMessage</p>
+            }
+
+            @if (userSearchResults.Any())
+            {
+                <ul class="list-group">
+                    @foreach (UserView result in userSearchResults)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="fw-semibold">@result.UserName</span>
+                                <span class="text-body-secondary ms-2">@result.Email</span>
+                            </span>
+                            @if (IsAssociated(result.Id))
+                            {
+                                <Button Color="secondary" CssClass="btn-sm" Disabled="true">
+                                    Added
+                                </Button>
+                            }
+                            else
+                            {
+                                <Button Color="primary"
+                                        CssClass="btn-sm"
+                                        OnClick="@(() => AddAssociationAsync(result.Id))">
+                                    Add
+                                </Button>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </ChildContent>
+    </Card>
+}
+
+<Modal Title="Edit Participant" Visible="showEditParticipantModal" OnClose="CloseEditParticipantModal">
+    <ChildContent>
+        @if (editParticipantError is not null)
+        {
+            <div class="alert alert-danger" role="alert">@editParticipantError</div>
+        }
+        <FormText Label="Name" @bind-Value="editParticipant.Name" />
+        <FormText Label="Description" @bind-Value="editParticipant.Description" />
+        <FormText Label="Contact Email" @bind-Value="editParticipant.ContactEmail" />
+        <FormText Label="Contact Phone" @bind-Value="editParticipant.ContactPhone" />
+        <FormSwitch Label="Active" @bind-Value="editParticipant.IsActive" />
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="CloseEditParticipantModal">Cancel</Button>
+        <Button Color="primary" OnClick="SubmitEditParticipantAsync">Save</Button>
+    </FooterContent>
+</Modal>
+
+<Modal Title="Add Secret" Visible="showAddSecretModal" OnClose="CloseAddSecretModal">
+    <ChildContent>
+        @if (addSecretError is not null)
+        {
+            <div class="alert alert-danger" role="alert">@addSecretError</div>
+        }
+        <FormText Label="Secret" @bind-Value="newSecret.Secret" />
+        <FormDate Label="Active From" @bind-Value="newSecret.ActiveFrom" />
+        <FormDate Label="Active To" @bind-Value="newSecret.ActiveTo" />
+        <FormSwitch Label="Active" @bind-Value="newSecret.IsActive" />
+    </ChildContent>
+    <FooterContent>
+        <Button Color="secondary" OnClick="CloseAddSecretModal">Cancel</Button>
+        <Button Color="primary" OnClick="SubmitAddSecretAsync">Save</Button>
+    </FooterContent>
+</Modal>
+
+<ConfirmDialog Visible="confirmVisible"
+               Title="Confirm delete"
+               Message="@confirmMessage"
+               ConfirmText="OK"
+               CancelText="Cancel"
+               OnConfirm="ConfirmYesAsync"
+               OnCancel="ConfirmNo" />
+
+@code {
+    [Parameter]
+    public Guid ParticipantId { get; set; }
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private EventParticipantView? participant;
+
+    private List<EventParticipantSecretView> secrets = new();
+    private string? secretsError;
+    private readonly HashSet<Guid> revealedSecretIds = new();
+    private readonly HashSet<Guid> editingSecretIds = new();
+
+    private bool showEditParticipantModal;
+    private string? editParticipantError;
+    private EventParticipantView editParticipant = new();
+
+    private bool showAddSecretModal;
+    private string? addSecretError;
+    private EventParticipantSecretView newSecret = new();
+
+    private bool confirmVisible;
+    private string? confirmMessage;
+    private Func<Task>? pendingConfirm;
+
+    private List<UserEventParticipantView> associations = new();
+    private string? associationsError;
+    private string? userSearchTerm;
+    private string? userSearchMessage;
+    private List<UserView> userSearchResults = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            participant = await ParticipantsViewService.RetrieveParticipantByIdAsync(ParticipantId);
+            await LoadSecretsAsync();
+            await LoadAssociationsAsync();
+        }
+        catch
+        {
+            errorMessage = "Unable to load this participant. Please try again.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadAssociationsAsync()
+    {
+        try
+        {
+            associations =
+                await UserEventParticipantsViewService
+                    .RetrieveAssociationsByParticipantIdAsync(ParticipantId);
+
+            associationsError = null;
+        }
+        catch
+        {
+            associationsError = "Unable to load associated users.";
+        }
+    }
+
+    private bool IsAssociated(Guid userId) =>
+        associations.Any(association => association.UserId == userId);
+
+    private async Task SearchUsersAsync()
+    {
+        userSearchMessage = null;
+        userSearchResults = new List<UserView>();
+
+        if (string.IsNullOrWhiteSpace(userSearchTerm))
+        {
+            userSearchMessage = "Enter a username or email to search.";
+            return;
+        }
+
+        try
+        {
+            List<UserView> allUsers = await UsersViewService.RetrieveAllUsersAsync();
+
+            userSearchResults = allUsers
+                .Where(user =>
+                    (user.UserName is not null && user.UserName.Contains(
+                        userSearchTerm, StringComparison.OrdinalIgnoreCase))
+                    || (user.Email is not null && user.Email.Contains(
+                        userSearchTerm, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (userSearchResults.Count == 0)
+            {
+                userSearchMessage = "No users matched.";
+            }
+        }
+        catch
+        {
+            userSearchMessage = "No users matched.";
+        }
+    }
+
+    private async Task AddAssociationAsync(Guid userId)
+    {
+        try
+        {
+            await UserEventParticipantsViewService.AddAssociationAsync(userId, ParticipantId);
+            userSearchResults = new List<UserView>();
+            userSearchTerm = null;
+            await LoadAssociationsAsync();
+        }
+        catch
+        {
+            associationsError =
+                "This user is already associated with this participant, or the details are invalid.";
+        }
+    }
+
+    private async Task RemoveAssociationAsync(Guid associationId)
+    {
+        try
+        {
+            await UserEventParticipantsViewService.RemoveAssociationByIdAsync(associationId);
+            await LoadAssociationsAsync();
+        }
+        catch
+        {
+            associationsError = "Unable to remove the association. Please try again.";
+        }
+    }
+
+    private async Task LoadSecretsAsync()
+    {
+        try
+        {
+            secrets = await SecretsViewService.RetrieveSecretsByParticipantAsync(ParticipantId);
+            secretsError = null;
+        }
+        catch
+        {
+            secretsError = "Unable to load secrets.";
+        }
+    }
+
+    private static string FormatDate(DateTimeOffset? value) =>
+        value?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+    private static string DisplayDate(DateTimeOffset? value) =>
+        value?.ToString("yyyy-MM-dd") ?? "—";
+
+    private static DateTimeOffset? ParseDate(string? raw) =>
+        DateTimeOffset.TryParse(
+            raw,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal,
+            out DateTimeOffset value)
+                ? value
+                : null;
+
+    private bool IsRevealed(Guid secretId) =>
+        revealedSecretIds.Contains(secretId);
+
+    private void ToggleReveal(Guid secretId)
+    {
+        if (!revealedSecretIds.Add(secretId))
+        {
+            revealedSecretIds.Remove(secretId);
+        }
+    }
+
+    private string DisplaySecret(EventParticipantSecretView secret) =>
+        IsRevealed(secret.Id)
+            ? secret.Secret ?? string.Empty
+            : Mask(secret.Secret);
+
+    private static string Mask(string? secret) =>
+        string.IsNullOrEmpty(secret) ? string.Empty : new string('•', 8);
+
+    private bool IsEditing(Guid secretId) =>
+        editingSecretIds.Contains(secretId);
+
+    private void EnterEdit(Guid secretId) =>
+        editingSecretIds.Add(secretId);
+
+    private async Task SaveSecretAsync(EventParticipantSecretView secret)
+    {
+        try
+        {
+            await SecretsViewService.ModifySecretAsync(secret);
+            editingSecretIds.Remove(secret.Id);
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            secretsError = "Unable to save the secret. Please try again.";
+        }
+    }
+
+    private void RequestDeleteSecret(EventParticipantSecretView secret) =>
+        RequestConfirm(
+            "Deleting this secret is permanent and cannot be undone.",
+            () => DeleteSecretAsync(secret.Id));
+
+    private async Task DeleteSecretAsync(Guid secretId)
+    {
+        try
+        {
+            await SecretsViewService.RemoveSecretByIdAsync(secretId);
+            editingSecretIds.Remove(secretId);
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            secretsError = "Unable to delete the secret. Please try again.";
+        }
+    }
+
+    private void OpenEditParticipantModal()
+    {
+        editParticipant = new EventParticipantView
+        {
+            Id = participant!.Id,
+            Name = participant.Name,
+            Description = participant.Description,
+            ContactEmail = participant.ContactEmail,
+            ContactPhone = participant.ContactPhone,
+            IsActive = participant.IsActive,
+            ActiveFrom = participant.ActiveFrom,
+            ActiveTo = participant.ActiveTo
+        };
+
+        editParticipantError = null;
+        showEditParticipantModal = true;
+    }
+
+    private void CloseEditParticipantModal() =>
+        showEditParticipantModal = false;
+
+    private async Task SubmitEditParticipantAsync()
+    {
+        try
+        {
+            participant = await ParticipantsViewService.ModifyParticipantAsync(editParticipant);
+            showEditParticipantModal = false;
+        }
+        catch
+        {
+            editParticipantError = "Unable to save the participant. Please try again.";
+        }
+    }
+
+    private void RequestDeleteParticipant() =>
+        RequestConfirm(
+            "Deleting this participant is permanent and cannot be undone.",
+            DeleteParticipantAsync);
+
+    private async Task DeleteParticipantAsync()
+    {
+        try
+        {
+            await ParticipantsViewService.RemoveParticipantByIdAsync(ParticipantId);
+            Navigation.NavigateTo("admin/participants");
+        }
+        catch
+        {
+            errorMessage = "Unable to delete this participant. Please try again.";
+        }
+    }
+
+    private void OpenAddSecretModal()
+    {
+        newSecret = new EventParticipantSecretView { EventParticipantV2Id = ParticipantId, IsActive = true };
+        addSecretError = null;
+        showAddSecretModal = true;
+    }
+
+    private void CloseAddSecretModal() =>
+        showAddSecretModal = false;
+
+    private async Task SubmitAddSecretAsync()
+    {
+        try
+        {
+            await SecretsViewService.AddSecretAsync(newSecret);
+            showAddSecretModal = false;
+            await LoadSecretsAsync();
+        }
+        catch
+        {
+            addSecretError = "Unable to add the secret. Please try again.";
+        }
+    }
+
+    private void RequestConfirm(string message, Func<Task> action)
+    {
+        confirmMessage = message;
+        pendingConfirm = action;
+        confirmVisible = true;
+    }
+
+    private async Task ConfirmYesAsync()
+    {
+        confirmVisible = false;
+        Func<Task>? action = pendingConfirm;
+        pendingConfirm = null;
+
+        if (action is not null)
+        {
+            await action();
+        }
+    }
+
+    private void ConfirmNo()
+    {
+        confirmVisible = false;
+        pendingConfirm = null;
+    }
+
+    private static readonly RenderFragment EyeIcon = builder =>
+    {
+        builder.AddMarkupContent(0,
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\">"
+            + "<path d=\"M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z\"/>"
+            + "<path d=\"M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0\"/>"
+            + "</svg>");
+    };
+
+    private static readonly RenderFragment EyeSlashIcon = builder =>
+    {
+        builder.AddMarkupContent(0,
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 16 16\">"
+            + "<path d=\"M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z\"/>"
+            + "<path d=\"M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829\"/>"
+            + "<path d=\"M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5q.879 0 1.668-.211l.778.778A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z\"/>"
+            + "</svg>");
+    };
+}

@@ -1,0 +1,100 @@
+@namespace EventHighway.Portal.Web.Views.Components.Foundations.Dashboards
+@inherits PeriodAwarePanelBase
+@using System.Linq
+@using EventHighway.Core.Models.Coordinations.HealthChecks.V2
+@using EventHighway.Portal.Web.Views.Bases
+@using EventHighway.Portal.Web.Services.Views.Foundations.HealthDashboards
+@inject IHealthViewService HealthViewService
+
+<Card CssClass="mb-4">
+    <HeaderContent>
+        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2">
+            <span class="fw-semibold">Retry Health</span>
+            <PeriodNavigator Period="EffectivePeriod" WindowStart="EffectiveWindowStart"
+                             WindowEnd="EffectiveWindowEnd"
+                             Disabled="NavDisabled" CanGoNext="CanGoNext"
+                             PeriodChanged="OnPeriodChanged" CustomRangeChanged="OnCustomRangeChanged"
+                             PreviousRequested="OnPrevious"
+                             NextRequested="OnNext" CurrentRequested="OnCurrent" />
+        </div>
+    </HeaderContent>
+    <ChildContent>
+        @if (isLoading)
+        {
+            <Spinner />
+        }
+        else if (errorMessage is not null)
+        {
+            <div class="alert alert-danger mb-0" role="alert">@errorMessage</div>
+        }
+        else if (summary is not null)
+        {
+            <div class="row mb-3">
+                <div class="col"><StatTile Variant="StatTileVariant.Red" Value="@summary.DeadEvents.ToString()" Label="Dead (0)" /></div>
+                <div class="col"><StatTile Variant="StatTileVariant.Amber" Value="@summary.CriticalEvents.ToString()" Label="Critical (1-2)" /></div>
+                <div class="col"><StatTile Variant="StatTileVariant.Green" Value="@summary.HealthyEvents.ToString()" Label="Healthy (3+)" /></div>
+            </div>
+            @if (labels.Count > 0)
+            {
+                <Chart ChartType="bar" Labels="labels" Datasets="datasets" Height="220" />
+            }
+            <DataTable TItem="RetryAddressDetailV2" Items="details" Columns="columns" Searchable="false" />
+        }
+    </ChildContent>
+</Card>
+
+@code {
+    private bool isLoading = true;
+    private string? errorMessage;
+    private RetryHealthSummaryV2? summary;
+    private List<RetryAddressDetailV2> details = new();
+    private List<string> labels = new();
+    private List<ChartDataset> datasets = new();
+    private List<DataTableColumn<RetryAddressDetailV2>> columns = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        columns = new List<DataTableColumn<RetryAddressDetailV2>>
+        {
+            new DataTableColumn<RetryAddressDetailV2> { Title = "Address", Value = d => d.EventAddressV2Name },
+            new DataTableColumn<RetryAddressDetailV2> { Title = "Dead", Value = d => d.DeadEvents },
+            new DataTableColumn<RetryAddressDetailV2> { Title = "Critical", Value = d => d.CriticalEvents },
+            new DataTableColumn<RetryAddressDetailV2> { Title = "Total", Value = d => d.TotalEvents },
+        };
+    }
+
+    protected override async Task LoadAsync(
+        TrafficPeriodV2 period, DateTimeOffset windowStart, DateTimeOffset? windowEnd)
+    {
+        try
+        {
+            summary = await HealthViewService.RetrieveRetryHealthAsync(period, windowStart, windowEnd);
+
+            var distribution = (summary.Distribution ?? Enumerable.Empty<RetryBucketV2>()).ToList();
+            labels = distribution.Select(b => b.RemainingRetries.ToString()).ToList();
+            datasets = new List<ChartDataset>
+            {
+                new ChartDataset
+                {
+                    Label = "Events",
+                    Data = distribution.Select(b => (double)b.Count).ToList(),
+                    Colors = new List<string> { "#321fdb" }
+                }
+            };
+
+            details = (summary.ByAddress ?? Enumerable.Empty<RetryAddressDetailV2>()).ToList();
+            errorMessage = null;
+        }
+        catch
+        {
+            errorMessage = "Unable to load retry health.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
