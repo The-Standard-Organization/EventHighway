@@ -19,7 +19,8 @@ namespace EventHighway.PostgreSql
         public void Configure(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseNpgsql(
                 this.connectionString,
-                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgreSql"));
+                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgreSql"))
+                .AddInterceptors(new DateTimeOffsetTruncationInterceptor());
 
         public void ConfigureModel(ModelBuilder modelBuilder) { }
 
