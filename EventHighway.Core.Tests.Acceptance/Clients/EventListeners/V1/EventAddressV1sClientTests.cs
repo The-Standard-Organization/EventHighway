@@ -50,15 +50,15 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
             return randomEventListenerV1;
         }
 
-        private static EventListenerV1 CreateRandomEventListenerV1(Guid eventAddressId) =>
+        private EventListenerV1 CreateRandomEventListenerV1(Guid eventAddressId) =>
             CreateEventListenerV1Filler(eventAddressId).Create();
 
-        private static EventAddressV1 CreateRandomEventAddressV1() =>
+        private EventAddressV1 CreateRandomEventAddressV1() =>
             CreateEventAddressV1Filler().Create();
 
-        private static Filler<EventAddressV1> CreateEventAddressV1Filler()
+        private Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()
@@ -76,10 +76,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
             return filler;
         }
 
-        private static Filler<EventListenerV1> CreateEventListenerV1Filler(
+        private Filler<EventListenerV1> CreateEventListenerV1Filler(
             Guid eventAddressId)
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventListenerV1>();
 
             filler.Setup()
@@ -95,14 +95,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

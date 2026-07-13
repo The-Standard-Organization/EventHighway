@@ -30,7 +30,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 randomEventParticipantSecretV2.CreatedDate;
 
             modifiedEventParticipantSecretV2.UpdatedDate =
-                DateTimeOffset.UtcNow;
+                this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
 
             EventParticipantSecretV2 expectedEventParticipantSecretV2 =
                 modifiedEventParticipantSecretV2.DeepClone();

@@ -29,7 +29,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
                 randomEventParticipantV2.CreatedDate;
 
             modifiedEventParticipantV2.UpdatedDate =
-                DateTimeOffset.UtcNow;
+                this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
 
             EventParticipantV2 expectedEventParticipantV2 =
                 modifiedEventParticipantV2.DeepClone();

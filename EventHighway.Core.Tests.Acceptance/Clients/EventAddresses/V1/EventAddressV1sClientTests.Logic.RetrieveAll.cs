@@ -28,8 +28,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
 
             // when 
             List<EventAddressV1> actualEventAddressV1s =
-                    (await this.clientBroker.RetrieveAllEventAddressV1sAsync())
-                        .ToList();
+                (await this.clientBroker.RetrieveAllEventAddressV1sAsync())
+                    .ToList();
 
             // then
             actualEventAddressV1s.Should()

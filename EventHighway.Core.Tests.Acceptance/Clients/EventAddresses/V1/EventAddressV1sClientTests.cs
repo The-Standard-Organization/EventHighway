@@ -58,12 +58,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
             return randomEventAddressV1;
         }
 
-        private static EventAddressV1 CreateRandomEventAddressV1() =>
+        private EventAddressV1 CreateRandomEventAddressV1() =>
             CreateEventAddressV1Filler().Create();
 
-        private static Filler<EventAddressV1> CreateEventAddressV1Filler()
+        private Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()
@@ -79,14 +79,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V1
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

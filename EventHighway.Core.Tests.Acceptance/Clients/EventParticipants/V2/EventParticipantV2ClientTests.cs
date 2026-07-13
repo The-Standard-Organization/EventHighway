@@ -59,12 +59,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
             return randomEventParticipantV2;
         }
 
-        private static EventParticipantV2 CreateRandomEventParticipantV2() =>
+        private EventParticipantV2 CreateRandomEventParticipantV2() =>
             CreateEventParticipantV2Filler().Create();
 
-        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        private Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()
@@ -101,14 +101,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

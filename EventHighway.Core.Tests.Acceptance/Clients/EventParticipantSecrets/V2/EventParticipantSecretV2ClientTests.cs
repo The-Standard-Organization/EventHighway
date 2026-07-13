@@ -75,17 +75,17 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 randomEventParticipantV2);
         }
 
-        private static EventParticipantSecretV2 CreateRandomEventParticipantSecretV2(
+        private EventParticipantSecretV2 CreateRandomEventParticipantSecretV2(
             Guid participantId) =>
                 CreateEventParticipantSecretV2Filler(participantId).Create();
 
-        private static EventParticipantV2 CreateRandomEventParticipantV2() =>
+        private EventParticipantV2 CreateRandomEventParticipantV2() =>
             CreateEventParticipantV2Filler().Create();
 
-        private static Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
+        private Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
             Guid participantId)
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventParticipantSecretV2>();
 
             filler.Setup()
@@ -112,9 +112,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             return filler;
         }
 
-        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        private Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()
@@ -151,14 +151,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

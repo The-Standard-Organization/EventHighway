@@ -15,6 +15,7 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
     public partial class ClientBroker
     {
         private readonly IEventHighwayClient eventHighwayClient;
+        private readonly string provider;
 
         public ClientBroker()
         {
@@ -25,7 +26,7 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
                   .AddEnvironmentVariables()
                   .Build();
 
-            string provider = configuration["PROVIDER"];
+            this.provider = configuration["PROVIDER"];
             string connectionString = configuration["CONNECTION_STRING"];
 
             IStorageBrokerProvider storageBrokerProvider =
@@ -43,5 +44,13 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
             this.eventHighwayClient.V2.RegisterEventHandler(eventHandler);
             return this;
         }
+
+        public DateTimeOffset NormalizeForProvider(DateTimeOffset dateTimeOffset) =>
+            this.provider == "postgres"
+                ? TruncateToMicroseconds(dateTimeOffset)
+                : dateTimeOffset;
+
+        private static DateTimeOffset TruncateToMicroseconds(DateTimeOffset dateTimeOffset) =>
+            dateTimeOffset.AddTicks(-(dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond));
     }
 }
