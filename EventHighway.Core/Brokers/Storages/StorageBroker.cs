@@ -49,7 +49,7 @@ namespace EventHighway.Core.Brokers.Storages
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
-            provider.ConfigureConventions(configurationBuilder);
+            this.provider.ConfigureConventions(configurationBuilder);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
