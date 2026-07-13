@@ -5,7 +5,6 @@
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V1;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V1;
-using EventHighway.Core.Tests.Acceptance.Extensions;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -38,8 +37,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
 
             // then
             actualEventListenerV1.Should()
-                .BeEquivalentTo(expectedEventListenerV1, options =>
-                    options.WithDateTimeOffsetTolerance());
+                .BeEquivalentTo(expectedEventListenerV1);
 
             await this.clientBroker
                 .RemoveEventListenerV1ByIdAsync(

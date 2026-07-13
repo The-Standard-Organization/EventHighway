@@ -149,7 +149,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             };
         }
 
-        private static Filler<EventV2> CreateEventV2Filler(
+        private Filler<EventV2> CreateEventV2Filler(
             Guid eventAddressV2Id,
             DateTimeOffset scheduledDate,
             string content = null)
@@ -176,7 +176,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             return filler;
         }
 
-        private static Filler<EventAddressV2> CreateEventAddressV2Filler()
+        private Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventAddressV2>();
@@ -210,7 +210,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                 randomEventParticipantSecretV2);
         }
 
-        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        private Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventParticipantV2>();
@@ -231,7 +231,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             return filler;
         }
 
-        private static Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
+        private Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
             Guid participantId)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;

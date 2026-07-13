@@ -4,7 +4,6 @@
 
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
-using EventHighway.Core.Tests.Acceptance.Extensions;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -33,8 +32,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
 
             // then
             actualEventParticipantV2.Should()
-                .BeEquivalentTo(expectedEventParticipantV2, options =>
-                    options.WithDateTimeOffsetTolerance());
+                .BeEquivalentTo(expectedEventParticipantV2);
 
             await this.clientBroker
                 .RemoveEventParticipantV2ByIdAsync(

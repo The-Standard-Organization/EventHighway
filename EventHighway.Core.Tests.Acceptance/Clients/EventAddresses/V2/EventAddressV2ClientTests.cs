@@ -58,14 +58,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventAddresses.V2
             return randomEventAddressV2;
         }
 
-        private static EventAddressV2 CreateRandomEventAddressV2() =>
+        private EventAddressV2 CreateRandomEventAddressV2() =>
             CreateEventAddressV2Filler().Create();
 
-        private static Filler<EventAddressV2> CreateEventAddressV2Filler()
+        private Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
-            DateTimeOffset now = 
-                DateTimeOffset.UtcNow;
-
+            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
             var filler = new Filler<EventAddressV2>();
 
             filler.Setup()

@@ -44,5 +44,13 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
             this.eventHighwayClient.V2.RegisterEventHandler(eventHandler);
             return this;
         }
+
+        public DateTimeOffset NormalizeForProvider(DateTimeOffset dateTimeOffset) =>
+            this.provider == "postgres"
+                ? TruncateToMicroseconds(dateTimeOffset)
+                : dateTimeOffset;
+
+        private static DateTimeOffset TruncateToMicroseconds(DateTimeOffset dateTimeOffset) =>
+            dateTimeOffset.AddTicks(-(dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond));
     }
 }
