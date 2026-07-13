@@ -28,9 +28,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             int randomSeconds = GetRandomNumber();
 
             DateTimeOffset scheduledDate =
-                TruncateToMicroseconds(
-                    DateTimeOffset.UtcNow.AddSeconds(
-                        randomSeconds));
+                DateTimeOffset.UtcNow.AddSeconds(
+                    randomSeconds);
 
             EventV1 randomEventV1 =
                 CreateRandomEventV1(

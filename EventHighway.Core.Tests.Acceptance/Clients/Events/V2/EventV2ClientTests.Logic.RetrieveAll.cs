@@ -25,10 +25,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
 
             int randomSeconds = GetRandomNumber();
 
-            DateTimeOffset scheduledDate =
-                TruncateToMicroseconds(
+            DateTimeOffset scheduledDate = 
                     DateTimeOffset.UtcNow.AddSeconds(
-                        randomSeconds));
+                        randomSeconds);
 
             EventV2 randomEventV2 =
                 await SubmitEventV2Async(

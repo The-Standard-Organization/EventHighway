@@ -74,8 +74,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             for (int index = 0; index < randomNumber; index++)
             {
                 DateTimeOffset scheduledDate =
-                    TruncateToMicroseconds(DateTimeOffset.UtcNow)
-                        .AddSeconds(seconds: 1);
+                    DateTimeOffset.UtcNow.AddSeconds(seconds: 1);
 
                 EventV1 randomPostedEntitlementV1 =
                     await SubmitEventV1Async(
@@ -139,7 +138,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             string inputMockEndpoint)
         {
             DateTimeOffset now = 
-                TruncateToMicroseconds(DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow;
 
             var filler = new Filler<EventListenerV1>();
 
@@ -166,7 +165,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             DateTimeOffset scheduledDate)
         {
             DateTimeOffset now = 
-                TruncateToMicroseconds(DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow;
 
             var filler = new Filler<EventV1>();
 
@@ -194,7 +193,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
         private static Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
             DateTimeOffset now = 
-                TruncateToMicroseconds(DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow;
 
             var filler = new Filler<EventAddressV1>();
 
@@ -211,14 +210,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
                     .IgnoreIt();
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }
