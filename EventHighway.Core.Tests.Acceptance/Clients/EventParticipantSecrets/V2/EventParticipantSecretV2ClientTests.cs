@@ -75,17 +75,18 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 randomEventParticipantV2);
         }
 
-        private EventParticipantSecretV2 CreateRandomEventParticipantSecretV2(
+        private static EventParticipantSecretV2 CreateRandomEventParticipantSecretV2(
             Guid participantId) =>
                 CreateEventParticipantSecretV2Filler(participantId).Create();
 
-        private EventParticipantV2 CreateRandomEventParticipantV2() =>
+        private static EventParticipantV2 CreateRandomEventParticipantV2() =>
             CreateEventParticipantV2Filler().Create();
 
-        private Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
+        private static Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
             Guid participantId)
         {
-            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventParticipantSecretV2>();
 
             filler.Setup()
@@ -112,9 +113,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             return filler;
         }
 
-        private Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
-            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()

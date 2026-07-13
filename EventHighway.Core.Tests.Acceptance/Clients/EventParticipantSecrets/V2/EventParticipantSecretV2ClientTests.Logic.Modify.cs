@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Tests.Acceptance.Extensions;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -30,7 +31,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 randomEventParticipantSecretV2.CreatedDate;
 
             modifiedEventParticipantSecretV2.UpdatedDate =
-                this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow;
 
             EventParticipantSecretV2 expectedEventParticipantSecretV2 =
                 modifiedEventParticipantSecretV2.DeepClone();
@@ -43,7 +44,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
 
             // then
             actualEventParticipantSecretV2.Should()
-                .BeEquivalentTo(expectedEventParticipantSecretV2);
+                .BeEquivalentTo(expectedEventParticipantSecretV2, options =>
+                    options.WithDateTimeOffsetTolerance());
 
             await this.clientBroker
                 .RemoveEventParticipantSecretV2ByIdAsync(

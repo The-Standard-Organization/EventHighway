@@ -46,7 +46,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ArchivingEvents.V2
             return randomEventV2;
         }
 
-        private Filler<EventAddressV2> CreateEventAddressV2Filler()
+        private static Filler<EventAddressV2> CreateEventAddressV2Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -70,7 +70,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ArchivingEvents.V2
             return filler;
         }
 
-        private Filler<EventV2> CreateDeadEventV2Filler(Guid eventAddressV2Id)
+        private static Filler<EventV2> CreateDeadEventV2Filler(Guid eventAddressV2Id)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 

@@ -59,12 +59,13 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
             return randomEventParticipantV2;
         }
 
-        private EventParticipantV2 CreateRandomEventParticipantV2() =>
+        private static EventParticipantV2 CreateRandomEventParticipantV2() =>
             CreateEventParticipantV2Filler().Create();
 
-        private Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
-            DateTimeOffset now = this.clientBroker.NormalizeForProvider(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()
