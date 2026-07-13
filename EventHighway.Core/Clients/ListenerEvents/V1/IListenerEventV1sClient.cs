@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -11,7 +11,10 @@ namespace EventHighway.Core.Clients.ListenerEvents.V1
 {
     public interface IListenerEventV1sClient
     {
+        [Obsolete("This function is deprecated use the latest version instead.")]
         ValueTask<IQueryable<ListenerEventV1>> RetrieveAllListenerEventV1sAsync();
+
+        [Obsolete("This function is deprecated use the latest version instead.")]
         ValueTask<ListenerEventV1> RemoveListenerEventV1ByIdAsync(Guid listenerEventV1Id);
     }
 }

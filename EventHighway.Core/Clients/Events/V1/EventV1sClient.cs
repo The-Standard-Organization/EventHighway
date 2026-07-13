@@ -19,6 +19,7 @@ namespace EventHighway.Core.Clients.Events.V1
         public EventV1sClient(IEventV1CoordinationService eventV1CoordinationService) =>
             this.eventV1CoordinationService = eventV1CoordinationService;
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventV1> SubmitEventV1Async(EventV1 eventV1)
         {
             try
@@ -56,6 +57,7 @@ namespace EventHighway.Core.Clients.Events.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventV1> SubmitEventV1AsyncV1(EventV1 eventV1)
         {
             try
@@ -93,6 +95,7 @@ namespace EventHighway.Core.Clients.Events.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask FireScheduledPendingEventV1sAsync()
         {
             try
@@ -123,6 +126,7 @@ namespace EventHighway.Core.Clients.Events.V1
             }
         }
 
+        [Obsolete("This function is deprecated use the latest version instead.")]
         public async ValueTask<EventV1> RemoveEventV1ByIdAsync(Guid eventV1Id)
         {
             try
