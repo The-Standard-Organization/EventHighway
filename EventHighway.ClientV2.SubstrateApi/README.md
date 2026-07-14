@@ -80,21 +80,6 @@ body — each with a copy button, plus **Copy as cURL**, which Postman imports d
 broker the Send button uses, so what is on screen is what the app would actually send; a
 documented example drifts, this cannot.
 
-Every copy that carries a body — the cURL and the sample body — is **re-minted with a fresh
-item id** at the moment you press Copy. Hand out the same item twice and the second submission
-is identical content inside the one-minute loop-detection window: the substrate quarantines it
-(`400 — Event loop detected`), which is exactly right of it and thoroughly baffling when all
-you did was press Copy again. So copy and submit as often as you like; only re-running *one*
-copied command twice will (correctly) be refused.
-
-The cURL is quoted to **run as pasted** — double quotes with the inner quotes escaped, rather
-than the bash-style `-d '{"…"}'` that every curl example on the internet uses. Windows'
-Command Prompt does not treat a single quote as a string delimiter at all, so the bash form
-arrives at curl as a handful of broken arguments: it posts a body beginning with a stray quote
-(the API answers `400 — ''' is an invalid start of a value`) and then tries to read the rest of
-the JSON as more URLs. The escaped-double-quote form works in `cmd`, in bash, and in Postman's
-importer alike.
-
 Credentials travel in **headers**, never in the body. A body is data a caller can pass
 around; headers are how a caller identifies itself.
 
@@ -185,13 +170,6 @@ the second copy — a correct refusal, but a confusing one to demonstrate.
 Three ports matter and none of them collide, so all three samples can run at once:
 SubstrateApp's WireMock on `9091`, BasicApp's on `9092`, this app's on `9093`, and this app
 itself on `5150`.
-
-What *does* collide is a second copy of **this** app: `Failed to bind to address
-http://[::]:9093: address already in use` means one is already running — usually an
-`EventHighway.ClientV2.SubstrateApi.exe` apphost that outlived a stopped debug session, and
-which is holding `5150` too. Stop that process and start again. (The same process also locks
-the build output, so a whole-solution build will fail with `MSB3027 … file is locked by` until
-it is gone.)
 
 `BasicApp` and `SubstrateApp` carry the same `SubstrateApi` section, minus the last three
 keys — they deliver *to* the chat but never publish *as* it.

@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.ClientV2.SubstrateApi.Models.Services.Views.EventChats;
 using EventHighway.ClientV2.SubstrateApi.Services.Views.EventChats;
@@ -44,29 +45,25 @@ namespace EventHighway.ClientV2.SubstrateApi.Views.Components
         }
 
         // Postman imports cURL directly (Import → Raw text), so the whole request — headers and
-        // body included — goes across in one paste rather than four. The command is composed by
-        // the view service, quoting and all; the component only carries it to the clipboard.
+        // body included — can go across in one paste rather than four.
         private async Task CopyAsCurlAsync()
         {
-            await RefreshSampleMediaItemAsync();
+            string headers = string.Join(
+                separator: " ",
+                values: this.submitEndpoint.Headers.Select(header =>
+                    $"-H \"{header.Name}: {header.Value}\""));
 
-            await CopyAsync(CurlField, this.submitEndpoint.CurlCommand);
+            string body = this.submitEndpoint.SampleBody
+                .Replace("\r\n", string.Empty)
+                .Replace("\n", string.Empty)
+                .Replace("  ", string.Empty);
+
+            string curl =
+                $"curl -X {this.submitEndpoint.Method} {this.submitEndpoint.Url} " +
+                $"{headers} -d '{body}'";
+
+            await CopyAsync(CurlField, curl);
         }
-
-        private async Task CopyBodyAsync()
-        {
-            await RefreshSampleMediaItemAsync();
-
-            await CopyAsync(BodyField, this.submitEndpoint.SampleBody);
-        }
-
-        // Anything carrying a body is re-minted before it is handed over, so every copy is of an
-        // item the highway has not seen. Hand out the same one twice and the second submission is
-        // identical content inside the loop-detection window — the substrate quarantines it, which
-        // is exactly right of it and thoroughly baffling when all you did was press Copy again.
-        private async Task RefreshSampleMediaItemAsync() =>
-            this.submitEndpoint =
-                await this.EventChatsViewService.RetrieveSubmitEndpointAsync();
 
         // The button says "Copied", then goes back to saying what it does. Without the reset the
         // panel would keep claiming a copy that happened a minute ago.

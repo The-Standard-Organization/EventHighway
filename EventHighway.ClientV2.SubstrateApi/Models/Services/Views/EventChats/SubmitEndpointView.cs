@@ -17,11 +17,5 @@ namespace EventHighway.ClientV2.SubstrateApi.Models.Services.Views.EventChats
         /// rather than half of it.
         /// </summary>
         public string SampleBody { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The same request as a single cURL command, quoted so that it runs as pasted — in a
-        /// Command Prompt, in bash, or imported straight into Postman.
-        /// </summary>
-        public string CurlCommand { get; set; } = string.Empty;
     }
 }
