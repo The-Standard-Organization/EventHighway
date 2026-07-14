@@ -16,6 +16,7 @@ using EventHighway.ClientV2.SubstrateApp.Services.Foundations.ExternalMediaItems
 using EventHighway.ClientV2.SubstrateApp.Services.Foundations.MediaItems;
 using EventHighway.Core.Models.Configurations;
 using EventHighway.EventHandlers.Delegates.JoesRestApi;
+using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WireMock.Server;
@@ -40,7 +41,19 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
             services.AddSingleton(configuration);
             services.AddSingleton(CreateConfiguration());
             services.AddSingleton(_ => SetupWireMock(configuration));
+
+            // Joe's downstream, read from the "JoesRestApi" section (the WireMock stand-in).
             services.AddJoesRestApiDelegateClient(configuration);
+
+            // The same delegate client library again, reading the "SubstrateApi" section — whose
+            // url is the real, running EventHighway.ClientV2.SubstrateApi /receive endpoint, not a
+            // stand-in. Keyed, because two live instances of one interface have to be told apart.
+            services.AddKeyedSingleton<IJoesRestApiDelegateClient>(
+                MediaEventHandlers.SubstrateApiDelegateClientKey,
+                (_, _) => new JoesRestApiDelegateClient(
+                    configuration,
+                    sectionName: MediaEventHandlers.SubstrateApiDelegateClientKey));
+
             services.AddSingleton<MediaEventHandlers>();
 
             // The app's own publishing identity: internal catalogue events are emitted as the
@@ -98,7 +111,8 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
                 .RegisterEventHandler(handlers.SofaBox)
                 .RegisterEventHandler(handlers.Joe)
                 .RegisterEventHandler(handlers.Ann)
-                .RegisterEventHandler(handlers.FlakyBox);
+                .RegisterEventHandler(handlers.FlakyBox)
+                .RegisterEventHandler(handlers.SubstrateApi);
 
             return broker;
         }

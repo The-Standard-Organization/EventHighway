@@ -1,0 +1,16 @@
+/* The values are here to be read off the screen and typed into Postman, so they get the width
+   and the row that names them gets out of the way. */
+.submit-endpoint-table th {
+    width: 6rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.submit-endpoint-table td:last-child {
+    width: 6.5rem;
+}
+
+.submit-endpoint code {
+    font-size: 0.8125rem;
+    word-break: break-all;
+}

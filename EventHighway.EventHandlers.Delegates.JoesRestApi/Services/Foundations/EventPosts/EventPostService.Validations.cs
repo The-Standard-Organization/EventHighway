@@ -25,11 +25,11 @@ namespace EventHighway.EventHandlers.Delegates.JoesRestApi.Services.Foundations.
                 message: "Joes REST API configurations are invalid, fix the errors and try again.",
 
                 (Rule: IsInvalid(configurations.Url),
-                Parameter: "JoesRestApi:Url",
+                Parameter: $"{configurations.SectionName}:Url",
                 Message: "Text required"),
 
                 (Rule: IsInvalid(configurations.Secret),
-                Parameter: "JoesRestApi:Secret",
+                Parameter: $"{configurations.SectionName}:Secret",
                 Message: "Text required"));
         }
 

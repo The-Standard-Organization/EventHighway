@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EventHighway.Core\EventHighway.Core.csproj" />
+		<ProjectReference Include="..\EventHighway.EventHandlers\EventHighway.EventHandlers.csproj" />
+		<ProjectReference Include="..\EventHighway.EventHandlers.Delegates.JoesRestApi\EventHighway.EventHandlers.Delegates.JoesRestApi.csproj" />
+		<ProjectReference Include="..\EventHighway.SqlServer\EventHighway.SqlServer.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="WireMock.Net" Version="2.11.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Shared fixed seed identifiers, used by BasicApp, SubstrateApp and this app so all three
+		     reference the same sample participants/addresses/listeners/handlers. -->
+		<Compile Include="..\EventHighway.ClientV2.SubstrateApp\SeedIdentifiers.cs" Link="SeedIdentifiers.cs" />
+	</ItemGroup>
+
+</Project>

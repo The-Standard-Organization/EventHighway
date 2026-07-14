@@ -1,0 +1,83 @@
+@if (this.submitEndpoint is not null)
+{
+    <div class="card shadow-sm mb-3 submit-endpoint flex-shrink-0">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span class="fw-semibold">Submit a media item from Postman</span>
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    @onclick="() => CopyAsCurlAsync()">
+                @(this.copiedField == CurlField ? "Copied" : "Copy as cURL")
+            </button>
+        </div>
+
+        <div class="card-body py-3">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-2 submit-endpoint-table">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="text-body-secondary">Request</th>
+                            <td>
+                                <span class="badge text-bg-primary me-2">@this.submitEndpoint.Method</span>
+                                <code>@this.submitEndpoint.Url</code>
+                            </td>
+                            <td class="text-end">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        @onclick="() => CopyAsync(UrlField, this.submitEndpoint.Url)">
+                                    @(this.copiedField == UrlField ? "Copied" : "Copy")
+                                </button>
+                            </td>
+                        </tr>
+
+                        @foreach (SubmitHeaderView header in this.submitEndpoint.Headers)
+                        {
+                            <tr>
+                                <th scope="row" class="text-body-secondary">
+                                    @if (header.IsCredential)
+                                    {
+                                        <span class="badge text-bg-warning me-1">header</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-light border me-1">header</span>
+                                    }
+                                </th>
+                                <td>
+                                    <code class="fw-semibold">@header.Name</code>:
+                                    <code>@header.Value</code>
+                                </td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            @onclick="() => CopyAsync(header.Name, header.Value)">
+                                        @(this.copiedField == header.Name ? "Copied" : "Copy")
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+
+                        <tr>
+                            <th scope="row" class="text-body-secondary">Body</th>
+                            <td>
+                                <code>a media item — Id, Title, Type, Genres, Rating</code>
+                            </td>
+                            <td class="text-end">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        @onclick="() => CopyAsync(BodyField, this.submitEndpoint.SampleBody)">
+                                    @(this.copiedField == BodyField ? "Copied" : "Copy")
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="small text-body-secondary mb-0">
+                The two <code>X-EventHighwayParticipant…</code> headers are the credentials the
+                substrate verifies — they are read from the request headers, never from the body.
+                Anything accepted here comes back to the chat below as a delivery.
+            </p>
+        </div>
+    </div>
+}

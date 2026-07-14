@@ -16,11 +16,22 @@ namespace EventHighway.EventHandlers.Delegates.JoesRestApi.Clients
 {
     public class JoesRestApiDelegateClient : IJoesRestApiDelegateClient
     {
+        private const string DefaultSectionName = "JoesRestApi";
+
         private readonly IEventPostService eventPostService;
 
         public JoesRestApiDelegateClient(IConfiguration configuration)
+            : this(configuration, DefaultSectionName)
+        { }
+
+        /// <summary>
+        /// Targets a downstream declared in <paramref name="sectionName"/> (<c>{ Url, Secret }</c>)
+        /// instead of the default <c>JoesRestApi</c> section, so a host can hold more than one
+        /// client of this library — one per downstream it delivers to.
+        /// </summary>
+        public JoesRestApiDelegateClient(IConfiguration configuration, string sectionName)
         {
-            var configurationBroker = new ConfigurationBroker(configuration);
+            var configurationBroker = new ConfigurationBroker(configuration, sectionName);
             var apiBroker = new ApiBroker();
 
             this.eventPostService =
