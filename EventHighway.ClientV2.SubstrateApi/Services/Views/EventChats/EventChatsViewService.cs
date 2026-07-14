@@ -74,19 +74,33 @@ namespace EventHighway.ClientV2.SubstrateApi.Services.Views.EventChats
             MediaSubmissionEndpoint mediaSubmissionEndpoint =
                 await this.mediaSubmissionService.RetrieveMediaSubmissionEndpointAsync();
 
+            // One sample item, shown two ways: indented to be read, and on one line to be pasted
+            // into a command. Both carry the same id, so copying the body and copying the command
+            // do not disagree about which item they submit.
+            string sampleMediaItem =
+                await this.jsonSerializationBroker.SerializeAsync(CreateSampleMediaItem());
+
             return new SubmitEndpointView
             {
                 Method = mediaSubmissionEndpoint.Method,
                 Url = mediaSubmissionEndpoint.Url,
                 Headers = mediaSubmissionEndpoint.Headers.Select(AsView).ToList(),
-                SampleBody = await GenerateSampleMediaItemAsync()
+                SampleBody = await this.jsonSerializationBroker.PrettifyAsync(sampleMediaItem),
+                CurlCommand = ComposeCurlCommand(mediaSubmissionEndpoint, sampleMediaItem)
             };
         });
 
         public ValueTask<string> GenerateSampleMediaItemAsync() =>
         TryCatch(async () =>
         {
-            var sampleMediaItem = new MediaItem
+            string serializedMediaItem =
+                await this.jsonSerializationBroker.SerializeAsync(CreateSampleMediaItem());
+
+            return await this.jsonSerializationBroker.PrettifyAsync(serializedMediaItem);
+        });
+
+        private static MediaItem CreateSampleMediaItem() =>
+            new MediaItem
             {
                 Id = Guid.NewGuid(),
                 Title = "Yellowstone",
@@ -95,11 +109,28 @@ namespace EventHighway.ClientV2.SubstrateApi.Services.Views.EventChats
                 Rating = 8.6
             };
 
-            string serializedMediaItem =
-                await this.jsonSerializationBroker.SerializeAsync(sampleMediaItem);
+        // Quoted for the shell this app is most likely to be run from. Windows' Command Prompt does
+        // not treat a single quote as a string delimiter at all, so the bash-style
+        // -d '{"Id":"…"}' that every curl example on the internet uses arrives at curl as a
+        // handful of broken arguments: it posts a body beginning with a stray quote, and reads the
+        // rest of the JSON as more URLs ("Port number was not a decimal number").
+        //
+        // Double quotes with the inner quotes escaped are understood by cmd, by bash, and by
+        // Postman's cURL importer, so this one string works wherever it is pasted.
+        private static string ComposeCurlCommand(
+            MediaSubmissionEndpoint mediaSubmissionEndpoint,
+            string body)
+        {
+            string headers = string.Join(
+                separator: " ",
+                values: mediaSubmissionEndpoint.Headers.Select(header =>
+                    $"-H \"{header.Name}: {header.Value}\""));
 
-            return await this.jsonSerializationBroker.PrettifyAsync(serializedMediaItem);
-        });
+            string escapedBody = body.Replace("\"", "\\\"");
+
+            return $"curl -X {mediaSubmissionEndpoint.Method} {mediaSubmissionEndpoint.Url} " +
+                $"{headers} -d \"{escapedBody}\"";
+        }
 
         private static ReceivedEventView AsView(ReceivedEvent receivedEvent) =>
             new ReceivedEventView
