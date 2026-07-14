@@ -10,15 +10,22 @@ namespace EventHighway.EventHandlers.Delegates.JoesRestApi.Brokers.Configuration
     internal class ConfigurationBroker : IConfigurationBroker
     {
         private readonly IConfiguration configuration;
+        private readonly string sectionName;
 
-        public ConfigurationBroker(IConfiguration configuration) =>
+        // The section is chosen by the consumer, not fixed by the broker: one host can hold several
+        // clients of this library, each delivering to a different downstream (its own url + secret).
+        public ConfigurationBroker(IConfiguration configuration, string sectionName)
+        {
             this.configuration = configuration;
+            this.sectionName = sectionName;
+        }
 
         public JoesRestApiConfigurations GetJoesRestApiConfigurations() =>
             new JoesRestApiConfigurations
             {
-                Url = this.configuration["JoesRestApi:Url"],
-                Secret = this.configuration["JoesRestApi:Secret"]
+                SectionName = this.sectionName,
+                Url = this.configuration[$"{this.sectionName}:Url"],
+                Secret = this.configuration[$"{this.sectionName}:Secret"]
             };
     }
 }

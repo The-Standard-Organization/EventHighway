@@ -66,6 +66,34 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
                     UpdatedDate = now
                 });
 
+            // The SubstrateApi chat app. It listens here (see the unfiltered listener below) and
+            // publishes under this same identity from its own /submit endpoint, which is why — of
+            // all the subscribers — it is the one that also carries a secret.
+            this.substrateApi =
+                await this.eventSubstrateBroker.AddParticipantAsync(
+                    new EventParticipantV2
+                    {
+                        Id = SeedIdentifiers.SubstrateApiParticipant,
+                        Name = "SubstrateApi",
+                        Description =
+                            "The SubstrateApi chat app: submits media items and shows every release.",
+
+                        IsActive = true,
+                        CreatedDate = now,
+                        UpdatedDate = now
+                    });
+
+            await this.eventSubstrateBroker.AddParticipantSecretAsync(
+                new EventParticipantSecretV2
+                {
+                    Id = SeedIdentifiers.SubstrateApiSecret,
+                    Secret = SeedIdentifiers.SubstrateApiSecretValue,
+                    EventParticipantV2Id = this.substrateApi.Id,
+                    IsActive = true,
+                    CreatedDate = now,
+                    UpdatedDate = now
+                });
+
             this.sofaBox =
                 await this.eventSubstrateBroker.AddParticipantAsync(
                     new EventParticipantV2
@@ -165,6 +193,23 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
                     HandlerName = ingestionHandler.Name,
                     EventAddressV2Id = this.externalContributions.Id,
                     EventParticipantV2Id = this.mediaService.Id,
+                    CreatedDate = now,
+                    UpdatedDate = now
+                });
+
+            // No filter, no promoted properties: every release this app dispatches is relayed,
+            // whole, to the SubstrateApi chat app's /receive endpoint — so its UI shows the traffic
+            // this console is producing, live, while both are running.
+            await this.eventSubstrateBroker.RegisterListenerAsync(
+                new EventListenerV2
+                {
+                    Id = SeedIdentifiers.SubstrateApiNewReleasesListener,
+                    Name = "SubstrateApi New Releases Listener",
+                    Description = "Relays every new release, unfiltered, to the SubstrateApi chat UI.",
+                    HandlerId = this.mediaEventHandlers.SubstrateApi.Id,
+                    HandlerName = this.mediaEventHandlers.SubstrateApi.Name,
+                    EventAddressV2Id = this.newReleases.Id,
+                    EventParticipantV2Id = this.substrateApi.Id,
                     CreatedDate = now,
                     UpdatedDate = now
                 });

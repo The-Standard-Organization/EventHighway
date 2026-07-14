@@ -25,13 +25,27 @@ NFlix announces its releases on a single channel — an **event address** called
 
 ### The subscribers
 
-Three parties are interested in NFlix's releases, and their interests are different:
+Four parties are interested in NFlix's releases, and their interests are different:
 
 | Subscriber | Who they are | What they care about |
 |---|---|---|
 | **SofaBox** | A NFlix affiliate that re-lists everything | **Every** new release, no exceptions |
 | **Joe** | An individual movie buff | **Only good movies** — a `Movie` (not a series) rated **8.0 or higher** |
 | **Ann** | A **late joiner** | Every release — but she signs up *after* the originals were already sent, so she needs the back-catalogue too |
+| **SubstrateApi** | The [chat app](../EventHighway.ClientV2.SubstrateApi/README.md) | Everything, unfiltered — and it *shows* you, on a UI, as it arrives |
+
+The first three subscribe and go quiet; the fourth is the one you can watch. Start the chat
+app alongside this console and every valid release below appears on its screen as it is
+dispatched — while the loop-quarantined and unauthorised ones never do, which is the more
+interesting half of the demonstration:
+
+```
+dotnet run --project EventHighway.ClientV2.SubstrateApi   # http://localhost:5150
+dotnet run --project EventHighway.ClientV2.BasicApp
+```
+
+Its listener is registered by this app under a handler Guid shared with the other samples, so
+whichever app dispatches a release, the delivery reaches the same running UI.
 
 SofaBox and Joe are registered up front; Ann arrives later (see
 [Section 1 — Ann, the late joiner](#ann-the-late-joiner)). Each is registered as a

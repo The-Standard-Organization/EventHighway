@@ -15,6 +15,7 @@ using EventHighway.ClientV2.Seed;
 using EventHighway.ClientV2.SubstrateApp.Models.MediaItems;
 using EventHighway.EventHandlers;
 using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
+using Microsoft.Extensions.DependencyInjection;
 using WireMock.Server;
 
 namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
@@ -23,18 +24,26 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
     /// Holds the event handlers wired into the substrate. SofaBox logs to the console;
     /// Joe and Ann forward each release to a REST API (here, the WireMock server) — Joe
     /// through the packaged <c>JoesRestApi</c> delegate client, Ann through an inline
-    /// token + POST delegate.
+    /// token + POST delegate. SubstrateApi forwards every release, unfiltered, to the
+    /// EventHighway.ClientV2.SubstrateApi chat app — a real localhost endpoint, not a stand-in —
+    /// through that same delegate client library, pointed at a second configuration section.
     /// </summary>
     public sealed class MediaEventHandlers
     {
+        public const string SubstrateApiDelegateClientKey = "SubstrateApi";
+
         public DelegateEventHandler SofaBox { get; }
         public DelegateEventHandler Joe { get; }
         public DelegateEventHandler Ann { get; }
         public DelegateEventHandler FlakyBox { get; }
+        public DelegateEventHandler SubstrateApi { get; }
 
         public MediaEventHandlers(
             WireMockServer wireMock,
-            IJoesRestApiDelegateClient joesRestApiDelegateClient)
+            IJoesRestApiDelegateClient joesRestApiDelegateClient,
+
+            [FromKeyedServices(SubstrateApiDelegateClientKey)]
+            IJoesRestApiDelegateClient substrateApiDelegateClient)
         {
             this.SofaBox = new DelegateEventHandler(
                 SeedIdentifiers.SofaBoxHandler,
@@ -84,6 +93,15 @@ namespace EventHighway.ClientV2.SubstrateApp.Infrastructure
                 SeedIdentifiers.JoeHandler,
                 joesRestApiDelegateClient.PostToJoesRestApiAsync,
                 name: "Joe");
+
+            // The same library, a different destination: the SubstrateApi chat app's /receive
+            // endpoint, running for real on localhost. The handler Id is shared with BasicApp and
+            // with the SubstrateApi itself, so whichever of them dispatches a release, the delivery
+            // lands on that one chat UI.
+            this.SubstrateApi = new DelegateEventHandler(
+                SeedIdentifiers.SubstrateApiHandler,
+                substrateApiDelegateClient.PostToJoesRestApiAsync,
+                name: "SubstrateApi");
 
             this.Ann = CreateRestHandler(SeedIdentifiers.AnnHandler, "Ann", wireMock);
         }

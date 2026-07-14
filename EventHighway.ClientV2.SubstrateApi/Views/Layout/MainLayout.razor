@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+
+<div class="d-flex flex-column vh-100 bg-body-tertiary">
+    <header class="border-bottom bg-body flex-shrink-0">
+        <div class="container-lg py-3 d-flex align-items-center justify-content-between">
+            <div>
+                <h1 class="h5 mb-0">EventHighway SubstrateApi</h1>
+                <small class="text-body-secondary">
+                    Submit a media item, watch the highway deliver it back.
+                </small>
+            </div>
+            <span class="badge text-bg-success rounded-pill">listening</span>
+        </div>
+    </header>
+
+    <main class="container-lg flex-grow-1 d-flex flex-column py-4">
+        @Body
+    </main>
+</div>
