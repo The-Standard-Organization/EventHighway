@@ -19,6 +19,13 @@ namespace EventHighway.ClientV2.SubstrateApi.Models.Services.Views.EventChats
         public string SampleBody { get; set; } = string.Empty;
 
         /// <summary>
+        /// The same body on one line — exactly the bytes the cURL command carries. This is what the
+        /// panel puts on screen: it costs one row instead of nine, and it leaves the id where it
+        /// can be watched changing on every copy.
+        /// </summary>
+        public string CompactBody { get; set; } = string.Empty;
+
+        /// <summary>
         /// The same request as a single cURL command, quoted so that it runs as pasted — in a
         /// Command Prompt, in bash, or imported straight into Postman.
         /// </summary>

@@ -86,6 +86,7 @@ namespace EventHighway.ClientV2.SubstrateApi.Services.Views.EventChats
                 Url = mediaSubmissionEndpoint.Url,
                 Headers = mediaSubmissionEndpoint.Headers.Select(AsView).ToList(),
                 SampleBody = await this.jsonSerializationBroker.PrettifyAsync(sampleMediaItem),
+                CompactBody = sampleMediaItem,
                 CurlCommand = ComposeCurlCommand(mediaSubmissionEndpoint, sampleMediaItem)
             };
         });

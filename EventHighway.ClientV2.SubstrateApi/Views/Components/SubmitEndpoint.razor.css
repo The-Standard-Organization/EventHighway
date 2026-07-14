@@ -14,3 +14,12 @@
     font-size: 0.8125rem;
     word-break: break-all;
 }
+
+/* The body is shown for real rather than described, so the id re-minted on every copy can be seen
+   changing. On one line, though: nine lines of indented JSON would push the chat — and the Send
+   button — off the bottom of the screen, and the point here is to be glanced at, not read. */
+.submit-endpoint-body {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    word-break: break-all;
+}

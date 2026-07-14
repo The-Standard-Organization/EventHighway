@@ -59,7 +59,10 @@
                         <tr>
                             <th scope="row" class="text-body-secondary">Body</th>
                             <td>
-                                <code>a media item — Id, Title, Type, Genres, Rating</code>
+                                @* The real body, not a description of one — and the very bytes the
+                                   cURL carries. It is re-minted on every copy, so the id changes on
+                                   screen as you press the button, which is the point of showing it. *@
+                                <code class="submit-endpoint-body">@this.submitEndpoint.CompactBody</code>
                             </td>
                             <td class="text-end">
                                 <button type="button"
@@ -73,17 +76,13 @@
                 </table>
             </div>
 
-            <p class="small text-body-secondary mb-1">
-                The two <code>X-EventHighwayParticipant…</code> headers are the credentials the
-                substrate verifies — they are read from the request headers, never from the body.
-                Anything accepted here comes back to the chat below as a delivery.
-            </p>
-
             <p class="small text-body-secondary mb-0">
-                Every copy carries a <strong>fresh item id</strong>, so you can copy and submit as
-                often as you like. Running one copied command <em>twice</em> inside a minute is
-                refused with <code>Event loop detected</code> — that is the substrate spotting a
-                duplicate, not a fault. Press Copy again for a new one.
+                The two <code>X-EventHighwayParticipant…</code> headers are the credentials the
+                substrate verifies — read from the request headers, never from the body. Every copy
+                mints a <strong>fresh item id</strong> (watch it change above), so you can copy and
+                submit as often as you like; running one copied command <em>twice</em> inside a
+                minute is refused with <code>Event loop detected</code>, which is the substrate
+                spotting a duplicate rather than a fault.
             </p>
         </div>
     </div>

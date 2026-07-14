@@ -5,9 +5,12 @@
     min-height: 0;
 }
 
+/* The log takes whatever height is left over. Its floor is deliberately low: the panel above it
+   grew when the sample body was put on screen, and the Send button must stay reachable — a chat you
+   have to scroll the page to talk to is worse than a short chat. */
 .event-chat-log {
     flex: 1 1 auto;
-    min-height: 12rem;
+    min-height: 8rem;
     overflow-y: auto;
     scroll-behavior: smooth;
 }
