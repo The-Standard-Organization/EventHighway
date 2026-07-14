@@ -34,6 +34,7 @@ namespace EventHighway.ClientV2.SubstrateApp.Demos
 
         private EventParticipantV2 nflix;
         private EventParticipantV2 mediaService;
+        private EventParticipantV2 substrateApi;
         private EventParticipantV2 sofaBox;
         private EventParticipantV2 joe;
         private EventParticipantV2 ann;
