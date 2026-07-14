@@ -44,7 +44,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
             // then
             actualEventParticipantV2.Should()
                 .BeEquivalentTo(expectedEventParticipantV2, options =>
-                    options.WithDateTimeOffsetTolerance()); ;
+                    options.WithDateTimeOffsetTolerance());
 
             await this.clientBroker
                 .RemoveEventParticipantV2ByIdAsync(

@@ -121,7 +121,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             return eventV2;
         }
 
-        private EventV2 CreateRandomEventV2(
+        private static EventV2 CreateRandomEventV2(
             Guid eventAddressV2Id,
             DateTimeOffset scheduledDate)
         {

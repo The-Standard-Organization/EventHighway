@@ -18,7 +18,9 @@ namespace EventHighway.PostgreSql.Interceptors
             InterceptionResult<int> result)
         {
             if (eventData.Context is not null)
+            {
                 TruncateDateTimeOffsets(eventData.Context);
+            }
 
             return base.SavingChanges(eventData, result);
         }
@@ -30,9 +32,11 @@ namespace EventHighway.PostgreSql.Interceptors
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (eventData.Context is not null) 
+            if (eventData.Context is not null)
+            {
                 TruncateDateTimeOffsets(eventData.Context);
-            
+            }
+
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
@@ -41,7 +45,9 @@ namespace EventHighway.PostgreSql.Interceptors
             foreach (EntityEntry entry in context.ChangeTracker.Entries())
             {
                 if (entry.State is not (EntityState.Added or EntityState.Modified))
+                {
                     continue;
+                }
 
                 foreach (PropertyEntry property in entry.Properties)
                 {
