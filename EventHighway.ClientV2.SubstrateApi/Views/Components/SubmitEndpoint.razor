@@ -64,7 +64,7 @@
                             <td class="text-end">
                                 <button type="button"
                                         class="btn btn-sm btn-outline-secondary"
-                                        @onclick="() => CopyAsync(BodyField, this.submitEndpoint.SampleBody)">
+                                        @onclick="CopyBodyAsync">
                                     @(this.copiedField == BodyField ? "Copied" : "Copy")
                                 </button>
                             </td>
@@ -73,10 +73,17 @@
                 </table>
             </div>
 
-            <p class="small text-body-secondary mb-0">
+            <p class="small text-body-secondary mb-1">
                 The two <code>X-EventHighwayParticipant…</code> headers are the credentials the
                 substrate verifies — they are read from the request headers, never from the body.
                 Anything accepted here comes back to the chat below as a delivery.
+            </p>
+
+            <p class="small text-body-secondary mb-0">
+                Every copy carries a <strong>fresh item id</strong>, so you can copy and submit as
+                often as you like. Running one copied command <em>twice</em> inside a minute is
+                refused with <code>Event loop detected</code> — that is the substrate spotting a
+                duplicate, not a fault. Press Copy again for a new one.
             </p>
         </div>
     </div>

@@ -3,7 +3,9 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using EventHighway.ClientV2.Seed;
 using EventHighway.ClientV2.SubstrateApi.Brokers.Apis;
@@ -23,6 +25,7 @@ using EventHighway.ClientV2.SubstrateApi.Services.Views.EventChats;
 using EventHighway.Core.Models.Configurations;
 using EventHighway.EventHandlers.Delegates.JoesRestApi;
 using EventHighway.EventHandlers.Delegates.JoesRestApi.Clients;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WireMock.Server;
@@ -108,8 +111,12 @@ namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
         /// </summary>
         public static async Task<IServiceProvider> UseSubstrateAsync(this IServiceProvider serviceProvider)
         {
+            // Resolving the broker builds the EventHighway client, which migrates the substrate
+            // database into existence if it is not there yet.
             IEventSubstrateBroker eventSubstrateBroker =
                 serviceProvider.GetRequiredService<IEventSubstrateBroker>();
+
+            DisableAutoCloseOnSubstrateDatabase();
 
             IMediaItemService mediaItemService =
                 serviceProvider.GetRequiredService<IMediaItemService>();
@@ -123,6 +130,43 @@ namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
             await substrateSetup.SetupEventAddressesEventListenersAndParticipantsAsync();
 
             return serviceProvider;
+        }
+
+        /// <summary>
+        /// LocalDB hands every user database it creates AUTO_CLOSE ON: the engine shuts the database
+        /// down the moment the last connection drops, and has to bring it back up on the next one. A
+        /// console sample connects a few times and never notices. A web app reconnects all day, and
+        /// the churn turns into intermittent LocalDB startup failures (<c>0x89c5010a</c>) that stop
+        /// the app from starting at all.
+        /// </summary>
+        /// <remarks>
+        /// The media catalogue's storage broker already switches this off for its own database at
+        /// creation. The substrate's database is created by EventHighway.Core's migrations, so
+        /// nothing was switching it off there — and a dropped-and-recreated EventHighwayDB would
+        /// quietly bring the problem back. This closes that gap, and does nothing at all once the
+        /// setting is already off.
+        /// </remarks>
+        private static void DisableAutoCloseOnSubstrateDatabase()
+        {
+            var connectionStringBuilder =
+                new SqlConnectionStringBuilder(EventHighwayConnectionString);
+
+            string databaseName = connectionStringBuilder.InitialCatalog;
+
+            using var connection = new SqlConnection(EventHighwayConnectionString);
+            connection.Open();
+
+            using SqlCommand command = connection.CreateCommand();
+
+            command.CommandText =
+                $@"IF EXISTS (
+                       SELECT 1 FROM sys.databases
+                       WHERE name = '{databaseName}' AND is_auto_close_on = 1)
+                   BEGIN
+                       ALTER DATABASE [{databaseName}] SET AUTO_CLOSE OFF;
+                   END";
+
+            command.ExecuteNonQuery();
         }
 
         private static IEventSubstrateBroker CreateEventSubstrateBroker(IServiceProvider provider)
@@ -168,7 +212,7 @@ namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
         private static WireMockServer SetupWireMock(IConfiguration configuration)
         {
             var joesApiUrl = new Uri(configuration["JoesRestApi:Url"]);
-            var server = WireMockServer.Start(joesApiUrl.Port);
+            WireMockServer server = StartWireMock(joesApiUrl.Port);
 
             server
                 .Given(WireMock.RequestBuilders.Request.Create().WithPath("/token").UsingPost())
@@ -185,5 +229,44 @@ namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
 
             return server;
         }
+
+        // A port already in use means, almost always, that a copy of this app is already running —
+        // a leftover `dotnet run`, or an apphost still alive after a stopped debug session. That
+        // copy also holds the app's own url, so the second one was never going to start. WireMock
+        // just happens to notice first, and its own exception ("Service start failed with error:
+        // One or more errors occurred") buries the reason four inner exceptions deep. Say it out
+        // loud instead, along with what to do about it.
+        private static WireMockServer StartWireMock(int port)
+        {
+            try
+            {
+                return WireMockServer.Start(port);
+            }
+            catch (Exception exception) when (IsAddressAlreadyInUse(exception))
+            {
+                throw new InvalidOperationException(
+                    $"Port {port} is already in use, so the WireMock stand-in could not start. " +
+                    "Another EventHighway.ClientV2.SubstrateApi is almost certainly already " +
+                    "running — it is holding this port and the app's own url as well. Stop it " +
+                    "(the EventHighway.ClientV2.SubstrateApi.exe process, which outlives a " +
+                    "stopped debug session) and start again.",
+                    exception);
+            }
+        }
+
+        private static bool IsAddressAlreadyInUse(Exception exception) =>
+            exception switch
+            {
+                SocketException socketException =>
+                    socketException.SocketErrorCode == SocketError.AddressAlreadyInUse,
+
+                AggregateException aggregateException =>
+                    aggregateException.InnerExceptions.Any(IsAddressAlreadyInUse),
+
+                { InnerException: Exception innerException } =>
+                    IsAddressAlreadyInUse(innerException),
+
+                _ => false
+            };
     }
 }
