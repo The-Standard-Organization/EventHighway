@@ -8,6 +8,9 @@ throughout as *the substrate* — the shared event backbone every party talks th
   (`NFlixMediaDB`), ingests contributions, and announces every catalogue change.
 - **SofaBox, Joe, Ann, FlakyBox** — downstream affiliates who want to hear about new
   releases (console logging, REST forwarding, and one endpoint that is always down).
+- **SubstrateApi** — the [chat app](../EventHighway.ClientV2.SubstrateApi/README.md), which
+  subscribes to *everything*, unfiltered. Start it alongside this console and every release
+  this app dispatches shows up on its UI, live.
 
 Nobody calls anybody directly. Every hop goes through the substrate, which stores its own
 state (participants, addresses, listeners, events, deliveries) in `EventHighwayDB`.
@@ -79,6 +82,7 @@ flowchart LR
     A2 -->|"listener, filtered"| JOE["Joe — REST, movies rated 8.0+"]
     A2 -->|"listener"| ANN["Ann — REST"]
     A2 -->|"listener"| FB["FlakyBox — always fails"]
+    A2 -->|"listener, unfiltered"| API["SubstrateApi — POSTs to the chat app's /receive"]
 ```
 
 External contributions arrive with credentials on the intake address; the catalogue
@@ -158,6 +162,7 @@ Who gets a secret here tells you who publishes:
 |---|---|---|
 | NFlix | ✔ | Publishes contributions onto the intake address |
 | MediaItemService | ✔ | Publishes `MediaItemAdded/Updated/Deleted` onto the releases address |
+| SubstrateApi | ✔ | Listens here, but *also* publishes — the chat app submits media items under this identity through its own `/submit` endpoint |
 | SofaBox, Joe, Ann, FlakyBox | ✘ | They only *receive* — listening requires no credential |
 
 ### Step 2 — Addresses
@@ -210,7 +215,7 @@ await this.eventSubstrateBroker.RegisterListenerAsync(
     });
 ```
 
-Five listeners are registered:
+Six listeners are registered:
 
 | Listener | Address | Handler | Extras |
 |---|---|---|---|
@@ -219,6 +224,7 @@ Five listeners are registered:
 | Joe Good Movies | NewReleases | Joe (REST) | Filter: movies rated 8.0+ |
 | Ann New Releases | NewReleases | Ann (REST) | — |
 | FlakyBox New Releases | NewReleases | FlakyBox (always fails) | Seeds failure data |
+| SubstrateApi New Releases | NewReleases | SubstrateApi (REST, real localhost) | No filter — everything reaches the chat |
 
 Joe's row shows the two optional dispatch features. `PromotedProperties` lifts named
 values out of the event's JSON content, and `FilterCriteria` is an expression evaluated
@@ -296,14 +302,26 @@ this.SofaBox = new DelegateEventHandler(
     name: "SofaBox");
 ```
 
-So: **one shared class, one instance per subscription.** SofaBox, Joe, Ann, FlakyBox and
-the catalogue's ingestion handler are five *instances* of `DelegateEventHandler`, each
-holding its own Guid, its own name, and its own function. No new handler classes are
-written anywhere in this app — even Joe's function is not written here: it comes from the
-packaged delegate client library
+So: **one shared class, one instance per subscription.** SofaBox, Joe, Ann, FlakyBox,
+SubstrateApi and the catalogue's ingestion handler are six *instances* of
+`DelegateEventHandler`, each holding its own Guid, its own name, and its own function. No
+new handler classes are written anywhere in this app — even Joe's function is not written
+here: it comes from the packaged delegate client library
 ([`EventHighway.EventHandlers.Delegates.JoesRestApi`](../EventHighway.EventHandlers.Delegates.JoesRestApi/README.md)),
 whose exposed `PostToJoesRestApiAsync` method matches the delegate signature and POSTs
 the event content to Joe's REST API using the url and secret from `appsettings.json`.
+
+SubstrateApi's handler is that *same library again*, constructed against a second
+configuration section:
+
+```csharp
+new JoesRestApiDelegateClient(configuration, sectionName: "SubstrateApi")
+```
+
+Joe's section points at the WireMock stand-in; SubstrateApi's points at
+`http://localhost:5150/receive` — a real endpoint, on a real app, that you can watch. One
+delegate client library, two downstreams, and nothing in the delivery path knows the
+difference.
 
 Two rules about the Guid, because everything in Step 3 joins on it:
 
@@ -431,14 +449,15 @@ private static IEventSubstrateBroker CreateEventSubstrateBroker(IServiceProvider
         .RegisterEventHandler(handlers.SofaBox)
         .RegisterEventHandler(handlers.Joe)
         .RegisterEventHandler(handlers.Ann)
-        .RegisterEventHandler(handlers.FlakyBox);
+        .RegisterEventHandler(handlers.FlakyBox)
+        .RegisterEventHandler(handlers.SubstrateApi);
 
     return broker;
 }
 ```
 
-That works because `MediaEventHandlers` only needs the WireMock server and Joe's
-delegate client — neither depends on the broker being built.
+That works because `MediaEventHandlers` only needs the WireMock server and the two
+delegate clients — none of them depends on the broker being built.
 
 **Moment 2 — after the container is built (the service's handler).** The catalogue's
 handler *cannot* be registered inside that factory. Follow the dependencies:
@@ -497,7 +516,7 @@ public void Register(IEventHandler eventHandler) =>
     this.eventHandlers.Add(eventHandler);
 ```
 
-After startup, that list holds five handler objects, and `EventHighwayDB` holds five
+After startup, that list holds six handler objects, and `EventHighwayDB` holds six
 listener rows pointing at their Guids. Those are the two halves of every subscription.
 
 #### 4.6 How a handler links back to EventHighway — the Guid join
@@ -613,7 +632,7 @@ Follow *Yellowstone* through the whole pipeline:
    `EventPublisherIdentity` (MediaItemService's participant id + secret) injected at
    registration. The substrate verifies *those* credentials and dispatches again.
 
-7. **Delivery to the affiliates.** Four listener rows exist on `NFlix-NewReleases`:
+7. **Delivery to the affiliates.** Five listener rows exist on `NFlix-NewReleases`:
    - **SofaBox** logs to the console and succeeds.
    - **Joe** has `FilterCriteria` — Yellowstone is a `Series`, so the substrate records
      a skip for Joe without invoking his handler at all.
@@ -621,6 +640,10 @@ Follow *Yellowstone* through the whole pipeline:
      then `POST /events`, returning the HTTP outcome as her result.
    - **FlakyBox** deliberately returns `IsSuccess = false, 503` — seeding realistic
      failure data.
+   - **SubstrateApi** POSTs the content to `http://localhost:5150/receive`. If the
+     [chat app](../EventHighway.ClientV2.SubstrateApi/README.md) is running, the release
+     appears on its UI within the second; if it is not, the delivery is recorded as a
+     failure and this app carries on regardless.
 
 8. **Receipts everywhere.** Every delivery attempt — success, skip, or failure — is
    recorded as a `ListenerEventV2` row with the handler's response, code and status.
@@ -686,8 +709,17 @@ dotnet run --project EventHighway.ClientV2.SubstrateApp
 ```
 
 Both databases are created on first run if missing (`EventHighwayDB` by the substrate,
-`NFlixMediaDB` by the app's storage broker — both on `(localdb)\MSSQLLocalDB`). Expected
-output:
+`NFlixMediaDB` by the app's storage broker — both on `(localdb)\MSSQLLocalDB`).
+
+**Better still, start the chat app first** and watch this console's releases land on a UI
+as they happen:
+
+```
+dotnet run --project EventHighway.ClientV2.SubstrateApi   # http://localhost:5150
+dotnet run --project EventHighway.ClientV2.SubstrateApp
+```
+
+Expected output:
 
 ```
 [SofaBox] New Release - Yellowstone (Series with rating of 8.6)
@@ -712,4 +744,7 @@ output:
 client rather than logging, so his `200 OK Event received` outcome for Spider-Man lands
 on his listener row instead of the console. He is skipped on Yellowstone and Guardians —
 a Series and a 7.9 rating, both below his filter's bar. FlakyBox fails on everything, on
-purpose: those `Error` delivery records feed the retry and health features.)
+purpose: those `Error` delivery records feed the retry and health features. SubstrateApi
+does not print either, for the same reason as Joe — but unlike Joe it has somewhere real
+to arrive: all three accepted releases appear on the chat app's UI, in order, as they are
+dispatched.)

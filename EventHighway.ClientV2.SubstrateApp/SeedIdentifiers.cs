@@ -30,6 +30,12 @@ namespace EventHighway.ClientV2.Seed
         public static readonly Guid FlakyBoxParticipant =
             new Guid("dd9c020b-b528-4058-9ca0-750ef128b9ca");
 
+        // The EventHighway.ClientV2.SubstrateApi chat app. It both publishes (the UI submits media
+        // items through its own /submit endpoint under this identity) and subscribes (its
+        // unfiltered listener below relays every new release to its /receive endpoint).
+        public static readonly Guid SubstrateApiParticipant =
+            new Guid("80aa28e0-faca-4984-a1ac-bfa2e2d3926c");
+
         // Participant secrets
         public static readonly Guid NFlixSecret =
             new Guid("5b1f7ee4-d421-4e2a-a534-c41cb1627bd1");
@@ -37,9 +43,13 @@ namespace EventHighway.ClientV2.Seed
         public static readonly Guid MediaItemServiceSecret =
             new Guid("69e4a4ad-fcd1-446b-838e-961dd37763e5");
 
+        public static readonly Guid SubstrateApiSecret =
+            new Guid("5279a8cd-fadb-4a6e-b4fc-dab683202c8f");
+
         // Participant secret values (what publishers present; verified by the substrate core).
         public const string NFlixSecretValue = "NFlix";
         public const string MediaItemServiceSecretValue = "MediaItemService";
+        public const string SubstrateApiSecretValue = "SubstrateApi";
 
         // Event addresses
         public static readonly Guid NFlixNewReleasesAddress =
@@ -60,6 +70,11 @@ namespace EventHighway.ClientV2.Seed
 
         public static readonly Guid FlakyBoxNewReleasesListener =
             new Guid("c00c96c4-ad10-47a8-b2bc-b8d18efcde5a");
+
+        // Deliberately unfiltered and with no promoted properties: every new release reaching the
+        // address is relayed, whole, to the SubstrateApi's /receive endpoint and onto its chat UI.
+        public static readonly Guid SubstrateApiNewReleasesListener =
+            new Guid("d90282d6-fd28-4914-a898-8dff75a112ee");
 
         // MediaItemService's ONLY subscription: the listener on NFlix-ExternalContributions.
         // It does not listen to NFlix-NewReleases — it publishes there.
@@ -83,5 +98,11 @@ namespace EventHighway.ClientV2.Seed
 
         public static readonly Guid MediaItemServiceHandler =
             new Guid("6743a4f1-07c4-4def-9d1f-e0ca926c6b90");
+
+        // Registered by all three apps (BasicApp, SubstrateApp and the SubstrateApi itself), each
+        // pointing at the SAME running SubstrateApi /receive endpoint — so whichever app dispatches
+        // an event, its delivery lands on the one chat UI.
+        public static readonly Guid SubstrateApiHandler =
+            new Guid("3282e8fd-b6ae-4bbc-86f4-d019ffa7ccca");
     }
 }
