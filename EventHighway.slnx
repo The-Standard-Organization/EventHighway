@@ -27,9 +27,6 @@
   </Folder>
   <Folder Name="/Samples/" />
   <Folder Name="/Samples/ClientV1/">
-    <Project Path="EventHighway.App/EventHighway.App.csproj">
-      <Build Solution="Debug|*" Project="false" />
-    </Project>
     <Project Path="EventHighway.ClientV1.App/EventHighway.ClientV1.App.csproj" />
   </Folder>
   <Folder Name="/Samples/ClientV2/">
