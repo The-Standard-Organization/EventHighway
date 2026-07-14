@@ -1,0 +1,73 @@
+<div class="card shadow-sm event-chat d-flex flex-column flex-grow-1">
+    <div class="card-header d-flex align-items-center justify-content-between flex-shrink-0">
+        <span class="fw-semibold">Received on /receive</span>
+        <span class="badge text-bg-secondary rounded-pill">@this.receivedEvents.Count</span>
+    </div>
+
+    <div class="card-body event-chat-log" @ref="this.logElement">
+        @if (this.receivedEvents.Count is 0)
+        {
+            <p class="text-body-secondary text-center my-5">
+                Nothing delivered yet. Send a media item below — or POST one to
+                <code>/submit</code> — and every listener's delivery lands here.
+            </p>
+        }
+        else
+        {
+            @for (int index = 0; index < this.receivedEvents.Count; index++)
+            {
+                ReceivedEventView receivedEvent = this.receivedEvents[index];
+
+                @if (index > 0)
+                {
+                    <hr class="event-chat-separator" />
+                }
+
+                <article>
+                    <div class="small text-body-secondary mb-1">
+                        @receivedEvent.ReceivedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")
+                    </div>
+
+                    <pre class="event-chat-content mb-0">@receivedEvent.Content</pre>
+                </article>
+            }
+        }
+    </div>
+
+    <div class="card-footer flex-shrink-0">
+        <label for="composer" class="form-label small text-body-secondary">
+            Media item — POSTed to <code>/submit</code> as the SubstrateApi participant
+        </label>
+
+        <textarea id="composer"
+                  class="form-control font-monospace event-chat-composer"
+                  rows="9"
+                  disabled="@this.isSending"
+                  @bind="this.composerContent"
+                  @bind:event="oninput"></textarea>
+
+        <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+            <div class="flex-grow-1">
+                @if (this.submission is not null)
+                {
+                    <div class="alert py-2 px-3 mb-0 small @(this.submission.IsAccepted ? "alert-success" : "alert-danger")"
+                         role="alert">
+                        @this.submission.Message
+                    </div>
+                }
+            </div>
+
+            <button type="button"
+                    class="btn btn-primary px-4"
+                    disabled="@this.isSending"
+                    @onclick="SendAsync">
+                @if (this.isSending)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                }
+
+                Send
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+/* The log is the only thing that scrolls: the header and the composer stay put, and the log takes
+   whatever height is left over. min-height:0 is what allows it to shrink at all — a flex child
+   refuses to go below its content otherwise, and the page would scroll instead of the log. */
+.event-chat {
+    min-height: 0;
+}
+
+/* The log takes whatever height is left over. Its floor is deliberately low: the panel above it
+   grew when the sample body was put on screen, and the Send button must stay reachable — a chat you
+   have to scroll the page to talk to is worse than a short chat. */
+.event-chat-log {
+    flex: 1 1 auto;
+    min-height: 8rem;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.event-chat-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.event-chat-separator {
+    opacity: 0.4;
+    margin: 1rem 0;
+}
+
+.event-chat-composer {
+    font-size: 0.8125rem;
+    resize: vertical;
+}

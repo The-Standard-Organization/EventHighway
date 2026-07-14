@@ -1,0 +1,75 @@
+@host = http://localhost:5150
+
+# The SubstrateApi's own identity, from appsettings.json. Any seeded participant with a valid
+# secret works — NFlix's is a817f520-c7e5-4831-a67b-171902bf28ba / NFlix.
+@participant = 80aa28e0-faca-4984-a1ac-bfa2e2d3926c
+@secret = SubstrateApi
+
+### Heartbeat
+GET {{host}}/api/home
+
+### Submit a media item — accepted (202), and it appears on the chat UI moments later
+POST {{host}}/submit
+Content-Type: application/json
+X-EventHighwayParticipant: {{participant}}
+X-EventHighwayParticipantSecret: {{secret}}
+
+{
+  "Id": "11111111-2222-3333-4444-555555555555",
+  "Title": "Dune: Part Two",
+  "Type": "Movie",
+  "Genres": [ "Sci-Fi", "Adventure" ],
+  "Rating": 8.5
+}
+
+### Submit the SAME content again, within a minute — quarantined by loop detection (400).
+### Loop detection is configured here as "one identical item per minute", so the same request
+### sent later than that is accepted again rather than refused.
+POST {{host}}/submit
+Content-Type: application/json
+X-EventHighwayParticipant: {{participant}}
+X-EventHighwayParticipantSecret: {{secret}}
+
+{
+  "Id": "11111111-2222-3333-4444-555555555555",
+  "Title": "Dune: Part Two",
+  "Type": "Movie",
+  "Genres": [ "Sci-Fi", "Adventure" ],
+  "Rating": 8.5
+}
+
+### Wrong secret — refused by the substrate (400: "Event participant secret not found.")
+POST {{host}}/submit
+Content-Type: application/json
+X-EventHighwayParticipant: {{participant}}
+X-EventHighwayParticipantSecret: not-the-secret
+
+{
+  "Id": "22222222-2222-3333-4444-555555555555",
+  "Title": "Nope",
+  "Type": "Movie",
+  "Rating": 6.8
+}
+
+### Missing a title — refused by validation (400, naming the field)
+POST {{host}}/submit
+Content-Type: application/json
+X-EventHighwayParticipant: {{participant}}
+X-EventHighwayParticipantSecret: {{secret}}
+
+{
+  "Id": "33333333-2222-3333-4444-555555555555",
+  "Type": "Movie",
+  "Rating": 6.8
+}
+
+### Post straight to /receive — bypasses the highway entirely, but proves the chat renders
+### whatever arrives. This is the call the SubstrateApi listener's delegate client makes.
+POST {{host}}/receive
+Content-Type: application/json
+X-Highway: substrate-api-secret
+
+{
+  "Title": "Delivered by hand",
+  "Note": "The highway normally makes this call, not you."
+}

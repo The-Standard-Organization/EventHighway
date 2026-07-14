@@ -38,6 +38,33 @@ The client reads the `JoesRestApi` section of the host's configuration:
 Each event's content is POSTed to `Url` as `application/json` with the secret in an
 `X-Highway` request header.
 
+### More than one downstream
+
+The section is a constructor argument, so one host can hold several clients of this
+library — one per downstream it delivers to. Each reads its own `{ Url, Secret }` pair:
+
+```json
+{
+  "JoesRestApi": { "Url": "http://localhost:9091/events", "Secret": "joes-highway-secret" },
+  "SubstrateApi": { "Url": "http://localhost:5150/receive", "Secret": "substrate-api-secret" }
+}
+```
+
+```csharp
+var joesClient = new JoesRestApiDelegateClient(configuration);
+var substrateApiClient = new JoesRestApiDelegateClient(configuration, sectionName: "SubstrateApi");
+```
+
+With a container, register the extra downstream under a key so both resolve:
+
+```csharp
+services.AddJoesRestApiDelegateClient(configuration);
+
+services.AddKeyedSingleton<IJoesRestApiDelegateClient>(
+    serviceKey: "SubstrateApi",
+    (_, _) => new JoesRestApiDelegateClient(configuration, sectionName: "SubstrateApi"));
+```
+
 ## Wiring it up
 
 With dependency injection:

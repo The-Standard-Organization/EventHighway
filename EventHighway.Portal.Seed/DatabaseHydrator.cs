@@ -42,10 +42,10 @@ namespace EventHighway.Portal.Seed
         private static readonly Guid NewReleasesAddressId =
             new Guid("be0dd6e0-b545-435d-9541-d1ac386469ce");
 
-        // SofaBox / Joe / Ann participants + listeners — the same set EventHighway.ClientV2.BasicApp
-        // registers (same Guids as the shared SeedIdentifiers), so runs reconcile to the same rows.
-        // Handler Ids are fixed here (BasicApp mints random ones at runtime) so the seeded listener
-        // rows are stable across re-runs; the handlers themselves are in-memory dispatch objects.
+        // SofaBox / Joe / Ann / SubstrateApi participants + listeners — the same set
+        // EventHighway.ClientV2.BasicApp registers (same Guids as the shared SeedIdentifiers), so
+        // runs reconcile to the same rows. Handler Ids are fixed here so the seeded listener rows
+        // are stable across re-runs; the handlers themselves are in-memory dispatch objects.
         private static readonly ListenerSpec[] ListenerSpecs =
         {
             new ListenerSpec(
@@ -80,6 +80,28 @@ namespace EventHighway.Portal.Seed
                 ListenerDescription: "Ann, a late joiner who wants the back-catalogue.",
                 HandlerId: new Guid("a9079276-fbbe-4176-9744-9fee3354f3e7"),
                 HandlerName: "Ann",
+                PromotedProperties: null,
+                FilterCriteria: null),
+
+            // The SubstrateApi chat app — the one listener here with no filter and no promoted
+            // properties: everything on the address reaches it. Seeded so the dashboards show its
+            // traffic alongside the others; the live deliveries themselves happen when the
+            // EventHighway.ClientV2.SubstrateApi is running to receive them.
+            new ListenerSpec(
+                ParticipantId: new Guid("80aa28e0-faca-4984-a1ac-bfa2e2d3926c"),
+                ParticipantName: "SubstrateApi",
+
+                ParticipantDescription:
+                    "The SubstrateApi chat app: submits media items and shows every release.",
+
+                ListenerId: new Guid("d90282d6-fd28-4914-a898-8dff75a112ee"),
+                ListenerName: "SubstrateApi New Releases Listener",
+
+                ListenerDescription:
+                    "Relays every new release, unfiltered, to the SubstrateApi chat UI.",
+
+                HandlerId: new Guid("3282e8fd-b6ae-4bbc-86f4-d019ffa7ccca"),
+                HandlerName: "SubstrateApi",
                 PromotedProperties: null,
                 FilterCriteria: null),
         };

@@ -49,6 +49,48 @@ Host=localhost;Port=5432;Database=EventHighwayDb;Username=postgres;Password=post
 > On Windows the acceptance tests default to LocalDB (see
 > `EventHighway.Core.Tests.Acceptance/appsettings.json`) so they also run without Docker.
 
+### When LocalDB will not start
+
+Symptom — the app dies on `Database.Migrate()` with:
+
+```
+SqlException: ... (provider: SQL Network Interfaces, error: 50 - Local Database Runtime error
+occurred. Error occurred during LocalDB instance startup: SQL Server process failed to start.)
+ ---> Win32Exception (0x89C5010A)
+```
+
+There are two causes, and they look identical from the app. Check them in this order:
+
+**1. An orphaned engine process.** `sqllocaldb info MSSQLLocalDB` reports `State: Stopped`, yet a
+`sqlservr.exe` for the instance is still alive — holding `master.mdf`, so every start attempt dies
+instantly and writes *nothing* to the error log. `sqllocaldb stop -k` claims success but does not
+reach it. Kill it by PID and start the instance:
+
+```powershell
+# which sqlservr belongs to which instance (leave the "ProjectModels" one alone — that is VS's)
+Get-CimInstance Win32_Process -Filter "Name='sqlservr.exe'" | Select-Object ProcessId, CommandLine
+
+Stop-Process -Id <the MSSQLLocalDB pid> -Force
+sqllocaldb start MSSQLLocalDB
+```
+
+**2. `AUTO_CLOSE` back on.** LocalDB creates every user database with `AUTO_CLOSE ON` — the engine
+shuts the database down whenever the last connection drops. A console app never notices; a web app
+reconnecting all day turns it into exactly the startup failure above. **A database that is dropped
+and recreated comes back with it on**, and setting it on `model` does *not* prevent this (verified
+on the v17 instance: a fresh `EventHighwayDB` came back `1` while `model` was `0`).
+
+```sql
+SELECT name, is_auto_close_on FROM sys.databases;   -- want every row 0
+ALTER DATABASE [EventHighwayDB] SET AUTO_CLOSE OFF;
+```
+
+`EventHighway.ClientV2.SubstrateApi` now does this for `EventHighwayDB` on startup
+(`SubstrateApiRegistration.DisableAutoCloseOnSubstrateDatabase`), and it is a database-level
+setting — so starting that sample once heals it for every app sharing the database. The Core client
+deliberately does not, since it also ships against real SQL Server and Postgres where an
+unconditional `ALTER DATABASE` could fail on permissions.
+
 ## Running acceptance tests
 
 The acceptance test suite reads two settings — `PROVIDER` (`sqlserver` | `postgres`) and

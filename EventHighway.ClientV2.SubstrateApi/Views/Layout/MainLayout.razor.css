@@ -1,0 +1,6 @@
+/* A flex child will not shrink below its content unless it is told it may. Without this the chat
+   card pushes the page taller than the viewport and the whole window scrolls — which is precisely
+   what the chat's own scrolling log is there to avoid. */
+main {
+    min-height: 0;
+}

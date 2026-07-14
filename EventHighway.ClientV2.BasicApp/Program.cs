@@ -104,6 +104,20 @@ public partial class Program
             joesRestApiDelegateClient.PostToJoesRestApiAsync,
             name: "Joe");
 
+        // The same delegate client library, reading the "SubstrateApi" section instead — whose url
+        // is the real, running EventHighway.ClientV2.SubstrateApi /receive endpoint rather than a
+        // WireMock stand-in. The handler Id is shared with the SubstrateApp and with the
+        // SubstrateApi itself, so whichever of them dispatches a release, it lands on that one chat
+        // UI. If the SubstrateApi is not running, delivery simply fails (a 502 listener event) and
+        // this app carries on.
+        var substrateApiDelegateClient =
+            new JoesRestApiDelegateClient(appSettings, sectionName: "SubstrateApi");
+
+        var substrateApiHandler = new DelegateEventHandler(
+            SeedIdentifiers.SubstrateApiHandler,
+            substrateApiDelegateClient.PostToJoesRestApiAsync,
+            name: "SubstrateApi");
+
         var annHandler = new DelegateEventHandler(
             SeedIdentifiers.AnnHandler,
             (content, cancellationToken) =>
@@ -127,7 +141,8 @@ public partial class Program
         client.V2
             .RegisterEventHandler(sofaBoxHandler)
             .RegisterEventHandler(joeHandler)
-            .RegisterEventHandler(annHandler);
+            .RegisterEventHandler(annHandler)
+            .RegisterEventHandler(substrateApiHandler);
 
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -185,7 +200,54 @@ public partial class Program
                 });
 
         // =========================================================
-        // 5) SofaBox participant + listener (receives every release)
+        // 5) SubstrateApi participant + secret + unfiltered listener
+        // =========================================================
+        // The chat app. Its listener carries no filter and no promoted properties, so every valid
+        // release this console submits is relayed whole to the SubstrateApi's /receive endpoint and
+        // appears on its UI while both are running. It also holds a secret, unlike the other
+        // subscribers, because it publishes under this identity from its own /submit endpoint.
+        EventParticipantV2 substrateApi =
+            await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
+                new EventParticipantV2
+                {
+                    Id = SeedIdentifiers.SubstrateApiParticipant,
+                    Name = "SubstrateApi",
+
+                    Description =
+                        "The SubstrateApi chat app: submits media items and shows every release.",
+
+                    IsActive = true,
+                    CreatedDate = now,
+                    UpdatedDate = now
+                });
+
+        await GetOrAddSecretAsync(
+            new EventParticipantSecretV2
+            {
+                Id = SeedIdentifiers.SubstrateApiSecret,
+                Secret = SeedIdentifiers.SubstrateApiSecretValue,
+                EventParticipantV2Id = substrateApi.Id,
+                IsActive = true,
+                CreatedDate = now,
+                UpdatedDate = now
+            });
+
+        await client.V2.EventListenerV2Client.RetrieveOrRegisterEventListenerV2Async(
+            new EventListenerV2
+            {
+                Id = SeedIdentifiers.SubstrateApiNewReleasesListener,
+                Name = "SubstrateApi New Releases Listener",
+                Description = "Relays every new release, unfiltered, to the SubstrateApi chat UI.",
+                HandlerId = substrateApiHandler.Id,
+                HandlerName = substrateApiHandler.Name,
+                EventAddressV2Id = newReleases.Id,
+                EventParticipantV2Id = substrateApi.Id,
+                CreatedDate = now,
+                UpdatedDate = now
+            });
+
+        // =========================================================
+        // 6) SofaBox participant + listener (receives every release)
         // =========================================================
         EventParticipantV2 sofaBox =
             await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
@@ -215,7 +277,7 @@ public partial class Program
                 });
 
         // =========================================================
-        // 6) Joe participant + listener (only good movies)
+        // 7) Joe participant + listener (only good movies)
         // =========================================================
         EventParticipantV2 joe =
             await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
@@ -248,7 +310,7 @@ public partial class Program
                 });
 
         // =========================================================
-        // 7) Submit events as NFlix (with participant id + secret)
+        // 8) Submit events as NFlix (with participant id + secret)
         // =========================================================
         Console.WriteLine("\n── Submitting events ──");
 
@@ -322,14 +384,14 @@ public partial class Program
             scheduled: false, participantId: null, secret: Guid.NewGuid().ToString());
 
         // =========================================================
-        // 8) Fire the scheduled (pending) events
+        // 9) Fire the scheduled (pending) events
         // =========================================================
         Console.WriteLine("\n── Firing scheduled events ──");
         await Task.Delay(TimeSpan.FromSeconds(3));
         await client.V2.EventV2Client.FireScheduledPendingEventV2sAsync();
 
         // =========================================================
-        // 9) Summary of what the original subscribers recorded
+        // 10) Summary of what the original subscribers recorded
         // =========================================================
         await PrintListenerSummaryAsync(
             client,
@@ -337,7 +399,7 @@ public partial class Program
             (joeListener.Id, "Joe"));
 
         // =========================================================
-        // 10) Ann joins late and back-fills via a targeted replay
+        // 11) Ann joins late and back-fills via a targeted replay
         // =========================================================
         // Replay sources events from the archive, so first archive the processed
         // events (successful + quarantined) to make them available to replay.
@@ -390,12 +452,12 @@ public partial class Program
         await PrintListenerSummaryAsync(client, (annListener.Id, "Ann"));
 
         // =========================================================
-        // 11) Archive again (housekeeping)
+        // 12) Archive again (housekeeping)
         // =========================================================
         await client.V2.ArchivingEventV2Client.ArchiveEventV2sAsync();
 
         // =========================================================
-        // 12) Joe asks to re-process one specific release he had trouble with
+        // 13) Joe asks to re-process one specific release he had trouble with
         // =========================================================
         Console.WriteLine("\n── Replaying Spider-Verse to Joe ──");
 
@@ -410,7 +472,7 @@ public partial class Program
         await PrintListenerSummaryAsync(client, (joeListener.Id, "Joe"));
 
         // =========================================================
-        // 13) Health summary
+        // 14) Health summary
         // =========================================================
         await PrintHealthSummaryAsync(client);
     }
