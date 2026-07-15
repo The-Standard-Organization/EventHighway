@@ -6,9 +6,11 @@ using System;
 
 namespace EventHighway.ClientV2.Seed
 {
-    // Fixed identifiers for the shared sample data. Both console apps (BasicApp and SubstrateApp)
-    // use these SAME Guids, so re-running either app (or both) reuses the existing rows instead of
-    // inserting duplicates.
+    // Fixed identifiers for this app's sample data. Each sample app carries its OWN copy of these
+    // rather than sharing one file across projects, so every app builds and runs in isolation with
+    // no cross-project entanglement — deleting one app can never break another. The same well-known
+    // Guids are mirrored privately in EventHighway.Portal.Seed's DatabaseHydrator; keep the copies
+    // in step so every app and the hydrator address the same participants/addresses/listeners.
     public static class SeedIdentifiers
     {
         // Participants
@@ -81,9 +83,10 @@ namespace EventHighway.ClientV2.Seed
         public static readonly Guid MediaItemServiceContributionsListener =
             new Guid("b14dbd4c-1494-4a42-b35c-e5323db70a03");
 
-        // Event handlers. Stable Ids (shared by both console apps and the Portal.Seed hydrator) so a
-        // listener registered by one app references a handler the other app also registers under the
-        // same Id — dispatch then works regardless of which app created the listener or the run order.
+        // Event handlers. Stable Ids (mirrored across the sample apps and the Portal.Seed hydrator)
+        // so a listener registered by one app references a handler another app also registers under
+        // the same Id — dispatch then works regardless of which app created the listener or the run
+        // order.
         public static readonly Guid SofaBoxHandler =
             new Guid("6326cae3-04ff-411f-93fb-e606859390f6");
 
@@ -99,9 +102,9 @@ namespace EventHighway.ClientV2.Seed
         public static readonly Guid MediaItemServiceHandler =
             new Guid("6743a4f1-07c4-4def-9d1f-e0ca926c6b90");
 
-        // Registered by all three apps (BasicApp, SubstrateApp and the SubstrateApi itself), each
-        // pointing at the SAME running SubstrateApi /receive endpoint — so whichever app dispatches
-        // an event, its delivery lands on the one chat UI.
+        // Registered by the sample apps (BasicApp and the SubstrateApi itself), each pointing at the
+        // SAME running SubstrateApi /receive endpoint — so whichever app dispatches an event, its
+        // delivery lands on the one chat UI.
         public static readonly Guid SubstrateApiHandler =
             new Guid("3282e8fd-b6ae-4bbc-86f4-d019ffa7ccca");
     }

@@ -19,10 +19,4 @@
 		<PackageReference Include="WireMock.Net" Version="2.12.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<!-- Shared fixed seed identifiers, used by BasicApp, SubstrateApp and this app so all three
-		     reference the same sample participants/addresses/listeners/handlers. -->
-		<Compile Include="..\EventHighway.ClientV2.SubstrateApp\SeedIdentifiers.cs" Link="SeedIdentifiers.cs" />
-	</ItemGroup>
-
 </Project>

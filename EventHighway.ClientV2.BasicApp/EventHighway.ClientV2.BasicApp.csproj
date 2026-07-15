@@ -19,12 +19,6 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Shared fixed seed identifiers, used by both BasicApp and SubstrateApp so they reference the
-         same sample participants/addresses/listeners. -->
-    <Compile Include="..\EventHighway.ClientV2.SubstrateApp\SeedIdentifiers.cs" Link="SeedIdentifiers.cs" />
-  </ItemGroup>
-
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
