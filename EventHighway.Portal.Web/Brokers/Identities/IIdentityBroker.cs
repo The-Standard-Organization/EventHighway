@@ -18,7 +18,7 @@ namespace EventHighway.Portal.Web.Brokers.Identities
     {
         IQueryable<AppUser> SelectAllUsers();
 
-        ValueTask<AppUser> SelectUserByIdAsync(Guid userId);
+        ValueTask<AppUser?> SelectUserByIdAsync(Guid userId);
 
         ValueTask<IdentityResult> InsertUserAsync(AppUser user, string password);
 

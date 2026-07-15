@@ -18,7 +18,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Events
         ValueTask<List<EventView>> RetrieveAllEventsAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<EventView> RetrieveEventByIdAsync(
+        ValueTask<EventView?> RetrieveEventByIdAsync(
             Guid eventId,
             CancellationToken cancellationToken = default);
     }

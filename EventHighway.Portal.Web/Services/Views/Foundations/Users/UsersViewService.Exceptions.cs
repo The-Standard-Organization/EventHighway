@@ -25,6 +25,11 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
                 throw await CreateAndLogValidationExceptionAsync(
                     lastAdministratorUsersViewException);
             }
+            catch (NotFoundUsersViewException notFoundUsersViewException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    notFoundUsersViewException);
+            }
             catch (Exception exception)
             {
                 var failedServiceException =
@@ -44,6 +49,11 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             {
                 throw await CreateAndLogValidationExceptionAsync(
                     lastAdministratorUsersViewException);
+            }
+            catch (NotFoundUsersViewException notFoundUsersViewException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    notFoundUsersViewException);
             }
             catch (Exception exception)
             {

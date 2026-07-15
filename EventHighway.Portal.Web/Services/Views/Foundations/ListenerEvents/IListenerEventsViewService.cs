@@ -19,7 +19,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
             Guid eventId,
             CancellationToken cancellationToken = default);
 
-        ValueTask<ListenerEventView> RetrieveListenerEventByIdAsync(
+        ValueTask<ListenerEventView?> RetrieveListenerEventByIdAsync(
             Guid listenerEventId,
             CancellationToken cancellationToken = default);
 

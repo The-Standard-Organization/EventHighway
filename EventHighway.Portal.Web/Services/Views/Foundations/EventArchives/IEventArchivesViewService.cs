@@ -22,7 +22,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
         ValueTask<List<EventArchiveView>> RetrieveAllEventArchivesAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<EventArchiveView> RetrieveEventArchiveByIdAsync(
+        ValueTask<EventArchiveView?> RetrieveEventArchiveByIdAsync(
             Guid eventArchiveId,
             CancellationToken cancellationToken = default);
     }

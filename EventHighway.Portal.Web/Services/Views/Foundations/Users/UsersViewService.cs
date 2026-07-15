@@ -46,7 +46,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             IList<string> roles = await this.identityBroker.SelectUserRolesAsync(user);
 
@@ -82,7 +82,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             IList<string> roles = await this.identityBroker.SelectUserRolesAsync(user);
 
@@ -100,7 +100,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await this.identityBroker.InsertUserToRoleAsync(user, roleName);
         });
@@ -116,7 +116,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
                 await EnsureNotLastAdministratorAsync();
             }
 
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await this.identityBroker.DeleteUserFromRoleAsync(user, roleName);
         });
@@ -139,7 +139,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser existingUser = await this.identityBroker.SelectUserByIdAsync(user.Id);
+            AppUser existingUser = await RetrieveExistingUserByIdAsync(user.Id);
 
             await this.identityBroker.SetUserNameAsync(existingUser, user.UserName);
             await this.identityBroker.SetEmailAsync(existingUser, user.Email);
@@ -153,7 +153,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             string token =
                 await this.identityBroker.GenerateEmailConfirmationTokenAsync(user);
@@ -166,7 +166,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             return await this.identityBroker.GenerateEmailConfirmationTokenAsync(user);
         });
@@ -176,7 +176,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             return await this.identityBroker.GeneratePasswordResetTokenAsync(user);
         });
@@ -186,7 +186,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await EnsureNotLastAdministratorWhenInRoleAsync(user);
 
@@ -199,7 +199,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await this.identityBroker.SetLockoutEndDateAsync(user, null);
         });
@@ -209,7 +209,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await this.identityBroker.ResetAccessFailedCountAsync(user);
         });
@@ -220,7 +220,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await this.identityBroker.SetTwoFactorEnabledAsync(user, enabled);
 
@@ -235,7 +235,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             await EnsureNotLastAdministratorWhenInRoleAsync(user);
 
@@ -251,13 +251,19 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Users
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser user = await RetrieveExistingUserByIdAsync(userId);
 
             user.IsDisabled = false;
             await this.identityBroker.UpdateUserAsync(user);
 
             await this.identityBroker.SetLockoutEndDateAsync(user, null);
         });
+
+        // A by-id lookup is expected to hit — the id comes from a rendered list, not a search — so a
+        // miss is a not-found to raise, never a null to pass along to the next call.
+        private async ValueTask<AppUser> RetrieveExistingUserByIdAsync(Guid userId) =>
+            await this.identityBroker.SelectUserByIdAsync(userId)
+                ?? throw new NotFoundUsersViewException(userId);
 
         private async ValueTask EnsureNotLastAdministratorWhenInRoleAsync(AppUser user)
         {

@@ -50,7 +50,7 @@ namespace EventHighway.Portal.Web.Brokers.Storages
             string password,
             string roleName)
         {
-            AppUser existingUser = await userManager.FindByNameAsync(userName);
+            AppUser? existingUser = await userManager.FindByNameAsync(userName);
 
             if (existingUser is null)
             {

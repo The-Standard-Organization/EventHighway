@@ -59,7 +59,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
                 .ToList();
         });
 
-        public ValueTask<ListenerEventArchiveView> RetrieveListenerEventArchiveByIdAsync(
+        public ValueTask<ListenerEventArchiveView?> RetrieveListenerEventArchiveByIdAsync(
             Guid listenerEventArchiveId,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -68,7 +68,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
                 await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
                     cancellationToken);
 
-            ListenerEventArchiveV2 listenerEventArchive = listenerEventArchives
+            ListenerEventArchiveV2? listenerEventArchive = listenerEventArchives
                 .FirstOrDefault(retrievedArchive => retrievedArchive.Id == listenerEventArchiveId);
 
             return listenerEventArchive is null ? null : AsView(listenerEventArchive);

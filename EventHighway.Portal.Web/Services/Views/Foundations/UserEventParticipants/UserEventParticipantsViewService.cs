@@ -89,7 +89,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipan
 
             foreach (UserEventParticipant association in associations)
             {
-                AppUser user =
+                AppUser? user =
                     await this.identityBroker.SelectUserByIdAsync(association.UserId);
 
                 if (user is null)
@@ -116,7 +116,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipan
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            AppUser user = await this.identityBroker.SelectUserByIdAsync(userId);
+            AppUser? user = await this.identityBroker.SelectUserByIdAsync(userId);
 
             if (user is null)
             {
@@ -174,7 +174,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipan
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            UserEventParticipant association =
+            UserEventParticipant? association =
                 await this.userEventParticipantBroker.SelectUserEventParticipantByIdAsync(
                     associationId);
 

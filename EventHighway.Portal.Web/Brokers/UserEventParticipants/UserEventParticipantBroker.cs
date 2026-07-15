@@ -29,7 +29,7 @@ namespace EventHighway.Portal.Web.Brokers.UserEventParticipants
         public IQueryable<UserEventParticipant> SelectAllUserEventParticipants() =>
             this.securityDbContext.UserEventParticipants;
 
-        public async ValueTask<UserEventParticipant> SelectUserEventParticipantByIdAsync(
+        public async ValueTask<UserEventParticipant?> SelectUserEventParticipantByIdAsync(
             Guid userEventParticipantId) =>
             await this.securityDbContext.UserEventParticipants.FindAsync(userEventParticipantId);
 

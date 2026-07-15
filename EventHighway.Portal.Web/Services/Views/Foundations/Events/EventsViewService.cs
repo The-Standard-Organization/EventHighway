@@ -51,12 +51,12 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Events
                 .ToList();
         });
 
-        public ValueTask<EventView> RetrieveEventByIdAsync(
+        public ValueTask<EventView?> RetrieveEventByIdAsync(
             Guid eventId,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            EventV2Summary eventSummary =
+            EventV2Summary? eventSummary =
                 await this.eventHighwayBroker.RetrieveEventV2SummaryByIdAsync(
                     eventId, cancellationToken);
 

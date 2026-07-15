@@ -57,12 +57,12 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
                 .ToList();
         });
 
-        public ValueTask<EventArchiveView> RetrieveEventArchiveByIdAsync(
+        public ValueTask<EventArchiveView?> RetrieveEventArchiveByIdAsync(
             Guid eventArchiveId,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            EventArchiveV2Summary eventArchiveSummary =
+            EventArchiveV2Summary? eventArchiveSummary =
                 await this.eventHighwayBroker.RetrieveEventArchiveV2SummaryByIdAsync(
                     eventArchiveId, cancellationToken);
 

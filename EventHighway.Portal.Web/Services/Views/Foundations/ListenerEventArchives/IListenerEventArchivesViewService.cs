@@ -20,7 +20,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
                 Guid eventArchiveId,
                 CancellationToken cancellationToken = default);
 
-        ValueTask<ListenerEventArchiveView> RetrieveListenerEventArchiveByIdAsync(
+        ValueTask<ListenerEventArchiveView?> RetrieveListenerEventArchiveByIdAsync(
             Guid listenerEventArchiveId,
             CancellationToken cancellationToken = default);
     }

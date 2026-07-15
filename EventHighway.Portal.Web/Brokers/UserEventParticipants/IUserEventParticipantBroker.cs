@@ -19,7 +19,7 @@ namespace EventHighway.Portal.Web.Brokers.UserEventParticipants
 
         IQueryable<UserEventParticipant> SelectAllUserEventParticipants();
 
-        ValueTask<UserEventParticipant> SelectUserEventParticipantByIdAsync(
+        ValueTask<UserEventParticipant?> SelectUserEventParticipantByIdAsync(
             Guid userEventParticipantId);
 
         ValueTask<UserEventParticipant> DeleteUserEventParticipantAsync(
