@@ -1,10 +1,12 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
@@ -13,6 +15,7 @@ using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventAddresses;
 using EventHighway.Portal.Web.Services.Views.Foundations.EventAddresses;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventAddresses
 {
@@ -33,6 +36,24 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventAdd
                 eventHighwayBroker: this.eventHighwayBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            string someMessage = GetRandomString();
+            var someInnerException = new Xeption();
+            someInnerException.Data.Add("ErrorCode", new List<string> { "DependencyError" });
+
+            return new TheoryData<Xeption>
+            {
+                new EventAddressV2ClientDependencyException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+
+                new EventAddressV2ClientServiceException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+            };
         }
 
         private static string GetRandomString() =>

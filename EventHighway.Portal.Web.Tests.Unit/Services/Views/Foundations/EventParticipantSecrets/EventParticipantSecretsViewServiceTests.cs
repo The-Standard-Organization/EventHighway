@@ -1,10 +1,12 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EventHighway.Core.Models.Clients.EventParticipantSecrets.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
@@ -13,6 +15,7 @@ using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipant
 using EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSecrets;
 using Moq;
 using Tynamix.ObjectFiller;
+using Xeptions;
 
 namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventParticipantSecrets
 {
@@ -33,6 +36,38 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                 eventHighwayBroker: this.eventHighwayBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
+        }
+
+        public static TheoryData<Xeption> DependencyValidationExceptions()
+        {
+            var someInnerException = new Xeption(message: GetRandomString());
+
+            return new TheoryData<Xeption>
+            {
+                new EventParticipantSecretV2ClientValidationException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+
+                new EventParticipantSecretV2ClientDependencyValidationException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+            };
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            var someInnerException = new Xeption(message: GetRandomString());
+
+            return new TheoryData<Xeption>
+            {
+                new EventParticipantSecretV2ClientDependencyException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+
+                new EventParticipantSecretV2ClientServiceException(
+                    message: GetRandomString(), innerException: someInnerException,
+                    data: new Hashtable()),
+            };
         }
 
         private static string GetRandomString() =>

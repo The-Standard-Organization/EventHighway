@@ -1,12 +1,12 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
-using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
+using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventArchives;
 using EventHighway.Portal.Web.Services.Views.Foundations.EventArchives;
 using Moq;

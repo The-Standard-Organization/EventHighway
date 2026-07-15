@@ -17,24 +17,6 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.HealthDa
 {
     public partial class HealthViewServiceTests
     {
-        public static TheoryData<Xeption> DependencyExceptions()
-        {
-            var someInnerException = new Xeption(message: GetRandomString());
-
-            return new TheoryData<Xeption>
-            {
-                new HealthStatusClientV2DependencyException(
-                    message: GetRandomString(),
-                    innerException: someInnerException,
-                    data: new Hashtable()),
-
-                new HealthStatusClientV2ServiceException(
-                    message: GetRandomString(),
-                    innerException: someInnerException,
-                    data: new Hashtable()),
-            };
-        }
-
         [Fact]
         public async Task ShouldThrowDependencyValidationExceptionOnRetrieveIfDependencyValidationErrorOccursAndLogItAsync()
         {
