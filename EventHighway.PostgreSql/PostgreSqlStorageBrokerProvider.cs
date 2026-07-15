@@ -23,9 +23,7 @@ namespace EventHighway.PostgreSql
                 .AddInterceptors(new DateTimeOffsetTruncationInterceptor());
 
         public void ConfigureModel(ModelBuilder modelBuilder)
-        {
-            // PostgreSQL configures DateTimeOffset precision in ConfigureConventions.
-        }
+        { }
 
         public void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
             configurationBuilder.Properties<DateTimeOffset>()

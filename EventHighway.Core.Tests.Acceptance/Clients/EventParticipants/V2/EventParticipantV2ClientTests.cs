@@ -65,7 +65,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
         private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()

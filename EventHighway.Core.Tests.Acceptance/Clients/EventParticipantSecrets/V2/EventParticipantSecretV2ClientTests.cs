@@ -86,7 +86,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             Guid participantId)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-
             var filler = new Filler<EventParticipantSecretV2>();
 
             filler.Setup()
@@ -116,7 +115,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
         private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()

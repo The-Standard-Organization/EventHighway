@@ -137,9 +137,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             Guid eventAddressV1Id,
             string inputMockEndpoint)
         {
-            DateTimeOffset now = 
-                DateTimeOffset.UtcNow;
-
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventListenerV1>();
 
             filler.Setup()
@@ -164,9 +162,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
             Guid eventAddressV1Id,
             DateTimeOffset scheduledDate)
         {
-            DateTimeOffset now = 
-                DateTimeOffset.UtcNow;
-
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventV1>();
 
             filler.Setup()
@@ -192,9 +188,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V1
 
         private static Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
-            DateTimeOffset now = 
-                DateTimeOffset.UtcNow;
-
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()

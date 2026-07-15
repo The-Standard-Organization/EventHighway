@@ -59,7 +59,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
         private static Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
-
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()

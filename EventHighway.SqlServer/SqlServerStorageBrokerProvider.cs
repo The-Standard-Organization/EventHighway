@@ -20,13 +20,9 @@ namespace EventHighway.SqlServer
                 sqlOptions => sqlOptions.MigrationsAssembly("EventHighway.SqlServer"));
 
         public void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            // SQL Server requires no provider-specific conventions.
-        }
+        { }
 
         public void ConfigureModel(ModelBuilder modelBuilder)
-        {
-            // SQL Server requires no provider-specific model configuration.
-        }
+        { }
     }
 }
