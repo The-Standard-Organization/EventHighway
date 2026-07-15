@@ -23,3 +23,11 @@ html, body {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+/* The Process Flow diagrams are injected as SVG by processFlow.js after the component renders, so
+   they carry no scoped-CSS attribute — their sizing lives here in the global sheet rather than in
+   ProcessFlow.razor.css, where a scoped selector would never match them. */
+.process-flow-diagram svg {
+    max-width: 100%;
+    height: auto;
+}

@@ -1,0 +1,89 @@
+<div class="process-flow">
+    <div class="card shadow-sm mb-3">
+        <div class="card-header">
+            <span class="fw-semibold">How a submission travels the highway</span>
+        </div>
+
+        <div class="card-body">
+            <p class="text-body-secondary">
+                Every media item makes the same round trip: submitted to the public intake,
+                ingested and stored by the internal service, re-published as a new release, then
+                delivered back to this chat by an ordinary REST listener — the same path any other
+                subscriber sees.
+            </p>
+
+            <ol class="process-flow-steps mb-3">
+                <li>
+                    An event is submitted to the <strong>Submit API</strong>
+                    (<code>POST /submit</code>) from Postman, cURL, or this app's chat box.
+                </li>
+                <li>
+                    The <strong>ExternalMediaItemService</strong> validates the submission — the
+                    participant id and secret are <strong>mandatory</strong> and are read from the
+                    request headers, never from the body.
+                </li>
+                <li>
+                    The content is emitted onto the
+                    <code class="process-flow-address">NFlix-ExternalContributions</code> event
+                    address on EventHighway as an <code>ExternalMediaItemAdded</code> event, whose
+                    credentials EventHighway verifies.
+                </li>
+                <li>
+                    The <strong>InternalMediaService</strong> listens on
+                    <code class="process-flow-address">NFlix-ExternalContributions</code> and
+                    receives the content from EventHighway through an internal
+                    <strong>DelegateEventHandler</strong> — the content only, never the credentials.
+                </li>
+                <li>
+                    The InternalMediaService validates the content and submits the item to storage
+                    (storage broker &rarr; SQL).
+                </li>
+                <li>
+                    The InternalMediaService emits a <code>MediaItemAdded</code> event onto the
+                    <code class="process-flow-address">NFlix-NewReleases</code> address.
+                </li>
+                <li>
+                    Several listeners sit on <code class="process-flow-address">NFlix-NewReleases</code>;
+                    the <strong>SubstrateApi</strong> listener carries a
+                    <strong>REST API delegate</strong> that submits the content to the
+                    <strong>Receive API</strong> (<code>POST /receive</code>). The others —
+                    SofaBox, Joe, Ann and FlakyBox — each do their own thing with the same release.
+                </li>
+                <li>
+                    The Receive API takes the content, processes it, and surfaces it on the
+                    <strong>chat UI</strong>.
+                </li>
+            </ol>
+
+            <p class="small text-body-secondary mb-0">
+                Addresses validated against <code>SeedIdentifiers</code>:
+                <code class="process-flow-address">NFlix-ExternalContributions</code> is the public
+                intake the InternalMediaService alone subscribes to;
+                <code class="process-flow-address">NFlix-NewReleases</code> is where it re-publishes,
+                and where every downstream listener — this chat included — is bound.
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-header">
+            <span class="fw-semibold">Process flow</span>
+        </div>
+
+        <div class="card-body">
+            @* Owned by processFlow.js: rendered empty here so Blazor never diffs against the
+               injected SVG. The min-height in the scoped CSS holds the space until it lands. *@
+            <div @ref="this.flowElement" class="process-flow-diagram"></div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <span class="fw-semibold">Sequence</span>
+        </div>
+
+        <div class="card-body">
+            <div @ref="this.sequenceElement" class="process-flow-diagram"></div>
+        </div>
+    </div>
+</div>
