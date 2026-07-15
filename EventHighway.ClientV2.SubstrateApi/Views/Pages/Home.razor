@@ -2,5 +2,31 @@
 
 <PageTitle>EventHighway SubstrateApi</PageTitle>
 
-<SubmitEndpoint />
-<EventChat />
+<ul class="nav nav-tabs flex-shrink-0 mb-3">
+    <li class="nav-item">
+        <button type="button"
+                class="nav-link @(this.activeTab == EventsTab ? "active" : null)"
+                @onclick="() => this.activeTab = EventsTab">
+            Events
+        </button>
+    </li>
+    <li class="nav-item">
+        <button type="button"
+                class="nav-link @(this.activeTab == ProcessFlowTab ? "active" : null)"
+                @onclick="() => this.activeTab = ProcessFlowTab">
+            Process Flow
+        </button>
+    </li>
+</ul>
+
+@* Both panes stay mounted so the chat keeps receiving deliveries while the Process Flow tab is
+   open; only their visibility changes. Exactly one display utility is applied per pane — d-none and
+   d-flex are both !important, so a pane carrying both would never hide. *@
+<div class="flex-grow-1 flex-column tab-body @(this.activeTab == EventsTab ? "d-flex" : "d-none")">
+    <SubmitEndpoint />
+    <EventChat />
+</div>
+
+<div class="flex-grow-1 tab-body overflow-auto @(this.activeTab == ProcessFlowTab ? "d-block" : "d-none")">
+    <ProcessFlow />
+</div>

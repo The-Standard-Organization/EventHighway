@@ -1,0 +1,32 @@
+.process-flow-steps {
+    padding-left: 1.25rem;
+}
+
+/* The steps are read one after another, so they get room to breathe rather than sitting in a dense
+   block — this is the narration the two diagrams below only sketch. */
+.process-flow-steps li {
+    margin-bottom: 0.5rem;
+}
+
+.process-flow-steps li:last-child {
+    margin-bottom: 0;
+}
+
+/* The intake and release addresses are the load-bearing names in this story, so they are tinted the
+   same amber the flow diagram gives them — a reader can match the chip in the prose to the box in
+   the picture. Bootstrap's subtle-warning tokens keep it in step with the rest of the theme. */
+.process-flow-address {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+}
+
+/* Holds vertical space before the SVG lands, and lets a wide diagram scroll sideways rather than
+   stretch the card. The injected SVG's own max-width sizing lives in the global sheet — it arrives
+   without this component's scoped attribute, so a scoped selector would never reach it. */
+.process-flow-diagram {
+    min-height: 6rem;
+    overflow-x: auto;
+    text-align: center;
+}

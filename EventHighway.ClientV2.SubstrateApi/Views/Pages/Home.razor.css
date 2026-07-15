@@ -1,0 +1,7 @@
+/* The active tab body has to behave exactly as the page did before the tabs arrived: it takes the
+   height left under the tab strip and is allowed to shrink below its content, so the chat log
+   scrolls inside itself instead of pushing the composer — and the page — off the bottom. Without
+   min-height:0 a flex child refuses to go below its content and the whole layout scrolls instead. */
+.tab-body {
+    min-height: 0;
+}
