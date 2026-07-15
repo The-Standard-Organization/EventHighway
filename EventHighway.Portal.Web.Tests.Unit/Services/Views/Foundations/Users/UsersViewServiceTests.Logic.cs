@@ -1,11 +1,10 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Portal.Web.Models.Services.Domains.Foundations.Users;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.Users;

@@ -1,12 +1,10 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
-using EventHighway.Core.Models.Clients.EventParticipantSecrets.V2.Exceptions;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipantSecrets.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -16,38 +14,6 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
 {
     public partial class EventParticipantSecretsViewServiceTests
     {
-        public static TheoryData<Xeption> DependencyValidationExceptions()
-        {
-            var someInnerException = new Xeption(message: GetRandomString());
-
-            return new TheoryData<Xeption>
-            {
-                new EventParticipantSecretV2ClientValidationException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-
-                new EventParticipantSecretV2ClientDependencyValidationException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-            };
-        }
-
-        public static TheoryData<Xeption> DependencyExceptions()
-        {
-            var someInnerException = new Xeption(message: GetRandomString());
-
-            return new TheoryData<Xeption>
-            {
-                new EventParticipantSecretV2ClientDependencyException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-
-                new EventParticipantSecretV2ClientServiceException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-            };
-        }
-
         [Theory]
         [MemberData(nameof(DependencyValidationExceptions))]
         public async Task ShouldThrowDependencyValidationExceptionOnRetrieveIfDependencyValidationErrorOccursAndLogItAsync(
