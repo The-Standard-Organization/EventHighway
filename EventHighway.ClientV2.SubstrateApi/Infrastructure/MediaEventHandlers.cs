@@ -102,7 +102,7 @@ namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
                 name: "Joe");
 
             // The chat's own line into the highway. Same handler Id in every app that registers it,
-            // so a release dispatched by BasicApp or SubstrateApp lands on this same UI.
+            // so a release dispatched by BasicApp — or by this app itself — lands on this same UI.
             this.SubstrateApi = new DelegateEventHandler(
                 SeedIdentifiers.SubstrateApiHandler,
                 substrateApiDelegateClient.PostToJoesRestApiAsync,

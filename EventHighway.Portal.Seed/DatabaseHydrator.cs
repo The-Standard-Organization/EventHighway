@@ -9,8 +9,8 @@
 // DatabaseHydrator.HydrateNewReleasesAsync(connectionString) to top up the database. Self-sufficient:
 // the Ensure* helpers create the NFlix participant, the NFlix-NewReleases address and its listeners
 // when missing (through the EventHighway client's RetrieveOrAdd/RetrieveOrRegister operations where
-// available), so it runs against an empty database on its own; when the ClientV2.SubstrateApp/
-// BasicApp samples have already run it reconciles to their rows via the shared well-known Guids
+// available), so it runs against an empty database on its own; when the ClientV2.BasicApp/
+// SubstrateApi samples have already run it reconciles to their rows via the shared well-known Guids
 // instead of duplicating them. Re-running is safe: it only appends more traffic (fresh row Ids,
 // backdated across the trailing year) and never mutates the existing config rows.
 
@@ -33,9 +33,9 @@ namespace EventHighway.Portal.Seed
         private const string NFlixParticipantName = "NFlix";
         private const string NewReleaseEventName = "AddNewRelease";
 
-        // Well-known identifiers shared with EventHighway.ClientV2.SubstrateApp's SeedIdentifiers.
-        // Re-using the SAME Guids means this hydrator and that sample reconcile to the same rows
-        // instead of creating duplicates — but without taking a dependency on the other console app.
+        // Well-known identifiers mirrored in each sample app's SeedIdentifiers (BasicApp, SubstrateApi).
+        // Re-using the SAME Guids means this hydrator and those samples reconcile to the same rows
+        // instead of creating duplicates — but without taking a dependency on the other apps.
         private static readonly Guid NFlixParticipantId =
             new Guid("a817f520-c7e5-4831-a67b-171902bf28ba");
 

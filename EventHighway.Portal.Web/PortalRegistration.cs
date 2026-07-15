@@ -143,7 +143,7 @@ namespace EventHighway.Portal.Web
 
         // The EventHighway V2 client is constructed once (it builds its own in-process
         // service provider and migrates the Core database) and registered as a singleton,
-        // mirroring SubstrateAppRegistration.CreateEventSubstrateBroker.
+        // mirroring SubstrateApiRegistration.CreateEventSubstrateBroker.
         private static IClientV2 CreateClientV2(IConfiguration configuration)
         {
             string connectionString =

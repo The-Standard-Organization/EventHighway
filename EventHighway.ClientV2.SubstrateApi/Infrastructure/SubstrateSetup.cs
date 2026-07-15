@@ -15,14 +15,14 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 namespace EventHighway.ClientV2.SubstrateApi.Infrastructure
 {
     /// <summary>
-    /// Lays out the same highway the SubstrateApp console sample does — the participants and their
-    /// secrets, the "NFlix-ExternalContributions" and "NFlix-NewReleases" addresses, and the
-    /// listeners bound to each — and adds the one this app brings with it: an unfiltered listener
-    /// that relays every new release to the chat.
+    /// Lays out the highway this app relies on — the participants and their secrets, the
+    /// "NFlix-ExternalContributions" and "NFlix-NewReleases" addresses, and the listeners bound to
+    /// each — and adds the one this app brings with it: an unfiltered listener that relays every
+    /// new release to the chat.
     /// </summary>
     /// <remarks>
     /// Every row is keyed on a shared, fixed Guid and written with a retrieve-or-add, so this runs
-    /// safely against a database the console samples have already seeded, in any order, any number
+    /// safely against a database the other seed apps have already seeded, in any order, any number
     /// of times.
     /// </remarks>
     public sealed class SubstrateSetup

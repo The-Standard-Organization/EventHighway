@@ -16,10 +16,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace EventHighway.ClientV2.SubstrateApi.Controllers
 {
     /// <summary>
-    /// The public intake — the same contribution path the SubstrateApp console sample calls
-    /// in-process, opened up over HTTP so Postman (or this app's own chat box) can reach it.
-    /// The contributor's credentials are read from the request headers and never from the body:
-    /// a body is data a caller can pass around, headers are how a caller identifies itself.
+    /// The public intake — the contribution path opened up over HTTP so Postman (or this app's own
+    /// chat box) can reach it. The contributor's credentials are read from the request headers and
+    /// never from the body: a body is data a caller can pass around, headers are how a caller
+    /// identifies itself.
     /// </summary>
     [ApiController]
     [Route("submit")]

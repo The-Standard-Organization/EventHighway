@@ -7,8 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace EventHighway.ClientV2.SubstrateApi.Brokers.Loggings
 {
-    // The console counterpart in the SubstrateApp sample writes straight to Console; a web host has
-    // a logging pipeline of its own, so this one hands over to it.
     public sealed class LoggingBroker : ILoggingBroker
     {
         private readonly ILogger<LoggingBroker> logger;

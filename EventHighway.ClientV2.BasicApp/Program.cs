@@ -106,10 +106,9 @@ public partial class Program
 
         // The same delegate client library, reading the "SubstrateApi" section instead — whose url
         // is the real, running EventHighway.ClientV2.SubstrateApi /receive endpoint rather than a
-        // WireMock stand-in. The handler Id is shared with the SubstrateApp and with the
-        // SubstrateApi itself, so whichever of them dispatches a release, it lands on that one chat
-        // UI. If the SubstrateApi is not running, delivery simply fails (a 502 listener event) and
-        // this app carries on.
+        // WireMock stand-in. The handler Id is shared with the SubstrateApi itself, so whichever app
+        // dispatches a release, it lands on that one chat UI. If the SubstrateApi is not running,
+        // delivery simply fails (a 502 listener event) and this app carries on.
         var substrateApiDelegateClient =
             new JoesRestApiDelegateClient(appSettings, sectionName: "SubstrateApi");
 
@@ -161,7 +160,7 @@ public partial class Program
         // 3) Register the publishing participant (NFlix) and its secret
         // =========================================================
         // Idempotent on the (fixed) Id so re-running this app — or sharing the database with the
-        // SubstrateApp, which uses the same seed identifiers — reuses the existing rows.
+        // SubstrateApi or Portal.Seed, which use the same seed identifiers — reuses the existing rows.
         EventParticipantV2 nflix =
             await client.V2.EventParticipantV2Client.RetrieveOrAddEventParticipantV2Async(
                 new EventParticipantV2
