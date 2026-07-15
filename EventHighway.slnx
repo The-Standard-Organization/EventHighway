@@ -27,12 +27,14 @@
   </Folder>
   <Folder Name="/Samples/" />
   <Folder Name="/Samples/ClientV1/">
+    <Project Path="EventHighway.App/EventHighway.App.csproj">
+      <Build Solution="Debug|*" Project="false" />
+    </Project>
     <Project Path="EventHighway.ClientV1.App/EventHighway.ClientV1.App.csproj" />
   </Folder>
   <Folder Name="/Samples/ClientV2/">
     <Project Path="EventHighway.ClientV2.BasicApp/EventHighway.ClientV2.BasicApp.csproj" />
     <Project Path="EventHighway.ClientV2.SubstrateApi/EventHighway.ClientV2.SubstrateApi.csproj" />
-    <Project Path="EventHighway.ClientV2.SubstrateApp/EventHighway.ClientV2.SubstrateApp.csproj" />
     <Project Path="EventHighway.EventHandlers.Delegates.JoesRestApi/EventHighway.EventHandlers.Delegates.JoesRestApi.csproj" />
   </Folder>
   <Folder Name="/EventHighway.StorageProviders/">
