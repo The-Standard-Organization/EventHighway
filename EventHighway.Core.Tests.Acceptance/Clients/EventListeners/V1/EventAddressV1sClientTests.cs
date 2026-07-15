@@ -58,7 +58,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
 
         private static Filler<EventAddressV1> CreateEventAddressV1Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventAddressV1>();
 
             filler.Setup()
@@ -79,7 +79,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
         private static Filler<EventListenerV1> CreateEventListenerV1Filler(
             Guid eventAddressId)
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+
             var filler = new Filler<EventListenerV1>();
 
             filler.Setup()
@@ -95,14 +96,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V1
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

@@ -4,10 +4,8 @@
 
 using System;
 using EventHighway.Abstractions.Storages;
-using EventHighway.Core.Brokers.Storages;
+using EventHighway.PostgreSql.Interceptors;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EventHighway.PostgreSql
 {
@@ -21,33 +19,15 @@ namespace EventHighway.PostgreSql
         public void Configure(DbContextOptionsBuilder optionsBuilder) =>
             optionsBuilder.UseNpgsql(
                 this.connectionString,
-                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgreSql"));
+                npgsqlOptions => npgsqlOptions.MigrationsAssembly("EventHighway.PostgreSql"))
+                .AddInterceptors(new DateTimeOffsetTruncationInterceptor());
 
         public void ConfigureModel(ModelBuilder modelBuilder)
-        {
-            // PostgreSQL timestamptz stores 6 fractional digits and ROUNDS the 100ns
-            // tick .NET carries, so a written value can read back different. Truncate
-            // on write so in-memory values always round-trip unchanged.
-            ValueConverter<DateTimeOffset, DateTimeOffset> truncateToMicroseconds =
-                new ValueConverter<DateTimeOffset, DateTimeOffset>(
-                    dateTimeOffset => dateTimeOffset.AddTicks(
-                        -(dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond)),
+        { }
 
-                    dateTimeOffset => dateTimeOffset);
-
-            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                foreach (IMutableProperty property in entityType.GetProperties())
-                {
-                    if (property.ClrType == typeof(DateTimeOffset) ||
-                        property.ClrType == typeof(DateTimeOffset?))
-                    {
-                        property.SetColumnType("timestamptz");
-                        property.SetPrecision(6);
-                        property.SetValueConverter(truncateToMicroseconds);
-                    }
-                }
-            }
-        }
+        public void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+            configurationBuilder.Properties<DateTimeOffset>()
+                .HaveColumnType("timestamptz")
+                .HavePrecision(6);
     }
 }

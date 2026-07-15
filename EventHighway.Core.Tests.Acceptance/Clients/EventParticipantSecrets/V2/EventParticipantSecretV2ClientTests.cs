@@ -85,7 +85,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
         private static Filler<EventParticipantSecretV2> CreateEventParticipantSecretV2Filler(
             Guid participantId)
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventParticipantSecretV2>();
 
             filler.Setup()
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
 
         private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
         {
-            DateTimeOffset now = TruncateToMicroseconds(DateTimeOffset.UtcNow);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
             var filler = new Filler<EventParticipantV2>();
 
             filler.Setup()
@@ -151,14 +151,6 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 
             return filler;
-        }
-
-        private static DateTimeOffset TruncateToMicroseconds(
-            DateTimeOffset dateTimeOffset)
-        {
-            long ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerMicrosecond;
-
-            return dateTimeOffset.AddTicks(-ticksToRemove);
         }
     }
 }

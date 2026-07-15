@@ -48,6 +48,9 @@ namespace EventHighway.Core.Brokers.Storages
             this.provider.Configure(optionsBuilder);
         }
 
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) =>
+            this.provider.ConfigureConventions(configurationBuilder);
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             ConfigureEventParticipantV2s(modelBuilder.Entity<EventParticipantV2>());

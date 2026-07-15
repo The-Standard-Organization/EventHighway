@@ -19,9 +19,10 @@ namespace EventHighway.SqlServer
                 this.connectionString,
                 sqlOptions => sqlOptions.MigrationsAssembly("EventHighway.SqlServer"));
 
+        public void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        { }
+
         public void ConfigureModel(ModelBuilder modelBuilder)
-        {
-            // SQL Server requires no provider-specific model configuration.
-        }
+        { }
     }
 }
