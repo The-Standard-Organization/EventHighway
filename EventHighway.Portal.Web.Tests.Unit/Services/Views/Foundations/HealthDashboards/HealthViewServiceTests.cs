@@ -1,16 +1,18 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
-using EventHighway.Portal.Web.Views.Bases;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.HealthDashboards;
 using EventHighway.Portal.Web.Services.Views.Foundations.HealthDashboards;
+using EventHighway.Portal.Web.Views.Bases;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -31,6 +33,24 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.HealthDa
             this.healthViewService = new HealthViewService(
                 eventHighwayBroker: this.eventHighwayBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
+        }
+
+        public static TheoryData<Xeption> DependencyExceptions()
+        {
+            var someInnerException = new Xeption(message: GetRandomString());
+
+            return new TheoryData<Xeption>
+            {
+                new HealthStatusClientV2DependencyException(
+                    message: GetRandomString(),
+                    innerException: someInnerException,
+                    data: new Hashtable()),
+
+                new HealthStatusClientV2ServiceException(
+                    message: GetRandomString(),
+                    innerException: someInnerException,
+                    data: new Hashtable()),
+            };
         }
 
         private static string GetRandomString() =>

@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------------
+﻿// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -16,21 +16,6 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventAdd
 {
     public partial class EventAddressesViewServiceTests
     {
-        public static TheoryData<Xeption> DependencyExceptions()
-        {
-            var someInnerException = new Xeption(message: GetRandomString());
-
-            return new TheoryData<Xeption>
-            {
-                new EventAddressV2ClientDependencyException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-
-                new EventAddressV2ClientServiceException(
-                    message: GetRandomString(), innerException: someInnerException,
-                    data: new Hashtable()),
-            };
-        }
 
         [Fact]
         public async Task ShouldThrowDependencyValidationExceptionOnRetrieveIfValidationErrorOccursAndLogItAsync()

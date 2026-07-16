@@ -26,8 +26,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Views.Components.Foundations.Dashbo
             var pendingSource = new TaskCompletionSource<List<HealthRagTile>>();
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<System.DateTimeOffset?>(), It.IsAny<CancellationToken>()))
-                    .Returns(new ValueTask<List<HealthRagTile>>(pendingSource.Task));
+                service.RetrieveHealthRagTilesAsync(
+                    It.IsAny<TrafficPeriodV2>(),
+                    It.IsAny<System.DateTimeOffset>(),
+                    It.IsAny<System.DateTimeOffset?>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(new ValueTask<List<HealthRagTile>>(pendingSource.Task));
 
             // when
             IRenderedComponent<RagTileRow> renderedRagTileRow = Render<RagTileRow>();
@@ -44,8 +48,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Views.Components.Foundations.Dashbo
             List<HealthRagTile> randomTiles = CreateRandomRagTiles();
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<System.DateTimeOffset?>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(randomTiles);
+                service.RetrieveHealthRagTilesAsync(
+                    It.IsAny<TrafficPeriodV2>(),
+                    It.IsAny<System.DateTimeOffset>(),
+                    It.IsAny<System.DateTimeOffset?>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(randomTiles);
 
             // when
             IRenderedComponent<RagTileRow> renderedRagTileRow = Render<RagTileRow>();
@@ -55,8 +63,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Views.Components.Foundations.Dashbo
             renderedRagTileRow.FindAll("div.stat-tile").Should().HaveCount(randomTiles.Count);
 
             this.healthViewServiceMock.Verify(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<System.DateTimeOffset?>(), It.IsAny<CancellationToken>()),
-                    Times.Once);
+                service.RetrieveHealthRagTilesAsync(
+                    It.IsAny<TrafficPeriodV2>(),
+                    It.IsAny<System.DateTimeOffset>(),
+                    It.IsAny<System.DateTimeOffset?>(),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
@@ -68,8 +80,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Views.Components.Foundations.Dashbo
                     innerException: new Xeption(message: GetRandomString()));
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<System.DateTimeOffset?>(), It.IsAny<CancellationToken>()))
-                    .ThrowsAsync(dependencyException);
+                service.RetrieveHealthRagTilesAsync(
+                    It.IsAny<TrafficPeriodV2>(),
+                    It.IsAny<System.DateTimeOffset>(),
+                    It.IsAny<System.DateTimeOffset?>(),
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(dependencyException);
 
             // when
             IRenderedComponent<RagTileRow> renderedRagTileRow = Render<RagTileRow>();
@@ -103,8 +119,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Views.Components.Foundations.Dashbo
             };
 
             this.healthViewServiceMock.Setup(service =>
-                service.RetrieveHealthRagTilesAsync(It.IsAny<TrafficPeriodV2>(), It.IsAny<System.DateTimeOffset>(), It.IsAny<System.DateTimeOffset?>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(tiles);
+                service.RetrieveHealthRagTilesAsync(
+                    It.IsAny<TrafficPeriodV2>(),
+                    It.IsAny<System.DateTimeOffset>(),
+                    It.IsAny<System.DateTimeOffset?>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(tiles);
 
             // when
             IRenderedComponent<RagTileRow> renderedRagTileRow = Render<RagTileRow>();
