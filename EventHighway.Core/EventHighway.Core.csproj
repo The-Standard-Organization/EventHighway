@@ -9,9 +9,31 @@
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
 		<Product>EventHighway</Product>
-		<Version>2.1.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<FileVersion>2.1.0.0</FileVersion>
+		<Version>2.2.0</Version>
+		<AssemblyVersion>2.2.0.0</AssemblyVersion>
+		<FileVersion>2.2.0.0</FileVersion>
+		<PackageReleaseNotes>
+			V2 capabilities include:
+			* In-Process Handlers — deliver events to registered IEventHandler code by HandlerId; no HTTP endpoint required.
+			* Immediate &amp; Scheduled Events — instant dispatch, or time-deferred delivery fired by FireScheduledPendingEventV2sAsync.
+			* Filtering &amp; Promoted Properties — optional - listeners receive only events matching their FilterCriteria if specified.
+			* Delivery Observability — one ListenerEventV2 per event listener with Pending / Success / Error / Replay status and the handler's response.
+			* Loop Detection &amp; Quarantine — configurable thresholds guard against runaway republishing.
+			* Participants &amp; Secrets — attribute and authorize events to an EventParticipantV2 via rotating secrets.
+			* Retries — listener-level budgets with incremental (Fibonacci) backoff for resilient delivery.
+			* Archiving &amp; Replay — processed events are archived, then replayed in bulk or to a targeted listener for back-fill.
+			* Pluggable Storage Providers — anything implementing the storage-provider contract; SQL Server and PostgreSQL ship today.
+			* Operations Portal — a Standard-compliant Blazor Server console for operating an installation (§0.2):
+			* Health dashboards — RAG status board (live) plus statistics dashboards (traffic, usage by address/participant, retries, loops, duplicates).
+			* Events — browse and inspect event content; archive processed events.
+			* Archived events — browse, purge by date, and replay a single item from its detail view.
+			* Bulk replay — re-deliver archived events scoped by address, listener, and/or date range.
+			* Event participants &amp; secrets — manage participants and add/rotate/revoke their secrets.
+			* Event addresses &amp; listeners — register and manage addresses and their listeners.
+			* User administration — roles, lockout, 2FA, disable/delete, and email-confirmation / password-reset links.
+			* User ↔ participant associations — link users to participants (from both the user and participant screens).
+			* Self-service (My Account → Participant Management) — association-scoped, read-only participant view with secret self-management; no admin bypass.
+		</PackageReleaseNotes>
 		<PackageId>EventHighway</PackageId>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
@@ -71,11 +93,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Services\Foundations\EventAddresses\V2\" />
+		<Folder Include="Services\Foundations\EventAddresses\V2\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\EventHighway.Abstractions\EventHighway.Abstractions.csproj" />
+		<ProjectReference Include="..\EventHighway.Abstractions\EventHighway.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

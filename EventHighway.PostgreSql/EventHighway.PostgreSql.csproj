@@ -8,9 +8,14 @@
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
 		<Product>EventHighway.PostgreSql</Product>
-		<Version>2.1.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<FileVersion>2.1.0.0</FileVersion>
+		<Version>2.2.0</Version>
+		<AssemblyVersion>2.2.0.0</AssemblyVersion>
+		<FileVersion>2.2.0.0</FileVersion>
+		<PackageReleaseNotes>
+			PostgreSQL storage provider for EventHighway V2:
+			* Persists all V2 entities (events, listeners, participants, secrets, retries, archives) via Npgsql.EntityFrameworkCore.PostgreSQL.
+			* Supplies the EF Core migrations needed to stand up an EventHighway V2 database on PostgreSQL.
+		</PackageReleaseNotes>
 		<PackageId>EventHighway.PostgreSql</PackageId>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
@@ -25,7 +30,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>Event-Driven</PackageTags>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
@@ -58,7 +63,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Migrations\" />
+		<Folder Include="Migrations\" />
 	</ItemGroup>
 
 </Project>
