@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
@@ -30,14 +30,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             await this.clientBroker.RegisterEventListenerV2Async(
                 randomEventListenerV2);
 
-            IQueryable<EventListenerV2> inputEventListenerV2s =
-                new[] { randomEventListenerV2 }.AsQueryable();
+            IReadOnlyList<EventListenerV2> inputEventListenerV2s =
+                new[] { randomEventListenerV2 };
 
-            IQueryable<EventListenerV2> expectedEventListenerV2s =
+            IReadOnlyList<EventListenerV2> expectedEventListenerV2s =
                 inputEventListenerV2s.DeepClone();
 
             // when
-            IQueryable<EventListenerV2> actualEventListenerV2s =
+            IReadOnlyList<EventListenerV2> actualEventListenerV2s =
                 await this.clientBroker
                     .RetrieveEventListenerV2sByEventAddressIdAsync(
                         inputEventAddressV2Id);

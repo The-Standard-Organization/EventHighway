@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
@@ -17,6 +18,8 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventListeners
 {
     public partial class EventListenersViewService : IEventListenersViewService
     {
+        private const int RetrievalPageSize = 1000;
+
         private readonly IEventHighwayBroker eventHighwayBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
@@ -36,10 +39,25 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventListeners
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<EventListenerV2> listeners =
-                await this.eventHighwayBroker
-                    .RetrieveEventListenerV2sByEventAddressIdAsync(
-                        eventAddressId, cancellationToken);
+            var eventListenerV2Query = new EventListenerV2Query { Take = RetrievalPageSize };
+            var listeners = new List<EventListenerV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventListenerV2> listenerPage =
+                    await this.eventHighwayBroker
+                        .RetrieveEventListenerV2sByEventAddressIdAsync(
+                            eventAddressId, eventListenerV2Query, cancellationToken);
+
+                listeners.AddRange(listenerPage);
+
+                if (listenerPage.Count < eventListenerV2Query.Take)
+                {
+                    break;
+                }
+
+                eventListenerV2Query.Skip += eventListenerV2Query.Take;
+            }
 
             return listeners.Select(AsView).ToList();
         });
