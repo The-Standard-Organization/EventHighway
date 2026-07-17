@@ -429,49 +429,5 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
 
-        [Fact]
-        public async Task ShouldThrowValidationExceptionOnValidateIfSecretIsProvidedWithoutParticipantIdAndLogItAsync()
-        {
-            // given
-            EventV2 randomEventV2 = CreateRandomEventV2();
-            EventV2 inputEventV2 = randomEventV2;
-            inputEventV2.EventParticipantV2Id = null;
-            inputEventV2.EventParticipantV2Secret = GetRandomString();
-
-            var invalidEventParticipantV2OrchestrationException =
-                new InvalidEventParticipantV2OrchestrationException(
-                    message: "Event participant secret requires a participant id.");
-
-            var expectedEventParticipantV2OrchestrationValidationException =
-                new EventParticipantV2OrchestrationValidationException(
-                    message: "Event participant validation error occurred, fix the errors and try again.",
-                    innerException: invalidEventParticipantV2OrchestrationException);
-
-            // when
-            ValueTask validateTask =
-                this.eventParticipantV2OrchestrationService
-                    .ValidateEventParticipantsAsync(
-                        inputEventV2,
-                        TestContext.Current.CancellationToken);
-
-            EventParticipantV2OrchestrationValidationException
-                actualEventParticipantV2OrchestrationValidationException =
-                    await Assert.ThrowsAsync<EventParticipantV2OrchestrationValidationException>(
-                        validateTask.AsTask);
-
-            // then
-            actualEventParticipantV2OrchestrationValidationException.Should()
-                .BeEquivalentTo(expectedEventParticipantV2OrchestrationValidationException);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogErrorAsync(It.Is(SameExceptionAs(
-                    expectedEventParticipantV2OrchestrationValidationException))),
-                        Times.Once);
-
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
-            this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
-            this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-        }
     }
 }

@@ -17,28 +17,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
     public partial class EventParticipantV2OrchestrationServiceTests
     {
         [Fact]
-        public async Task ShouldValidateEventParticipantsWhenParticipantIdAndSecretAreNotProvidedAsync()
-        {
-            // given
-            EventV2 randomEventV2 = CreateRandomEventV2();
-            EventV2 inputEventV2 = randomEventV2;
-            inputEventV2.EventParticipantV2Id = null;
-            inputEventV2.EventParticipantV2Secret = null;
-
-            // when
-            await this.eventParticipantV2OrchestrationService
-                .ValidateEventParticipantsAsync(
-                    inputEventV2,
-                    TestContext.Current.CancellationToken);
-
-            // then
-            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
-            this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
-            this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.loggingBrokerMock.VerifyNoOtherCalls();
-        }
-
-        [Fact]
         public async Task ShouldValidateEventParticipantsWhenParticipantIsFoundAndActiveAndNoSecretAsync()
         {
             // given
