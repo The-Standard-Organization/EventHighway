@@ -66,6 +66,56 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
 
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnRetrieveWithAddressByQueryIfQueryIsNullAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2Query nullEventV2Query = null;
+
+            var nullEventV2QueryCoordinationException =
+                new NullEventV2QueryCoordinationException(
+                    message: "Event query is null.");
+
+            var expectedEventV2CoordinationValidationException =
+                new EventV2CoordinationValidationException(
+                    message: "Event validation error occurred, fix the errors and try again.",
+                    innerException: nullEventV2QueryCoordinationException);
+
+            // when
+            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+                this.eventV2CoordinationService.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    nullEventV2Query,
+                    randomCancellationToken);
+
+            EventV2CoordinationValidationException
+                actualEventV2CoordinationValidationException =
+                    await Assert.ThrowsAsync<EventV2CoordinationValidationException>(
+                        retrieveEventV2sByQueryTask.AsTask);
+
+            // then
+            actualEventV2CoordinationValidationException.Should()
+                .BeEquivalentTo(expectedEventV2CoordinationValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventV2CoordinationValidationException))),
+                        Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventFiringV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(1001)]
