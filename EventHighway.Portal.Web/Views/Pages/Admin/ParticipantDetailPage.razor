@@ -9,11 +9,14 @@
 @using EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSecrets
 @using EventHighway.Portal.Web.Services.Views.Foundations.UserEventParticipants
 @using EventHighway.Portal.Web.Services.Views.Foundations.Users
+@using System.Security.Cryptography
+@using Microsoft.JSInterop
 @inject IEventParticipantsViewService ParticipantsViewService
 @inject IEventParticipantSecretsViewService SecretsViewService
 @inject IUserEventParticipantsViewService UserEventParticipantsViewService
 @inject IUsersViewService UsersViewService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Participant</PageTitle>
 
@@ -66,6 +69,13 @@ else if (participant is not null)
                         @(participant.IsActive ? "Active" : "Inactive")
                     </span>
                 </dd>
+
+                <dt class="col-sm-3">Secret Required</dt>
+                <dd class="col-sm-9">
+                    <span class="badge @(participant.IsSecretRequired ? "text-bg-warning" : "text-bg-secondary")">
+                        @(participant.IsSecretRequired ? "Required" : "Optional")
+                    </span>
+                </dd>
             </dl>
         </ChildContent>
     </Card>
@@ -108,22 +118,10 @@ else if (participant is not null)
                         {
                             <tr @key="secret.Id">
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="font-monospace">@DisplaySecret(secret)</span>
-                                        <button type="button"
-                                                class="btn btn-sm btn-ghost-secondary p-1 lh-1"
-                                                title="@(IsRevealed(secret.Id) ? "Hide secret" : "Reveal secret")"
-                                                @onclick="() => ToggleReveal(secret.Id)">
-                                            @if (IsRevealed(secret.Id))
-                                            {
-                                                @EyeSlashIcon
-                                            }
-                                            else
-                                            {
-                                                @EyeIcon
-                                            }
-                                        </button>
-                                    </div>
+                                    <span class="font-monospace"
+                                          title="Secrets are stored as one-way hashes and cannot be revealed.">
+                                        @Mask(secret.Secret)
+                                    </span>
                                 </td>
                                 @if (IsEditing(secret.Id))
                                 {
@@ -268,6 +266,7 @@ else if (participant is not null)
         <FormText Label="Contact Email" @bind-Value="editParticipant.ContactEmail" />
         <FormText Label="Contact Phone" @bind-Value="editParticipant.ContactPhone" />
         <FormSwitch Label="Active" @bind-Value="editParticipant.IsActive" />
+        <FormSwitch Label="Secret Required" @bind-Value="editParticipant.IsSecretRequired" />
     </ChildContent>
     <FooterContent>
         <Button Color="secondary" OnClick="CloseEditParticipantModal">Cancel</Button>
@@ -281,7 +280,36 @@ else if (participant is not null)
         {
             <div class="alert alert-danger" role="alert">@addSecretError</div>
         }
-        <FormText Label="Secret" @bind-Value="newSecret.Secret" />
+        <div class="alert alert-warning" role="alert">
+            Make a note of this secret — you will <strong>not</strong> be able to see it
+            again once you leave this page.
+        </div>
+        <label class="form-label">Secret</label>
+        <div class="input-group mb-3">
+            <input type="text"
+                   class="form-control font-monospace"
+                   value="@(newSecretRevealed ? newSecretValue : Mask(newSecretValue))"
+                   readonly />
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    title="@(newSecretRevealed ? "Hide secret" : "Reveal secret")"
+                    @onclick="ToggleNewSecretReveal">
+                @if (newSecretRevealed)
+                {
+                    @EyeSlashIcon
+                }
+                else
+                {
+                    @EyeIcon
+                }
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    title="Copy secret to clipboard"
+                    @onclick="CopyNewSecretAsync">
+                @(newSecretCopied ? "Copied" : "Copy")
+            </button>
+        </div>
         <FormDate Label="Active From" @bind-Value="newSecret.ActiveFrom" />
         <FormDate Label="Active To" @bind-Value="newSecret.ActiveTo" />
         <FormSwitch Label="Active" @bind-Value="newSecret.IsActive" />
@@ -310,7 +338,6 @@ else if (participant is not null)
 
     private List<EventParticipantSecretView> secrets = new();
     private string? secretsError;
-    private readonly HashSet<Guid> revealedSecretIds = new();
     private readonly HashSet<Guid> editingSecretIds = new();
 
     private bool showEditParticipantModal;
@@ -320,6 +347,9 @@ else if (participant is not null)
     private bool showAddSecretModal;
     private string? addSecretError;
     private EventParticipantSecretView newSecret = new();
+    private string newSecretValue = string.Empty;
+    private bool newSecretRevealed;
+    private bool newSecretCopied;
 
     private bool confirmVisible;
     private string? confirmMessage;
@@ -459,22 +489,6 @@ else if (participant is not null)
                 ? value
                 : null;
 
-    private bool IsRevealed(Guid secretId) =>
-        revealedSecretIds.Contains(secretId);
-
-    private void ToggleReveal(Guid secretId)
-    {
-        if (!revealedSecretIds.Add(secretId))
-        {
-            revealedSecretIds.Remove(secretId);
-        }
-    }
-
-    private string DisplaySecret(EventParticipantSecretView secret) =>
-        IsRevealed(secret.Id)
-            ? secret.Secret ?? string.Empty
-            : Mask(secret.Secret);
-
     private static string Mask(string? secret) =>
         string.IsNullOrEmpty(secret) ? string.Empty : new string('•', 8);
 
@@ -527,6 +541,7 @@ else if (participant is not null)
             ContactEmail = participant.ContactEmail,
             ContactPhone = participant.ContactPhone,
             IsActive = participant.IsActive,
+            IsSecretRequired = participant.IsSecretRequired,
             ActiveFrom = participant.ActiveFrom,
             ActiveTo = participant.ActiveTo
         };
@@ -572,6 +587,9 @@ else if (participant is not null)
     private void OpenAddSecretModal()
     {
         newSecret = new EventParticipantSecretView { EventParticipantV2Id = ParticipantId, IsActive = true };
+        newSecretValue = GenerateSecretValue();
+        newSecretRevealed = false;
+        newSecretCopied = false;
         addSecretError = null;
         showAddSecretModal = true;
     }
@@ -579,10 +597,30 @@ else if (participant is not null)
     private void CloseAddSecretModal() =>
         showAddSecretModal = false;
 
+    private static string GenerateSecretValue()
+    {
+        byte[] secretBytes = RandomNumberGenerator.GetBytes(32);
+
+        return Convert.ToBase64String(secretBytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+    }
+
+    private void ToggleNewSecretReveal() =>
+        newSecretRevealed = !newSecretRevealed;
+
+    private async Task CopyNewSecretAsync()
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", newSecretValue);
+        newSecretCopied = true;
+    }
+
     private async Task SubmitAddSecretAsync()
     {
         try
         {
+            newSecret.Secret = newSecretValue;
             await SecretsViewService.AddSecretAsync(newSecret);
             showAddSecretModal = false;
             await LoadSecretsAsync();
