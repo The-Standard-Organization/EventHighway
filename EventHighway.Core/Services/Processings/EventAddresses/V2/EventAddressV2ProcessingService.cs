@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Foundations.EventAddresses.V2;
 
 namespace EventHighway.Core.Services.Processings.EventAddresses.V2
@@ -24,6 +25,11 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             this.eventAddressV2Service = eventAddressV2Service;
             this.loggingBroker = loggingBroker;
         }
+
+        public ValueTask<IQueryable<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
+            EventAddressV2Query eventAddressV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
         public ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
             CancellationToken cancellationToken = default) =>
