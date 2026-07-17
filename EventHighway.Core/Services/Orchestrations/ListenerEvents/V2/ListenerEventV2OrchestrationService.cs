@@ -43,6 +43,7 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventV2Query(listenerEventV2Query);
 
             IQueryable<ListenerEventV2> listenerEventV2s =
                 await this.listenerEventV2ProcessingService
@@ -57,6 +58,7 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventV2Query(listenerEventV2Query);
 
             IQueryable<ListenerEventV2> listenerEventV2s =
                 await this.listenerEventV2ProcessingService

@@ -191,6 +191,18 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
             {
                 throw;
             }
+            catch (NullListenerEventV2QueryOrchestrationException
+                nullListenerEventV2QueryOrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullListenerEventV2QueryOrchestrationException);
+            }
+            catch (InvalidListenerEventV2QueryOrchestrationException
+                invalidListenerEventV2QueryOrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidListenerEventV2QueryOrchestrationException);
+            }
             catch (InvalidListenerEventV2OrchestrationException
                 invalidListenerEventV2OrchestrationException)
             {
