@@ -138,9 +138,9 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
 
             try
             {
-                return (await eventParticipantV2ProcessingService
-                    .RetrieveAllEventParticipantV2sAsync(cancellationToken))
-                        .ToList();
+                return await eventParticipantV2ProcessingService
+                    .RetrieveEventParticipantV2sByQueryAsync(
+                        eventParticipantV2Query, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
                 eventParticipantV2ProcessingValidationException)

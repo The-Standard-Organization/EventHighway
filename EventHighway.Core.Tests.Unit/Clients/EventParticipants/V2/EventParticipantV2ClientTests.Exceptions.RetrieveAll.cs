@@ -42,7 +42,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventParticipantV2ProcessingValidationException);
 
             // when
@@ -61,7 +62,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -91,7 +93,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventParticipantV2ProcessingDependencyValidationException);
 
             // when
@@ -110,7 +113,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2ClientValidationException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -140,7 +144,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventParticipantV2ProcessingDependencyException);
 
             // when
@@ -159,7 +164,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -189,7 +195,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someInnerException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventParticipantV2ProcessingServiceException);
 
             // when
@@ -208,7 +215,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2ClientDependencyException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -233,7 +241,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     data: someException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(someException);
 
             // when
@@ -252,7 +261,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(expectedEventParticipantV2ClientServiceException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -272,7 +282,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 new OperationCanceledException();
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken))
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(operationCanceledException);
 
             // when
@@ -290,7 +301,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventParticipantV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantV2sAsync(randomCancellationToken),
+                service.RetrieveEventParticipantV2sByQueryAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventParticipantV2ProcessingServiceMock.VerifyNoOtherCalls();
