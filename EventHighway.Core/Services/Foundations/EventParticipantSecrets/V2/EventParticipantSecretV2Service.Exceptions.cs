@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EFxceptions.Models.Exceptions;
@@ -18,6 +19,56 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
     {
         private delegate ValueTask<EventParticipantSecretV2> ReturningEventParticipantSecretV2Function();
         private delegate ValueTask<IQueryable<EventParticipantSecretV2>> ReturningEventParticipantSecretV2sFunction();
+        private delegate ValueTask<IReadOnlyList<EventParticipantSecretV2>> ReturningEventParticipantSecretV2ListFunction();
+
+        private async ValueTask<IReadOnlyList<EventParticipantSecretV2>> TryCatch(
+            ReturningEventParticipantSecretV2ListFunction returningEventParticipantSecretV2ListFunction)
+        {
+            try
+            {
+                return await returningEventParticipantSecretV2ListFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventParticipantSecretV2Exception =
+                    new TimeoutEventParticipantSecretV2Exception(
+                        message: "Failed event participant secret timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventParticipantSecretV2Exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventParticipantSecretV2Exception =
+                    new FailedStorageEventParticipantSecretV2Exception(
+                        message: "Failed event participant secret storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventParticipantSecretV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventParticipantSecretV2ServiceException =
+                    new FailedEventParticipantSecretV2ServiceException(
+                        message: "Failed event participant secret service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventParticipantSecretV2ServiceException);
+            }
+        }
 
         private async ValueTask<EventParticipantSecretV2> TryCatch(
             ReturningEventParticipantSecretV2Function returningEventParticipantSecretV2Function)
