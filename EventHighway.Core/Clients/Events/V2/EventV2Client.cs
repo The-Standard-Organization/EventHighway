@@ -10,6 +10,7 @@ using EventHighway.Core.Models.Clients.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Coordinations.Events.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.Events.V2
@@ -24,14 +25,15 @@ namespace EventHighway.Core.Clients.Events.V2
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventV2Client"/> class with the
-        /// specified event coordination service.
+        /// specified service provider used to resolve the event coordination service.
         /// </summary>
-        /// <param name="eventV2CoordinationService">The coordination service for managing
-        /// events.</param>
-        /// <exception cref="ArgumentNullException">Thrown when eventV2CoordinationService is
+        /// <param name="serviceProvider">The service provider used to resolve
+        /// dependencies.</param>
+        /// <exception cref="ArgumentNullException">Thrown when serviceProvider is
         /// null.</exception>
-        public EventV2Client(IEventV2CoordinationService eventV2CoordinationService) =>
-            this.eventV2CoordinationService = eventV2CoordinationService;
+        public EventV2Client(IServiceProvider serviceProvider) =>
+            this.eventV2CoordinationService =
+                serviceProvider.GetRequiredService<IEventV2CoordinationService>();
 
         /// <summary>
         /// Submits an event asynchronously by delegating to the coordination service and
