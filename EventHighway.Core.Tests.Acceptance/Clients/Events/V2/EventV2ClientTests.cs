@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -11,6 +12,7 @@ using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Tests.Acceptance.Brokers;
 using EventHighway.EventHandlers;
 using Tynamix.ObjectFiller;
@@ -53,19 +55,21 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                 .RegisterEventHandler(this.delegateEventHandler);
         }
 
-        private async ValueTask<IQueryable<ListenerEventV2>>
+        private async ValueTask<IReadOnlyList<ListenerEventV2>>
             RetrieveAllListenerEventV2sUntilAsync(
                 Func<ListenerEventV2, bool> predicate)
         {
-            IQueryable<ListenerEventV2> listenerEventV2s =
-                await this.clientBroker.RetrieveAllListenerEventV2sAsync();
+            IReadOnlyList<ListenerEventV2> listenerEventV2s =
+                await this.clientBroker.RetrieveAllListenerEventV2sAsync(
+                    new ListenerEventV2Query { Take = 1000 });
 
             for (int retries = 0; retries < 20 && !listenerEventV2s.Any(predicate); retries++)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(250));
 
                 listenerEventV2s =
-                    await this.clientBroker.RetrieveAllListenerEventV2sAsync();
+                    await this.clientBroker.RetrieveAllListenerEventV2sAsync(
+                    new ListenerEventV2Query { Take = 1000 });
             }
 
             return listenerEventV2s;

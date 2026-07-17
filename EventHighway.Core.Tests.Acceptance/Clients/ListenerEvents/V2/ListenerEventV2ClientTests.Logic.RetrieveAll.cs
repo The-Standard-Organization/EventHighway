@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -30,7 +31,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
             // when
             List<ListenerEventV2> actualListenerEventV2s =
                 (await this.clientBroker
-                    .RetrieveAllListenerEventV2sAsync())
+                    .RetrieveAllListenerEventV2sAsync(
+                    new ListenerEventV2Query { Take = 1000 }))
                         .ToList();
 
             // then

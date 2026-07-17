@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.Events;
 using FluentAssertions;
 using Moq;
@@ -71,12 +72,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
             IReadOnlyList<EventV2> storageEvents =
                 new List<EventV2> { oldest, newest, middle };
 
-            IQueryable<ListenerEventV2> storageListenerEvents = new List<ListenerEventV2>
+            IReadOnlyList<ListenerEventV2> storageListenerEvents = new List<ListenerEventV2>
             {
                 CreateListenerEvent(newest.Id, ListenerEventStatusV2.Success),
                 CreateListenerEvent(newest.Id, ListenerEventStatusV2.Error),
                 CreateListenerEvent(middle.Id, ListenerEventStatusV2.Success)
-            }.AsQueryable();
+            }.ToList();
 
             List<EventView> expectedViews = new[] { newest, middle, oldest }
                 .Select(@event => MapToView(@event, storageListenerEvents))
@@ -89,7 +90,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
                         .ReturnsAsync(storageEvents);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllListenerEventV2sAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(storageListenerEvents);
 
             // when
@@ -108,7 +110,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
                         Times.Once);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllListenerEventV2sAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
@@ -128,11 +131,11 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
             IReadOnlyList<EventV2> storageEvents =
                 new List<EventV2> { otherEvent, targetEvent };
 
-            IQueryable<ListenerEventV2> storageListenerEvents = new List<ListenerEventV2>
+            IReadOnlyList<ListenerEventV2> storageListenerEvents = new List<ListenerEventV2>
             {
                 CreateListenerEvent(targetEvent.Id, ListenerEventStatusV2.Success),
                 CreateListenerEvent(otherEvent.Id, ListenerEventStatusV2.Error)
-            }.AsQueryable();
+            }.ToList();
 
             EventView expectedView = MapToView(targetEvent, storageListenerEvents);
 
@@ -143,7 +146,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
                         .ReturnsAsync(storageEvents);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllListenerEventV2sAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(storageListenerEvents);
 
             // when
@@ -161,7 +165,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
                         Times.Once);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllListenerEventV2sAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();

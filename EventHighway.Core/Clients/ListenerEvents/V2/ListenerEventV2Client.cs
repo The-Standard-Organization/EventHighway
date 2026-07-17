@@ -7,11 +7,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ListenerEvents.V2.Exceptions;
+using System.Collections.Generic;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2.Exceptions;
 using EventHighway.Core.Models.Services.Orchestrations.RetryingListenerEvents.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.ListenerEvents.V2
@@ -23,10 +26,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
     /// </summary>
     internal class ListenerEventV2Client : IListenerEventV2Client
     {
-        private readonly IListenerEventV2OrchestrationService listenerEventV2OrchestrationService;
-
-        private readonly IRetryingListenerEventV2OrchestrationService
-            retryingListenerEventV2OrchestrationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ListenerEventV2Client"/> class with
@@ -39,15 +39,9 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// <exception cref="ArgumentNullException">Thrown when
         /// listenerEventV2OrchestrationService or
         /// retryingListenerEventV2OrchestrationService is null.</exception>
-        public ListenerEventV2Client(
-            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService,
-            IRetryingListenerEventV2OrchestrationService retryingListenerEventV2OrchestrationService)
-        {
-            this.listenerEventV2OrchestrationService = listenerEventV2OrchestrationService;
-
-            this.retryingListenerEventV2OrchestrationService =
-                retryingListenerEventV2OrchestrationService;
-        }
+        public ListenerEventV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         /// <summary>
         /// Retrieves all listener events asynchronously by delegating to the orchestration
@@ -66,13 +60,22 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public async ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
+        public async ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
+            ListenerEventV2Query listenerEventV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventV2OrchestrationService>();
+
             try
             {
-                return await this.listenerEventV2OrchestrationService
-                    .RetrieveAllListenerEventV2sAsync(cancellationToken);
+                return await listenerEventV2OrchestrationService
+                    .RetrieveListenerEventV2sByQueryAsync(
+                        listenerEventV2Query, cancellationToken);
             }
             catch (ListenerEventV2OrchestrationValidationException
                 listenerEventV2OrchestrationValidationException)
@@ -126,13 +129,22 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public async ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(
+        public async ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(
+            ListenerEventV2Query listenerEventV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventV2OrchestrationService>();
+
             try
             {
-                return await this.listenerEventV2OrchestrationService
-                    .RetrieveAllListenerEventV2sWithEventListenerV2Async(cancellationToken);
+                return await listenerEventV2OrchestrationService
+                    .RetrieveListenerEventV2sWithEventListenerV2ByQueryAsync(
+                        listenerEventV2Query, cancellationToken);
             }
             catch (ListenerEventV2OrchestrationValidationException
                 listenerEventV2OrchestrationValidationException)
@@ -191,9 +203,16 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             Guid listenerEventV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventV2OrchestrationService>();
+
             try
             {
-                return await this.listenerEventV2OrchestrationService
+                return await listenerEventV2OrchestrationService
                     .RemoveListenerEventV2ByIdAsync(listenerEventV2Id, cancellationToken);
             }
             catch (ListenerEventV2OrchestrationValidationException
@@ -250,9 +269,16 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         public async ValueTask RetryFailedListenerEventV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IRetryingListenerEventV2OrchestrationService retryingListenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IRetryingListenerEventV2OrchestrationService>();
+
             try
             {
-                await this.retryingListenerEventV2OrchestrationService
+                await retryingListenerEventV2OrchestrationService
                     .RetryFailedListenerEventV2sAsync(cancellationToken);
             }
             catch (RetryingListenerEventV2OrchestrationValidationException
@@ -312,9 +338,16 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             Guid listenerEventV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventV2OrchestrationService>();
+
             try
             {
-                return await this.listenerEventV2OrchestrationService
+                return await listenerEventV2OrchestrationService
                     .ResetRetriesForListenerEventV2ByIdAsync(listenerEventV2Id, cancellationToken);
             }
             catch (ListenerEventV2OrchestrationValidationException
@@ -375,9 +408,16 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventV2OrchestrationService listenerEventV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventV2OrchestrationService>();
+
             try
             {
-                await this.listenerEventV2OrchestrationService
+                await listenerEventV2OrchestrationService
                     .ResetRetriesForListenerEventV2ByEventListenerV2IdAsync(
                         eventListenerV2Id, cancellationToken);
             }

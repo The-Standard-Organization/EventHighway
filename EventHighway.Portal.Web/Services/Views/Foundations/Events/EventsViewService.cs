@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
@@ -97,10 +98,27 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Events
                 eventV2Query.Skip += eventV2Query.Take;
             }
 
+            var listenerEventV2Query = new ListenerEventV2Query { Take = RetrievalPageSize };
+            var listenerEvents = new List<ListenerEventV2>();
+
+            while (true)
+            {
+                IReadOnlyList<ListenerEventV2> listenerEventPage =
+                    await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
+                        listenerEventV2Query, cancellationToken);
+
+                listenerEvents.AddRange(listenerEventPage);
+
+                if (listenerEventPage.Count < listenerEventV2Query.Take)
+                {
+                    break;
+                }
+
+                listenerEventV2Query.Skip += listenerEventV2Query.Take;
+            }
+
             ILookup<Guid, ListenerEventV2> listenerEventsByEventId =
-                (await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
-                    cancellationToken))
-                    .ToLookup(listenerEvent => listenerEvent.EventV2Id);
+                listenerEvents.ToLookup(listenerEvent => listenerEvent.EventV2Id);
 
             return events
                 .Select(@event => AsEventV2Summary(@event, listenerEventsByEventId))

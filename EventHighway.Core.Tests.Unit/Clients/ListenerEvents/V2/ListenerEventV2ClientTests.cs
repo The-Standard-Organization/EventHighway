@@ -11,6 +11,7 @@ using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2.Excepti
 using EventHighway.Core.Models.Services.Orchestrations.RetryingListenerEvents.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Services.Orchestrations.RetryingListenerEvents.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -24,6 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
         private readonly Mock<IRetryingListenerEventV2OrchestrationService>
             retryingListenerEventV2OrchestrationServiceMock;
 
+        private int orchestrationServiceResolutionCount;
         private readonly IListenerEventV2Client listenerEventV2Client;
 
         public ListenerEventV2ClientTests()
@@ -34,13 +36,21 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             this.retryingListenerEventV2OrchestrationServiceMock =
                 new Mock<IRetryingListenerEventV2OrchestrationService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.orchestrationServiceResolutionCount++;
+
+                return this.listenerEventV2OrchestrationServiceMock.Object;
+            });
+
+            serviceCollection.AddScoped(_ =>
+                this.retryingListenerEventV2OrchestrationServiceMock.Object);
+
             this.listenerEventV2Client =
                 new ListenerEventV2Client(
-                    listenerEventV2OrchestrationService:
-                        this.listenerEventV2OrchestrationServiceMock.Object,
-
-                    retryingListenerEventV2OrchestrationService:
-                        this.retryingListenerEventV2OrchestrationServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()
