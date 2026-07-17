@@ -60,6 +60,28 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            List<EventHandlerV2> unionedEventHandlerV2s =
+                await RetrieveUnionedEventHandlerV2sAsync(cancellationToken);
+
+            return unionedEventHandlerV2s.AsQueryable();
+        }));
+
+        public ValueTask<IReadOnlyList<EventHandlerV2>> RetrieveEventHandlerV2sByQueryAsync(
+            EventHandlerV2Query eventHandlerV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(new ReturningEventHandlerV2ListFunction(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            List<EventHandlerV2> unionedEventHandlerV2s =
+                await RetrieveUnionedEventHandlerV2sAsync(cancellationToken);
+
+            return ApplyEventHandlerV2Query(unionedEventHandlerV2s, eventHandlerV2Query);
+        }));
+
+        private async ValueTask<List<EventHandlerV2>> RetrieveUnionedEventHandlerV2sAsync(
+            CancellationToken cancellationToken)
+        {
             IQueryable<IEventHandler> registeredEventHandlers =
                 await this.eventHandlerV2Service.RetrieveAllEventHandlerV2sAsync(cancellationToken);
 
@@ -75,19 +97,30 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
                     cancellationToken)).ToList();
 
             // Registered handlers take precedence on id conflicts — they hold the live delegate.
-            IEnumerable<EventHandlerV2> unionedEventHandlerV2s =
-                registeredEventHandlerV2s.Concat(
-                    storageEventHandlerV2s.Where(storageEventHandlerV2 =>
-                        registeredEventHandlerV2s.All(registeredEventHandlerV2 =>
-                            registeredEventHandlerV2.Id != storageEventHandlerV2.Id)));
+            return registeredEventHandlerV2s.Concat(
+                storageEventHandlerV2s.Where(storageEventHandlerV2 =>
+                    registeredEventHandlerV2s.All(registeredEventHandlerV2 =>
+                        registeredEventHandlerV2.Id != storageEventHandlerV2.Id)))
+                .ToList();
+        }
 
-            return unionedEventHandlerV2s.ToList().AsQueryable();
-        }));
+        private static IReadOnlyList<EventHandlerV2> ApplyEventHandlerV2Query(
+            IEnumerable<EventHandlerV2> eventHandlerV2s,
+            EventHandlerV2Query eventHandlerV2Query)
+        {
+            if (eventHandlerV2Query.Name is not null)
+            {
+                eventHandlerV2s = eventHandlerV2s.Where(eventHandlerV2 =>
+                    eventHandlerV2.Name == eventHandlerV2Query.Name);
+            }
 
-        public ValueTask<IReadOnlyList<EventHandlerV2>> RetrieveEventHandlerV2sByQueryAsync(
-            EventHandlerV2Query eventHandlerV2Query,
-            CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+            return eventHandlerV2s
+                .OrderBy(eventHandlerV2 => eventHandlerV2.Name)
+                .ThenBy(eventHandlerV2 => eventHandlerV2.Id)
+                .Skip(eventHandlerV2Query.Skip)
+                .Take(eventHandlerV2Query.Take)
+                .ToList();
+        }
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
