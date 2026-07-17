@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
@@ -17,19 +18,26 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
 {
     internal class EventParticipantV2Client : IEventParticipantV2Client
     {
-        private readonly IEventParticipantV2ProcessingService eventParticipantV2ProcessingService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         public EventParticipantV2Client(IServiceProvider serviceProvider) =>
-            this.eventParticipantV2ProcessingService =
-                serviceProvider.GetRequiredService<IEventParticipantV2ProcessingService>();
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<EventParticipantV2> AddEventParticipantV2Async(
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .AddEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -70,9 +78,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RetrieveOrAddEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -112,10 +127,18 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         public async ValueTask<IEnumerable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
-                    .RetrieveAllEventParticipantV2sAsync(cancellationToken);
+                return (await eventParticipantV2ProcessingService
+                    .RetrieveAllEventParticipantV2sAsync(cancellationToken))
+                        .ToList();
             }
             catch (EventParticipantV2ProcessingValidationException
                 eventParticipantV2ProcessingValidationException)
@@ -155,9 +178,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             Guid eventParticipantV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RetrieveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -198,9 +228,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .ModifyEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -241,9 +278,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             Guid eventParticipantV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RemoveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
