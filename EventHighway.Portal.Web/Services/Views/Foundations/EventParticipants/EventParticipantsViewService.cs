@@ -97,6 +97,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
             existingParticipant.ContactEmail = participant.ContactEmail;
             existingParticipant.ContactPhone = participant.ContactPhone;
             existingParticipant.IsActive = participant.IsActive;
+            existingParticipant.IsSecretRequired = participant.IsSecretRequired;
             existingParticipant.ActiveFrom = participant.ActiveFrom;
             existingParticipant.ActiveTo = participant.ActiveTo;
 
