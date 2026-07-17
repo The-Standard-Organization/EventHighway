@@ -112,7 +112,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateEventV2QueryIsNotNull(eventV2Query);
+            ValidateEventV2Query(eventV2Query);
 
             IQueryable<EventV2> eventV2s =
                 await this.eventV2OrchestrationService

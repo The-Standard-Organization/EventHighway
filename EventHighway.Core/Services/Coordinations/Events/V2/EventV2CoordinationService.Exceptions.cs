@@ -51,6 +51,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 throw await CreateAndLogValidationExceptionAsync(
                     nullEventV2QueryCoordinationException);
             }
+            catch (InvalidEventV2QueryCoordinationException invalidEventV2QueryCoordinationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventV2QueryCoordinationException);
+            }
             catch (EventV2OrchestrationValidationException eventV2OrchestrationValidationException)
             {
                 throw await CreateAndLogDependencyValidationExceptionAsync(
