@@ -26,10 +26,14 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<IQueryable<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
+        public ValueTask<IQueryable<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
             EventAddressV2Query eventAddressV2Query,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventAddressV2QueryIsNotNull(eventAddressV2Query);
+
             IQueryable<EventAddressV2> eventAddressV2s =
                 await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(
                     cancellationToken);
@@ -57,7 +61,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
                 .ThenBy(eventAddressV2 => eventAddressV2.Id)
                 .Skip(eventAddressV2Query.Skip)
                 .Take(eventAddressV2Query.Take);
-        }
+        });
 
         public ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
             CancellationToken cancellationToken = default) =>

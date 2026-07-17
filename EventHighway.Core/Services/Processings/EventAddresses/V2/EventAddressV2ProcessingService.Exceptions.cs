@@ -25,6 +25,12 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             {
                 return await returningEventAddressV2sFunction();
             }
+            catch (NullEventAddressV2QueryProcessingException
+                nullEventAddressV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventAddressV2QueryProcessingException);
+            }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {

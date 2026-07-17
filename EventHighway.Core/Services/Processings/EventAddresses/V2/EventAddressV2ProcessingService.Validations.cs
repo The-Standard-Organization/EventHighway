@@ -4,6 +4,7 @@
 
 using System;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 
 namespace EventHighway.Core.Services.Processings.EventAddresses.V2
@@ -25,6 +26,16 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
 
                 (Rule: IsInvalid(eventAddressV2.Id),
                 Parameter: nameof(EventAddressV2.Id)));
+        }
+
+        private static void ValidateEventAddressV2QueryIsNotNull(
+            EventAddressV2Query eventAddressV2Query)
+        {
+            if (eventAddressV2Query is null)
+            {
+                throw new NullEventAddressV2QueryProcessingException(
+                    message: "Event address query is null.");
+            }
         }
 
         private static void ValidateEventAddressV2IsNotNull(EventAddressV2 eventAddressV2)
