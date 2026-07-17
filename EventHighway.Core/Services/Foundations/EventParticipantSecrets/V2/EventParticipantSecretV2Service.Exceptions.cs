@@ -28,6 +28,18 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             {
                 return await returningEventParticipantSecretV2ListFunction();
             }
+            catch (NullEventParticipantSecretV2QueryException
+                nullEventParticipantSecretV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventParticipantSecretV2QueryException);
+            }
+            catch (InvalidEventParticipantSecretV2QueryException
+                invalidEventParticipantSecretV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventParticipantSecretV2QueryException);
+            }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {

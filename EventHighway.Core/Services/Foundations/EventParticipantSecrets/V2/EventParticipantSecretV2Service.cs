@@ -65,6 +65,7 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventParticipantSecretV2Query(eventParticipantSecretV2Query);
 
             IQueryable<EventParticipantSecretV2> eventParticipantSecretV2s =
                 await this.storageBroker.SelectAllEventParticipantSecretV2sAsync(cancellationToken);
