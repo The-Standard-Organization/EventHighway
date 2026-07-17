@@ -20,6 +20,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
     {
         private delegate ValueTask<EventArchiveV2> ReturningEventArchiveV2Function();
         private delegate ValueTask<IQueryable<EventArchiveV2>> ReturningEventArchiveV2sFunction();
+        private delegate ValueTask<IReadOnlyList<EventArchiveV2>> ReturningEventArchiveV2ListFunction();
         private delegate ValueTask<IEnumerable<EventArchiveV2>> ReturningEnumerableEventArchiveV2sFunction();
         private delegate ValueTask ReturningNothingFunction();
 
@@ -136,6 +137,55 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             try
             {
                 return await returningEventArchiveV2sFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventArchiveV2Exception =
+                    new TimeoutEventArchiveV2Exception(
+                        message: "Failed event archive timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(timeoutEventArchiveV2Exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (SqlException sqlException)
+            {
+                var failedStorageEventArchiveV2Exception =
+                    new FailedStorageEventArchiveV2Exception(
+                        message: "Failed event archive storage error occurred, contact support.",
+                        innerException: sqlException,
+                        data: sqlException.Data);
+
+                throw await CreateAndLogCriticalDependencyExceptionAsync(
+                    failedStorageEventArchiveV2Exception);
+            }
+            catch (Exception serviceException)
+            {
+                var failedEventArchiveV2ServiceException =
+                    new FailedEventArchiveV2ServiceException(
+                        message: "Failed event archive service error occurred, contact support.",
+                        innerException: serviceException,
+                        data: serviceException.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventArchiveV2ServiceException);
+            }
+        }
+
+        private async ValueTask<IReadOnlyList<EventArchiveV2>> TryCatch(
+            ReturningEventArchiveV2ListFunction returningEventArchiveV2ListFunction)
+        {
+            try
+            {
+                return await returningEventArchiveV2ListFunction();
             }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
