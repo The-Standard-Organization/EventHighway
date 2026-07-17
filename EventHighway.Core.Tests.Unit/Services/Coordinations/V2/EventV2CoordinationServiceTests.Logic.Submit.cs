@@ -34,6 +34,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             inputScheduledEventV2.Type = EventTypeV2.Scheduled;
             EventV2 submittedEventV2 = inputScheduledEventV2;
             EventV2 expectedEventV2 = submittedEventV2.DeepClone();
+            expectedEventV2.EventParticipantV2Secret = null;
 
             SetupValidateEventParticipantsSucceeds();
 
