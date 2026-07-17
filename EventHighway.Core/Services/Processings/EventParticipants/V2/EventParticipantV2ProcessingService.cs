@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Services.Foundations.EventParticipants.V2;
 
 namespace EventHighway.Core.Services.Processings.EventParticipants.V2
@@ -59,6 +60,11 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 eventParticipantV2,
                 cancellationToken);
         });
+
+        public ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+            EventParticipantV2Query eventParticipantV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
         public ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
             CancellationToken cancellationToken = default) =>
