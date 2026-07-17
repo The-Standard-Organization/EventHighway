@@ -66,13 +66,13 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
             IReadOnlyList<EventArchiveV2> storageEventArchives =
                 new List<EventArchiveV2> { oldest, newest, middle };
 
-            IQueryable<ListenerEventArchiveV2> storageListenerEventArchives =
+            IReadOnlyList<ListenerEventArchiveV2> storageListenerEventArchives =
                 new List<ListenerEventArchiveV2>
                 {
                     CreateListenerEventArchive(newest.Id, ListenerEventArchiveStatusV2.Success),
                     CreateListenerEventArchive(newest.Id, ListenerEventArchiveStatusV2.Error),
                     CreateListenerEventArchive(middle.Id, ListenerEventArchiveStatusV2.Success)
-                }.AsQueryable();
+                };
 
             List<EventArchiveView> expectedViews = new[] { newest, middle, oldest }
                 .Select(eventArchive => MapToView(eventArchive, storageListenerEventArchives))
@@ -85,7 +85,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
                         .ReturnsAsync(storageEventArchives);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllListenerEventArchiveV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllListenerEventArchiveV2sAsync(
+                    It.Is<ListenerEventArchiveV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
                     .ReturnsAsync(storageListenerEventArchives);
 
             // when
@@ -104,7 +106,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
                         Times.Once);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllListenerEventArchiveV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllListenerEventArchiveV2sAsync(
+                    It.Is<ListenerEventArchiveV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
@@ -124,7 +128,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
             IReadOnlyList<EventArchiveV2> storageEventArchives =
                 new List<EventArchiveV2> { otherEventArchive, targetEventArchive };
 
-            IQueryable<ListenerEventArchiveV2> storageListenerEventArchives =
+            IReadOnlyList<ListenerEventArchiveV2> storageListenerEventArchives =
                 new List<ListenerEventArchiveV2>
                 {
                     CreateListenerEventArchive(
@@ -132,7 +136,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
 
                     CreateListenerEventArchive(
                         otherEventArchive.Id, ListenerEventArchiveStatusV2.Error)
-                }.AsQueryable();
+                };
 
             EventArchiveView expectedView =
                 MapToView(targetEventArchive, storageListenerEventArchives);
@@ -144,7 +148,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
                         .ReturnsAsync(storageEventArchives);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllListenerEventArchiveV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllListenerEventArchiveV2sAsync(
+                    It.Is<ListenerEventArchiveV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
                     .ReturnsAsync(storageListenerEventArchives);
 
             // when
@@ -162,7 +168,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventArc
                         Times.Once);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllListenerEventArchiveV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllListenerEventArchiveV2sAsync(
+                    It.Is<ListenerEventArchiveV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();

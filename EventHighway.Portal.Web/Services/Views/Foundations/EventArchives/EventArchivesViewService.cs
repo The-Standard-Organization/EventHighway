@@ -96,12 +96,29 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
                 eventArchiveV2Query.Skip += eventArchiveV2Query.Take;
             }
 
-            IQueryable<ListenerEventArchiveV2> listenerEventArchivesQueryable =
-                await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
-                    cancellationToken);
+            var listenerEventArchiveV2Query =
+                new ListenerEventArchiveV2Query { Take = RetrievalPageSize };
+
+            var listenerEventArchives = new List<ListenerEventArchiveV2>();
+
+            while (true)
+            {
+                IReadOnlyList<ListenerEventArchiveV2> listenerEventArchivePage =
+                    await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
+                        listenerEventArchiveV2Query, cancellationToken);
+
+                listenerEventArchives.AddRange(listenerEventArchivePage);
+
+                if (listenerEventArchivePage.Count < listenerEventArchiveV2Query.Take)
+                {
+                    break;
+                }
+
+                listenerEventArchiveV2Query.Skip += listenerEventArchiveV2Query.Take;
+            }
 
             ILookup<Guid, ListenerEventArchiveV2> listenerEventArchivesByEventArchiveId =
-                listenerEventArchivesQueryable.ToLookup(
+                listenerEventArchives.ToLookup(
                     listenerEventArchive => listenerEventArchive.EventArchiveV2Id);
 
             return eventArchives

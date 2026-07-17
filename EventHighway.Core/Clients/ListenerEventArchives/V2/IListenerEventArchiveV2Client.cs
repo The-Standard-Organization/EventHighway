@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
@@ -32,7 +32,8 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sAsync(
+        ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sAsync(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -51,7 +52,8 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(
+        ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
             CancellationToken cancellationToken = default);
     }
 }
