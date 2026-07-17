@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
@@ -104,6 +105,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             return await this.eventV2OrchestrationService
                 .RetrieveAllEventV2sAsync(cancellationToken);
         });
+
+        public ValueTask<IQueryable<EventV2>> RetrieveEventV2sByQueryAsync(
+            EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
         public ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default) =>
