@@ -187,6 +187,16 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             {
                 return await returningEventArchiveV2ListFunction();
             }
+            catch (NullEventArchiveV2QueryException nullEventArchiveV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventArchiveV2QueryException);
+            }
+            catch (InvalidEventArchiveV2QueryException invalidEventArchiveV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventArchiveV2QueryException);
+            }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {
