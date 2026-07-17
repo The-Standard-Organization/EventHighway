@@ -41,6 +41,9 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             cancellationToken.ThrowIfCancellationRequested();
             await ValidateEventParticipantSecretV2OnAddAsync(eventParticipantSecretV2);
 
+            eventParticipantSecretV2.Secret =
+                this.hashBroker.GenerateSha256Hash(eventParticipantSecretV2.Secret);
+
             return await this.storageBroker.InsertEventParticipantSecretV2Async(
                 eventParticipantSecretV2, cancellationToken);
         });
