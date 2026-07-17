@@ -32,7 +32,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
-            ValidateEventAddressV2QueryIsNotNull(eventAddressV2Query);
+            ValidateEventAddressV2Query(eventAddressV2Query);
 
             IQueryable<EventAddressV2> eventAddressV2s =
                 await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(
