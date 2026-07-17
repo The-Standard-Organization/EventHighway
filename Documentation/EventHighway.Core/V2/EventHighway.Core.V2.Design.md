@@ -74,8 +74,8 @@ You submit an event with `EventV2Client.SubmitEventV2Async(eventV2)`. The coordi
 fixed sequence before anything is dispatched:
 
 1. **Validate** the event isn't null.
-2. **Validate participants** — if the event/listeners are owned by a participant, the participant secret
-   is checked.
+2. **Validate participants** — the submitting participant (mandatory, §1.5) is validated, and its
+   secret is checked when supplied or required.
 3. **Decide the type** from `ScheduledDate`:
    - `ScheduledDate == null` → **Immediate**
    - `ScheduledDate < now` → **Immediate** (a past schedule means "send now")
@@ -234,40 +234,39 @@ caller. **Quarantined events are never dispatched**, and they are swept up separ
 
 ### 1.5 Event participants & secrets
 
-Two fields on `EventV2` are optional and orthogonal to everything else in this section:
+Two fields on `EventV2` govern attribution and authentication:
 
 ```csharp
 public string EventParticipantV2Secret { get; set; }
-public Guid? EventParticipantV2Id { get; set; }
+public Guid EventParticipantV2Id { get; set; }
 ```
 
-If neither is supplied, the event is treated as **internal** — nothing about participants is
-evaluated, and submission proceeds exactly as described above. If `EventParticipantV2Id` **is**
-supplied, "validate participants" (step 2 of §1's sequence) means:
+**`EventParticipantV2Id` is mandatory** — every event is attributable to a participant, so every
+publisher (including in-process, "internal" ones) submits under a participant identity created up
+front, alongside its event address. The column is NOT NULL on both `EventV2s` and
+`EventArchiveV2s`, the foundation service validates it as required on add, modify and restore, and
+"validate participants" (step 2 of §1's sequence) means:
 
-1. **The participant must exist, be active, and fall inside its own `ActiveFrom`/`ActiveTo` window.**
-   If not, an `InvalidEventParticipantV2OrchestrationException` is thrown and the event is never
-   persisted.
-2. If the participant has **`IsSecretRequired == true`**, an `EventParticipantV2Secret` **must** be
+1. **A participant id must be supplied** — a missing/empty id throws
+   `InvalidEventParticipantV2OrchestrationException` before anything else is evaluated.
+2. **The participant must exist, be active, and fall inside its own `ActiveFrom`/`ActiveTo` window.**
+   If not, the same exception is thrown and the event is never persisted.
+3. If the participant has **`IsSecretRequired == true`**, an `EventParticipantV2Secret` **must** be
    supplied — a secretless submission for that participant throws
    `InvalidEventParticipantV2OrchestrationException`. Participants with `IsSecretRequired == false`
-   (the default) keep the open behaviour described in the note below.
-3. If `EventParticipantV2Secret` is supplied, it must match one of that participant's secrets —
+   (the default) may submit without a secret.
+4. If `EventParticipantV2Secret` is supplied, it must match one of that participant's secrets —
    a single **matching, active, in-window** `EventParticipantSecretV2` is enough. If none match, the
    same exception is thrown. The submitted value is the **plaintext** secret; it is SHA-256-hashed
    before comparison (see below).
-4. **Supplying a secret without an id is invalid on its own** — a secret needs a participant to be
-   checked against, so this also throws `InvalidEventParticipantV2OrchestrationException`.
 
-> **These fields are intentionally optional on the library.** Internal events — published by code
-> that already trusts its own callers — don't need to prove who they're from. To require
-> authentication for a specific participant, set **`IsSecretRequired`** on that participant — the
-> library then rejects any submission on its behalf that doesn't carry a valid secret. Beyond that,
-> the recommendation stands that **external event receivers make these fields mandatory in their own
-> foundation services**, so that no externally-submitted event can be created without them.
-> Participant evaluation itself still happens inside EventHighway (§1.5 above) when
-> `SubmitEventV2Async` is called — the foundation service's job is only to enforce that the values
-> are supplied, not to evaluate them.
+> **Identity is mandatory; authentication is per-participant.** The participant id answers *"where
+> did this event come from"* for every row in `EventV2s` and `EventArchiveV2s` — health reports,
+> loop quarantines and audits never see unattributed events. Whether the sender must also *prove*
+> that identity is decided per participant via **`IsSecretRequired`**: trusted internal publishers
+> can leave it off, external-facing participants should turn it on. Because events (and archives)
+> always reference their participant, **deleting a participant is restricted while any of its data
+> exists** — deactivate it (`IsActive = false`) instead; only its secrets cascade-delete with it.
 
 **Secrets are hashed at rest and transient in flight.** `EventParticipantSecretV2.Secret` stores a
 lowercase-hex **SHA-256 hash** — the plaintext is visible exactly once, at creation time, and cannot
