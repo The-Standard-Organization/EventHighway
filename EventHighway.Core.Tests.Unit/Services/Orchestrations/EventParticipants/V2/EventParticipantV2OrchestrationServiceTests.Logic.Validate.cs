@@ -111,7 +111,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             EventV2 randomEventV2 = CreateRandomEventV2();
             EventV2 inputEventV2 = randomEventV2;
             inputEventV2.EventParticipantV2Id = activeEventParticipantV2.Id;
-            inputEventV2.EventParticipantV2Secret = activeEventParticipantSecretV2.Secret;
+            string inputSecretValue = GetRandomString();
+            inputEventV2.EventParticipantV2Secret = inputSecretValue;
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
@@ -122,6 +123,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
+
+            this.hashBrokerMock.Setup(broker =>
+                broker.GenerateSha256Hash(inputSecretValue))
+                    .Returns(activeEventParticipantSecretV2.Secret);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
@@ -145,6 +150,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 broker.GetDateTimeOffsetAsync(),
                     Times.Once);
 
+            this.hashBrokerMock.Verify(broker =>
+                broker.GenerateSha256Hash(inputSecretValue),
+                    Times.Once);
+
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
                     It.IsAny<CancellationToken>()),
@@ -152,6 +161,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
@@ -181,7 +191,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             EventV2 randomEventV2 = CreateRandomEventV2();
             EventV2 inputEventV2 = randomEventV2;
             inputEventV2.EventParticipantV2Id = activeEventParticipantV2.Id;
-            inputEventV2.EventParticipantV2Secret = activeEventParticipantSecretV2.Secret;
+            string inputSecretValue = GetRandomString();
+            inputEventV2.EventParticipantV2Secret = inputSecretValue;
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
@@ -192,6 +203,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
+
+            this.hashBrokerMock.Setup(broker =>
+                broker.GenerateSha256Hash(inputSecretValue))
+                    .Returns(activeEventParticipantSecretV2.Secret);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
@@ -215,6 +230,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 broker.GetDateTimeOffsetAsync(),
                     Times.Once);
 
+            this.hashBrokerMock.Verify(broker =>
+                broker.GenerateSha256Hash(inputSecretValue),
+                    Times.Once);
+
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
                     It.IsAny<CancellationToken>()),
@@ -222,6 +241,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }

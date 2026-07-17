@@ -27,6 +27,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             modifiedEventParticipantSecretV2.Id =
                 randomEventParticipantSecretV2.Id;
 
+            modifiedEventParticipantSecretV2.Secret =
+                randomEventParticipantSecretV2.Secret;
+
             modifiedEventParticipantSecretV2.CreatedDate =
                 randomEventParticipantSecretV2.CreatedDate;
 

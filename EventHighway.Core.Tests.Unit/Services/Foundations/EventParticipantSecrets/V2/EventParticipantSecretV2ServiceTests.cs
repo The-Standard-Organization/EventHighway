@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using EventHighway.Core.Brokers.Hashings;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
@@ -22,6 +23,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
     public partial class EventParticipantSecretV2ServiceTests
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
+        private readonly Mock<IHashBroker> hashBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventParticipantSecretV2Service eventParticipantSecretV2Service;
@@ -29,11 +31,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
         public EventParticipantSecretV2ServiceTests()
         {
             this.storageBrokerMock = new Mock<IStorageBroker>();
+            this.hashBrokerMock = new Mock<IHashBroker>();
             this.dateTimeBrokerMock = new Mock<IDateTimeBroker>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
 
             this.eventParticipantSecretV2Service = new EventParticipantSecretV2Service(
                 storageBroker: this.storageBrokerMock.Object,
+                hashBroker: this.hashBrokerMock.Object,
                 dateTimeBroker: this.dateTimeBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }

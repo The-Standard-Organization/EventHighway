@@ -111,6 +111,11 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 message: "Event participant secret is invalid, fix the errors and try again.",
 
                 (Rule: IsNotSameAsStorage(
+                    firstSecret: incomingEventParticipantSecretV2.Secret,
+                    secondSecret: storageEventParticipantSecretV2.Secret),
+                Parameter: nameof(EventParticipantSecretV2.Secret)),
+
+                (Rule: IsNotSameAsStorage(
                     firstDate: incomingEventParticipantSecretV2.CreatedDate,
                     secondDate: storageEventParticipantSecretV2.CreatedDate),
                 Parameter: nameof(EventParticipantSecretV2.CreatedDate)),
@@ -193,6 +198,14 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             {
                 Condition = firstDate != secondDate,
                 Message = "Date is not the same as storage."
+            };
+
+        private static dynamic IsNotSameAsStorage(
+            string firstSecret,
+            string secondSecret) => new
+            {
+                Condition = firstSecret != secondSecret,
+                Message = "Secret is not the same as storage."
             };
 
         private static dynamic IsEarlierThan(

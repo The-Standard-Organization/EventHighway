@@ -50,6 +50,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             await this.eventParticipantV2OrchestrationService
                 .ValidateEventParticipantsAsync(eventV2, cancellationToken);
 
+            eventV2.EventParticipantV2Secret = null;
+
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 

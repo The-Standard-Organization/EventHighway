@@ -443,9 +443,11 @@ authenticate to the highway with **secrets**.
 
 ![Participants list](Images/Portal-Participants.png)
 
-- **Columns:** Id, Name, Description, Contact Email, Active (Yes/No). Searchable, sortable, paged.
-- **Add Participant** (top right) opens a modal: Name, Description, Contact Email, Contact Phone
-  and an Active switch (on by default).
+- **Columns:** Id, Name, Description, Contact Email, Active (Yes/No), Secret Required (Yes/No).
+  Searchable, sortable, paged.
+- **Add Participant** (top right) opens a modal: Name, Description, Contact Email, Contact Phone,
+  an Active switch (on by default) and a **Secret Required** switch (off by default; see
+  [§7.2](#72-participant-details--secrets)).
 - **VIEW** opens the participant's detail page.
 
 ### 7.2 Participant details & secrets
@@ -454,18 +456,28 @@ authenticate to the highway with **secrets**.
 
 ![Participant detail](Images/Portal-Participant-Detail.png)
 
-The header card shows the participant with **Edit** (same modal as create) and **Delete** buttons.
-Delete asks for confirmation — *"Deleting this participant is permanent and cannot be undone."*
+The header card shows the participant — including a **Secret Required** badge
+(*Required*/*Optional*) — with **Edit** (same modal as create, including the Secret Required
+switch) and **Delete** buttons. Delete asks for confirmation — *"Deleting this participant is
+permanent and cannot be undone."* When **Secret Required** is on, the highway rejects any event
+submitted on this participant's behalf without a valid secret; when off, the secret stays optional.
 
 Below it, the **Event Participant Secrets** card manages the participant's credentials:
 
 - **Columns:** Secret, Active, Active From, Active To, Actions.
-- Secret values are **masked** (••••••••) with an eye toggle to reveal/hide each one.
-- **Add Secret** opens a modal (Secret value, Active From, Active To, Active switch).
+- Secret values are **masked** (••••••••) and can never be revealed — secrets are stored as
+  one-way SHA-256 hashes, so the plaintext no longer exists after creation.
+- **Add Secret** opens a modal that **generates a strong secret** for you — no free-text input.
+  The value is shown once, masked, with an eye toggle to reveal it and a **Copy** button, under a
+  warning: *"Make a note of this secret — you will not be able to see it again once you leave this
+  page."* The modal also carries the validity fields (Active From, Active To, Active switch).
 - **Edit** switches the row to inline editing — toggle Active, adjust the validity window — with
-  Save/Delete; deleting a secret asks for confirmation (permanent).
+  Save/Delete; the secret value itself is immutable. Deleting a secret asks for confirmation
+  (permanent).
 - Secrets have validity windows (`Active From` / `Active To`) so keys can be rotated: introduce the
   new secret before the old one lapses, then revoke the old one.
+
+![Add Secret modal](Images/Portal-Participant-Add-Secret.png)
 
 At the bottom, an **Associated Users** card lists the portal users linked to this participant
 (Username, Email) with a **Remove** button each, and a **Find User** lookup (by username or email)
@@ -675,8 +687,8 @@ Associated users reach their participants through **My Account → Participant M
   ![My Participants list](Images/Portal-My-Participants.png)
 
 - **Detail** (`/my/participants/{id}`) — the participant profile **read-only** (no Edit, no Delete,
-  no edit modal) plus the full **secrets** card: add, reveal/hide, inline-edit and delete secrets,
-  exactly as [§7.2](#72-participant-details--secrets).
+  no edit modal) plus the full **secrets** card: add (generated, shown once), inline-edit and
+  delete secrets, exactly as [§7.2](#72-participant-details--secrets).
 
   ![My Participant detail](Images/Portal-My-Participant-Detail.png)
 
