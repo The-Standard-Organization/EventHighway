@@ -86,7 +86,16 @@ namespace EventHighway.Core.Models.Services.Foundations.Events.V2
         /// from the HTTP request headers, not the request body.
         /// </summary>
         public string EventParticipantV2Secret { get; set; }
-        public Guid? EventParticipantV2Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the unique identifier of the participant that submitted this event.
+        /// Required — every event is attributable to a participant.
+        /// </summary>
+        public Guid EventParticipantV2Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the participant that submitted this event.
+        /// </summary>
         public EventParticipantV2 EventParticipantV2 { get; set; }
 
     }

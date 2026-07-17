@@ -320,12 +320,6 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
             Message = "Required"
         };
 
-        private static dynamic IsInvalid(Guid? id) => new
-        {
-            Condition = id is null || id == Guid.Empty,
-            Message = "Required"
-        };
-
         private static dynamic IsInvalid(string text) => new
         {
             Condition = string.IsNullOrWhiteSpace(text),

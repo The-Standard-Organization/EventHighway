@@ -48,7 +48,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 
             EventParticipantV2 maybeEventParticipantV2 =
                 await this.eventParticipantV2Service.RetrieveEventParticipantV2ByIdAsync(
-                    eventV2.EventParticipantV2Id.Value,
+                    eventV2.EventParticipantV2Id,
                     cancellationToken);
 
             DateTimeOffset now =

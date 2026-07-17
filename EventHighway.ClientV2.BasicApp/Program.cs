@@ -370,7 +370,7 @@ public partial class Program
                 attempt: attempt));
         }
 
-        // 5) John Wick — unauthorised: null participant id with a random secret
+        // 5) John Wick — unauthorised: unknown participant id with a random secret
         var johnWick = new MediaItem
         {
             Id = Guid.NewGuid(),
@@ -380,7 +380,7 @@ public partial class Program
         };
 
         await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, johnWick,
-            scheduled: false, participantId: null, secret: Guid.NewGuid().ToString());
+            scheduled: false, participantId: Guid.NewGuid(), secret: Guid.NewGuid().ToString());
 
         // =========================================================
         // 9) Fire the scheduled (pending) events
@@ -482,7 +482,7 @@ public partial class Program
         Guid eventAddressId,
         MediaItem item,
         bool scheduled,
-        Guid? participantId,
+        Guid participantId,
         string secret,
         int attempt = 0)
     {

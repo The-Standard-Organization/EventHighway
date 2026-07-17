@@ -21,7 +21,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             // given
             EventV2 randomEventV2 = CreateRandomEventV2();
             EventV2 inputEventV2 = randomEventV2;
-            inputEventV2.EventParticipantV2Id = null;
+            inputEventV2.EventParticipantV2Id = Guid.Empty;
             inputEventV2.EventParticipantV2Secret = null;
 
             var invalidEventParticipantV2OrchestrationException =
@@ -89,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(nullEventParticipantV2);
 
@@ -115,7 +115,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -161,7 +161,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(inactiveEventParticipantV2);
 
@@ -187,7 +187,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -233,7 +233,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(notYetActiveEventParticipantV2);
 
@@ -259,7 +259,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -305,7 +305,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(expiredEventParticipantV2);
 
@@ -331,7 +331,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -378,7 +378,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(activeEventParticipantV2);
 
@@ -404,7 +404,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 

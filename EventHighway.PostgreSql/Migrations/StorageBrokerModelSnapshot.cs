@@ -418,7 +418,7 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<string>("EventName")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
@@ -520,7 +520,7 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<string>("EventName")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
@@ -936,7 +936,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 
@@ -954,7 +955,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventArchiveV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 

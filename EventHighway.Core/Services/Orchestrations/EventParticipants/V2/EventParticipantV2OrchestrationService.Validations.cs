@@ -13,8 +13,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
     {
         private static void ValidateParticipantIdIsPresent(EventV2 eventV2)
         {
-            if (eventV2.EventParticipantV2Id is null
-                || eventV2.EventParticipantV2Id == Guid.Empty)
+            if (eventV2.EventParticipantV2Id == Guid.Empty)
             {
                 throw new InvalidEventParticipantV2OrchestrationException(
                     message: "Event participant id is required.");
