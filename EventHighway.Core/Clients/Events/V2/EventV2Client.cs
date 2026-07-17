@@ -191,6 +191,7 @@ namespace EventHighway.Core.Clients.Events.V2
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
         public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync(
+            EventV2Query eventV2Query,
             CancellationToken cancellationToken = default)
         {
             await using AsyncServiceScope serviceScope =
@@ -203,7 +204,7 @@ namespace EventHighway.Core.Clients.Events.V2
             try
             {
                 return (await eventV2CoordinationService
-                    .RetrieveAllEventV2sAsync(cancellationToken))
+                    .RetrieveEventV2sByQueryAsync(eventV2Query, cancellationToken))
                         .ToList();
             }
             catch (EventV2CoordinationValidationException
@@ -239,11 +240,6 @@ namespace EventHighway.Core.Clients.Events.V2
                 throw CreateEventV2ClientServiceException(exception as Xeption);
             }
         }
-
-        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
-            EventV2Query eventV2Query,
-            CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
 
         public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default)

@@ -58,28 +58,6 @@ namespace EventHighway.Core.Clients.Events.V2
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves all events asynchronously.
-        /// </summary>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
-        /// operation that returns all events, materialized at the time of the call.</returns>
-        /// <exception cref="EventV2ClientValidationException">Thrown when validation errors
-        /// occur.</exception>
-        /// <exception cref="EventV2ClientDependencyException">Thrown when dependency or
-        /// service errors occur.</exception>
-        /// <exception cref="EventV2ClientServiceException">Thrown when an unexpected error
-        /// occurs during retrieval.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
-        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync(
-            CancellationToken cancellationToken = default);
-
-        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
-            CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Retrieves the events matching the given query asynchronously — filtered, ordered by
         /// <c>CreatedDate</c> descending, paged, and materialized at the time of the call.
         /// </summary>
@@ -98,8 +76,11 @@ namespace EventHighway.Core.Clients.Events.V2
         /// occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
+        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync(
             EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default);
 
         /// <summary>

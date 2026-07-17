@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Clients.EventHighways.V2;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
@@ -43,10 +44,11 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             };
 
         public ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync(
+            EventV2Query eventV2Query,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(async client =>
                 (await client.EventV2Client
-                    .RetrieveAllEventV2sAsync(cancellationToken))
+                    .RetrieveAllEventV2sAsync(eventV2Query, cancellationToken))
                     .AsQueryable(),
                 cancellationToken);
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.Events;
@@ -24,17 +25,18 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
             IQueryable<EventV2> storageEvents = new[]
             {
                 CreateRandomEvent(EventStatusV2.Quarantined),
-                CreateRandomEvent(EventStatusV2.Quarantined),
-                CreateRandomEvent(EventStatusV2.Active),
-                CreateRandomEvent(EventStatusV2.Active),
-                CreateRandomEvent(EventStatusV2.Active)
+                CreateRandomEvent(EventStatusV2.Quarantined)
             }.AsQueryable();
 
             int expectedCount = 2;
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventV2sAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(storageEvents);
+                broker.RetrieveAllEventV2sAsync(
+                    It.Is<EventV2Query>(query =>
+                        query.Status == EventStatusV2.Quarantined
+                            && query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(storageEvents);
 
             // when
             int actualCount =
@@ -45,8 +47,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
             actualCount.Should().Be(expectedCount);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventV2sAsync(It.IsAny<CancellationToken>()),
-                    Times.Once);
+                broker.RetrieveAllEventV2sAsync(
+                    It.Is<EventV2Query>(query =>
+                        query.Status == EventStatusV2.Quarantined
+                            && query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();

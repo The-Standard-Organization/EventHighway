@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using FluentAssertions;
@@ -43,7 +44,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                             ? await this.clientBroker.RetrieveEventV2ByIdAsync(
                                 submittedEventV2.Id)
 
-                            : (await this.clientBroker.RetrieveAllEventV2sAsync())
+                            : (await this.clientBroker.RetrieveAllEventV2sAsync(
+                                new EventV2Query { EventAddressV2Id = inputEventAddressV2Id }))
                                 .ToList()
                                 .First(eventV2 => eventV2.Id == submittedEventV2.Id)));
 

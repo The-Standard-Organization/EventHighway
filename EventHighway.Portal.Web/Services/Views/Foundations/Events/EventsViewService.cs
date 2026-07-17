@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
@@ -32,10 +33,16 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.Events
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<EventV2> events =
-                await this.eventHighwayBroker.RetrieveAllEventV2sAsync(cancellationToken);
+            IQueryable<EventV2> quarantinedEvents =
+                await this.eventHighwayBroker.RetrieveAllEventV2sAsync(
+                    new EventV2Query
+                    {
+                        Status = EventStatusV2.Quarantined,
+                        Take = 1000
+                    },
+                    cancellationToken);
 
-            return events.Count(@event => @event.Status == EventStatusV2.Quarantined);
+            return quarantinedEvents.Count();
         });
 
         public ValueTask<List<EventView>> RetrieveAllEventsAsync(
