@@ -248,18 +248,35 @@ supplied, "validate participants" (step 2 of §1's sequence) means:
 1. **The participant must exist, be active, and fall inside its own `ActiveFrom`/`ActiveTo` window.**
    If not, an `InvalidEventParticipantV2OrchestrationException` is thrown and the event is never
    persisted.
-2. If `EventParticipantV2Secret` is also supplied, it must match one of that participant's secrets —
+2. If the participant has **`IsSecretRequired == true`**, an `EventParticipantV2Secret` **must** be
+   supplied — a secretless submission for that participant throws
+   `InvalidEventParticipantV2OrchestrationException`. Participants with `IsSecretRequired == false`
+   (the default) keep the open behaviour described in the note below.
+3. If `EventParticipantV2Secret` is supplied, it must match one of that participant's secrets —
    a single **matching, active, in-window** `EventParticipantSecretV2` is enough. If none match, the
-   same exception is thrown.
-3. **Supplying a secret without an id is invalid on its own** — a secret needs a participant to be
+   same exception is thrown. The submitted value is the **plaintext** secret; it is SHA-256-hashed
+   before comparison (see below).
+4. **Supplying a secret without an id is invalid on its own** — a secret needs a participant to be
    checked against, so this also throws `InvalidEventParticipantV2OrchestrationException`.
 
 > **These fields are intentionally optional on the library.** Internal events — published by code
-> that already trusts its own callers — don't need to prove who they're from. The recommendation is
-> that **external event receivers make these fields mandatory in their own foundation services**, so
-> that no externally-submitted event can be created without them. Participant evaluation itself still
-> happens inside EventHighway (§1.5 above) when `SubmitEventV2Async` is called — the foundation
-> service's job is only to enforce that the values are supplied, not to evaluate them.
+> that already trusts its own callers — don't need to prove who they're from. To require
+> authentication for a specific participant, set **`IsSecretRequired`** on that participant — the
+> library then rejects any submission on its behalf that doesn't carry a valid secret. Beyond that,
+> the recommendation stands that **external event receivers make these fields mandatory in their own
+> foundation services**, so that no externally-submitted event can be created without them.
+> Participant evaluation itself still happens inside EventHighway (§1.5 above) when
+> `SubmitEventV2Async` is called — the foundation service's job is only to enforce that the values
+> are supplied, not to evaluate them.
+
+**Secrets are hashed at rest and transient in flight.** `EventParticipantSecretV2.Secret` stores a
+lowercase-hex **SHA-256 hash** — the plaintext is visible exactly once, at creation time, and cannot
+be recovered afterwards (the Portal generates a strong secret and shows it a single time for this
+reason). At submission the caller supplies the plaintext on `EventV2.EventParticipantV2Secret`; the
+orchestration hashes it and compares hashes, and the coordination **clears the field immediately
+after validation**, so the secret is never persisted on `EventV2` (the property is also ignored by
+the storage mapping), never archived, and never travels further down the pipeline — replay and
+restore paths operate without it.
 
 **Secrets are time-based, and a participant can hold more than one at once.** Each
 `EventParticipantSecretV2` carries its own `ActiveFrom`/`ActiveTo` window, independent of the
