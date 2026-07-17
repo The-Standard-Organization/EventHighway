@@ -69,6 +69,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
                 ContactEmail = participant.ContactEmail,
                 ContactPhone = participant.ContactPhone,
                 IsActive = participant.IsActive,
+                IsSecretRequired = participant.IsSecretRequired,
                 ActiveFrom = participant.ActiveFrom,
                 ActiveTo = participant.ActiveTo,
                 CreatedDate = now,
@@ -130,6 +131,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
                 ContactEmail = participant.ContactEmail,
                 ContactPhone = participant.ContactPhone,
                 IsActive = participant.IsActive,
+                IsSecretRequired = participant.IsSecretRequired,
                 ActiveFrom = participant.ActiveFrom,
                 ActiveTo = participant.ActiveTo
             };
