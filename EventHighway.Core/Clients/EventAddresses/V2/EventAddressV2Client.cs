@@ -10,6 +10,7 @@ using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventAddresses.V2
@@ -24,15 +25,18 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         private readonly IEventAddressV2ProcessingService eventAddressV2ProcessingService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventAddressV2Client"/> class with
-        /// the specified event address processing service.
+        /// Initializes a new instance of the <see cref="EventAddressV2Client"/> class with the
+        /// specified service provider used to resolve the event address processing service.
+        /// Every operation resolves its dependencies within a new service scope so that
+        /// concurrent operations never share a storage context.
         /// </summary>
-        /// <param name="eventAddressV2ProcessingService">The processing service for managing
-        /// event addresses.</param>
-        /// <exception cref="ArgumentNullException">Thrown when
-        /// eventAddressV2ProcessingService is null.</exception>
-        public EventAddressV2Client(IEventAddressV2ProcessingService eventAddressV2ProcessingService) =>
-            this.eventAddressV2ProcessingService = eventAddressV2ProcessingService;
+        /// <param name="serviceProvider">The service provider used to resolve
+        /// dependencies.</param>
+        /// <exception cref="ArgumentNullException">Thrown when serviceProvider is
+        /// null.</exception>
+        public EventAddressV2Client(IServiceProvider serviceProvider) =>
+            this.eventAddressV2ProcessingService =
+                serviceProvider.GetRequiredService<IEventAddressV2ProcessingService>();
 
         /// <summary>
         /// Registers a new event address asynchronously by delegating to the processing
