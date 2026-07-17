@@ -44,7 +44,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: (eventAddressV2ProcessingDependencyException.InnerException as Xeption).Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventAddressV2ProcessingDependencyException);
 
             // when
@@ -61,7 +62,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -92,7 +94,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: (eventAddressV2ProcessingServiceException.InnerException as Xeption).Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventAddressV2ProcessingServiceException);
 
             // when
@@ -109,7 +112,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                 .BeEquivalentTo(expectedEventAddressV2ClientDependencyException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -133,7 +137,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     data: someXeption.Data);
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(someXeption);
 
             // when
@@ -150,7 +155,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                 .BeEquivalentTo(expectedEventAddressV2ClientServiceException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -169,7 +175,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                 new OperationCanceledException();
 
             this.eventAddressV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(operationCanceledException);
 
             // when
@@ -186,7 +193,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventAddressV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventAddressV2sByQueryAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventAddressV2ProcessingServiceMock.VerifyNoOtherCalls();

@@ -205,8 +205,9 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             try
             {
                 return (await eventAddressV2ProcessingService
-                    .RetrieveAllEventAddressV2sAsync(cancellationToken))
-                        .ToList();
+                    .RetrieveEventAddressV2sByQueryAsync(
+                        eventAddressV2Query, cancellationToken))
+                            .ToList();
             }
             catch (EventAddressV2ProcessingDependencyException
                 eventAddressV2ProcessingDependencyException)
