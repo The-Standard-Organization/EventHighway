@@ -168,6 +168,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
                 .OnType<DateTimeOffset?>()
                     .Use(GetRandomDateTimeOffset())
 
+                .OnProperty(eventV2 => eventV2.EventParticipantV2Id)
+                    .Use(() => Guid.NewGuid())
+
                 .OnProperty(eventV2 => eventV2.EventAddressV2)
                     .IgnoreIt()
 
