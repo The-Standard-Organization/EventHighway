@@ -18,15 +18,15 @@ namespace EventHighway.Core.Brokers.Loggings
         public async ValueTask LogErrorAsync(Exception exception)
         {
             this.logger.LogError(
-                message: exception.Message,
-                args: exception);
+                exception: exception,
+                message: exception.Message);
         }
 
         public async ValueTask LogCriticalAsync(Exception exception)
         {
             this.logger.LogCritical(
-                exception,
-                exception.Message);
+                exception: exception,
+                message: exception.Message);
         }
     }
 }
