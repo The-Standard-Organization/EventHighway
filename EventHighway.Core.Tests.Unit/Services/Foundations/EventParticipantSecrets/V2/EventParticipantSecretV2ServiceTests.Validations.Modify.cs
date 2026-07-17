@@ -445,6 +445,81 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
         }
 
         [Fact]
+        public async Task ShouldThrowValidationExceptionOnModifyIfSecretNotSameAsStorageAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            int randomDaysAgo = GetRandomNegativeNumber();
+            DateTimeOffset randomDateTime = GetRandomDateTimeOffset();
+            EventParticipantSecretV2 randomEventParticipantSecretV2 = CreateRandomEventParticipantSecretV2(randomDateTime);
+            EventParticipantSecretV2 invalidEventParticipantSecretV2 = randomEventParticipantSecretV2;
+            invalidEventParticipantSecretV2.CreatedDate = randomDateTime.AddDays(randomDaysAgo);
+            EventParticipantSecretV2 storageEventParticipantSecretV2 = invalidEventParticipantSecretV2.DeepClone();
+            invalidEventParticipantSecretV2.Secret = GetRandomString();
+
+            var invalidEventParticipantSecretV2Exception =
+                new InvalidEventParticipantSecretV2Exception(
+                    message: "Event participant secret is invalid, fix the errors and try again.");
+
+            invalidEventParticipantSecretV2Exception.AddData(
+                key: nameof(EventParticipantSecretV2.Secret),
+                values: "Secret is not the same as storage.");
+
+            var expectedEventParticipantSecretV2ValidationException =
+                new EventParticipantSecretV2ValidationException(
+                    message: "Event participant secret validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventParticipantSecretV2Exception);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTime);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectEventParticipantSecretV2ByIdAsync(
+                    invalidEventParticipantSecretV2.Id, It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(storageEventParticipantSecretV2);
+
+            // when
+            ValueTask<EventParticipantSecretV2> modifyEventParticipantSecretV2Task =
+                this.eventParticipantSecretV2Service.ModifyEventParticipantSecretV2Async(
+                    invalidEventParticipantSecretV2, randomCancellationToken);
+
+            EventParticipantSecretV2ValidationException actualEventParticipantSecretV2ValidationException =
+                await Assert.ThrowsAsync<EventParticipantSecretV2ValidationException>(
+                    modifyEventParticipantSecretV2Task.AsTask);
+
+            // then
+            actualEventParticipantSecretV2ValidationException.Should()
+                .BeEquivalentTo(expectedEventParticipantSecretV2ValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectEventParticipantSecretV2ByIdAsync(
+                    invalidEventParticipantSecretV2.Id, It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is<Xeption>(
+                    actual => actual.SameExceptionAs(
+                        expectedEventParticipantSecretV2ValidationException))),
+                            Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateEventParticipantSecretV2Async(
+                    It.IsAny<EventParticipantSecretV2>(), It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldThrowValidationExceptionOnModifyIfUpdatedDateIsEarlierThanStorageAndLogItAsync()
         {
             // given
