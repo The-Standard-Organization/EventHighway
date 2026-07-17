@@ -121,16 +121,20 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             return ApplyEventV2Query(eventV2s, eventV2Query);
         });
 
-        public async ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+        public ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
             EventV2Query eventV2Query,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventV2Query(eventV2Query);
+
             IQueryable<EventV2> eventV2s =
                 await this.eventV2OrchestrationService
                     .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken);
 
             return ApplyEventV2Query(eventV2s, eventV2Query);
-        }
+        });
 
         private static IQueryable<EventV2> ApplyEventV2Query(
             IQueryable<EventV2> eventV2s,
