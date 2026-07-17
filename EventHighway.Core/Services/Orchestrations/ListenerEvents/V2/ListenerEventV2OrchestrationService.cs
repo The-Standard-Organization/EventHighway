@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Services.Processings.ListenerEvents.V2;
 
 namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
@@ -35,6 +36,16 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
             return await this.listenerEventV2ProcessingService
                 .RetrieveAllListenerEventV2sAsync(cancellationToken);
         });
+
+        public ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveListenerEventV2sByQueryAsync(
+            ListenerEventV2Query listenerEventV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
+
+        public ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveListenerEventV2sWithEventListenerV2ByQueryAsync(
+            ListenerEventV2Query listenerEventV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
         public ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(
             CancellationToken cancellationToken = default) =>
