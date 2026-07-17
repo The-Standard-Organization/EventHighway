@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Core.Services.Processings.EventListeners.V2;
 
 namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
@@ -51,6 +53,12 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
                     eventAddressId,
                     cancellationToken);
         });
+
+        public ValueTask<IReadOnlyList<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdByQueryAsync(
+            Guid eventAddressId,
+            EventListenerV2Query eventListenerV2Query,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
 
         public ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(
             Guid eventListenerV2Id,
