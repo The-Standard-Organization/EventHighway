@@ -10,24 +10,33 @@ using EventHighway.Core.Models.Clients.EventParticipantSecrets.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 {
     internal class EventParticipantSecretV2Client : IEventParticipantSecretV2Client
     {
-        private readonly IEventParticipantSecretV2Service eventParticipantSecretV2Service;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public EventParticipantSecretV2Client(IEventParticipantSecretV2Service eventParticipantSecretV2Service) =>
-            this.eventParticipantSecretV2Service = eventParticipantSecretV2Service;
+        public EventParticipantSecretV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<EventParticipantSecretV2> AddEventParticipantSecretV2Async(
             EventParticipantSecretV2 eventParticipantSecretV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantSecretV2Service eventParticipantSecretV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantSecretV2Service>();
+
             try
             {
-                return await this.eventParticipantSecretV2Service
+                return await eventParticipantSecretV2Service
                     .AddEventParticipantSecretV2Async(eventParticipantSecretV2, cancellationToken);
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
@@ -61,13 +70,22 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
         }
 
-        public async ValueTask<IEnumerable<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+        public async ValueTask<IReadOnlyList<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantSecretV2Service eventParticipantSecretV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantSecretV2Service>();
+
             try
             {
-                return await this.eventParticipantSecretV2Service
-                    .RetrieveAllEventParticipantSecretV2sAsync(cancellationToken);
+                return await eventParticipantSecretV2Service
+                    .RetrieveEventParticipantSecretV2sByQueryAsync(
+                        eventParticipantSecretV2Query, cancellationToken);
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
             {
@@ -104,9 +122,16 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             Guid eventParticipantSecretV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantSecretV2Service eventParticipantSecretV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantSecretV2Service>();
+
             try
             {
-                return await this.eventParticipantSecretV2Service
+                return await eventParticipantSecretV2Service
                     .RetrieveEventParticipantSecretV2ByIdAsync(eventParticipantSecretV2Id, cancellationToken);
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
@@ -144,9 +169,16 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 eventParticipantSecretV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantSecretV2Service eventParticipantSecretV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantSecretV2Service>();
+
             try
             {
-                return await this.eventParticipantSecretV2Service
+                return await eventParticipantSecretV2Service
                     .ModifyEventParticipantSecretV2Async(eventParticipantSecretV2, cancellationToken);
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
@@ -184,9 +216,16 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             Guid eventParticipantSecretV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantSecretV2Service eventParticipantSecretV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantSecretV2Service>();
+
             try
             {
-                return await this.eventParticipantSecretV2Service
+                return await eventParticipantSecretV2Service
                     .RemoveEventParticipantSecretV2ByIdAsync(eventParticipantSecretV2Id, cancellationToken);
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)

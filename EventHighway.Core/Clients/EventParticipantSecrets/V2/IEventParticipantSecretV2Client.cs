@@ -16,7 +16,8 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 eventParticipantSecretV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+        ValueTask<IReadOnlyList<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
             CancellationToken cancellationToken = default);
 
         ValueTask<EventParticipantSecretV2> RetrieveEventParticipantSecretV2ByIdAsync(

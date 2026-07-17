@@ -17,6 +17,8 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSec
 {
     public partial class EventParticipantSecretsViewService : IEventParticipantSecretsViewService
     {
+        private const int RetrievalPageSize = 1000;
+
         private readonly IEventHighwayBroker eventHighwayBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
@@ -37,14 +39,16 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSec
                 CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<EventParticipantSecretV2> secrets =
-                await this.eventHighwayBroker.RetrieveAllEventParticipantSecretV2sAsync(
+            List<EventParticipantSecretV2> secrets =
+                await RetrieveAllPagesAsync(
+                    new EventParticipantSecretV2Query
+                    {
+                        EventParticipantV2Id = participantId,
+                        Take = RetrievalPageSize
+                    },
                     cancellationToken);
 
-            return secrets
-                .Where(secret => secret.EventParticipantV2Id == participantId)
-                .Select(AsView)
-                .ToList();
+            return secrets.Select(AsView).ToList();
         });
 
         public ValueTask<EventParticipantSecretView> AddSecretAsync(
@@ -79,8 +83,13 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSec
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<EventParticipantSecretV2> secrets =
-                await this.eventHighwayBroker.RetrieveAllEventParticipantSecretV2sAsync(
+            List<EventParticipantSecretV2> secrets =
+                await RetrieveAllPagesAsync(
+                    new EventParticipantSecretV2Query
+                    {
+                        EventParticipantV2Id = secret.EventParticipantV2Id,
+                        Take = RetrievalPageSize
+                    },
                     cancellationToken);
 
             EventParticipantSecretV2 existingSecret =
@@ -111,6 +120,31 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipantSec
 
             return AsView(removedSecret);
         });
+
+        private async ValueTask<List<EventParticipantSecretV2>> RetrieveAllPagesAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
+            CancellationToken cancellationToken)
+        {
+            var secrets = new List<EventParticipantSecretV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventParticipantSecretV2> secretPage =
+                    await this.eventHighwayBroker.RetrieveAllEventParticipantSecretV2sAsync(
+                        eventParticipantSecretV2Query, cancellationToken);
+
+                secrets.AddRange(secretPage);
+
+                if (secretPage.Count < eventParticipantSecretV2Query.Take)
+                {
+                    break;
+                }
+
+                eventParticipantSecretV2Query.Skip += eventParticipantSecretV2Query.Take;
+            }
+
+            return secrets;
+        }
 
         private static EventParticipantSecretView AsView(EventParticipantSecretV2 secret) =>
             new EventParticipantSecretView

@@ -39,14 +39,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                     data: someInnerException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(eventParticipantSecretV2ValidationException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             EventParticipantSecretV2ClientValidationException
                 actualEventParticipantSecretV2ClientValidationException =
@@ -58,8 +58,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(expectedEventParticipantSecretV2ClientValidationException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
@@ -87,14 +87,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                     data: someInnerException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(eventParticipantSecretV2DependencyValidationException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             EventParticipantSecretV2ClientValidationException
                 actualEventParticipantSecretV2ClientValidationException =
@@ -106,8 +106,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(expectedEventParticipantSecretV2ClientValidationException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
@@ -135,14 +135,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                     data: someInnerException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(eventParticipantSecretV2DependencyException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             EventParticipantSecretV2ClientDependencyException
                 actualEventParticipantSecretV2ClientDependencyException =
@@ -154,8 +154,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(expectedEventParticipantSecretV2ClientDependencyException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
@@ -183,14 +183,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                     data: someInnerException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(eventParticipantSecretV2ServiceException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             EventParticipantSecretV2ClientDependencyException
                 actualEventParticipantSecretV2ClientDependencyException =
@@ -202,8 +202,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(expectedEventParticipantSecretV2ClientDependencyException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
@@ -226,14 +226,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                     data: someException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(someException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             EventParticipantSecretV2ClientServiceException
                 actualEventParticipantSecretV2ClientServiceException =
@@ -245,8 +245,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(expectedEventParticipantSecretV2ClientServiceException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
@@ -264,14 +264,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 new OperationCanceledException();
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken))
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken))
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantSecretV2>> retrieveAllEventParticipantSecretV2sTask =
                 this.eventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken);
+                    new EventParticipantSecretV2Query(), randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -282,8 +282,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventParticipantSecretV2sAsync(
-                    randomCancellationToken),
+                service.RetrieveEventParticipantSecretV2sByQueryAsync(
+                    It.IsAny<EventParticipantSecretV2Query>(), randomCancellationToken),
                         Times.Once);
 
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();

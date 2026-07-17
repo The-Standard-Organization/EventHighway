@@ -148,8 +148,13 @@ public partial class Program
 
         async Task GetOrAddSecretAsync(EventParticipantSecretV2 secret)
         {
-            IEnumerable<EventParticipantSecretV2> existingSecrets =
-                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync();
+            IReadOnlyList<EventParticipantSecretV2> existingSecrets =
+                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
+                    new EventParticipantSecretV2Query
+                    {
+                        EventParticipantV2Id = secret.EventParticipantV2Id,
+                        Take = 1000
+                    });
 
             if (existingSecrets.All(existing => existing.Id != secret.Id))
             {
