@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 
@@ -15,6 +16,15 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             Validate(
                 (Rule: IsInvalid(eventV2Id),
                 Parameter: nameof(EventV2.Id)));
+        }
+
+        private static void ValidateEventV2QueryIsNotNull(EventV2Query eventV2Query)
+        {
+            if (eventV2Query is null)
+            {
+                throw new NullEventV2QueryCoordinationException(
+                    message: "Event query is null.");
+            }
         }
 
         private static void ValidateEventV2IsNotNull(EventV2 eventV2)
