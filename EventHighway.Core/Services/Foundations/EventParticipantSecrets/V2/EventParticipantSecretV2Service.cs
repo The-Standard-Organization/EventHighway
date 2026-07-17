@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,6 +58,11 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             return await this.storageBroker.SelectAllEventParticipantSecretV2sAsync(
                 cancellationToken);
         });
+
+        public ValueTask<IReadOnlyList<EventParticipantSecretV2>> RetrieveEventParticipantSecretV2sByQueryAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
 
         public ValueTask<EventParticipantSecretV2> RetrieveEventParticipantSecretV2ByIdAsync(
             Guid eventParticipantSecretV2Id,
