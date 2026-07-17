@@ -16,6 +16,57 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
     public partial class EventParticipantV2OrchestrationServiceTests
     {
         [Fact]
+        public async Task ShouldThrowValidationExceptionOnValidateIfParticipantIdIsNotProvidedAndLogItAsync()
+        {
+            // given
+            EventV2 randomEventV2 = CreateRandomEventV2();
+            EventV2 inputEventV2 = randomEventV2;
+            inputEventV2.EventParticipantV2Id = null;
+            inputEventV2.EventParticipantV2Secret = null;
+
+            var invalidEventParticipantV2OrchestrationException =
+                new InvalidEventParticipantV2OrchestrationException(
+                    message: "Event participant id is required.");
+
+            var expectedEventParticipantV2OrchestrationValidationException =
+                new EventParticipantV2OrchestrationValidationException(
+                    message: "Event participant validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventParticipantV2OrchestrationException);
+
+            // when
+            ValueTask validateTask =
+                this.eventParticipantV2OrchestrationService
+                    .ValidateEventParticipantsAsync(
+                        inputEventV2,
+                        TestContext.Current.CancellationToken);
+
+            EventParticipantV2OrchestrationValidationException
+                actualEventParticipantV2OrchestrationValidationException =
+                    await Assert.ThrowsAsync<EventParticipantV2OrchestrationValidationException>(
+                        validateTask.AsTask);
+
+            // then
+            actualEventParticipantV2OrchestrationValidationException.Should()
+                .BeEquivalentTo(expectedEventParticipantV2OrchestrationValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2OrchestrationValidationException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RetrieveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldThrowValidationExceptionOnValidateIfParticipantIsNotFoundAndLogItAsync()
         {
             // given
