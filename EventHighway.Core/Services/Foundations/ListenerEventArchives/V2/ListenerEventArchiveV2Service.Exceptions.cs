@@ -31,6 +31,16 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
             {
                 return await returningListenerEventArchiveV2ListFunction();
             }
+            catch (NullListenerEventArchiveV2QueryException nullListenerEventArchiveV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullListenerEventArchiveV2QueryException);
+            }
+            catch (InvalidListenerEventArchiveV2QueryException invalidListenerEventArchiveV2QueryException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidListenerEventArchiveV2QueryException);
+            }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {

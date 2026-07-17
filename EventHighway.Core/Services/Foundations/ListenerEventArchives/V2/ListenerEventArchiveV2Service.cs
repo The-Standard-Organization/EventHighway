@@ -69,6 +69,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventArchiveV2Query(listenerEventArchiveV2Query);
 
             IQueryable<ListenerEventArchiveV2> listenerEventArchiveV2s =
                 await this.storageBroker.SelectAllListenerEventArchiveV2sAsync(cancellationToken);
@@ -82,6 +83,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventArchiveV2Query(listenerEventArchiveV2Query);
 
             IQueryable<ListenerEventArchiveV2> listenerEventArchiveV2s =
                 await this.storageBroker
