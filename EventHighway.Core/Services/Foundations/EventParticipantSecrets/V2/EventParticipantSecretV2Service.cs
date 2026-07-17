@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Hashings;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Brokers.Times;
@@ -16,15 +17,18 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
     internal partial class EventParticipantSecretV2Service : IEventParticipantSecretV2Service
     {
         private readonly IStorageBroker storageBroker;
+        private readonly IHashBroker hashBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventParticipantSecretV2Service(
             IStorageBroker storageBroker,
+            IHashBroker hashBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.storageBroker = storageBroker;
+            this.hashBroker = hashBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
