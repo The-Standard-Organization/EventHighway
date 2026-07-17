@@ -61,6 +61,8 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
         TryCatch(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventAddressId(eventAddressId);
+            ValidateEventListenerV2Query(eventListenerV2Query);
 
             IQueryable<EventListenerV2> eventListenerV2s =
                 await this.eventListenerV2ProcessingService
