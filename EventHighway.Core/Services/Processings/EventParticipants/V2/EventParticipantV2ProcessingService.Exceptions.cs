@@ -119,6 +119,18 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
             {
                 throw;
             }
+            catch (NullEventParticipantV2QueryProcessingException
+                nullEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventParticipantV2QueryProcessingException);
+            }
+            catch (InvalidEventParticipantV2QueryProcessingException
+                invalidEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventParticipantV2QueryProcessingException);
+            }
             catch (EventParticipantV2DependencyException
                 eventParticipantV2DependencyException)
             {

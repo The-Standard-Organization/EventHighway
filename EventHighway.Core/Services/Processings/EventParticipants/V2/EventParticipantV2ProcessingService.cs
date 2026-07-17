@@ -61,10 +61,14 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 cancellationToken);
         });
 
-        public async ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+        public ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
             EventParticipantV2Query eventParticipantV2Query,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
         {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventParticipantV2Query(eventParticipantV2Query);
+
             IQueryable<EventParticipantV2> eventParticipantV2s =
                 await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(
                     cancellationToken);
@@ -104,7 +108,7 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 .ThenBy(eventParticipantV2 => eventParticipantV2.Id)
                 .Skip(eventParticipantV2Query.Skip)
                 .Take(eventParticipantV2Query.Take);
-        }
+        });
 
         public ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
             CancellationToken cancellationToken = default) =>
