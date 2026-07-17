@@ -37,7 +37,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                     data: (validationException.InnerException as Xeption).Data);
 
             this.eventV2CoordinationServiceMock.Setup(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(validationException);
 
@@ -55,7 +56,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 .BeEquivalentTo(expectedEventV2ClientValidationException);
 
             this.eventV2CoordinationServiceMock.Verify(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -87,7 +89,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                     data: (eventV2CoordinationDependencyException.InnerException as Xeption).Data);
 
             this.eventV2CoordinationServiceMock.Setup(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventV2CoordinationDependencyException);
 
@@ -105,7 +108,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 .BeEquivalentTo(expectedEventV2ClientDependencyException);
 
             this.eventV2CoordinationServiceMock.Verify(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -137,7 +141,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                     data: (eventV2CoordinationServiceException.InnerException as Xeption).Data);
 
             this.eventV2CoordinationServiceMock.Setup(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventV2CoordinationServiceException);
 
@@ -155,7 +160,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 .BeEquivalentTo(expectedEventV2ClientDependencyException);
 
             this.eventV2CoordinationServiceMock.Verify(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -180,7 +186,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                     data: someXeption.Data);
 
             this.eventV2CoordinationServiceMock.Setup(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
@@ -198,7 +205,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 .BeEquivalentTo(expectedEventV2ClientServiceException);
 
             this.eventV2CoordinationServiceMock.Verify(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -218,7 +226,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 new OperationCanceledException();
 
             this.eventV2CoordinationServiceMock.Setup(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
@@ -236,7 +245,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventV2CoordinationServiceMock.Verify(service =>
-                service.RetrieveAllEventV2sWithEventAddressV2Async(
+                service.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                    It.IsAny<EventV2Query>(),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 

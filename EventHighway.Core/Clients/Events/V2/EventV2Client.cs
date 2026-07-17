@@ -255,8 +255,9 @@ namespace EventHighway.Core.Clients.Events.V2
             try
             {
                 return (await eventV2CoordinationService
-                    .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken))
-                        .ToList();
+                    .RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+                        eventV2Query, cancellationToken))
+                            .ToList();
             }
             catch (EventV2CoordinationValidationException
                 eventV2CoordinationValidationException)
