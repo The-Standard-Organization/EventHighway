@@ -58,7 +58,60 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
             Guid eventAddressId,
             EventListenerV2Query eventListenerV2Query,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IQueryable<EventListenerV2> eventListenerV2s =
+                await this.eventListenerV2ProcessingService
+                    .RetrieveEventListenerV2sByEventAddressIdAsync(
+                        eventAddressId,
+                        cancellationToken);
+
+            return ApplyEventListenerV2Query(eventListenerV2s, eventListenerV2Query);
+        });
+
+        private static IReadOnlyList<EventListenerV2> ApplyEventListenerV2Query(
+            IQueryable<EventListenerV2> eventListenerV2s,
+            EventListenerV2Query eventListenerV2Query)
+        {
+            if (eventListenerV2Query.HandlerId is not null)
+            {
+                eventListenerV2s = eventListenerV2s.Where(eventListenerV2 =>
+                    eventListenerV2.HandlerId == eventListenerV2Query.HandlerId);
+            }
+
+            if (eventListenerV2Query.EventParticipantV2Id is not null)
+            {
+                eventListenerV2s = eventListenerV2s.Where(eventListenerV2 =>
+                    eventListenerV2.EventParticipantV2Id == eventListenerV2Query.EventParticipantV2Id);
+            }
+
+            if (eventListenerV2Query.Name is not null)
+            {
+                eventListenerV2s = eventListenerV2s.Where(eventListenerV2 =>
+                    eventListenerV2.Name == eventListenerV2Query.Name);
+            }
+
+            if (eventListenerV2Query.CreatedFrom is not null)
+            {
+                eventListenerV2s = eventListenerV2s.Where(eventListenerV2 =>
+                    eventListenerV2.CreatedDate >= eventListenerV2Query.CreatedFrom);
+            }
+
+            if (eventListenerV2Query.CreatedTo is not null)
+            {
+                eventListenerV2s = eventListenerV2s.Where(eventListenerV2 =>
+                    eventListenerV2.CreatedDate <= eventListenerV2Query.CreatedTo);
+            }
+
+            return eventListenerV2s
+                .OrderByDescending(eventListenerV2 => eventListenerV2.CreatedDate)
+                .ThenBy(eventListenerV2 => eventListenerV2.Id)
+                .Skip(eventListenerV2Query.Skip)
+                .Take(eventListenerV2Query.Take)
+                .ToList();
+        }
 
         public ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(
             Guid eventListenerV2Id,
