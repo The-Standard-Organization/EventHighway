@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
 using Microsoft.Extensions.DependencyInjection;
@@ -189,7 +191,8 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public async ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        public async ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default)
         {
             await using AsyncServiceScope serviceScope =
@@ -203,8 +206,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             {
                 return (await eventAddressV2ProcessingService
                     .RetrieveAllEventAddressV2sAsync(cancellationToken))
-                        .ToList()
-                        .AsQueryable();
+                        .ToList();
             }
             catch (EventAddressV2ProcessingDependencyException
                 eventAddressV2ProcessingDependencyException)

@@ -6,7 +6,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -20,16 +22,12 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                     .RegisterEventAddressV2Async(eventAddressV2, cancellationToken),
                 cancellationToken);
 
-        // The deferred IQueryable is materialized inside the database gate (ToList) so its enumeration
-        // never escapes the lock and hits the shared DbContext concurrently; callers then run their
-        // paging/filtering in memory over the returned snapshot.
-        public ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        public ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(async client =>
-                (await client.EventAddressV2Client
-                    .RetrieveAllEventAddressV2sAsync(cancellationToken))
-                    .ToList()
-                    .AsQueryable(),
+                await client.EventAddressV2Client.RetrieveAllEventAddressV2sAsync(
+                    eventAddressV2Query, cancellationToken),
                 cancellationToken);
 
         public ValueTask<EventAddressV2> RemoveEventAddressV2ByIdAsync(

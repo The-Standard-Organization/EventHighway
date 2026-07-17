@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -23,6 +25,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someEventAddressV2Query = new EventAddressV2Query();
 
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
@@ -44,8 +48,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     .ThrowsAsync(eventAddressV2ProcessingDependencyException);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
-                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveAllEventAddressV2sTask =
+                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(
+                    someEventAddressV2Query, randomCancellationToken);
 
             EventAddressV2ClientDependencyException actualEventAddressV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventAddressV2ClientDependencyException>(
@@ -69,6 +74,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventAddressV2Query = new EventAddressV2Query();
+
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
             someInnerException.AddData(GetRandomString(), GetRandomString());
@@ -89,8 +96,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     .ThrowsAsync(eventAddressV2ProcessingServiceException);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
-                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveAllEventAddressV2sTask =
+                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(
+                    someEventAddressV2Query, randomCancellationToken);
 
             EventAddressV2ClientDependencyException actualEventAddressV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventAddressV2ClientDependencyException>(
@@ -114,6 +122,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventAddressV2Query = new EventAddressV2Query();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedEventAddressV2ClientServiceException =
@@ -127,8 +137,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
-                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveAllEventAddressV2sTask =
+                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(
+                    someEventAddressV2Query, randomCancellationToken);
 
             EventAddressV2ClientServiceException actualEventAddressV2ClientServiceException =
                 await Assert.ThrowsAsync<EventAddressV2ClientServiceException>(
@@ -152,6 +163,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventAddressV2Query = new EventAddressV2Query();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
@@ -160,8 +173,9 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
                     .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveAllEventAddressV2sTask =
-                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveAllEventAddressV2sTask =
+                this.eventAddressV2Client.RetrieveAllEventAddressV2sAsync(
+                    someEventAddressV2Query, randomCancellationToken);
 
             OperationCanceledException actualOperationCanceledException =
                 await Assert.ThrowsAsync<OperationCanceledException>(

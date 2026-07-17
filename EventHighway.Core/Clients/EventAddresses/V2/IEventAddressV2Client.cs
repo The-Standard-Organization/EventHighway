@@ -3,10 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 
 namespace EventHighway.Core.Clients.EventAddresses.V2
 {
@@ -58,7 +60,8 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         /// operation that returns a queryable collection of event addresses.</returns>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>

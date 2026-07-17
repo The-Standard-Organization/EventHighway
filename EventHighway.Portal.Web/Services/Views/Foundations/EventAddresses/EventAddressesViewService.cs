@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
@@ -35,9 +36,24 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventAddresses
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<EventAddressV2> addresses =
-                await this.eventHighwayBroker.RetrieveAllEventAddressV2sAsync(
-                    cancellationToken);
+            var eventAddressV2Query = new EventAddressV2Query { Take = 1000 };
+            var addresses = new List<EventAddressV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventAddressV2> addressPage =
+                    await this.eventHighwayBroker.RetrieveAllEventAddressV2sAsync(
+                        eventAddressV2Query, cancellationToken);
+
+                addresses.AddRange(addressPage);
+
+                if (addressPage.Count < eventAddressV2Query.Take)
+                {
+                    break;
+                }
+
+                eventAddressV2Query.Skip += eventAddressV2Query.Take;
+            }
 
             return addresses.Select(AsView).ToList();
         });
