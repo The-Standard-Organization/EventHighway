@@ -64,6 +64,9 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 
             if (string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret) is false)
             {
+                string hashedSecret = this.hashBroker.GenerateSha256Hash(
+                    eventV2.EventParticipantV2Secret);
+
                 IQueryable<EventParticipantSecretV2> eventParticipantSecretV2s =
                     await this.eventParticipantSecretV2Service
                         .RetrieveAllEventParticipantSecretV2sAsync(cancellationToken);
@@ -71,7 +74,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
                 EventParticipantSecretV2 maybeEventParticipantSecretV2 =
                     eventParticipantSecretV2s.FirstOrDefault(secret =>
                         secret.EventParticipantV2Id == eventV2.EventParticipantV2Id
-                            && secret.Secret == eventV2.EventParticipantV2Secret);
+                            && secret.Secret == hashedSecret);
 
                 ValidateSecret(maybeEventParticipantSecretV2, now);
             }

@@ -20,6 +20,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
         private async Task RunSecretValidationFailureScenarioAsync(
             EventParticipantSecretV2 storedSecret,
             string inputSecret,
+            string hashedSecretValue,
             string expectedMessage)
         {
             // given
@@ -59,6 +60,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 broker.GetDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
 
+            this.hashBrokerMock.Setup(broker =>
+                broker.GenerateSha256Hash(inputSecret))
+                    .Returns(hashedSecretValue);
+
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
                     It.IsAny<CancellationToken>()))
@@ -90,6 +95,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 broker.GetDateTimeOffsetAsync(),
                     Times.Once);
 
+            this.hashBrokerMock.Verify(broker =>
+                broker.GenerateSha256Hash(inputSecret),
+                    Times.Once);
+
             this.eventParticipantSecretV2ServiceMock.Verify(service =>
                 service.RetrieveAllEventParticipantSecretV2sAsync(
                     It.IsAny<CancellationToken>()),
@@ -102,6 +111,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
@@ -114,11 +124,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             nonMatchingSecret.EventParticipantV2Id = GetRandomId();
             nonMatchingSecret.Secret = GetRandomString();
             string inputSecret = GetRandomString();
+            string hashedSecretValue = GetRandomString();
 
             // when then
             await RunSecretValidationFailureScenarioAsync(
                 storedSecret: nonMatchingSecret,
                 inputSecret: inputSecret,
+                hashedSecretValue: hashedSecretValue,
                 expectedMessage: "Event participant secret not found.");
         }
 
@@ -127,8 +139,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
         {
             // given
             string inputSecret = GetRandomString();
+            string hashedSecretValue = GetRandomString();
             EventParticipantSecretV2 inactiveSecret = CreateRandomEventParticipantSecretV2();
-            inactiveSecret.Secret = inputSecret;
+            inactiveSecret.Secret = hashedSecretValue;
             inactiveSecret.IsActive = false;
             inactiveSecret.ActiveFrom = null;
             inactiveSecret.ActiveTo = null;
@@ -137,6 +150,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             await RunSecretValidationFailureScenarioAsync(
                 storedSecret: inactiveSecret,
                 inputSecret: inputSecret,
+                hashedSecretValue: hashedSecretValue,
                 expectedMessage: "Event participant secret is not active.");
         }
 
@@ -145,8 +159,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
         {
             // given
             string inputSecret = GetRandomString();
+            string hashedSecretValue = GetRandomString();
             EventParticipantSecretV2 notYetActiveSecret = CreateRandomEventParticipantSecretV2();
-            notYetActiveSecret.Secret = inputSecret;
+            notYetActiveSecret.Secret = hashedSecretValue;
             notYetActiveSecret.IsActive = true;
             notYetActiveSecret.ActiveFrom = DateTimeOffset.MaxValue;
             notYetActiveSecret.ActiveTo = null;
@@ -155,6 +170,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             await RunSecretValidationFailureScenarioAsync(
                 storedSecret: notYetActiveSecret,
                 inputSecret: inputSecret,
+                hashedSecretValue: hashedSecretValue,
                 expectedMessage: "Event participant secret is outside its active window.");
         }
 
@@ -163,8 +179,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
         {
             // given
             string inputSecret = GetRandomString();
+            string hashedSecretValue = GetRandomString();
             EventParticipantSecretV2 expiredSecret = CreateRandomEventParticipantSecretV2();
-            expiredSecret.Secret = inputSecret;
+            expiredSecret.Secret = hashedSecretValue;
             expiredSecret.IsActive = true;
             expiredSecret.ActiveFrom = null;
             expiredSecret.ActiveTo = DateTimeOffset.MinValue;
@@ -173,6 +190,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             await RunSecretValidationFailureScenarioAsync(
                 storedSecret: expiredSecret,
                 inputSecret: inputSecret,
+                hashedSecretValue: hashedSecretValue,
                 expectedMessage: "Event participant secret is outside its active window.");
         }
     }
