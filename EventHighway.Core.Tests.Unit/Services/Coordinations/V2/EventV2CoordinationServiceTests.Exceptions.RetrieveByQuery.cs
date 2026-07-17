@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,7 +40,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         .ThrowsAsync(validationException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query,
                     randomCancellationToken);
@@ -91,7 +92,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         .ThrowsAsync(dependencyException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query,
                     randomCancellationToken);
@@ -148,7 +149,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query,
                     TestContext.Current.CancellationToken);
@@ -188,7 +189,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
             CancellationToken cancelledToken = cancellationTokenSource.Token;
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query,
                     cancelledToken);
@@ -242,7 +243,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                         .ThrowsAsync(serviceException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query,
                     randomCancellationToken);

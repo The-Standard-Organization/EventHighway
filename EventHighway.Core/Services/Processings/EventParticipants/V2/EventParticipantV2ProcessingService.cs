@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,7 +62,7 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 cancellationToken);
         });
 
-        public ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+        public ValueTask<IReadOnlyList<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
             EventParticipantV2Query eventParticipantV2Query,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -107,7 +108,8 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 .OrderByDescending(eventParticipantV2 => eventParticipantV2.CreatedDate)
                 .ThenBy(eventParticipantV2 => eventParticipantV2.Id)
                 .Skip(eventParticipantV2Query.Skip)
-                .Take(eventParticipantV2Query.Take);
+                .Take(eventParticipantV2Query.Take)
+                .ToList();
         });
 
         public ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(

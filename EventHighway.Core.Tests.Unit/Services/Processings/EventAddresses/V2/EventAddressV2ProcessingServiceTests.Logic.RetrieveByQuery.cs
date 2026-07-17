@@ -76,11 +76,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V2
                     .ReturnsAsync(allEventAddressV2s);
 
             // when
-            IQueryable<EventAddressV2> actualEventAddressV2sQuery =
+            IReadOnlyList<EventAddressV2> actualEventAddressV2s =
                 await this.eventAddressV2ProcessingService.RetrieveEventAddressV2sByQueryAsync(
                     inputEventAddressV2Query, randomCancellationToken);
-
-            List<EventAddressV2> actualEventAddressV2s = actualEventAddressV2sQuery.ToList();
 
             // then
             actualEventAddressV2s.Should().BeEquivalentTo(expectedEventAddressV2s, options =>

@@ -106,7 +106,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 .RetrieveAllEventV2sAsync(cancellationToken);
         });
 
-        public ValueTask<IQueryable<EventV2>> RetrieveEventV2sByQueryAsync(
+        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -118,10 +118,10 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 await this.eventV2OrchestrationService
                     .RetrieveAllEventV2sAsync(cancellationToken);
 
-            return ApplyEventV2Query(eventV2s, eventV2Query);
+            return ApplyEventV2Query(eventV2s, eventV2Query).ToList();
         });
 
-        public ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -133,7 +133,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 await this.eventV2OrchestrationService
                     .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken);
 
-            return ApplyEventV2Query(eventV2s, eventV2Query);
+            return ApplyEventV2Query(eventV2s, eventV2Query).ToList();
         });
 
         private static IQueryable<EventV2> ApplyEventV2Query(

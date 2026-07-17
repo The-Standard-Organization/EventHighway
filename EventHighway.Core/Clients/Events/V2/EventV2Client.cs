@@ -203,9 +203,8 @@ namespace EventHighway.Core.Clients.Events.V2
 
             try
             {
-                return (await eventV2CoordinationService
-                    .RetrieveEventV2sByQueryAsync(eventV2Query, cancellationToken))
-                        .ToList();
+                return await eventV2CoordinationService
+                    .RetrieveEventV2sByQueryAsync(eventV2Query, cancellationToken);
             }
             catch (EventV2CoordinationValidationException
                 eventV2CoordinationValidationException)
@@ -254,10 +253,9 @@ namespace EventHighway.Core.Clients.Events.V2
 
             try
             {
-                return (await eventV2CoordinationService
+                return await eventV2CoordinationService
                     .RetrieveEventV2sWithEventAddressV2ByQueryAsync(
-                        eventV2Query, cancellationToken))
-                            .ToList();
+                        eventV2Query, cancellationToken);
             }
             catch (EventV2CoordinationValidationException
                 eventV2CoordinationValidationException)

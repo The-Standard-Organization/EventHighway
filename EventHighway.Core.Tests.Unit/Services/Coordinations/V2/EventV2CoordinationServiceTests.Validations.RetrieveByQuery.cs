@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     innerException: nullEventV2QueryCoordinationException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     nullEventV2Query,
                     randomCancellationToken);
@@ -85,7 +86,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     innerException: nullEventV2QueryCoordinationException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
                     nullEventV2Query,
                     randomCancellationToken);
@@ -164,7 +165,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     innerException: invalidEventV2QueryCoordinationException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveEventV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveEventV2sByQueryTask =
                 this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     invalidEventV2Query,
                     randomCancellationToken);

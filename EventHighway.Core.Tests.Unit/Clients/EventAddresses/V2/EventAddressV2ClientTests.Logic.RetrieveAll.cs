@@ -26,10 +26,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             IQueryable<EventAddressV2> randomEventAddressV2s =
                 CreateRandomEventAddressV2s();
 
-            IQueryable<EventAddressV2> retrievedEventAddressV2s =
-                randomEventAddressV2s;
+            IReadOnlyList<EventAddressV2> retrievedEventAddressV2s =
+                randomEventAddressV2s.ToList();
 
-            IQueryable<EventAddressV2> expectedEventAddressV2s =
+            IReadOnlyList<EventAddressV2> expectedEventAddressV2s =
                 retrievedEventAddressV2s.DeepClone();
 
             var inputEventAddressV2Query = new EventAddressV2Query();

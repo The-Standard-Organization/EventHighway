@@ -68,11 +68,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     .ReturnsAsync(allEventV2s);
 
             // when
-            IQueryable<EventV2> actualEventV2sQuery =
+            IReadOnlyList<EventV2> actualEventV2s =
                 await this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query, randomCancellationToken);
-
-            List<EventV2> actualEventV2s = actualEventV2sQuery.ToList();
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s, options =>
@@ -178,11 +176,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     .ReturnsAsync(allEventV2s);
 
             // when
-            IQueryable<EventV2> actualEventV2sQuery =
+            IReadOnlyList<EventV2> actualEventV2s =
                 await this.eventV2CoordinationService.RetrieveEventV2sByQueryAsync(
                     inputEventV2Query, randomCancellationToken);
-
-            List<EventV2> actualEventV2s = actualEventV2sQuery.ToList();
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s, options =>
@@ -251,11 +247,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                     .ReturnsAsync(allEventV2s);
 
             // when
-            IQueryable<EventV2> actualEventV2sQuery =
+            IReadOnlyList<EventV2> actualEventV2s =
                 await this.eventV2CoordinationService.RetrieveEventV2sWithEventAddressV2ByQueryAsync(
                     inputEventV2Query, randomCancellationToken);
-
-            List<EventV2> actualEventV2s = actualEventV2sQuery.ToList();
 
             // then
             actualEventV2s.Should().BeEquivalentTo(expectedEventV2s, options =>

@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             this.loggingBroker = loggingBroker;
         }
 
-        public ValueTask<IQueryable<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
+        public ValueTask<IReadOnlyList<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
             EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -60,7 +61,8 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
                 .OrderByDescending(eventAddressV2 => eventAddressV2.CreatedDate)
                 .ThenBy(eventAddressV2 => eventAddressV2.Id)
                 .Skip(eventAddressV2Query.Skip)
-                .Take(eventAddressV2Query.Take);
+                .Take(eventAddressV2Query.Take)
+                .ToList();
         });
 
         public ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(

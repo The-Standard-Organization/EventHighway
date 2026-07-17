@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+        ValueTask<IReadOnlyList<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
             EventParticipantV2Query eventParticipantV2Query,
             CancellationToken cancellationToken = default);
 

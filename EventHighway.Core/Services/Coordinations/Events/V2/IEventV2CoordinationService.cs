@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,11 +21,11 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventV2>> RetrieveEventV2sByQueryAsync(
+        ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+        ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default);
 

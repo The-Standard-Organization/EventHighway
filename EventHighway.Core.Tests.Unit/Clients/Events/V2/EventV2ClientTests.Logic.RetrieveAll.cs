@@ -26,10 +26,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
             IQueryable<EventV2> randomEventV2s =
                 CreateRandomEventV2s();
 
-            IQueryable<EventV2> retrievedEventV2s =
-                randomEventV2s;
+            IReadOnlyList<EventV2> retrievedEventV2s =
+                randomEventV2s.ToList();
 
-            IQueryable<EventV2> expectedEventV2s =
+            IReadOnlyList<EventV2> expectedEventV2s =
                 retrievedEventV2s.DeepClone();
 
             var inputEventV2Query = new EventV2Query();

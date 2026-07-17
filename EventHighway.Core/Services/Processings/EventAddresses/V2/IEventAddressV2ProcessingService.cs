@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
 {
     internal interface IEventAddressV2ProcessingService
     {
-        ValueTask<IQueryable<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
+        ValueTask<IReadOnlyList<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
             EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default);
 

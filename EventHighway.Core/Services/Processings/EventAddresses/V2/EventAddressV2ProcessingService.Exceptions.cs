@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
     internal partial class EventAddressV2ProcessingService
     {
         private delegate ValueTask<IQueryable<EventAddressV2>> ReturningEventAddressV2sFunction();
+        private delegate ValueTask<IReadOnlyList<EventAddressV2>> ReturningEventAddressV2ListFunction();
         private delegate ValueTask<EventAddressV2> ReturningEventAddressV2Function();
 
         private async ValueTask<IQueryable<EventAddressV2>> TryCatch(
@@ -24,6 +26,65 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             try
             {
                 return await returningEventAddressV2sFunction();
+            }
+            catch (NullEventAddressV2QueryProcessingException
+                nullEventAddressV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventAddressV2QueryProcessingException);
+            }
+            catch (InvalidEventAddressV2QueryProcessingException
+                invalidEventAddressV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventAddressV2QueryProcessingException);
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventAddressV2ProcessingException =
+                    new TimeoutEventAddressV2ProcessingException(
+                        message: "Failed event address processing timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventAddressV2ProcessingException);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (EventAddressV2DependencyException eventAddressV2DependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventAddressV2DependencyException);
+            }
+            catch (EventAddressV2ServiceException eventAddressV2ServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(eventAddressV2ServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventAddressV2ProcessingServiceException =
+                    new FailedEventAddressV2ProcessingServiceException(
+                        message: "Failed event address service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventAddressV2ProcessingServiceException);
+            }
+        }
+
+        private async ValueTask<IReadOnlyList<EventAddressV2>> TryCatch(
+            ReturningEventAddressV2ListFunction returningEventAddressV2ListFunction)
+        {
+            try
+            {
+                return await returningEventAddressV2ListFunction();
             }
             catch (NullEventAddressV2QueryProcessingException
                 nullEventAddressV2QueryProcessingException)

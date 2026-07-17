@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V2
                     innerException: nullEventAddressV2QueryProcessingException);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveEventAddressV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveEventAddressV2sByQueryTask =
                 this.eventAddressV2ProcessingService.RetrieveEventAddressV2sByQueryAsync(
                     nullEventAddressV2Query,
                     randomCancellationToken);
@@ -105,7 +106,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventAddresses.V2
                     innerException: invalidEventAddressV2QueryProcessingException);
 
             // when
-            ValueTask<IQueryable<EventAddressV2>> retrieveEventAddressV2sByQueryTask =
+            ValueTask<IReadOnlyList<EventAddressV2>> retrieveEventAddressV2sByQueryTask =
                 this.eventAddressV2ProcessingService.RetrieveEventAddressV2sByQueryAsync(
                     invalidEventAddressV2Query,
                     randomCancellationToken);

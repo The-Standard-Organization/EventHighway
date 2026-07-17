@@ -112,13 +112,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.EventParticipants.V2
                     .ReturnsAsync(allEventParticipantV2s);
 
             // when
-            IQueryable<EventParticipantV2> actualEventParticipantV2sQuery =
+            IReadOnlyList<EventParticipantV2> actualEventParticipantV2s =
                 await this.eventParticipantV2ProcessingService
                     .RetrieveEventParticipantV2sByQueryAsync(
                         inputEventParticipantV2Query, randomCancellationToken);
-
-            List<EventParticipantV2> actualEventParticipantV2s =
-                actualEventParticipantV2sQuery.ToList();
 
             // then
             actualEventParticipantV2s.Should().BeEquivalentTo(
