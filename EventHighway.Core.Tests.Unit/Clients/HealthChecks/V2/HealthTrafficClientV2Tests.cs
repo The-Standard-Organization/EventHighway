@@ -8,6 +8,7 @@ using EventHighway.Core.Clients.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -17,6 +18,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
     public partial class HealthTrafficClientV2Tests
     {
         private readonly Mock<IHealthV2CoordinationService> healthV2CoordinationServiceMock;
+        private int coordinationServiceResolutionCount;
         private readonly IHealthTrafficClientV2 healthTrafficClientV2;
 
         public HealthTrafficClientV2Tests()
@@ -24,10 +26,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
             this.healthV2CoordinationServiceMock =
                 new Mock<IHealthV2CoordinationService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.coordinationServiceResolutionCount++;
+
+                return this.healthV2CoordinationServiceMock.Object;
+            });
+
             this.healthTrafficClientV2 =
                 new HealthTrafficClientV2(
-                    healthV2CoordinationService:
-                        this.healthV2CoordinationServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ClientDependencyExceptions()
