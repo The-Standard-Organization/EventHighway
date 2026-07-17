@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
+using EventHighway.Core.Models.Services.Processings.EventHandlers.V2;
 using EventHighway.Core.Services.Foundations.EventHandlers.V2;
 
 namespace EventHighway.Core.Services.Processings.EventHandlers.V2
@@ -82,6 +83,11 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
 
             return unionedEventHandlerV2s.ToList().AsQueryable();
         }));
+
+        public ValueTask<IReadOnlyList<EventHandlerV2>> RetrieveEventHandlerV2sByQueryAsync(
+            EventHandlerV2Query eventHandlerV2Query,
+            CancellationToken cancellationToken = default) =>
+            throw new NotImplementedException();
 
         public ValueTask<IEventHandler> RetrieveOrRegisterEventHandlerV2Async(
             IEventHandler eventHandler,
