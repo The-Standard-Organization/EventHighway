@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -62,8 +62,8 @@ namespace EventHighway.Core.Clients.Events.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous operation
-        /// that returns all events.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns all events, materialized at the time of the call.</returns>
         /// <exception cref="EventV2ClientValidationException">Thrown when validation errors
         /// occur.</exception>
         /// <exception cref="EventV2ClientDependencyException">Thrown when dependency or
@@ -72,10 +72,10 @@ namespace EventHighway.Core.Clients.Events.V2
         /// occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync(
+        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync(
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
+        ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default);
 
         /// <summary>

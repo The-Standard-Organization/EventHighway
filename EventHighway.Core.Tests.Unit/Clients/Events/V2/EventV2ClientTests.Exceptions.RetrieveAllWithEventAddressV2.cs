@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                         .ThrowsAsync(validationException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveAllTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveAllTask =
                 this.eventV2Client.RetrieveAllEventV2sWithEventAddressV2Async(
                     randomCancellationToken);
 
@@ -86,7 +87,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                         .ThrowsAsync(eventV2CoordinationDependencyException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveAllTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveAllTask =
                 this.eventV2Client.RetrieveAllEventV2sWithEventAddressV2Async(
                     randomCancellationToken);
 
@@ -134,7 +135,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                         .ThrowsAsync(eventV2CoordinationServiceException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveAllTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveAllTask =
                 this.eventV2Client.RetrieveAllEventV2sWithEventAddressV2Async(
                     randomCancellationToken);
 
@@ -175,7 +176,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                         .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveAllTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveAllTask =
                 this.eventV2Client.RetrieveAllEventV2sWithEventAddressV2Async(
                     randomCancellationToken);
 
@@ -211,7 +212,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<EventV2>> retrieveAllTask =
+            ValueTask<IReadOnlyList<EventV2>> retrieveAllTask =
                 this.eventV2Client.RetrieveAllEventV2sWithEventAddressV2Async(
                     randomCancellationToken);
 

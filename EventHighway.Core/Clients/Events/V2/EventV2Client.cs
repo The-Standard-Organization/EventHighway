@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,19 +22,21 @@ namespace EventHighway.Core.Clients.Events.V2
     /// </summary>
     internal class EventV2Client : IEventV2Client
     {
-        private readonly IEventV2CoordinationService eventV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventV2Client"/> class with the
         /// specified service provider used to resolve the event coordination service.
+        /// Every operation resolves its dependencies within a new service scope so that
+        /// concurrent operations never share a storage context.
         /// </summary>
         /// <param name="serviceProvider">The service provider used to resolve
         /// dependencies.</param>
         /// <exception cref="ArgumentNullException">Thrown when serviceProvider is
         /// null.</exception>
         public EventV2Client(IServiceProvider serviceProvider) =>
-            this.eventV2CoordinationService =
-                serviceProvider.GetRequiredService<IEventV2CoordinationService>();
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         /// <summary>
         /// Submits an event asynchronously by delegating to the coordination service and
@@ -57,9 +60,16 @@ namespace EventHighway.Core.Clients.Events.V2
             EventV2 eventV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                return await this.eventV2CoordinationService
+                return await eventV2CoordinationService
                     .SubmitEventV2Async(eventV2, cancellationToken);
             }
             catch (EventV2CoordinationValidationException
@@ -115,9 +125,16 @@ namespace EventHighway.Core.Clients.Events.V2
         public async ValueTask FireScheduledPendingEventV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                await this.eventV2CoordinationService
+                await eventV2CoordinationService
                     .FireScheduledPendingEventV2sAsync(cancellationToken);
             }
             catch (EventV2CoordinationValidationException
@@ -172,13 +189,21 @@ namespace EventHighway.Core.Clients.Events.V2
         /// occurs during removal.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public async ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync(
+        public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                return await this.eventV2CoordinationService
-                    .RetrieveAllEventV2sAsync(cancellationToken);
+                return (await eventV2CoordinationService
+                    .RetrieveAllEventV2sAsync(cancellationToken))
+                        .ToList();
             }
             catch (EventV2CoordinationValidationException
                 eventV2CoordinationValidationException)
@@ -214,13 +239,21 @@ namespace EventHighway.Core.Clients.Events.V2
             }
         }
 
-        public async ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
+        public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                return await this.eventV2CoordinationService
-                    .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken);
+                return (await eventV2CoordinationService
+                    .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken))
+                        .ToList();
             }
             catch (EventV2CoordinationValidationException
                 eventV2CoordinationValidationException)
@@ -260,9 +293,16 @@ namespace EventHighway.Core.Clients.Events.V2
             Guid eventV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                return await this.eventV2CoordinationService
+                return await eventV2CoordinationService
                     .RetrieveEventV2ByIdAsync(eventV2Id, cancellationToken);
             }
             catch (EventV2CoordinationValidationException
@@ -303,9 +343,16 @@ namespace EventHighway.Core.Clients.Events.V2
             Guid eventV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventV2CoordinationService eventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventV2CoordinationService>();
+
             try
             {
-                return await this.eventV2CoordinationService
+                return await eventV2CoordinationService
                     .RemoveEventV2ByIdAsync(eventV2Id, cancellationToken);
             }
             catch (EventV2CoordinationValidationException

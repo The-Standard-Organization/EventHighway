@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.Events.V2
                     .ReturnsAsync(retrievedEventV2s);
 
             // when
-            IQueryable<EventV2> actualEventV2s =
+            IReadOnlyList<EventV2> actualEventV2s =
                 await this.eventV2Client
                     .RetrieveAllEventV2sWithEventAddressV2Async(randomCancellationToken);
 

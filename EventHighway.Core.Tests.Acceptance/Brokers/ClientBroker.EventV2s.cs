@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -60,7 +61,7 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
             return DefaultEventParticipantV2Id;
         }
 
-        public async ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync() =>
+        public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sAsync() =>
             await this.eventHighwayClient.V2.EventV2Client.RetrieveAllEventV2sAsync();
 
         public async ValueTask<EventV2> RetrieveEventV2ByIdAsync(Guid eventV2Id) =>

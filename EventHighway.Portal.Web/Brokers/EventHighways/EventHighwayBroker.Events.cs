@@ -5,9 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Clients.EventHighways.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
@@ -16,12 +16,12 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
     public sealed partial class EventHighwayBroker
     {
-        // Server-side EF projection: the listener-event counts translate to correlated COUNT
-        // subqueries, so no listener-event rows are materialized regardless of volume. The
-        // projection MUST run inside the database gate — the gate materializes results before
-        // returning, so any navigation access after the gate would hit detached entities.
-        private static readonly Expression<Func<EventV2, EventV2Summary>> AsEventV2Summary =
-            @event => new EventV2Summary
+        // The client materializes retrievals per operation, so summaries are computed in
+        // memory: events (with their addresses) plus listener events, joined by event id.
+        private static EventV2Summary AsEventV2Summary(
+            EventV2 @event,
+            ILookup<Guid, ListenerEventV2> listenerEventsByEventId) =>
+            new EventV2Summary
             {
                 Id = @event.Id,
                 EventName = @event.EventName,
@@ -36,41 +36,49 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                 EventParticipantV2Id = @event.EventParticipantV2Id,
                 ScheduledDate = @event.ScheduledDate,
                 CreatedDate = @event.CreatedDate,
-                ListenerEventCount = @event.ListenerEventV2s.Count(),
+                ListenerEventCount = listenerEventsByEventId[@event.Id].Count(),
 
-                SucceededListenerEventCount = @event.ListenerEventV2s.Count(
+                SucceededListenerEventCount = listenerEventsByEventId[@event.Id].Count(
                     listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Success)
             };
 
-        // The deferred IQueryable is materialized inside the database gate (ToList) so its enumeration
-        // never escapes the lock and hits the shared DbContext concurrently.
         public ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sAsync(
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(async client =>
                 (await client.EventV2Client
                     .RetrieveAllEventV2sAsync(cancellationToken))
-                    .ToList()
                     .AsQueryable(),
                 cancellationToken);
 
         public ValueTask<List<EventV2Summary>> RetrieveAllEventV2SummariesAsync(
             CancellationToken cancellationToken = default) =>
-            this.clientV2Provider.ExecuteAsync(async client =>
-                (await client.EventV2Client
-                    .RetrieveAllEventV2sAsync(cancellationToken))
-                    .Select(AsEventV2Summary)
-                    .ToList(),
+            this.clientV2Provider.ExecuteAsync(
+                ComputeEventV2SummariesAsync,
                 cancellationToken);
 
         public ValueTask<EventV2Summary?> RetrieveEventV2SummaryByIdAsync(
             Guid eventId,
             CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(async client =>
-                (await client.EventV2Client
-                    .RetrieveAllEventV2sAsync(cancellationToken))
-                    .Where(@event => @event.Id == eventId)
-                    .Select(AsEventV2Summary)
-                    .FirstOrDefault(),
+                (await ComputeEventV2SummariesAsync(client))
+                    .FirstOrDefault(summary => summary.Id == eventId),
                 cancellationToken);
+
+        private static async ValueTask<List<EventV2Summary>> ComputeEventV2SummariesAsync(
+            IClientV2 client)
+        {
+            IReadOnlyList<EventV2> events =
+                await client.EventV2Client
+                    .RetrieveAllEventV2sWithEventAddressV2Async();
+
+            ILookup<Guid, ListenerEventV2> listenerEventsByEventId =
+                (await client.ListenerEventV2Client
+                    .RetrieveAllListenerEventV2sAsync())
+                    .ToLookup(listenerEvent => listenerEvent.EventV2Id);
+
+            return events
+                .Select(@event => AsEventV2Summary(@event, listenerEventsByEventId))
+                .ToList();
+        }
     }
 }
