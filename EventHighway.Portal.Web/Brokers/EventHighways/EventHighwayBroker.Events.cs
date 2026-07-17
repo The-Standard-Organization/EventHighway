@@ -69,9 +69,24 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
         private static async ValueTask<List<EventV2Summary>> ComputeEventV2SummariesAsync(
             IClientV2 client)
         {
-            IReadOnlyList<EventV2> events =
-                await client.EventV2Client
-                    .RetrieveAllEventV2sWithEventAddressV2Async();
+            var eventV2Query = new EventV2Query { Take = 1000 };
+            List<EventV2> events = new List<EventV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventV2> eventV2Page =
+                    await client.EventV2Client
+                        .RetrieveAllEventV2sWithEventAddressV2Async(eventV2Query);
+
+                events.AddRange(eventV2Page);
+
+                if (eventV2Page.Count < eventV2Query.Take)
+                {
+                    break;
+                }
+
+                eventV2Query.Skip += eventV2Query.Take;
+            }
 
             ILookup<Guid, ListenerEventV2> listenerEventsByEventId =
                 (await client.ListenerEventV2Client

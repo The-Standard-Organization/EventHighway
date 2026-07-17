@@ -242,6 +242,7 @@ namespace EventHighway.Core.Clients.Events.V2
         }
 
         public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
+            EventV2Query eventV2Query,
             CancellationToken cancellationToken = default)
         {
             await using AsyncServiceScope serviceScope =
