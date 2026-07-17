@@ -120,10 +120,54 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                     eventV2.EventAddressV2Id == eventV2Query.EventAddressV2Id);
             }
 
+            if (eventV2Query.EventParticipantV2Id is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.EventParticipantV2Id == eventV2Query.EventParticipantV2Id);
+            }
+
+            if (eventV2Query.EventName is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.EventName == eventV2Query.EventName);
+            }
+
             if (eventV2Query.Status is not null)
             {
                 eventV2s = eventV2s.Where(eventV2 =>
                     eventV2.Status == eventV2Query.Status);
+            }
+
+            if (eventV2Query.Type is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.Type == eventV2Query.Type);
+            }
+
+            if (eventV2Query.CreatedFrom is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.CreatedDate >= eventV2Query.CreatedFrom);
+            }
+
+            if (eventV2Query.CreatedTo is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.CreatedDate <= eventV2Query.CreatedTo);
+            }
+
+            if (eventV2Query.ScheduledFrom is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.ScheduledDate != null
+                        && eventV2.ScheduledDate >= eventV2Query.ScheduledFrom);
+            }
+
+            if (eventV2Query.ScheduledTo is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.ScheduledDate != null
+                        && eventV2.ScheduledDate <= eventV2Query.ScheduledTo);
             }
 
             return eventV2s
