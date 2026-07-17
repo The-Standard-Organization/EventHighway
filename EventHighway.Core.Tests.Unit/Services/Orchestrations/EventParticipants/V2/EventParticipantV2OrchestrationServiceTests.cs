@@ -161,6 +161,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 .OnProperty(eventParticipantV2 => eventParticipantV2.IsActive)
                     .Use(true)
 
+                .OnProperty(eventParticipantV2 => eventParticipantV2.IsSecretRequired)
+                    .Use(false)
+
                 .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveFrom)
                     .IgnoreIt()
 
