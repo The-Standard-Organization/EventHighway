@@ -84,9 +84,9 @@ namespace EventHighway.Core.Models.Services.Foundations.EventsArchives.V2
 
         /// <summary>
         /// Gets or sets the identifier of the <see cref="EventParticipants.V2.EventParticipantV2"/> that created or is responsible for this archived event.
-        /// A null value indicates no participant is associated with this event.
+        /// Required — archived events keep their originating participant.
         /// </summary>
-        public Guid? EventParticipantV2Id { get; set; }
+        public Guid EventParticipantV2Id { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="EventParticipants.V2.EventParticipantV2"/> navigation property associated with this archived event.

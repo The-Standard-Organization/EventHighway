@@ -38,6 +38,9 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 (Rule: IsInvalid(eventV2.EventAddressV2Id),
                 Parameter: nameof(EventV2.EventAddressV2Id)),
 
+                (Rule: IsInvalid(eventV2.EventParticipantV2Id),
+                Parameter: nameof(EventV2.EventParticipantV2Id)),
+
                 (Rule: IsInvalid(eventV2.Type),
                 Parameter: nameof(EventV2.Type)),
 
@@ -83,6 +86,9 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
                 (Rule: IsInvalid(eventV2.EventAddressV2Id),
                 Parameter: nameof(EventV2.EventAddressV2Id)),
 
+                (Rule: IsInvalid(eventV2.EventParticipantV2Id),
+                Parameter: nameof(EventV2.EventParticipantV2Id)),
+
                 (Rule: IsInvalid(eventV2.Type),
                 Parameter: nameof(EventV2.Type)),
 
@@ -127,6 +133,9 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
 
                 (Rule: IsInvalid(eventV2.EventAddressV2Id),
                 Parameter: nameof(EventV2.EventAddressV2Id)),
+
+                (Rule: IsInvalid(eventV2.EventParticipantV2Id),
+                Parameter: nameof(EventV2.EventParticipantV2Id)),
 
                 (Rule: IsInvalid(eventV2.Type),
                 Parameter: nameof(EventV2.Type)),

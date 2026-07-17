@@ -15,7 +15,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
     public partial class EventV2ClientTests
     {
         [Fact]
-        public async Task ShouldSubmitEventV2WhenNoParticipantIdIsProvidedAsync()
+        public async Task ShouldNotSubmitEventV2WhenParticipantIdIsNotProvidedAsync()
         {
             // given
             EventAddressV2 randomEventAddressV2 =
@@ -30,18 +30,16 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             EventV2 inputEventV2 =
                 CreateRandomEventV2(inputEventAddressV2Id, scheduledDate);
 
-            inputEventV2.EventParticipantV2Id = null;
+            inputEventV2.EventParticipantV2Id = Guid.Empty;
             inputEventV2.EventParticipantV2Secret = null;
-            EventV2 expectedEventV2 = inputEventV2;
 
             // when
-            EventV2 actualEventV2 =
-                await this.clientBroker.SubmitEventV2Async(inputEventV2);
+            ValueTask<EventV2> submitEventV2Task =
+                this.clientBroker.SubmitEventV2WithoutDefaultsAsync(inputEventV2);
 
             // then
-            actualEventV2.Should().BeEquivalentTo(expectedEventV2);
-
-            await this.clientBroker.RemoveEventV2ByIdAsync(actualEventV2.Id);
+            await Assert.ThrowsAsync<EventV2ClientValidationException>(
+                submitEventV2Task.AsTask);
 
             await this.clientBroker.RemoveEventAddressV2ByIdAsync(
                 inputEventAddressV2Id);

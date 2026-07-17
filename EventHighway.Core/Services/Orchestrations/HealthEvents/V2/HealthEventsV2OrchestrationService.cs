@@ -492,7 +492,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             IQueryable<ListenerEventV2> windowListenerEvents)
         {
             var eventCounts = windowEvents
-                .GroupBy(@event => @event.EventParticipantV2Id ?? Guid.Empty)
+                .GroupBy(@event => @event.EventParticipantV2Id)
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
@@ -519,7 +519,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             var sentCounts = windowEvents
                 .GroupBy(@event => new
                 {
-                    EventParticipantV2Id = @event.EventParticipantV2Id ?? Guid.Empty,
+                    @event.EventParticipantV2Id,
                     @event.EventAddressV2Id
                 })
                 .Select(group => new
