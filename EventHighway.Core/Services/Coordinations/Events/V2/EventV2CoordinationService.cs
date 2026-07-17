@@ -118,6 +118,24 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 await this.eventV2OrchestrationService
                     .RetrieveAllEventV2sAsync(cancellationToken);
 
+            return ApplyEventV2Query(eventV2s, eventV2Query);
+        });
+
+        public async ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+            EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<EventV2> eventV2s =
+                await this.eventV2OrchestrationService
+                    .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken);
+
+            return ApplyEventV2Query(eventV2s, eventV2Query);
+        }
+
+        private static IQueryable<EventV2> ApplyEventV2Query(
+            IQueryable<EventV2> eventV2s,
+            EventV2Query eventV2Query)
+        {
             if (eventV2Query.EventAddressV2Id is not null)
             {
                 eventV2s = eventV2s.Where(eventV2 =>
@@ -179,12 +197,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 .ThenBy(eventV2 => eventV2.Id)
                 .Skip(eventV2Query.Skip)
                 .Take(eventV2Query.Take);
-        });
-
-        public ValueTask<IQueryable<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
-            EventV2Query eventV2Query,
-            CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+        }
 
         public ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default) =>
