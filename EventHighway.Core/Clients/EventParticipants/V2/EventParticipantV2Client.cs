@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventParticipants.V2;
 using Microsoft.Extensions.DependencyInjection;
@@ -124,7 +125,8 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
         }
 
-        public async ValueTask<IEnumerable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
+        public async ValueTask<IReadOnlyList<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
+            EventParticipantV2Query eventParticipantV2Query,
             CancellationToken cancellationToken = default)
         {
             await using AsyncServiceScope serviceScope =

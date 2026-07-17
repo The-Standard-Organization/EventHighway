@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -24,6 +25,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someEventParticipantV2Query = new EventParticipantV2Query();
 
             var someInnerException = new Xeption(message: GetRandomString());
 
@@ -43,9 +46,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(eventParticipantV2ProcessingValidationException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             EventParticipantV2ClientValidationException
                 actualEventParticipantV2ClientValidationException =
@@ -71,6 +75,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventParticipantV2Query = new EventParticipantV2Query();
+
             var someInnerException = new Xeption(message: GetRandomString());
 
             var eventParticipantV2ProcessingDependencyValidationException =
@@ -89,9 +95,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(eventParticipantV2ProcessingDependencyValidationException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             EventParticipantV2ClientValidationException
                 actualEventParticipantV2ClientValidationException =
@@ -117,6 +124,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventParticipantV2Query = new EventParticipantV2Query();
+
             var someInnerException = new Xeption(message: GetRandomString());
 
             var eventParticipantV2ProcessingDependencyException =
@@ -135,9 +144,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(eventParticipantV2ProcessingDependencyException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             EventParticipantV2ClientDependencyException
                 actualEventParticipantV2ClientDependencyException =
@@ -163,6 +173,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventParticipantV2Query = new EventParticipantV2Query();
+
             var someInnerException = new Xeption(message: GetRandomString());
 
             var eventParticipantV2ProcessingServiceException =
@@ -181,9 +193,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(eventParticipantV2ProcessingServiceException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             EventParticipantV2ClientDependencyException
                 actualEventParticipantV2ClientDependencyException =
@@ -209,6 +222,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventParticipantV2Query = new EventParticipantV2Query();
+
             var someException = new Exception(message: GetRandomString());
 
             var expectedEventParticipantV2ClientServiceException =
@@ -222,9 +237,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(someException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             EventParticipantV2ClientServiceException
                 actualEventParticipantV2ClientServiceException =
@@ -250,6 +266,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventParticipantV2Query = new EventParticipantV2Query();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
@@ -258,9 +276,10 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
                     .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IEnumerable<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
+            ValueTask<IReadOnlyList<EventParticipantV2>> retrieveAllEventParticipantV2sTask =
                 this.eventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(randomCancellationToken);
+                    .RetrieveAllEventParticipantV2sAsync(
+                        someEventParticipantV2Query, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
