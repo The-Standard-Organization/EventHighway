@@ -28,6 +28,18 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             {
                 return await returningEventHandlerV2ListFunction();
             }
+            catch (NullEventHandlerV2QueryProcessingException
+                nullEventHandlerV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventHandlerV2QueryProcessingException);
+            }
+            catch (InvalidEventHandlerV2QueryProcessingException
+                invalidEventHandlerV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventHandlerV2QueryProcessingException);
+            }
             catch (OperationCanceledException operationCanceledException)
                 when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
             {

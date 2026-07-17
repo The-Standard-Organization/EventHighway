@@ -72,6 +72,7 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
         TryCatch(new ReturningEventHandlerV2ListFunction(async () =>
         {
             cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventHandlerV2Query(eventHandlerV2Query);
 
             List<EventHandlerV2> unionedEventHandlerV2s =
                 await RetrieveUnionedEventHandlerV2sAsync(cancellationToken);
