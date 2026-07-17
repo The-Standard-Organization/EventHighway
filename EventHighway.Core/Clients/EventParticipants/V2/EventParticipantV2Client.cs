@@ -10,6 +10,7 @@ using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventParticipants.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventParticipants.V2
@@ -18,8 +19,9 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
     {
         private readonly IEventParticipantV2ProcessingService eventParticipantV2ProcessingService;
 
-        public EventParticipantV2Client(IEventParticipantV2ProcessingService eventParticipantV2ProcessingService) =>
-            this.eventParticipantV2ProcessingService = eventParticipantV2ProcessingService;
+        public EventParticipantV2Client(IServiceProvider serviceProvider) =>
+            this.eventParticipantV2ProcessingService =
+                serviceProvider.GetRequiredService<IEventParticipantV2ProcessingService>();
 
         public async ValueTask<EventParticipantV2> AddEventParticipantV2Async(
             EventParticipantV2 eventParticipantV2,
