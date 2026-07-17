@@ -61,10 +61,50 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
                 cancellationToken);
         });
 
-        public ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+        public async ValueTask<IQueryable<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
             EventParticipantV2Query eventParticipantV2Query,
-            CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+            CancellationToken cancellationToken = default)
+        {
+            IQueryable<EventParticipantV2> eventParticipantV2s =
+                await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(
+                    cancellationToken);
+
+            if (eventParticipantV2Query.Name is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.Name == eventParticipantV2Query.Name);
+            }
+
+            if (eventParticipantV2Query.IsActive is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.IsActive == eventParticipantV2Query.IsActive);
+            }
+
+            if (eventParticipantV2Query.IsSecretRequired is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.IsSecretRequired == eventParticipantV2Query.IsSecretRequired);
+            }
+
+            if (eventParticipantV2Query.CreatedFrom is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.CreatedDate >= eventParticipantV2Query.CreatedFrom);
+            }
+
+            if (eventParticipantV2Query.CreatedTo is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.CreatedDate <= eventParticipantV2Query.CreatedTo);
+            }
+
+            return eventParticipantV2s
+                .OrderByDescending(eventParticipantV2 => eventParticipantV2.CreatedDate)
+                .ThenBy(eventParticipantV2 => eventParticipantV2.Id)
+                .Skip(eventParticipantV2Query.Skip)
+                .Take(eventParticipantV2Query.Take);
+        }
 
         public ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
             CancellationToken cancellationToken = default) =>
