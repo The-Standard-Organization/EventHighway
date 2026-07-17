@@ -41,6 +41,18 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
             }
         }
 
+        private static void ValidateSecretIsProvidedWhenRequired(
+            EventParticipantV2 participant,
+            EventV2 eventV2)
+        {
+            if (participant.IsSecretRequired
+                && string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret))
+            {
+                throw new InvalidEventParticipantV2OrchestrationException(
+                    message: "Event participant secret is required.");
+            }
+        }
+
         private static void ValidateSecret(EventParticipantSecretV2 secret, DateTimeOffset now)
         {
             if (secret is null)

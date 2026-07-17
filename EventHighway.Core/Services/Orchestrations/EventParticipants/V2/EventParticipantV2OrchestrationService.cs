@@ -61,6 +61,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
             ValidateParticipant(maybeEventParticipantV2, now);
+            ValidateSecretIsProvidedWhenRequired(maybeEventParticipantV2, eventV2);
 
             if (string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret) is false)
             {
