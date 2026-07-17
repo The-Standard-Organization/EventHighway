@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.Events.V2.Exceptions;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Coordinations.Events.V2;
@@ -238,6 +239,11 @@ namespace EventHighway.Core.Clients.Events.V2
                 throw CreateEventV2ClientServiceException(exception as Xeption);
             }
         }
+
+        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
+            EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 
         public async ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default)
