@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,8 @@ namespace EventHighway.Core.Clients.EventArchives.V2
         /// occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+        ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -51,7 +53,8 @@ namespace EventHighway.Core.Clients.EventArchives.V2
         /// occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+        ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>

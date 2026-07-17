@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
@@ -16,6 +18,8 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
 {
     public partial class EventArchivesViewService : IEventArchivesViewService
     {
+        private const int RetrievalPageSize = 1000;
+
         private readonly IEventHighwayBroker eventHighwayBroker;
         private readonly ILoggingBroker loggingBroker;
 
@@ -48,8 +52,7 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
         TryCatch(async () =>
         {
             List<EventArchiveV2Summary> eventArchiveSummaries =
-                await this.eventHighwayBroker.RetrieveAllEventArchiveV2SummariesAsync(
-                    cancellationToken);
+                await ComputeEventArchiveV2SummariesAsync(cancellationToken);
 
             return eventArchiveSummaries
                 .OrderByDescending(eventArchiveSummary => eventArchiveSummary.ArchivedDate)
@@ -62,12 +65,77 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventArchives
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
+            List<EventArchiveV2Summary> eventArchiveSummaries =
+                await ComputeEventArchiveV2SummariesAsync(cancellationToken);
+
             EventArchiveV2Summary? eventArchiveSummary =
-                await this.eventHighwayBroker.RetrieveEventArchiveV2SummaryByIdAsync(
-                    eventArchiveId, cancellationToken);
+                eventArchiveSummaries.FirstOrDefault(summary => summary.Id == eventArchiveId);
 
             return eventArchiveSummary is null ? null : AsView(eventArchiveSummary);
         });
+
+        private async ValueTask<List<EventArchiveV2Summary>> ComputeEventArchiveV2SummariesAsync(
+            CancellationToken cancellationToken)
+        {
+            var eventArchiveV2Query = new EventArchiveV2Query { Take = RetrievalPageSize };
+            var eventArchives = new List<EventArchiveV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventArchiveV2> eventArchivePage =
+                    await this.eventHighwayBroker.RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+                        eventArchiveV2Query, cancellationToken);
+
+                eventArchives.AddRange(eventArchivePage);
+
+                if (eventArchivePage.Count < eventArchiveV2Query.Take)
+                {
+                    break;
+                }
+
+                eventArchiveV2Query.Skip += eventArchiveV2Query.Take;
+            }
+
+            IQueryable<ListenerEventArchiveV2> listenerEventArchivesQueryable =
+                await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
+                    cancellationToken);
+
+            ILookup<Guid, ListenerEventArchiveV2> listenerEventArchivesByEventArchiveId =
+                listenerEventArchivesQueryable.ToLookup(
+                    listenerEventArchive => listenerEventArchive.EventArchiveV2Id);
+
+            return eventArchives
+                .Select(eventArchive =>
+                    AsEventArchiveV2Summary(eventArchive, listenerEventArchivesByEventArchiveId))
+                .ToList();
+        }
+
+        private static EventArchiveV2Summary AsEventArchiveV2Summary(
+            EventArchiveV2 eventArchive,
+            ILookup<Guid, ListenerEventArchiveV2> listenerEventArchivesByEventArchiveId) =>
+            new EventArchiveV2Summary
+            {
+                Id = eventArchive.Id,
+                EventName = eventArchive.EventName,
+                Content = eventArchive.Content,
+                Type = eventArchive.Type,
+                Status = eventArchive.Status,
+                EventAddressV2Id = eventArchive.EventAddressV2Id,
+
+                EventAddressName =
+                    eventArchive.EventAddressV2 != null ? eventArchive.EventAddressV2.Name : null,
+
+                EventParticipantV2Id = eventArchive.EventParticipantV2Id,
+                ScheduledDate = eventArchive.ScheduledDate,
+                CreatedDate = eventArchive.CreatedDate,
+                ArchivedDate = eventArchive.ArchivedDate,
+                ListenerEventCount = listenerEventArchivesByEventArchiveId[eventArchive.Id].Count(),
+
+                SucceededListenerEventCount =
+                    listenerEventArchivesByEventArchiveId[eventArchive.Id].Count(
+                        listenerEventArchive =>
+                            listenerEventArchive.Status == ListenerEventArchiveStatusV2.Success)
+            };
 
         private static EventArchiveView AsView(EventArchiveV2Summary eventArchiveSummary) =>
             new EventArchiveView

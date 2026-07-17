@@ -7,9 +7,9 @@ using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 
 namespace EventHighway.Portal.Web.Models.Brokers.EventHighways
 {
-    // Flat EF projection of an EventArchiveV2 with its aggregate listener-event counts. The
-    // counts are computed server-side (correlated COUNT subqueries) inside the broker's
-    // database gate, so no listener-event rows are ever materialized regardless of volume.
+    // Flat view-model of an EventArchiveV2 with its aggregate listener-event-archive counts.
+    // The archive rows and listener-event-archive rows are retrieved separately and joined
+    // in-memory by the view service, keeping the client boundary free of IQueryable.
     public class EventArchiveV2Summary
     {
         public Guid Id { get; init; }

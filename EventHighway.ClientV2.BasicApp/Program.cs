@@ -16,6 +16,7 @@ using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
 using EventHighway.SqlServer;
 using Microsoft.Extensions.Configuration;
@@ -542,8 +543,9 @@ public partial class Program
         EventHighwayClient client,
         params (Guid ListenerId, string Participant)[] listeners)
     {
-        IQueryable<ListenerEventV2> all =
-            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync();
+        IReadOnlyList<ListenerEventV2> all =
+            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                new ListenerEventV2Query { Take = 1000 });
 
         Console.WriteLine("\n── Listener results ──");
 
