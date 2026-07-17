@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
+using EventHighway.Core.Models.Services.Processings.EventHandlers.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventHandlers;
 using FluentAssertions;
 using Moq;
@@ -22,14 +23,16 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventHan
                 TestContext.Current.CancellationToken;
 
             List<EventHandlerV2> randomEventHandlerV2s = CreateRandomEventHandlerV2s();
-            List<EventHandlerV2> retrievedEventHandlerV2s = randomEventHandlerV2s;
+            IReadOnlyList<EventHandlerV2> retrievedEventHandlerV2s = randomEventHandlerV2s;
 
             List<EventHandlerView> expectedEventHandlerViews =
-                MapToViews(retrievedEventHandlerV2s);
+                MapToViews(randomEventHandlerV2s);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventHandlerV2sAsync(randomCancellationToken))
-                    .ReturnsAsync(retrievedEventHandlerV2s);
+                broker.RetrieveAllEventHandlerV2sAsync(
+                    It.Is<EventHandlerV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(retrievedEventHandlerV2s);
 
             // when
             List<EventHandlerView> actualEventHandlerViews =
@@ -40,8 +43,10 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventHan
             actualEventHandlerViews.Should().BeEquivalentTo(expectedEventHandlerViews);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventHandlerV2sAsync(randomCancellationToken),
-                    Times.Once);
+                broker.RetrieveAllEventHandlerV2sAsync(
+                    It.Is<EventHandlerV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
