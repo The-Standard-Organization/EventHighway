@@ -11,7 +11,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 {
     internal partial class EventParticipantV2OrchestrationService
     {
-        private static void ValidateParticipantSecretHasParticipantId(EventV2 eventV2)
+        private static void ValidateParticipantIdPresentIfSecretIsPresent(EventV2 eventV2)
         {
             if (string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret) is false)
             {

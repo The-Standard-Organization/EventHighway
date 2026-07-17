@@ -218,6 +218,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             filler.Setup()
                 .OnProperty(eventParticipantV2 => eventParticipantV2.Id).Use(() => Guid.NewGuid())
                 .OnProperty(eventParticipantV2 => eventParticipantV2.IsActive).Use(true)
+                .OnProperty(eventParticipantV2 => eventParticipantV2.IsSecretRequired).Use(false)
                 .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveFrom).IgnoreIt()
                 .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveTo).IgnoreIt()
                 .OnProperty(eventParticipantV2 => eventParticipantV2.EventV2s).IgnoreIt()

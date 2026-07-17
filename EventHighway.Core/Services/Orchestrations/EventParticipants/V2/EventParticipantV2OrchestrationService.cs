@@ -47,7 +47,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 
             if (eventV2.EventParticipantV2Id is null)
             {
-                ValidateParticipantSecretHasParticipantId(eventV2);
+                ValidateParticipantIdPresentIfSecretIsPresent(eventV2);
 
                 return;
             }
