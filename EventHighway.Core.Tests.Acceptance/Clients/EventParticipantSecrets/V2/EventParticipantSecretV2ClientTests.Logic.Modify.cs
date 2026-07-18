@@ -39,6 +39,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 expectedEventParticipantSecretV2 =
                 modifiedEventParticipantSecretV2.DeepClone();
 
+            expectedEventParticipantSecretV2.Secret = null;
+
             // when
             EventParticipantSecretV2 actualEventParticipantSecretV2 =
                 await this.clientBroker

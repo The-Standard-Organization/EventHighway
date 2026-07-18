@@ -43,8 +43,9 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// time of the call.
         /// </summary>
         /// <remarks>
-        /// The returned records carry the stored SHA-256 hash in <c>Secret</c>, never the original
-        /// plaintext. Treat the hash as sensitive and avoid exposing it to untrusted callers.
+        /// The <c>Secret</c> field is redacted (returned as <c>null</c>) on every record — the
+        /// stored value is a hash that callers never need and that should not be exposed, so it is
+        /// stripped at the client boundary.
         /// </remarks>
         /// <param name="eventParticipantSecretV2Query">The search criteria; omitted criteria are
         /// not applied.</param>
@@ -62,6 +63,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// <summary>
         /// Retrieves an event participant secret by its identifier asynchronously.
         /// </summary>
+        /// <remarks>
+        /// The returned record's <c>Secret</c> field is redacted (returned as <c>null</c>); the
+        /// stored hash is stripped at the client boundary.
+        /// </remarks>
         /// <param name="eventParticipantSecretV2Id">The identifier of the event participant secret
         /// to retrieve.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
