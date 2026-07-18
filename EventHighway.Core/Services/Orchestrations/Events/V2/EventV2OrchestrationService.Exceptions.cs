@@ -248,6 +248,18 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V2
                 throw await CreateAndLogDependencyValidationExceptionAsync(
                     eventV2ProcessingDependencyValidationException);
             }
+            catch (EventAddressV2ProcessingValidationException
+                eventAddressV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventAddressV2ProcessingValidationException);
+            }
+            catch (EventAddressV2ProcessingDependencyValidationException
+                eventAddressV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventAddressV2ProcessingDependencyValidationException);
+            }
             catch (EventV2ProcessingDependencyException
                 eventV2ProcessingDependencyException)
             {
@@ -259,6 +271,18 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V2
             {
                 throw await CreateAndLogDependencyExceptionAsync(
                     eventV2ProcessingServiceException);
+            }
+            catch (EventAddressV2ProcessingDependencyException
+                eventAddressV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventAddressV2ProcessingDependencyException);
+            }
+            catch (EventAddressV2ProcessingServiceException
+                eventAddressV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventAddressV2ProcessingServiceException);
             }
             catch (Exception exception)
             {
