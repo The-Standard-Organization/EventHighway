@@ -144,7 +144,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 UpdatedDate = eventArchiveV2.UpdatedDate,
                 ScheduledDate = null,
                 ContentHash = eventArchiveV2.ContentHash,
-                EventAddressV2Id = eventArchiveV2.EventAddressV2Id
+                EventAddressV2Id = eventArchiveV2.EventAddressV2Id,
+                EventParticipantV2Id = eventArchiveV2.EventParticipantV2Id
             };
 
         private ListenerEventV2 MapToListenerEventV2(ListenerEventArchiveV2 listenerEventArchiveV2) =>
