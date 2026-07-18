@@ -9,6 +9,7 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -18,6 +19,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
     public partial class EventArchiveV2ClientTests
     {
         private readonly Mock<IEventArchiveV2Service> eventArchiveV2ServiceMock;
+        private int archiveServiceResolutionCount;
         private readonly IEventArchiveV2Client eventArchiveV2Client;
 
         public EventArchiveV2ClientTests()
@@ -25,10 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             this.eventArchiveV2ServiceMock =
                 new Mock<IEventArchiveV2Service>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.archiveServiceResolutionCount++;
+
+                return this.eventArchiveV2ServiceMock.Object;
+            });
+
             this.eventArchiveV2Client =
                 new EventArchiveV2Client(
-                    eventArchiveV2Service:
-                        this.eventArchiveV2ServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()

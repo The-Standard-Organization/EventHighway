@@ -4,6 +4,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventParticipants.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -24,7 +25,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                     innerException: dependencyValidationException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(dependencyValidationException);
 
             // when
@@ -37,7 +39,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
             actualException.Should().BeEquivalentTo(expectedViewDependencyValidationException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -59,7 +62,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                     innerException: dependencyException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(dependencyException);
 
             // when
@@ -72,7 +76,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
             actualException.Should().BeEquivalentTo(expectedViewDependencyException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
@@ -98,7 +103,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                     innerException: failedServiceException);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(serviceException);
 
             // when
@@ -111,7 +117,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
             actualException.Should().BeEquivalentTo(expectedViewServiceException);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventParticipantV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventParticipantV2sAsync(
+                    It.IsAny<EventParticipantV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>

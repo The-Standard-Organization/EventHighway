@@ -40,7 +40,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             // when
             await this.clientBroker.FireScheduledPendingEventV2sAsync();
 
-            IQueryable<ListenerEventV2> allListenerEventV2s =
+            IReadOnlyList<ListenerEventV2> allListenerEventV2s =
                 await RetrieveAllListenerEventV2sUntilAsync(listenerEventV2 =>
                     listenerEventV2.EventV2Id == eventV2.Id &&
                     listenerEventV2.Status == ListenerEventStatusV2.Success &&

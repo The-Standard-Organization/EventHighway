@@ -4,6 +4,7 @@
 
 using System;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Services.Processings.EventHandlers.V2;
 using EventHighway.Core.Models.Services.Processings.EventHandlers.V2.Exceptions;
 
 namespace EventHighway.Core.Services.Processings.EventHandlers.V2
@@ -67,6 +68,58 @@ namespace EventHighway.Core.Services.Processings.EventHandlers.V2
             }
 
             invalidEventHandlerV2ProcessingException.ThrowIfContainsErrors();
+        }
+
+        private static void ValidateEventHandlerV2Query(EventHandlerV2Query eventHandlerV2Query)
+        {
+            ValidateEventHandlerV2QueryIsNotNull(eventHandlerV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(eventHandlerV2Query.Skip),
+                Parameter: nameof(EventHandlerV2Query.Skip)),
+
+                (Rule: IsOutOfRange(eventHandlerV2Query.Take),
+                Parameter: nameof(EventHandlerV2Query.Take)));
+        }
+
+        private static void ValidateEventHandlerV2QueryIsNotNull(EventHandlerV2Query eventHandlerV2Query)
+        {
+            if (eventHandlerV2Query is null)
+            {
+                throw new NullEventHandlerV2QueryProcessingException(
+                    message: "Event handler query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidEventHandlerV2QueryProcessingException =
+                new InvalidEventHandlerV2QueryProcessingException(
+                    message: "Event handler query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidEventHandlerV2QueryProcessingException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidEventHandlerV2QueryProcessingException.ThrowIfContainsErrors();
         }
     }
 }

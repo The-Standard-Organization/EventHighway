@@ -143,5 +143,83 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
 
             invalidListenerEventArchiveV2Exception.ThrowIfContainsErrors();
         }
+
+        private static void ValidateListenerEventArchiveV2Query(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query)
+        {
+            ValidateListenerEventArchiveV2QueryIsNotNull(listenerEventArchiveV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(listenerEventArchiveV2Query.Skip),
+                Parameter: nameof(ListenerEventArchiveV2Query.Skip)),
+
+                (Rule: IsOutOfRange(listenerEventArchiveV2Query.Take),
+                Parameter: nameof(ListenerEventArchiveV2Query.Take)),
+
+                (Rule: IsBefore(
+                    firstDate: listenerEventArchiveV2Query.CreatedTo,
+                    secondDate: listenerEventArchiveV2Query.CreatedFrom,
+                    secondDateName: nameof(ListenerEventArchiveV2Query.CreatedFrom)),
+                Parameter: nameof(ListenerEventArchiveV2Query.CreatedTo)),
+
+                (Rule: IsBefore(
+                    firstDate: listenerEventArchiveV2Query.ArchivedTo,
+                    secondDate: listenerEventArchiveV2Query.ArchivedFrom,
+                    secondDateName: nameof(ListenerEventArchiveV2Query.ArchivedFrom)),
+                Parameter: nameof(ListenerEventArchiveV2Query.ArchivedTo)));
+        }
+
+        private static void ValidateListenerEventArchiveV2QueryIsNotNull(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query)
+        {
+            if (listenerEventArchiveV2Query is null)
+            {
+                throw new NullListenerEventArchiveV2QueryException(
+                    message: "Listener event archive query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static dynamic IsBefore(
+            DateTimeOffset? firstDate,
+            DateTimeOffset? secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate is not null
+                    && secondDate is not null
+                    && firstDate < secondDate,
+
+                Message = $"Date must be after {secondDateName}"
+            };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidListenerEventArchiveV2QueryException =
+                new InvalidListenerEventArchiveV2QueryException(
+                    message: "Listener event archive query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidListenerEventArchiveV2QueryException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidListenerEventArchiveV2QueryException.ThrowIfContainsErrors();
+        }
     }
 }

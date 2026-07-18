@@ -4,10 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventListeners;
 using FluentAssertions;
 using Moq;
@@ -22,12 +22,14 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventLis
             // given
             Guid addressId = Guid.NewGuid();
             List<EventListenerV2> randomListeners = CreateRandomListeners(addressId, count: 3);
-            IQueryable<EventListenerV2> returnedListeners = randomListeners.AsQueryable();
+            IReadOnlyList<EventListenerV2> returnedListeners = randomListeners;
             List<EventListenerView> expectedViews = MapToViews(randomListeners);
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveEventListenerV2sByEventAddressIdAsync(
-                    addressId, It.IsAny<CancellationToken>()))
+                    addressId,
+                    It.Is<EventListenerV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
                         .ReturnsAsync(returnedListeners);
 
             // when
@@ -40,7 +42,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventLis
 
             this.eventHighwayBrokerMock.Verify(broker =>
                 broker.RetrieveEventListenerV2sByEventAddressIdAsync(
-                    addressId, It.IsAny<CancellationToken>()),
+                    addressId,
+                    It.Is<EventListenerV2Query>(query => query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();

@@ -6,6 +6,7 @@ using System;
 using EventHighway.Core.Clients.ReplayingEvents.V2;
 using EventHighway.Core.Models.Coordinations.ReplayingEvents.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.ReplayingEvents.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -15,6 +16,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ReplayingEvents.V2
     public partial class ReplayingEventV2ClientTests
     {
         private readonly Mock<IReplayingEventV2CoordinationService> replayingEventV2CoordinationServiceMock;
+        private int replayingEventCoordinationServiceResolutionCount;
         private readonly IReplayingEventV2Client replayingEventV2Client;
 
         public ReplayingEventV2ClientTests()
@@ -22,10 +24,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.ReplayingEvents.V2
             this.replayingEventV2CoordinationServiceMock =
                 new Mock<IReplayingEventV2CoordinationService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.replayingEventCoordinationServiceResolutionCount++;
+
+                return this.replayingEventV2CoordinationServiceMock.Object;
+            });
+
             this.replayingEventV2Client =
                 new ReplayingEventV2Client(
-                    replayingEventV2CoordinationService:
-                        this.replayingEventV2CoordinationServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()

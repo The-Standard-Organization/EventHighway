@@ -3,8 +3,10 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using FluentAssertions;
@@ -38,9 +40,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             EventV2 expectedEventV2 = randomEventV2;
 
             // when
-            IQueryable<EventV2> actualEventV2s =
+            IReadOnlyList<EventV2> actualEventV2s =
                 await this.clientBroker
-                    .RetrieveAllEventV2sAsync();
+                    .RetrieveAllEventV2sAsync(new EventV2Query
+                    {
+                        EventAddressV2Id = inputEventAddressV2Id
+                    });
 
             // then
             actualEventV2s.Should()

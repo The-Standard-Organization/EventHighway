@@ -3,10 +3,11 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -20,18 +21,15 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                     .RegisterEventListenerV2Async(eventListenerV2, cancellationToken),
                 cancellationToken);
 
-        // The deferred IQueryable is materialized inside the database gate (ToList) so its enumeration
-        // never escapes the lock and hits the shared DbContext concurrently.
-        public ValueTask<IQueryable<EventListenerV2>>
+        public ValueTask<IReadOnlyList<EventListenerV2>>
             RetrieveEventListenerV2sByEventAddressIdAsync(
                 Guid eventAddressV2Id,
+                EventListenerV2Query eventListenerV2Query,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(async client =>
-                (await client.EventListenerV2Client
+                await client.EventListenerV2Client
                     .RetrieveEventListenerV2sByEventAddressIdAsync(
-                        eventAddressV2Id, cancellationToken))
-                    .ToList()
-                    .AsQueryable(),
+                        eventAddressV2Id, eventListenerV2Query, cancellationToken),
                 cancellationToken);
 
         public ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(

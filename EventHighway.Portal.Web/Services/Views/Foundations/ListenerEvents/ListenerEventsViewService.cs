@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.ListenerEvents;
@@ -27,16 +28,19 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
             this.loggingBroker = loggingBroker;
         }
 
+        private const int RetrievalPageSize = 1000;
+
         public ValueTask<List<ListenerEventView>> RetrieveAllListenerEventsAsync(
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventV2> listenerEvents =
-                await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
+            List<ListenerEventV2> listenerEvents =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventV2Query { Take = RetrievalPageSize },
+                    withEventListener: false,
                     cancellationToken);
 
             return listenerEvents
-                .OrderByDescending(listenerEvent => listenerEvent.CreatedDate)
                 .Select(AsView)
                 .ToList();
         });
@@ -46,13 +50,17 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventV2> listenerEvents =
-                await this.eventHighwayBroker
-                    .RetrieveAllListenerEventV2sWithEventListenerV2Async(cancellationToken);
+            List<ListenerEventV2> listenerEvents =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventV2Query
+                    {
+                        EventV2Id = eventId,
+                        Take = RetrievalPageSize
+                    },
+                    withEventListener: true,
+                    cancellationToken);
 
             return listenerEvents
-                .Where(listenerEvent => listenerEvent.EventV2Id == eventId)
-                .OrderByDescending(listenerEvent => listenerEvent.CreatedDate)
                 .Select(AsViewWithEventListener)
                 .ToList();
         });
@@ -62,8 +70,10 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventV2> listenerEvents =
-                await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
+            List<ListenerEventV2> listenerEvents =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventV2Query { Take = RetrievalPageSize },
+                    withEventListener: false,
                     cancellationToken);
 
             ListenerEventV2? listenerEvent = listenerEvents
@@ -71,6 +81,35 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
 
             return listenerEvent is null ? null : AsView(listenerEvent);
         });
+
+        private async ValueTask<List<ListenerEventV2>> RetrieveAllPagesAsync(
+            ListenerEventV2Query listenerEventV2Query,
+            bool withEventListener,
+            CancellationToken cancellationToken)
+        {
+            var listenerEvents = new List<ListenerEventV2>();
+
+            while (true)
+            {
+                IReadOnlyList<ListenerEventV2> listenerEventPage = withEventListener
+                    ? await this.eventHighwayBroker
+                        .RetrieveAllListenerEventV2sWithEventListenerV2Async(
+                            listenerEventV2Query, cancellationToken)
+                    : await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
+                        listenerEventV2Query, cancellationToken);
+
+                listenerEvents.AddRange(listenerEventPage);
+
+                if (listenerEventPage.Count < listenerEventV2Query.Take)
+                {
+                    break;
+                }
+
+                listenerEventV2Query.Skip += listenerEventV2Query.Take;
+            }
+
+            return listenerEvents;
+        }
 
         public ValueTask<ListenerEventView> RemoveListenerEventByIdAsync(
             Guid listenerEventId,
@@ -89,13 +128,17 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEvents
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventV2> listenerEvents =
-                await this.eventHighwayBroker.RetrieveAllListenerEventV2sAsync(
-                    cancellationToken);
-
-            List<ListenerEventV2> staleListenerEvents = listenerEvents
-                .Where(listenerEvent => listenerEvent.CreatedDate < olderThan)
-                .ToList();
+            List<ListenerEventV2> staleListenerEvents =
+                (await RetrieveAllPagesAsync(
+                    new ListenerEventV2Query
+                    {
+                        CreatedTo = olderThan,
+                        Take = RetrievalPageSize
+                    },
+                    withEventListener: false,
+                    cancellationToken))
+                    .Where(listenerEvent => listenerEvent.CreatedDate < olderThan)
+                    .ToList();
 
             foreach (ListenerEventV2 staleListenerEvent in staleListenerEvents)
             {

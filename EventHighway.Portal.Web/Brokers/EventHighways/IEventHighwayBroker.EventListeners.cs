@@ -3,10 +3,11 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -16,8 +17,9 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             EventListenerV2 eventListenerV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
+        ValueTask<IReadOnlyList<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
             Guid eventAddressV2Id,
+            EventListenerV2Query eventListenerV2Query,
             CancellationToken cancellationToken = default);
 
         ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(

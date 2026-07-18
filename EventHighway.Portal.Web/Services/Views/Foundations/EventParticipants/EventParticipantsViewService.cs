@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Portal.Web.Brokers.DateTimes;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
@@ -35,9 +36,24 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.EventParticipants
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IEnumerable<EventParticipantV2> participants =
-                await this.eventHighwayBroker.RetrieveAllEventParticipantV2sAsync(
-                    cancellationToken);
+            var eventParticipantV2Query = new EventParticipantV2Query { Take = 1000 };
+            var participants = new List<EventParticipantV2>();
+
+            while (true)
+            {
+                IReadOnlyList<EventParticipantV2> participantPage =
+                    await this.eventHighwayBroker.RetrieveAllEventParticipantV2sAsync(
+                        eventParticipantV2Query, cancellationToken);
+
+                participants.AddRange(participantPage);
+
+                if (participantPage.Count < eventParticipantV2Query.Take)
+                {
+                    break;
+                }
+
+                eventParticipantV2Query.Skip += eventParticipantV2Query.Take;
+            }
 
             return participants.Select(AsView).ToList();
         });

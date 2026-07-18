@@ -7,6 +7,7 @@ using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventListeners.V2.Exceptions;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventListeners.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -32,7 +33,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventLis
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveEventListenerV2sByEventAddressIdAsync(
-                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<Guid>(),
+                    It.IsAny<EventListenerV2Query>(),
+                    It.IsAny<CancellationToken>()))
                         .ThrowsAsync(clientValidationException);
 
             // when
@@ -62,7 +65,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventLis
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveEventListenerV2sByEventAddressIdAsync(
-                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<Guid>(),
+                    It.IsAny<EventListenerV2Query>(),
+                    It.IsAny<CancellationToken>()))
                         .ThrowsAsync(dependencyException);
 
             // when
@@ -95,7 +100,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventLis
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveEventListenerV2sByEventAddressIdAsync(
-                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                    It.IsAny<Guid>(),
+                    It.IsAny<EventListenerV2Query>(),
+                    It.IsAny<CancellationToken>()))
                         .ThrowsAsync(serviceException);
 
             // when

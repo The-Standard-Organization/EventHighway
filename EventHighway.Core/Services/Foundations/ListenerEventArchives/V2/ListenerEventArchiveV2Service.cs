@@ -63,6 +63,113 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
                 .SelectAllListenerEventArchiveV2sWithEventListenerV2Async(cancellationToken);
         });
 
+        public ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveListenerEventArchiveV2sByQueryAsync(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventArchiveV2Query(listenerEventArchiveV2Query);
+
+            IQueryable<ListenerEventArchiveV2> listenerEventArchiveV2s =
+                await this.storageBroker.SelectAllListenerEventArchiveV2sAsync(cancellationToken);
+
+            return ApplyListenerEventArchiveV2Query(listenerEventArchiveV2s, listenerEventArchiveV2Query);
+        });
+
+        public ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveListenerEventArchiveV2sWithEventListenerV2ByQueryAsync(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateListenerEventArchiveV2Query(listenerEventArchiveV2Query);
+
+            IQueryable<ListenerEventArchiveV2> listenerEventArchiveV2s =
+                await this.storageBroker
+                    .SelectAllListenerEventArchiveV2sWithEventListenerV2Async(cancellationToken);
+
+            return ApplyListenerEventArchiveV2Query(listenerEventArchiveV2s, listenerEventArchiveV2Query);
+        });
+
+        private static IReadOnlyList<ListenerEventArchiveV2> ApplyListenerEventArchiveV2Query(
+            IQueryable<ListenerEventArchiveV2> listenerEventArchiveV2s,
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query)
+        {
+            if (listenerEventArchiveV2Query.Status is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.Status == listenerEventArchiveV2Query.Status);
+            }
+
+            if (listenerEventArchiveV2Query.EventV2Id is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.EventV2Id == listenerEventArchiveV2Query.EventV2Id);
+            }
+
+            if (listenerEventArchiveV2Query.EventAddressV2Id is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.EventAddressV2Id == listenerEventArchiveV2Query.EventAddressV2Id);
+            }
+
+            if (listenerEventArchiveV2Query.EventListenerV2Id is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.EventListenerV2Id == listenerEventArchiveV2Query.EventListenerV2Id);
+            }
+
+            if (listenerEventArchiveV2Query.EventArchiveV2Id is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.EventArchiveV2Id == listenerEventArchiveV2Query.EventArchiveV2Id);
+            }
+
+            if (listenerEventArchiveV2Query.EventParticipantV2Id is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.EventParticipantV2Id == listenerEventArchiveV2Query.EventParticipantV2Id);
+            }
+
+            if (listenerEventArchiveV2Query.CorrelationId is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.CorrelationId == listenerEventArchiveV2Query.CorrelationId);
+            }
+
+            if (listenerEventArchiveV2Query.CreatedFrom is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.CreatedDate >= listenerEventArchiveV2Query.CreatedFrom);
+            }
+
+            if (listenerEventArchiveV2Query.CreatedTo is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.CreatedDate <= listenerEventArchiveV2Query.CreatedTo);
+            }
+
+            if (listenerEventArchiveV2Query.ArchivedFrom is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.ArchivedDate >= listenerEventArchiveV2Query.ArchivedFrom);
+            }
+
+            if (listenerEventArchiveV2Query.ArchivedTo is not null)
+            {
+                listenerEventArchiveV2s = listenerEventArchiveV2s.Where(listenerEventArchiveV2 =>
+                    listenerEventArchiveV2.ArchivedDate <= listenerEventArchiveV2Query.ArchivedTo);
+            }
+
+            return listenerEventArchiveV2s
+                .OrderByDescending(listenerEventArchiveV2 => listenerEventArchiveV2.ArchivedDate)
+                .ThenBy(listenerEventArchiveV2 => listenerEventArchiveV2.Id)
+                .Skip(listenerEventArchiveV2Query.Skip)
+                .Take(listenerEventArchiveV2Query.Take)
+                .ToList();
+        }
+
         public ValueTask<IEnumerable<ListenerEventArchiveV2>> BulkAddListenerEventArchiveV2sAsync(
             IEnumerable<ListenerEventArchiveV2> listenerEventArchiveV2s,
             CancellationToken cancellationToken = default) =>
@@ -114,7 +221,7 @@ namespace EventHighway.Core.Services.Foundations.ListenerEventArchives.V2
 
             await this.storageBroker.BulkInsertListenerEventArchiveV2sAsync(itemsToBulkAdd, cancellationToken);
 
-            return existingItems.Concat(itemsToBulkAdd).ToList();
+            return (IEnumerable<ListenerEventArchiveV2>)existingItems.Concat(itemsToBulkAdd).ToList();
         });
 
         public ValueTask BulkRemoveListenerEventArchiveV2sAsync(

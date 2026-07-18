@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -28,9 +29,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipants.V2
                 inputEventParticipantV2s.DeepClone();
 
             // when
-            IEnumerable<EventParticipantV2> actualEventParticipantV2s =
+            IReadOnlyList<EventParticipantV2> actualEventParticipantV2s =
                 await this.clientBroker
-                    .RetrieveAllEventParticipantV2sAsync();
+                    .RetrieveAllEventParticipantV2sAsync(new EventParticipantV2Query
+                    {
+                        Take = 1000
+                    });
 
             // then
             HashSet<Guid> expectedIds =

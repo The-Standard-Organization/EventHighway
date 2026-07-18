@@ -265,5 +265,77 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
 
             invalidEventParticipantSecretV2Exception.ThrowIfContainsErrors();
         }
+
+        private static void ValidateEventParticipantSecretV2Query(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query)
+        {
+            ValidateEventParticipantSecretV2QueryIsNotNull(eventParticipantSecretV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(eventParticipantSecretV2Query.Skip),
+                Parameter: nameof(EventParticipantSecretV2Query.Skip)),
+
+                (Rule: IsOutOfRange(eventParticipantSecretV2Query.Take),
+                Parameter: nameof(EventParticipantSecretV2Query.Take)),
+
+                (Rule: IsBefore(
+                    firstDate: eventParticipantSecretV2Query.CreatedTo,
+                    secondDate: eventParticipantSecretV2Query.CreatedFrom,
+                    secondDateName: nameof(EventParticipantSecretV2Query.CreatedFrom)),
+                Parameter: nameof(EventParticipantSecretV2Query.CreatedTo)));
+        }
+
+        private static void ValidateEventParticipantSecretV2QueryIsNotNull(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query)
+        {
+            if (eventParticipantSecretV2Query is null)
+            {
+                throw new NullEventParticipantSecretV2QueryException(
+                    message: "Event participant secret query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static dynamic IsBefore(
+            DateTimeOffset? firstDate,
+            DateTimeOffset? secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate is not null
+                    && secondDate is not null
+                    && firstDate < secondDate,
+
+                Message = $"Date must be after {secondDateName}"
+            };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidEventParticipantSecretV2QueryException =
+                new InvalidEventParticipantSecretV2QueryException(
+                    message: "Event participant secret query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidEventParticipantSecretV2QueryException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidEventParticipantSecretV2QueryException.ThrowIfContainsErrors();
+        }
     }
 }

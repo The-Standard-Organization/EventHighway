@@ -28,9 +28,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                 inputEventParticipantSecretV2s.DeepClone();
 
             // when
-            IEnumerable<EventParticipantSecretV2> actualEventParticipantSecretV2s =
+            IReadOnlyList<EventParticipantSecretV2> actualEventParticipantSecretV2s =
                 await this.clientBroker
-                    .RetrieveAllEventParticipantSecretV2sAsync();
+                    .RetrieveAllEventParticipantSecretV2sAsync(
+                        new EventParticipantSecretV2Query { Take = 1000 });
 
             // then
             HashSet<Guid> expectedIds =

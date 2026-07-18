@@ -8,12 +8,21 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 
 namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
 {
     public interface IListenerEventV2OrchestrationService
     {
         ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
+            CancellationToken cancellationToken = default);
+
+        ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveListenerEventV2sByQueryAsync(
+            ListenerEventV2Query listenerEventV2Query,
+            CancellationToken cancellationToken = default);
+
+        ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveListenerEventV2sWithEventListenerV2ByQueryAsync(
+            ListenerEventV2Query listenerEventV2Query,
             CancellationToken cancellationToken = default);
 
         ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(

@@ -20,12 +20,14 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                     .AddEventParticipantSecretV2Async(eventParticipantSecretV2, cancellationToken),
                 cancellationToken);
 
-        public ValueTask<IEnumerable<EventParticipantSecretV2>>
+        public ValueTask<IReadOnlyList<EventParticipantSecretV2>>
             RetrieveAllEventParticipantSecretV2sAsync(
+                EventParticipantSecretV2Query eventParticipantSecretV2Query,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.EventParticipantSecretV2Client
-                    .RetrieveAllEventParticipantSecretV2sAsync(cancellationToken),
+                    .RetrieveAllEventParticipantSecretV2sAsync(
+                        eventParticipantSecretV2Query, cancellationToken),
                 cancellationToken);
 
         public ValueTask<EventParticipantSecretV2> ModifyEventParticipantSecretV2Async(

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2.Exceptions;
 
 namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
@@ -93,6 +94,78 @@ namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
             }
 
             invalidListenerEventV2OrchestrationException.ThrowIfContainsErrors();
+        }
+
+        private static void ValidateListenerEventV2Query(
+            ListenerEventV2Query listenerEventV2Query)
+        {
+            ValidateListenerEventV2QueryIsNotNull(listenerEventV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(listenerEventV2Query.Skip),
+                Parameter: nameof(ListenerEventV2Query.Skip)),
+
+                (Rule: IsOutOfRange(listenerEventV2Query.Take),
+                Parameter: nameof(ListenerEventV2Query.Take)),
+
+                (Rule: IsBefore(
+                    firstDate: listenerEventV2Query.CreatedTo,
+                    secondDate: listenerEventV2Query.CreatedFrom,
+                    secondDateName: nameof(ListenerEventV2Query.CreatedFrom)),
+                Parameter: nameof(ListenerEventV2Query.CreatedTo)));
+        }
+
+        private static void ValidateListenerEventV2QueryIsNotNull(
+            ListenerEventV2Query listenerEventV2Query)
+        {
+            if (listenerEventV2Query is null)
+            {
+                throw new NullListenerEventV2QueryOrchestrationException(
+                    message: "Listener event query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static dynamic IsBefore(
+            DateTimeOffset? firstDate,
+            DateTimeOffset? secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate is not null
+                    && secondDate is not null
+                    && firstDate < secondDate,
+
+                Message = $"Date must be after {secondDateName}"
+            };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidListenerEventV2QueryOrchestrationException =
+                new InvalidListenerEventV2QueryOrchestrationException(
+                    message: "Listener event query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidListenerEventV2QueryOrchestrationException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidListenerEventV2QueryOrchestrationException.ThrowIfContainsErrors();
         }
     }
 }

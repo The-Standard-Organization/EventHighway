@@ -13,6 +13,7 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Tests.Acceptance.Brokers;
 using EventHighway.EventHandlers;
 using Tynamix.ObjectFiller;
@@ -52,7 +53,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
         private static string GetRandomString() =>
             new MnemonicString(wordCount: 1).GetValue();
 
-        private async ValueTask<IQueryable<ListenerEventV2>> CreateRandomListenerEventV2sAsync()
+        private async ValueTask<IReadOnlyList<ListenerEventV2>> CreateRandomListenerEventV2sAsync()
         {
             EventAddressV2 randomEventAddressV2 =
                 await CreateRandomEventAddressV2Async();
@@ -66,19 +67,21 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.ListenerEvents.V2
                 listenerEventV2 => listenerEventV2.EventAddressV2Id == inputEventAddressV2Id);
         }
 
-        private async ValueTask<IQueryable<ListenerEventV2>>
+        private async ValueTask<IReadOnlyList<ListenerEventV2>>
             RetrieveAllListenerEventV2sUntilAsync(
                 Func<ListenerEventV2, bool> predicate)
         {
-            IQueryable<ListenerEventV2> listenerEventV2s =
-                await this.clientBroker.RetrieveAllListenerEventV2sAsync();
+            IReadOnlyList<ListenerEventV2> listenerEventV2s =
+                await this.clientBroker.RetrieveAllListenerEventV2sAsync(
+                    new ListenerEventV2Query { Take = 1000 });
 
             for (int retries = 0; retries < 20 && !listenerEventV2s.Any(predicate); retries++)
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(250));
 
                 listenerEventV2s =
-                    await this.clientBroker.RetrieveAllListenerEventV2sAsync();
+                    await this.clientBroker.RetrieveAllListenerEventV2sAsync(
+                    new ListenerEventV2Query { Take = 1000 });
             }
 
             return listenerEventV2s;

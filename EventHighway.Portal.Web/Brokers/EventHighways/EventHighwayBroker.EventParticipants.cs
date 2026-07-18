@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -20,12 +21,14 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
                     .AddEventParticipantV2Async(eventParticipantV2, cancellationToken),
                 cancellationToken);
 
-        public ValueTask<IEnumerable<EventParticipantV2>>
+        public ValueTask<IReadOnlyList<EventParticipantV2>>
             RetrieveAllEventParticipantV2sAsync(
+                EventParticipantV2Query eventParticipantV2Query,
                 CancellationToken cancellationToken = default) =>
             this.clientV2Provider.ExecuteAsync(client =>
                 client.EventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync(cancellationToken),
+                    .RetrieveAllEventParticipantV2sAsync(
+                        eventParticipantV2Query, cancellationToken),
                 cancellationToken);
 
         public ValueTask<EventParticipantV2> RetrieveEventParticipantV2ByIdAsync(

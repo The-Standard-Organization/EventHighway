@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,6 +58,58 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             return await this.storageBroker.SelectAllEventParticipantSecretV2sAsync(
                 cancellationToken);
         });
+
+        public ValueTask<IReadOnlyList<EventParticipantSecretV2>> RetrieveEventParticipantSecretV2sByQueryAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventParticipantSecretV2Query(eventParticipantSecretV2Query);
+
+            IQueryable<EventParticipantSecretV2> eventParticipantSecretV2s =
+                await this.storageBroker.SelectAllEventParticipantSecretV2sAsync(cancellationToken);
+
+            return ApplyEventParticipantSecretV2Query(
+                eventParticipantSecretV2s, eventParticipantSecretV2Query);
+        });
+
+        private static IReadOnlyList<EventParticipantSecretV2> ApplyEventParticipantSecretV2Query(
+            IQueryable<EventParticipantSecretV2> eventParticipantSecretV2s,
+            EventParticipantSecretV2Query eventParticipantSecretV2Query)
+        {
+            if (eventParticipantSecretV2Query.EventParticipantV2Id is not null)
+            {
+                eventParticipantSecretV2s = eventParticipantSecretV2s.Where(eventParticipantSecretV2 =>
+                    eventParticipantSecretV2.EventParticipantV2Id
+                        == eventParticipantSecretV2Query.EventParticipantV2Id);
+            }
+
+            if (eventParticipantSecretV2Query.IsActive is not null)
+            {
+                eventParticipantSecretV2s = eventParticipantSecretV2s.Where(eventParticipantSecretV2 =>
+                    eventParticipantSecretV2.IsActive == eventParticipantSecretV2Query.IsActive);
+            }
+
+            if (eventParticipantSecretV2Query.CreatedFrom is not null)
+            {
+                eventParticipantSecretV2s = eventParticipantSecretV2s.Where(eventParticipantSecretV2 =>
+                    eventParticipantSecretV2.CreatedDate >= eventParticipantSecretV2Query.CreatedFrom);
+            }
+
+            if (eventParticipantSecretV2Query.CreatedTo is not null)
+            {
+                eventParticipantSecretV2s = eventParticipantSecretV2s.Where(eventParticipantSecretV2 =>
+                    eventParticipantSecretV2.CreatedDate <= eventParticipantSecretV2Query.CreatedTo);
+            }
+
+            return eventParticipantSecretV2s
+                .OrderByDescending(eventParticipantSecretV2 => eventParticipantSecretV2.CreatedDate)
+                .ThenBy(eventParticipantSecretV2 => eventParticipantSecretV2.Id)
+                .Skip(eventParticipantSecretV2Query.Skip)
+                .Take(eventParticipantSecretV2Query.Take)
+                .ToList();
+        }
 
         public ValueTask<EventParticipantSecretV2> RetrieveEventParticipantSecretV2ByIdAsync(
             Guid eventParticipantSecretV2Id,

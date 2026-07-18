@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Services.Foundations.EventAddresses.V2;
 
 namespace EventHighway.Core.Services.Processings.EventAddresses.V2
@@ -24,6 +26,44 @@ namespace EventHighway.Core.Services.Processings.EventAddresses.V2
             this.eventAddressV2Service = eventAddressV2Service;
             this.loggingBroker = loggingBroker;
         }
+
+        public ValueTask<IReadOnlyList<EventAddressV2>> RetrieveEventAddressV2sByQueryAsync(
+            EventAddressV2Query eventAddressV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventAddressV2Query(eventAddressV2Query);
+
+            IQueryable<EventAddressV2> eventAddressV2s =
+                await this.eventAddressV2Service.RetrieveAllEventAddressV2sAsync(
+                    cancellationToken);
+
+            if (eventAddressV2Query.Name is not null)
+            {
+                eventAddressV2s = eventAddressV2s.Where(eventAddressV2 =>
+                    eventAddressV2.Name == eventAddressV2Query.Name);
+            }
+
+            if (eventAddressV2Query.CreatedFrom is not null)
+            {
+                eventAddressV2s = eventAddressV2s.Where(eventAddressV2 =>
+                    eventAddressV2.CreatedDate >= eventAddressV2Query.CreatedFrom);
+            }
+
+            if (eventAddressV2Query.CreatedTo is not null)
+            {
+                eventAddressV2s = eventAddressV2s.Where(eventAddressV2 =>
+                    eventAddressV2.CreatedDate <= eventAddressV2Query.CreatedTo);
+            }
+
+            return eventAddressV2s
+                .OrderByDescending(eventAddressV2 => eventAddressV2.CreatedDate)
+                .ThenBy(eventAddressV2 => eventAddressV2.Id)
+                .Skip(eventAddressV2Query.Skip)
+                .Take(eventAddressV2Query.Take)
+                .ToList();
+        });
 
         public ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
             CancellationToken cancellationToken = default) =>

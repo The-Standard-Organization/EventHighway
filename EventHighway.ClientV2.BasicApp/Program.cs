@@ -16,6 +16,7 @@ using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
 using EventHighway.SqlServer;
 using Microsoft.Extensions.Configuration;
@@ -147,8 +148,13 @@ public partial class Program
 
         async Task GetOrAddSecretAsync(EventParticipantSecretV2 secret)
         {
-            IEnumerable<EventParticipantSecretV2> existingSecrets =
-                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync();
+            IReadOnlyList<EventParticipantSecretV2> existingSecrets =
+                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
+                    new EventParticipantSecretV2Query
+                    {
+                        EventParticipantV2Id = secret.EventParticipantV2Id,
+                        Take = 1000
+                    });
 
             if (existingSecrets.All(existing => existing.Id != secret.Id))
             {
@@ -542,8 +548,9 @@ public partial class Program
         EventHighwayClient client,
         params (Guid ListenerId, string Participant)[] listeners)
     {
-        IQueryable<ListenerEventV2> all =
-            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync();
+        IReadOnlyList<ListenerEventV2> all =
+            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                new ListenerEventV2Query { Take = 1000 });
 
         Console.WriteLine("\n── Listener results ──");
 

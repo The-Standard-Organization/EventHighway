@@ -166,5 +166,81 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
 
             invalidEventArchiveV2Exception.ThrowIfContainsErrors();
         }
+
+        private static void ValidateEventArchiveV2Query(EventArchiveV2Query eventArchiveV2Query)
+        {
+            ValidateEventArchiveV2QueryIsNotNull(eventArchiveV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(eventArchiveV2Query.Skip),
+                Parameter: nameof(EventArchiveV2Query.Skip)),
+
+                (Rule: IsOutOfRange(eventArchiveV2Query.Take),
+                Parameter: nameof(EventArchiveV2Query.Take)),
+
+                (Rule: IsBefore(
+                    firstDate: eventArchiveV2Query.CreatedTo,
+                    secondDate: eventArchiveV2Query.CreatedFrom,
+                    secondDateName: nameof(EventArchiveV2Query.CreatedFrom)),
+                Parameter: nameof(EventArchiveV2Query.CreatedTo)),
+
+                (Rule: IsBefore(
+                    firstDate: eventArchiveV2Query.ArchivedTo,
+                    secondDate: eventArchiveV2Query.ArchivedFrom,
+                    secondDateName: nameof(EventArchiveV2Query.ArchivedFrom)),
+                Parameter: nameof(EventArchiveV2Query.ArchivedTo)));
+        }
+
+        private static void ValidateEventArchiveV2QueryIsNotNull(EventArchiveV2Query eventArchiveV2Query)
+        {
+            if (eventArchiveV2Query is null)
+            {
+                throw new NullEventArchiveV2QueryException(
+                    message: "Event archive query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static dynamic IsBefore(
+            DateTimeOffset? firstDate,
+            DateTimeOffset? secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate is not null
+                    && secondDate is not null
+                    && firstDate < secondDate,
+
+                Message = $"Date must be after {secondDateName}"
+            };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidEventArchiveV2QueryException =
+                new InvalidEventArchiveV2QueryException(
+                    message: "Event archive query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidEventArchiveV2QueryException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidEventArchiveV2QueryException.ThrowIfContainsErrors();
+        }
     }
 }

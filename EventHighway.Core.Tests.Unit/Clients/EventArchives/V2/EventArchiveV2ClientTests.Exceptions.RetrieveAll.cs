@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventArchiveV2Query = new EventArchiveV2Query();
+
             var expectedEventArchiveV2ClientValidationException =
                 new EventArchiveV2ClientValidationException(
                     message: "Event archive client validation error occurred, fix the errors and try again.",
@@ -33,14 +36,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                     data: (validationException.InnerException as Xeption).Data);
 
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()))
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(validationException);
 
             // when
-            ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
+            ValueTask<IReadOnlyList<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
                 this.eventArchiveV2Client.RetrieveAllEventArchiveV2sAsync(
-                    randomCancellationToken);
+                    someEventArchiveV2Query, randomCancellationToken);
 
             EventArchiveV2ClientValidationException actualEventArchiveV2ClientValidationException =
                 await Assert.ThrowsAsync<EventArchiveV2ClientValidationException>(
@@ -51,8 +54,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2ClientValidationException);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()),
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
@@ -64,6 +67,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someEventArchiveV2Query = new EventArchiveV2Query();
 
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
@@ -81,14 +86,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                     data: (eventArchiveV2DependencyException.InnerException as Xeption).Data);
 
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()))
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventArchiveV2DependencyException);
 
             // when
-            ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
+            ValueTask<IReadOnlyList<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
                 this.eventArchiveV2Client.RetrieveAllEventArchiveV2sAsync(
-                    randomCancellationToken);
+                    someEventArchiveV2Query, randomCancellationToken);
 
             EventArchiveV2ClientDependencyException actualEventArchiveV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventArchiveV2ClientDependencyException>(
@@ -99,8 +104,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2ClientDependencyException);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()),
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
@@ -112,6 +117,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someEventArchiveV2Query = new EventArchiveV2Query();
 
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
@@ -129,14 +136,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                     data: (eventArchiveV2ServiceException.InnerException as Xeption).Data);
 
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()))
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(eventArchiveV2ServiceException);
 
             // when
-            ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
+            ValueTask<IReadOnlyList<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
                 this.eventArchiveV2Client.RetrieveAllEventArchiveV2sAsync(
-                    randomCancellationToken);
+                    someEventArchiveV2Query, randomCancellationToken);
 
             EventArchiveV2ClientDependencyException actualEventArchiveV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventArchiveV2ClientDependencyException>(
@@ -147,8 +154,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2ClientDependencyException);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()),
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
@@ -161,6 +168,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventArchiveV2Query = new EventArchiveV2Query();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedEventArchiveV2ClientServiceException =
@@ -170,14 +179,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                     data: someXeption.Data);
 
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()))
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
+            ValueTask<IReadOnlyList<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
                 this.eventArchiveV2Client.RetrieveAllEventArchiveV2sAsync(
-                    randomCancellationToken);
+                    someEventArchiveV2Query, randomCancellationToken);
 
             EventArchiveV2ClientServiceException actualEventArchiveV2ClientServiceException =
                 await Assert.ThrowsAsync<EventArchiveV2ClientServiceException>(
@@ -188,8 +197,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                 .BeEquivalentTo(expectedEventArchiveV2ClientServiceException);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()),
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
@@ -202,18 +211,20 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someEventArchiveV2Query = new EventArchiveV2Query();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()))
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()))
                         .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
+            ValueTask<IReadOnlyList<EventArchiveV2>> retrieveAllEventArchiveV2sTask =
                 this.eventArchiveV2Client.RetrieveAllEventArchiveV2sAsync(
-                    randomCancellationToken);
+                    someEventArchiveV2Query, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -224,8 +235,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sAsync(
-                    It.IsAny<CancellationToken>()),
+                service.RetrieveEventArchiveV2sByQueryAsync(
+                    It.IsAny<EventArchiveV2Query>(), It.IsAny<CancellationToken>()),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();
