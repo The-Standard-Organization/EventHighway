@@ -71,9 +71,6 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 (Rule: IsInvalid(eventParticipantSecretV2.Id),
                 Parameter: nameof(EventParticipantSecretV2.Id)),
 
-                (Rule: IsInvalid(eventParticipantSecretV2.Secret),
-                Parameter: nameof(EventParticipantSecretV2.Secret)),
-
                 (Rule: IsInvalid(eventParticipantSecretV2.CreatedDate),
                 Parameter: nameof(EventParticipantSecretV2.CreatedDate)),
 

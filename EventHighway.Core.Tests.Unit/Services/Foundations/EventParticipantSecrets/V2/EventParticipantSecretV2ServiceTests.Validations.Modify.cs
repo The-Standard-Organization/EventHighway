@@ -97,10 +97,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
                 values: "Required");
 
             invalidEventParticipantSecretV2Exception.AddData(
-                key: nameof(EventParticipantSecretV2.Secret),
-                values: "Required");
-
-            invalidEventParticipantSecretV2Exception.AddData(
                 key: nameof(EventParticipantSecretV2.CreatedDate),
                 values: "Required");
 
@@ -445,7 +441,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
         }
 
         [Fact]
-        public async Task ShouldThrowValidationExceptionOnModifyIfSecretNotSameAsStorageAndLogItAsync()
+        public async Task ShouldOverrideSecretFromStorageWhenSuppliedSecretNotSameAsStorageOnModifyAsync()
         {
             // given
             CancellationToken randomCancellationToken =
@@ -453,24 +449,29 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
 
             int randomDaysAgo = GetRandomNegativeNumber();
             DateTimeOffset randomDateTime = GetRandomDateTimeOffset();
-            EventParticipantSecretV2 randomEventParticipantSecretV2 = CreateRandomEventParticipantSecretV2(randomDateTime);
-            EventParticipantSecretV2 invalidEventParticipantSecretV2 = randomEventParticipantSecretV2;
-            invalidEventParticipantSecretV2.CreatedDate = randomDateTime.AddDays(randomDaysAgo);
-            EventParticipantSecretV2 storageEventParticipantSecretV2 = invalidEventParticipantSecretV2.DeepClone();
-            invalidEventParticipantSecretV2.Secret = GetRandomString();
 
-            var invalidEventParticipantSecretV2Exception =
-                new InvalidEventParticipantSecretV2Exception(
-                    message: "Event participant secret is invalid, fix the errors and try again.");
+            EventParticipantSecretV2 randomEventParticipantSecretV2 =
+                CreateRandomEventParticipantSecretV2(randomDateTime);
 
-            invalidEventParticipantSecretV2Exception.AddData(
-                key: nameof(EventParticipantSecretV2.Secret),
-                values: "Secret is not the same as storage.");
+            EventParticipantSecretV2 inputEventParticipantSecretV2 = randomEventParticipantSecretV2;
+            inputEventParticipantSecretV2.CreatedDate = randomDateTime.AddDays(randomDaysAgo);
 
-            var expectedEventParticipantSecretV2ValidationException =
-                new EventParticipantSecretV2ValidationException(
-                    message: "Event participant secret validation error occurred, fix the errors and try again.",
-                    innerException: invalidEventParticipantSecretV2Exception);
+            EventParticipantSecretV2 storageEventParticipantSecretV2 =
+                inputEventParticipantSecretV2.DeepClone();
+
+            string storedSecret = storageEventParticipantSecretV2.Secret;
+
+            // the caller supplies a Secret that differs from storage; it must be overridden with
+            // the stored value (the secret is immutable), so modify succeeds instead of failing.
+            inputEventParticipantSecretV2.Secret = GetRandomString();
+
+            EventParticipantSecretV2 persistedEventParticipantSecretV2 =
+                inputEventParticipantSecretV2.DeepClone();
+
+            persistedEventParticipantSecretV2.Secret = storedSecret;
+
+            EventParticipantSecretV2 expectedEventParticipantSecretV2 =
+                persistedEventParticipantSecretV2.DeepClone();
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
@@ -478,21 +479,26 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
 
             this.storageBrokerMock.Setup(broker =>
                 broker.SelectEventParticipantSecretV2ByIdAsync(
-                    invalidEventParticipantSecretV2.Id, It.IsAny<CancellationToken>()))
+                    inputEventParticipantSecretV2.Id, randomCancellationToken))
                         .ReturnsAsync(storageEventParticipantSecretV2);
 
-            // when
-            ValueTask<EventParticipantSecretV2> modifyEventParticipantSecretV2Task =
-                this.eventParticipantSecretV2Service.ModifyEventParticipantSecretV2Async(
-                    invalidEventParticipantSecretV2, randomCancellationToken);
+            this.storageBrokerMock.Setup(broker =>
+                broker.UpdateEventParticipantSecretV2Async(
+                    It.Is<EventParticipantSecretV2>(secret => secret.Secret == storedSecret),
+                    randomCancellationToken))
+                        .ReturnsAsync(persistedEventParticipantSecretV2);
 
-            EventParticipantSecretV2ValidationException actualEventParticipantSecretV2ValidationException =
-                await Assert.ThrowsAsync<EventParticipantSecretV2ValidationException>(
-                    modifyEventParticipantSecretV2Task.AsTask);
+            // when
+            EventParticipantSecretV2 actualEventParticipantSecretV2 =
+                await this.eventParticipantSecretV2Service
+                    .ModifyEventParticipantSecretV2Async(
+                        inputEventParticipantSecretV2, randomCancellationToken);
 
             // then
-            actualEventParticipantSecretV2ValidationException.Should()
-                .BeEquivalentTo(expectedEventParticipantSecretV2ValidationException);
+            actualEventParticipantSecretV2.Should()
+                .BeEquivalentTo(expectedEventParticipantSecretV2);
+
+            actualEventParticipantSecretV2.Secret.Should().Be(storedSecret);
 
             this.dateTimeBrokerMock.Verify(broker =>
                 broker.GetDateTimeOffsetAsync(),
@@ -500,19 +506,14 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
 
             this.storageBrokerMock.Verify(broker =>
                 broker.SelectEventParticipantSecretV2ByIdAsync(
-                    invalidEventParticipantSecretV2.Id, It.IsAny<CancellationToken>()),
+                    inputEventParticipantSecretV2.Id, randomCancellationToken),
                         Times.Once);
-
-            this.loggingBrokerMock.Verify(broker =>
-                broker.LogErrorAsync(It.Is<Xeption>(
-                    actual => actual.SameExceptionAs(
-                        expectedEventParticipantSecretV2ValidationException))),
-                            Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
                 broker.UpdateEventParticipantSecretV2Async(
-                    It.IsAny<EventParticipantSecretV2>(), It.IsAny<CancellationToken>()),
-                        Times.Never);
+                    It.Is<EventParticipantSecretV2>(secret => secret.Secret == storedSecret),
+                    randomCancellationToken),
+                        Times.Once);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
