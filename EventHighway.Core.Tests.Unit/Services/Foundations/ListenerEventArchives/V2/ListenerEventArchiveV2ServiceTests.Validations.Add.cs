@@ -106,6 +106,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEventArchive
                 values: "Required");
 
             invalidListenerEventArchiveV2Exception.AddData(
+                key: nameof(ListenerEventArchiveV2.EventParticipantV2Id),
+                values: "Required");
+
+            invalidListenerEventArchiveV2Exception.AddData(
                 key: nameof(ListenerEventArchiveV2.Status),
                 values: "Value is not recognized");
 
