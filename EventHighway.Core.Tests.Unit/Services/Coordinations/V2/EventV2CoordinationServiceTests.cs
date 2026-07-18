@@ -7,8 +7,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -31,6 +33,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
         private readonly Mock<IEventV2OrchestrationService> eventV2OrchestrationServiceMock;
         private readonly Mock<IEventFiringV2OrchestrationService> eventFiringV2OrchestrationServiceMock;
         private readonly Mock<IEventParticipantV2OrchestrationService> eventParticipantV2OrchestrationServiceMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventV2CoordinationService eventV2CoordinationService;
@@ -48,16 +51,23 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                 new Mock<IEventParticipantV2OrchestrationService>(
                     behavior: MockBehavior.Strict);
 
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>();
+
             this.dateTimeBrokerMock = new Mock<IDateTimeBroker>(
                 behavior: MockBehavior.Strict);
 
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetBatchConfiguration())
+                    .Returns(new BatchConfiguration { BatchSizeForBulkProcessing = 1000 });
 
             this.eventV2CoordinationService =
                 new EventV2CoordinationService(
                     eventV2OrchestrationService: this.eventV2OrchestrationServiceMock.Object,
                     eventFiringV2OrchestrationService: this.eventFiringV2OrchestrationServiceMock.Object,
                     eventParticipantV2OrchestrationService: this.eventParticipantV2OrchestrationServiceMock.Object,
+                    configurationBroker: this.configurationBrokerMock.Object,
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }

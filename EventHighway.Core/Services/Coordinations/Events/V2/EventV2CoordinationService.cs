@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -24,6 +26,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         private readonly IEventV2OrchestrationService eventV2OrchestrationService;
         private readonly IEventFiringV2OrchestrationService eventFiringV2OrchestrationService;
         private readonly IEventParticipantV2OrchestrationService eventParticipantV2OrchestrationService;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
@@ -31,12 +34,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             IEventV2OrchestrationService eventV2OrchestrationService,
             IEventFiringV2OrchestrationService eventFiringV2OrchestrationService,
             IEventParticipantV2OrchestrationService eventParticipantV2OrchestrationService,
+            IConfigurationBroker configurationBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventV2OrchestrationService = eventV2OrchestrationService;
             this.eventFiringV2OrchestrationService = eventFiringV2OrchestrationService;
             this.eventParticipantV2OrchestrationService = eventParticipantV2OrchestrationService;
+            this.configurationBroker = configurationBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
@@ -232,36 +237,60 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            List<EventV2> eventV2s =
-                  (await this.eventV2OrchestrationService
-                      .RetrieveScheduledPendingEventV2sAsync(cancellationToken))
-                          .ToList();
+            BatchConfiguration batchConfiguration =
+                this.configurationBroker.GetBatchConfiguration();
 
-            foreach (EventV2 eventV2 in eventV2s)
+            int take = batchConfiguration.BatchSizeForBulkProcessing;
+            var attemptedEventV2Ids = new HashSet<Guid>();
+
+            do
             {
-                if (eventV2.Status == EventStatusV2.Quarantined)
-                    continue;
-
-                try
-                {
+                IQueryable<EventV2> scheduledPendingEventV2s =
                     await this.eventV2OrchestrationService
-                        .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
+                        .RetrieveScheduledPendingEventV2sAsync(cancellationToken);
 
-                    await this.eventFiringV2OrchestrationService
-                        .FireEventV2Async(eventV2, cancellationToken);
-                }
-                catch (EventV2OrchestrationDependencyValidationException)
+                List<EventV2> batchOfEventV2s = take > 0
+                    ? scheduledPendingEventV2s.OrderBy(eventV2 => eventV2.ScheduledDate)
+                        .Take(take).ToList()
+                    : scheduledPendingEventV2s.ToList();
+
+                List<EventV2> freshEventV2s =
+                    batchOfEventV2s.Where(eventV2 =>
+                        !attemptedEventV2Ids.Contains(eventV2.Id)).ToList();
+
+                if (!freshEventV2s.Any())
+                    break;
+
+                foreach (EventV2 eventV2 in freshEventV2s)
                 {
-                    // Another sweep (or host) already claimed this scheduled event by
-                    // transitioning it out of the pending state, so skip it quietly to
-                    // avoid dispatching its listeners twice.
+                    attemptedEventV2Ids.Add(eventV2.Id);
+
+                    if (eventV2.Status == EventStatusV2.Quarantined)
+                        continue;
+
+                    try
+                    {
+                        int claimedEventV2Count =
+                            await this.eventV2OrchestrationService
+                                .TryClaimScheduledEventV2Async(eventV2.Id, cancellationToken);
+
+                        if (claimedEventV2Count == 0)
+                            continue;
+
+                        await this.eventFiringV2OrchestrationService
+                            .FireEventV2Async(eventV2, cancellationToken);
+                    }
+                    catch (Exception exception)
+                        when (exception is not OperationCanceledException)
+                    {
+                        await this.loggingBroker.LogErrorAsync(exception);
+                    }
                 }
-                catch (Exception exception)
-                    when (exception is not OperationCanceledException)
-                {
-                    await this.loggingBroker.LogErrorAsync(exception);
-                }
+
+                if (take <= 0)
+                    break;
             }
+            while (true);
         });
 
         public ValueTask<EventV2> RemoveEventV2ByIdAsync(
