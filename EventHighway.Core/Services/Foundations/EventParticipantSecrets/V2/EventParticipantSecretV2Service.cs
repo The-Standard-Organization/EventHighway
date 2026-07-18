@@ -140,6 +140,11 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 await this.storageBroker.SelectEventParticipantSecretV2ByIdAsync(
                     eventParticipantSecretV2.Id, cancellationToken);
 
+            if (maybeEventParticipantSecretV2 is not null)
+            {
+                eventParticipantSecretV2.Secret = maybeEventParticipantSecretV2.Secret;
+            }
+
             ValidateEventParticipantSecretV2AgainstStorage(eventParticipantSecretV2, maybeEventParticipantSecretV2);
 
             return await this.storageBroker.UpdateEventParticipantSecretV2Async(
