@@ -106,26 +106,26 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken)
         {
-            IEnumerable<string> requiredKeys =
-                string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
-                    ? Array.Empty<string>()
-                    : await this.eventCallV2ProcessingService
-                        .SplitPromotedPropertyKeysAsync(
-                            eventListenerV2.PromotedProperties,
-                            cancellationToken);
-
-            var eventCallV2 = new EventCallV2
-            {
-                Content = eventV2.Content,
-                HandlerId = eventListenerV2.HandlerId,
-                HandlerName = eventListenerV2.HandlerName,
-                FilterCriteria = eventListenerV2.FilterCriteria,
-                RequiredPromotedProperties = requiredKeys,
-                Response = null
-            };
-
             try
             {
+                IEnumerable<string> requiredKeys =
+                    string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
+                        ? Array.Empty<string>()
+                        : await this.eventCallV2ProcessingService
+                            .SplitPromotedPropertyKeysAsync(
+                                eventListenerV2.PromotedProperties,
+                                cancellationToken);
+
+                var eventCallV2 = new EventCallV2
+                {
+                    Content = eventV2.Content,
+                    HandlerId = eventListenerV2.HandlerId,
+                    HandlerName = eventListenerV2.HandlerName,
+                    FilterCriteria = eventListenerV2.FilterCriteria,
+                    RequiredPromotedProperties = requiredKeys,
+                    Response = null
+                };
+
                 eventCallV2.PromotedProperties =
                     string.IsNullOrWhiteSpace(eventV2.Content)
                         || string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
