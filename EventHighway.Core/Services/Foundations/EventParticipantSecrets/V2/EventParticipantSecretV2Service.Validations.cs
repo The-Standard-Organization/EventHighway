@@ -11,6 +11,8 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
 {
     internal partial class EventParticipantSecretV2Service
     {
+        private const int MinimumSecretLength = 36;
+
         private async ValueTask ValidateEventParticipantSecretV2OnAddAsync(
             EventParticipantSecretV2 eventParticipantSecretV2)
         {
@@ -23,6 +25,9 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 Parameter: nameof(EventParticipantSecretV2.Id)),
 
                 (Rule: IsInvalid(eventParticipantSecretV2.Secret),
+                Parameter: nameof(EventParticipantSecretV2.Secret)),
+
+                (Rule: IsTooShort(eventParticipantSecretV2.Secret),
                 Parameter: nameof(EventParticipantSecretV2.Secret)),
 
                 (Rule: IsInvalid(eventParticipantSecretV2.CreatedDate),
@@ -166,6 +171,14 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
         {
             Condition = String.IsNullOrWhiteSpace(text),
             Message = "Required"
+        };
+
+        private static dynamic IsTooShort(string text) => new
+        {
+            Condition = String.IsNullOrWhiteSpace(text) is false
+                && text.Length < MinimumSecretLength,
+
+            Message = $"Text must be at least {MinimumSecretLength} characters long"
         };
 
         private static dynamic IsInvalid(DateTimeOffset date) => new
