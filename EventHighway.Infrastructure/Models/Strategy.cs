@@ -17,7 +17,13 @@ namespace EventHighway.Infrastructure.Models
         [YamlMember(Order = 1, Alias = "max-parallel", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
         public int? MaxParallel { get; set; }
 
-        [YamlMember(Order = 2, Alias = "matrix", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
+        [YamlMember(Order = 3, Alias = "matrix", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
         public Dictionary<string, object> Matrix { get; set; }
+
+        [YamlMember(Order = 4, Alias = "include", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
+        public List<Dictionary<string, string>> Include { get; set; }
+
+        [YamlMember(Order = 5, Alias = "exclude", DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
+        public List<Dictionary<string, string>> Exclude { get; set; }
     }
 }

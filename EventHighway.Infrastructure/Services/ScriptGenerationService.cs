@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using ADotNet.Clients;
 using ADotNet.Models.Pipelines.GithubPipelines.DotNets;
-using EventHighway.Infrastructure.Models;
+using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks;
+using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks.SetupDotNetTaskV4s;
+using ADotNet.Models.Pipelines.GithubPipelines.DotNets.Tasks.SetupDotNetTaskV5s;
 
 namespace EventHighway.Infrastructure.Services
 {
@@ -22,201 +24,336 @@ namespace EventHighway.Infrastructure.Services
             string projectName,
             string dotNetVersion)
         {
-            GitHubPipelineBuilder.CreateNewPipeline()
-              .SetName(projectName)
-              .OnPush(branchName)
-              .OnPullRequest(branchName)
+            var githubPipeline = new Models.GithubPipeline
+            {
+                Name = projectName,
 
-              .AddJob("build", job => job
-                  .WithName("Build & Unit Tests")
-                  .RunsOn(BuildMachines.UbuntuLatest)
-                  .AddCheckoutStep("Check out")
-                  .AddSetupDotNetStep(dotNetVersion)
-                  .AddRestoreStep()
-                  .AddBuildStep()
-                  .AddTestStep(
-                      name: "Test - Core Unit",
-                      command:
-                          "dotnet test EventHighway.Core.Tests.Unit " +
-                          "--no-build --verbosity normal")
-                  .AddTestStep(
-                      name: "Test - EventHandlers Unit",
-                      command:
-                          "dotnet test EventHighway.EventHandlers.Tests.Unit " +
-                          "--no-build --verbosity normal")
-                  .AddTestStep(
-                      name: "Test - EventHandlers Acceptance",
-                      command:
-                          "dotnet test EventHighway.EventHandlers.Tests.Acceptance " +
-                          "--no-build --verbosity normal")
-                  .AddTestStep(
-                      name: "Test - Portal Unit",
-                      command:
-                          "dotnet test EventHighway.Portal.Web.Tests.Unit " +
-                          "--no-build --verbosity normal"))
+                OnEvents = new Models.Events
+                {
+                    Push = new Models.PushEvent { Branches = new[] { branchName } },
 
-              .AddJob("build-integration", job => job
-                  .WithName("Build & Acceptance Tests (DB matrix)")
-                  .RunsOn(BuildMachines.UbuntuLatest)
-                  .WithFailFast(false)
-                  .AddMatrix("provider", "sqlserver", "postgres")
-                    .AddMatrixInclude(new()
+                    PullRequest = new Models.PullRequestEvent
                     {
-                        ["provider"] = "sqlserver",
+                        Types = new[] { "opened", "synchronize", "reopened", "closed" },
+                        Branches = new[] { branchName }
+                    }
+                },
 
-                        ["connection_string"] =
-                                $"Server=localhost;Database=EventHighwayDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;MultipleActiveResultSets=true;Pooling=false"
-                    })
-                    .AddMatrixInclude(new()
+                Jobs = new Dictionary<string, Models.Job>
+                {
                     {
-                        ["provider"] = "postgres",
-
-                        ["connection_string"] =
-                            $"Host=localhost;Database=EventHighwayDb;Username=postgres;Password=postgres;Pooling=false"
-                    })
-                    .AddService("sqlserver", new Models.Service
-                    {
-                        Image = "mcr.microsoft.com/mssql/server:2019-latest",
-                        Environment = new()
+                        "build",
+                        new Models.Job
                         {
-                            ["ACCEPT_EULA"] = "Y",
-                            ["SA_PASSWORD"] = "Your_password123!"
-                        },
-                        Ports = new() { "1433:1433" },
-                        Options =
-                        "--health-cmd \"/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Your_password123! -N -C -Q 'SELECT 1' || exit 1\" " +
-                        "--health-interval 10s --health-timeout 5s --health-retries 10"
-                    })
-                    .AddService("postgres", new Models.Service
+                            Name = "Build & Unit Tests",
+                            RunsOn = BuildMachines.UbuntuLatest,
+
+                            Steps = new List<GithubTask>
+                            {
+                                new CheckoutTaskV5
+                                {
+                                    Name = "Check out"
+                                },
+
+                                new SetupDotNetTaskV5
+                                {
+                                    Name = "Setup Dot Net Version",
+
+                                    With = new TargetDotNetVersionV5
+                                    {
+                                        DotNetVersion = dotNetVersion
+                                    }
+                                },
+
+                                new RestoreTask
+                                {
+                                    Name = "Restore"
+                                },
+
+                                new DotNetBuildTask
+                                {
+                                    Name = "Build"
+                                },
+
+                                new TestTask
+                                {
+                                    Name = "Test - Core Unit",
+                                    Run = "dotnet test EventHighway.Core.Tests.Unit --no-build --verbosity normal"
+                                },
+
+                                new TestTask
+                                {
+                                    Name = "Test - EventHandlers Unit",
+                                    Run = "dotnet test EventHighway.EventHandlers.Tests.Unit --no-build --verbosity normal"
+                                },
+
+                                new TestTask
+                                {
+                                    Name = "Test - EventHandlers Acceptance",
+                                    Run = "dotnet test EventHighway.EventHandlers.Tests.Acceptance --no-build --verbosity normal"
+                                },
+
+                                new TestTask
+                                {
+                                    Name = "Test - Portal Unit",
+                                    Run = "dotnet test EventHighway.Portal.Web.Tests.Unit --no-build --verbosity normal"
+                                }
+                            }
+                        }
+                    },
                     {
-                        Image = "postgres:17",
-                        Environment = new()
+                        "build-integration",
+                        new Models.Job
                         {
-                            ["POSTGRES_DB"] = "EventHighwayDb",
-                            ["POSTGRES_USER"] = "postgres",
-                            ["POSTGRES_PASSWORD"] = "postgres"
-                        },
-                        Ports = new() { "5432:5432" },
-                        Options = "--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5"
-                    })
-                  .AddEnvironmentVariables(new Dictionary<string, string>
-                  {
-                      ["PROVIDER"] =
-                          "${{ matrix.provider }}",
+                            Name = "Build & Acceptance Tests (DB matrix)",
+                            RunsOn = BuildMachines.UbuntuLatest,
 
-                      ["CONNECTION_STRING"] =
-                          "${{ matrix.connection_string }}"
-                  })
-                  .AddCheckoutStep()
-                  .AddSetupDotNetStep("10.0.100")
-                  .AddRestoreStep()
-                  .AddBuildStep()
-                  .AddGenericStep(
-                      name: "Test",
-                      runCommand:
-                          "dotnet test EventHighway.Core.Tests.Acceptance --no-build --verbosity normal"))
+                            Strategy = new Models.Strategy
+                            {
+                                FailFast = false,
 
-              .AddJob("add_tag", job => job
-                  .WithName("Tag and Release")
-                  .RunsOn(BuildMachines.UbuntuLatest)
-                  .DependsOn("build", "build-integration")
-                  .WithCondition(
-                      "needs.build.result == 'success' && " +
-                      "needs.build-integration.result == 'success' && " +
-                      "github.event.pull_request.merged && " +
-                      "github.event.pull_request.base.ref == 'main' && " +
-                      "startsWith(github.event.pull_request.title, 'RELEASES:') && " +
-                      "contains(github.event.pull_request.labels.*.name, 'RELEASES')")
-                  .AddActionStep(
-                      name: "Checkout code",
-                      uses: "actions/checkout@v5",
-                      with: new Dictionary<string, string>
-                      {
-                          ["token"] = "${{ secrets.PAT_FOR_TAGGING }}"
-                      })
-                  .AddGenericStep(
-                      name: "Configure Git",
-                      runCommand:
-                          "git config user.name \"GitHub Action\"\n" +
-                          "git config user.email \"action@github.com\"")
-                  .AddGenericStep(
-                      id: "extract_version",
-                      name: "Extract Version",
-                      shell: "bash",
-                      runCommand:
-                          "sudo apt-get update\n" +
-                          "sudo apt-get install -y xmlstarlet\n" +
-                          "version_number=$(xmlstarlet sel -t -v \"//Version\" " +
-                          "-n EventHighway.Core/EventHighway.Core.csproj)\n" +
-                          "echo \"$version_number\"\n" +
-                          "echo \"version_number<<EOF\" >> $GITHUB_OUTPUT\n" +
-                          "echo \"$version_number\" >> $GITHUB_OUTPUT\n" +
-                          "echo \"EOF\" >> $GITHUB_OUTPUT")
-                  .AddGenericStep(
-                      name: "Display Version",
-                      runCommand: "echo \"Version number: ${{ steps.extract_version.outputs.version_number }}\"")
-                  .AddGenericStep(
-                      id: "extract_package_release_notes",
-                      name: "Extract Package Release Notes",
-                      shell: "bash",
-                      runCommand:
-                          "sudo apt-get update\n" +
-                          "sudo apt-get install -y xmlstarlet\n" +
-                          "package_release_notes=$(xmlstarlet sel -t -v \"//PackageReleaseNotes\" " +
-                          "-n EventHighway.Core/EventHighway.Core.csproj)\n" +
-                          "echo \"$package_release_notes\"\n" +
-                          "echo \"package_release_notes<<EOF\" >> $GITHUB_OUTPUT\n" +
-                          "echo \"$package_release_notes\" >> $GITHUB_OUTPUT\n" +
-                          "echo \"EOF\" >> $GITHUB_OUTPUT")
-                  .AddGenericStep(
-                      name: "Display Package Release Notes",
-                      runCommand: "echo \"Package Release Notes:" +
-                      " ${{ steps.extract_package_release_notes.outputs.package_release_notes }}\"")
-                  .AddGenericStep(
-                      name: "Create GitHub Tag",
-                      runCommand:
-                          "git tag -a \"v${{ steps.extract_version.outputs.version_number }}\" -m \"Release -" +
-                          " v${{ steps.extract_version.outputs.version_number }}\"\n" +
-                          "git push origin --tags")
-                  .AddActionStep(
-                      name: "Create GitHub Release",
-                      uses: "actions/create-release@v1",
-                      with: new Dictionary<string, string>
-                      {
-                          ["tag_name"] = "v${{ steps.extract_version.outputs.version_number }}",
-                          ["release_name"] = "Release - v${{ steps.extract_version.outputs.version_number }}",
-                          ["body"] =
-                              "## Release - v${{ steps.extract_version.outputs.version_number }}\n\n" +
-                              "### Release Notes\n" +
-                              "${{ steps.extract_package_release_notes.outputs.package_release_notes }}"
-                      },
-                      environmentVariables: new Dictionary<string, string>
-                      {
-                          ["GITHUB_TOKEN"] = "${{ secrets.PAT_FOR_TAGGING }}"
-                      }))
+                                Matrix = new Dictionary<string, object>
+                                {
+                                    ["provider"] = new List<string> { "sqlserver", "postgres" }
+                                },
 
-              .AddJob("publish", job => job
-                  .WithName("Publish to NuGet")
-                  .RunsOn(BuildMachines.UbuntuLatest)
-                  .DependsOn("add_tag")
-                  .WithCondition("needs.add_tag.result == 'success'")
-                  .AddCheckoutStep("Check out")
-                  .AddSetupDotNetStep(dotNetVersion)
-                  .AddRestoreStep()
-                  .AddGenericStep(
-                      name: "Build",
-                      runCommand: "dotnet build --no-restore --configuration Release")
-                  .AddGenericStep(
-                      name: "Pack NuGet Package",
-                      runCommand: "dotnet pack --configuration Release --include-symbols")
-                  .AddGenericStep(
-                      name: "Push NuGet Package",
-                      runCommand:
-                          "dotnet nuget push **/bin/Release/**/*.nupkg " +
-                          "--source https://api.nuget.org/v3/index.json " +
-                          "--api-key ${{ secrets.NUGET_ACCESS }} --skip-duplicate"))
+                                Include = new List<Dictionary<string, string>>
+                                {
+                                    new Dictionary<string, string>
+                                    {
+                                        ["provider"] = "sqlserver",
 
-              .SaveToFile("../../../../.github/workflows/build.yml");
+                                        ["connection_string"] =
+                                            "Server=localhost;Database=EventHighwayDb;User Id=sa;" +
+                                            "Password=Your_password123!;TrustServerCertificate=True;" +
+                                            "MultipleActiveResultSets=true;Pooling=false"
+                                    },
+                                    new Dictionary<string, string>
+                                    {
+                                        ["provider"] = "postgres",
+
+                                        ["connection_string"] =
+                                            "Host=localhost;Database=EventHighwayDb;" +
+                                            "Username=postgres;Password=postgres;Pooling=false"
+                                    }
+                                }
+                            },
+
+                            EnvironmentVariables = new Dictionary<string, string>
+                            {
+                                ["PROVIDER"] = "${{ matrix.provider }}",
+                                ["CONNECTION_STRING"] = "${{ matrix.connection_string }}"
+                            },
+
+                            Services = new Dictionary<string, Models.Service>
+                            {
+                                {
+                                    "sqlserver",
+                                    new Models.Service
+                                    {
+                                        Image = "mcr.microsoft.com/mssql/server:2019-latest",
+
+                                        Environment = new Dictionary<string, string>
+                                        {
+                                            ["ACCEPT_EULA"] = "Y",
+                                            ["SA_PASSWORD"] = "Your_password123!"
+                                        },
+
+                                        Ports = new List<string> { "1433:1433" },
+
+                                        Options =
+                                    "--health-cmd \"/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa " +
+                                    "-P Your_password123! -N -C -Q 'SELECT 1' || exit 1\" " +
+                                    "--health-interval 10s --health-timeout 5s --health-retries 10"
+                                    }
+                                },
+                                {
+                                    "postgres",
+                                    new Models.Service
+                                    {
+                                        Image = "postgres:17",
+
+                                        Environment = new Dictionary<string, string>
+                                        {
+                                            ["POSTGRES_DB"] = "EventHighwayDb",
+                                            ["POSTGRES_USER"] = "postgres",
+                                            ["POSTGRES_PASSWORD"] = "postgres"
+                                        },
+
+                                        Ports = new List<string> { "5432:5432" },
+
+                                        Options =
+                                    "--health-cmd pg_isready --health-interval 10s " +
+                                    "--health-timeout 5s --health-retries 5"
+                                    }
+                                }
+                            },
+
+                            Steps = new List<GithubTask>
+                            {
+                                new CheckoutTaskV5
+                                {
+                                    Name = "Check out"
+                                },
+
+                                new SetupDotNetTaskV5
+                                {
+                                    Name = "Setup Dot Net Version",
+
+                                    With = new TargetDotNetVersionV5
+                                    {
+                                        DotNetVersion = "10.0.100"
+                                    }
+                                },
+
+                                new RestoreTask
+                                {
+                                    Name = "Restore"
+                                },
+
+                                new DotNetBuildTask
+                                {
+                                    Name = "Build"
+                                },
+
+                                new GithubTask
+                                {
+                                    Name = "Test",
+                                    Run = "dotnet test EventHighway.Core.Tests.Acceptance --no-build --verbosity normal"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "add_tag",
+                        new Models.Job
+                        {
+                            Name = "Tag and Release",
+                            RunsOn = BuildMachines.UbuntuLatest,
+                            Needs = new[] { "build", "build-integration" },
+                            If =
+                                "needs.build.result == 'success' && " +
+                                "needs.build-integration.result == 'success' && " +
+                                "github.event.pull_request.merged && " +
+                                $"github.event.pull_request.base.ref == '{branchName}' && " +
+                                "startsWith(github.event.pull_request.title, 'RELEASES:') && " +
+                                "contains(github.event.pull_request.labels.*.name, 'RELEASES')",
+
+                            Steps = new List<GithubTask>
+                            {
+                                new CheckoutTaskV4
+                                {
+                                    Name = "Checkout code",
+
+                                    With = new Dictionary<string, string>
+                                    {
+                                        ["token"] = "${{ secrets.PAT_FOR_TAGGING }}"
+                                    }
+                                },
+
+                                new ConfigureGitTask
+                                {
+                                    Name = "Configure Git"
+                                },
+
+                                new ExtractProjectPropertyTask(
+                                    name: "Extract Version",
+                                    id: "extract_version",
+                                    projectRelativePath: $"{projectName}/{projectName}.csproj",
+                                    propertyName: "Version",
+                                    stepVariableName: "version_number",
+                                    runsOn: BuildMachines.UbuntuLatest),
+
+                                new GithubTask
+                                {
+                                    Name = "Display Version",
+                                    Run = "echo \"Version number: ${{ steps.extract_version.outputs.version_number }}\""
+                                },
+
+                                new ExtractProjectPropertyTask(
+                                    name: "Extract Package Release Notes",
+                                    id: "extract_package_release_notes",
+                                    projectRelativePath: $"{projectName}/{projectName}.csproj",
+                                    propertyName: "PackageReleaseNotes",
+                                    stepVariableName: "package_release_notes",
+                                    runsOn: BuildMachines.UbuntuLatest),
+
+                                new GithubTask
+                                {
+                                    Name = "Display Package Release Notes",
+                                    Run = "echo \"Package Release Notes: " +
+                                        "${{ steps.extract_package_release_notes.outputs.package_release_notes }}\""
+                                },
+
+                                new CreateGitHubTagTask(
+                                    tagName: "v${{ steps.extract_version.outputs.version_number }}",
+                                    tagMessage: "Release - v${{ steps.extract_version.outputs.version_number }}")
+                                {
+                                    Name = "Create GitHub Tag"
+                                },
+
+                                new CreateGitHubReleaseTask(
+                                    releaseName: "Release - v${{ steps.extract_version.outputs.version_number }}",
+                                    tagName: "v${{ steps.extract_version.outputs.version_number }}",
+                                    releaseNotes: "${{ steps.extract_package_release_notes.outputs.package_release_notes }}",
+                                    githubToken: "${{ secrets.PAT_FOR_TAGGING }}")
+                                {
+                                    Name = "Create GitHub Release",
+                                    Uses = "actions/create-release@v1"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "publish",
+                        new Models.Job
+                        {
+                            Name = "Publish to NuGet",
+                            RunsOn = BuildMachines.UbuntuLatest,
+                            Needs = new[] { "add_tag" },
+                            If = "needs.add_tag.result == 'success'",
+
+                            Steps = new List<GithubTask>
+                            {
+                                new CheckoutTaskV5
+                                {
+                                    Name = "Check out"
+                                },
+
+                                new SetupDotNetTaskV5
+                                {
+                                    Name = "Setup Dot Net Version",
+
+                                    With = new TargetDotNetVersionV5
+                                    {
+                                        DotNetVersion = dotNetVersion
+                                    }
+                                },
+
+                                new RestoreTask
+                                {
+                                    Name = "Restore"
+                                },
+
+                                new DotNetBuildReleaseTask
+                                {
+                                    Name = "Build"
+                                },
+
+                                new PackNugetTaskWithSymbols
+                                {
+                                    Name = "Pack NuGet Package"
+                                },
+
+                                new NugetPushTask(nugetApiKey: "${{ secrets.NUGET_ACCESS }}")
+                                {
+                                    Name = "Push NuGet Package"
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         public void GeneratePrLintScript(string branchName)
