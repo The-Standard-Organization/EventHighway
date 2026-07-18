@@ -9,9 +9,13 @@
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
 		<Product>EventHighway.EventHandlers</Product>
-		<Version>2.1.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<FileVersion>2.1.0.0</FileVersion>
+		<Version>2.2.0</Version>
+		<AssemblyVersion>2.2.0.0</AssemblyVersion>
+		<FileVersion>2.2.0.0</FileVersion>
+		<PackageReleaseNotes>
+			Ready-made IEventHandler implementations for EventHighway V2:
+			* Delegate-based handlers — invoke in-process delegates directly, bypassing HTTP entirely.
+		</PackageReleaseNotes>
 		<PackageId>EventHighway.EventHandlers</PackageId>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>
@@ -20,7 +24,7 @@
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Description>Standard-compliant open-source .NET library containing EventHandler implementations for distributed systems, including REST API and delegate-based handlers.</Description>
+		<Description>Standard-compliant open-source .NET library containing EventHandler implementations for distributed systems, including delegate-based handlers.</Description>
 		<PackageProjectUrl>https://github.com/hassanhabib/EventHighway</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/hassanhabib/EventHighway</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -55,12 +59,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Models\Exposers\RestSecretEventHandlers\" />
+		<Folder Include="Models\Exposers\RestSecretEventHandlers\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="RESTFulSense" Version="3.2.0" />
-	  <PackageReference Include="Xeption" Version="2.9.0" />
+		<PackageReference Include="RESTFulSense" Version="3.2.0" />
+		<PackageReference Include="Xeption" Version="2.9.0" />
 	</ItemGroup>
 
 </Project>

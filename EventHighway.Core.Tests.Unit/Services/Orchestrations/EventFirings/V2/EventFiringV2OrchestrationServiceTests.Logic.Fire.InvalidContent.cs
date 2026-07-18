@@ -75,6 +75,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventFirings.V2
                 new ListenerEventV2
                 {
                     EventListenerV2Id = retrievedEventListenerV2.Id,
+                    EventParticipantV2Id = retrievedEventListenerV2.EventParticipantV2Id,
                     EventV2Id = inputEventV2.Id,
                     Status = ListenerEventStatusV2.Pending,
                     EventAddressV2Id = inputEventV2.EventAddressV2Id,

@@ -92,9 +92,9 @@ namespace EventHighway.Core.Models.Services.Foundations.EventListeners.V2
 
         /// <summary>
         /// Gets or sets the unique identifier of the participant that owns this listener.
-        /// Nullable: a listener need not be associated with a participant.
+        /// Required: every listener is attributed to a participant.
         /// </summary>
-        public Guid? EventParticipantV2Id { get; set; }
+        public Guid EventParticipantV2Id { get; set; }
 
         /// <summary>
         /// Gets or sets the participant that owns this listener.

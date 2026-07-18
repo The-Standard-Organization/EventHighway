@@ -7,9 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventArchives.V2.Exceptions;
+using System.Collections.Generic;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.EventArchives.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventArchives.V2
@@ -20,23 +22,33 @@ namespace EventHighway.Core.Clients.EventArchives.V2
     /// </summary>
     internal class EventArchiveV2Client : IEventArchiveV2Client
     {
-        private readonly IEventArchiveV2Service eventArchiveV2Service;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventArchiveV2Client"/> class with the
         /// specified event archive service.
         /// </summary>
         /// <param name="eventArchiveV2Service">The foundation service for archived events.</param>
-        public EventArchiveV2Client(IEventArchiveV2Service eventArchiveV2Service) =>
-            this.eventArchiveV2Service = eventArchiveV2Service;
+        public EventArchiveV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-        public async ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+        public async ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventArchiveV2Service eventArchiveV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventArchiveV2Service>();
+
             try
             {
-                return await this.eventArchiveV2Service
-                    .RetrieveAllEventArchiveV2sAsync(cancellationToken);
+                return await eventArchiveV2Service
+                    .RetrieveEventArchiveV2sByQueryAsync(
+                        eventArchiveV2Query, cancellationToken);
             }
             catch (EventArchiveV2ValidationException
                 eventArchiveV2ValidationException)
@@ -68,17 +80,26 @@ namespace EventHighway.Core.Clients.EventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateEventArchiveV2ClientServiceException(exception);
             }
         }
 
-        public async ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+        public async ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventArchiveV2Service eventArchiveV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventArchiveV2Service>();
+
             try
             {
-                return await this.eventArchiveV2Service
-                    .RetrieveAllEventArchiveV2sWithEventAddressV2Async(cancellationToken);
+                return await eventArchiveV2Service
+                    .RetrieveEventArchiveV2sWithEventAddressV2ByQueryAsync(
+                        eventArchiveV2Query, cancellationToken);
             }
             catch (EventArchiveV2ValidationException
                 eventArchiveV2ValidationException)
@@ -110,7 +131,7 @@ namespace EventHighway.Core.Clients.EventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateEventArchiveV2ClientServiceException(exception);
             }
         }
 
@@ -118,9 +139,16 @@ namespace EventHighway.Core.Clients.EventArchives.V2
             Guid eventArchiveV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventArchiveV2Service eventArchiveV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventArchiveV2Service>();
+
             try
             {
-                return await this.eventArchiveV2Service
+                return await eventArchiveV2Service
                     .RetrieveEventArchiveV2ByIdAsync(eventArchiveV2Id, cancellationToken);
             }
             catch (EventArchiveV2ValidationException
@@ -153,7 +181,7 @@ namespace EventHighway.Core.Clients.EventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateEventArchiveV2ClientServiceException(exception);
             }
         }
 
@@ -176,12 +204,15 @@ namespace EventHighway.Core.Clients.EventArchives.V2
         }
 
         private static EventArchiveV2ClientServiceException
-            CreateEventArchiveV2ClientServiceException(Xeption innerException)
+            CreateEventArchiveV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventArchiveV2ClientServiceException(
                 message: "Event archive client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

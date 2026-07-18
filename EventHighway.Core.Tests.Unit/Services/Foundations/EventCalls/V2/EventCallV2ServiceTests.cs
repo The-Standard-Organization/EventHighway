@@ -6,8 +6,10 @@ using System;
 using System.Linq.Expressions;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Abstractions.EventHandlers.Exceptions;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Configurations.Dispatch;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Services.Foundations.EventCalls.V2;
 using Moq;
@@ -20,6 +22,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V2
     {
         private readonly Mock<IEventHandlerBroker> eventHandlerBrokerMock;
         private readonly Mock<IEventHandler> eventHandlerMock;
+        private readonly Mock<IConfigurationBroker> configurationBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventCallV2Service eventCallV2Service;
 
@@ -27,10 +30,16 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V2
         {
             this.eventHandlerBrokerMock = new Mock<IEventHandlerBroker>();
             this.eventHandlerMock = new Mock<IEventHandler>();
+            this.configurationBrokerMock = new Mock<IConfigurationBroker>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetDispatchConfiguration())
+                    .Returns(new DispatchConfiguration());
 
             this.eventCallV2Service = new EventCallV2Service(
                 eventHandlerBroker: this.eventHandlerBrokerMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
         }
 

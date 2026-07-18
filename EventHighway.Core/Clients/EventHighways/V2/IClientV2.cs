@@ -2,6 +2,9 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Core.Clients.ArchivingEvents.V2;
 using EventHighway.Core.Clients.EventAddresses.V2;
@@ -21,18 +24,43 @@ namespace EventHighway.Core.Clients.EventHighways.V2
     /// <summary>
     /// Defines the V2 API contract for the EventHighway client, providing access to event
     /// management operations including event archiving, addresses, listeners, events, health
-    /// checks, and listener events.
+    /// checks, and listener events. Dispose the client to release the underlying dependency
+    /// container and its database contexts.
     /// </summary>
-    public interface IClientV2
+    public interface IClientV2 : IAsyncDisposable
     {
         /// <summary>
         /// Registers an event handler with the EventHighway V2 client, retrieving it if it was
         /// already registered and persisting it to storage otherwise. This method supports
         /// method chaining by returning the current instance.
         /// </summary>
+        /// <remarks>
+        /// This overload blocks the calling thread on the underlying asynchronous work
+        /// (sync-over-async), so it is intended for **startup / composition-root registration
+        /// only**. In any asynchronous context (request handlers, background services) prefer
+        /// <see cref="RegisterEventHandlerAsync"/> to avoid deadlocks on hosts with a
+        /// synchronization context and thread-pool starvation under load.
+        /// </remarks>
         /// <param name="eventHandler">The event handler to register.</param>
         /// <returns>The current <see cref="IClientV2"/> instance for method chaining.</returns>
         IClientV2 RegisterEventHandler(IEventHandler eventHandler);
+
+        /// <summary>
+        /// Registers an event handler with the EventHighway V2 client asynchronously, retrieving it
+        /// if it was already registered and persisting it to storage otherwise. This method supports
+        /// asynchronous method chaining by returning the current instance.
+        /// </summary>
+        /// <param name="eventHandler">The event handler to register.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{IClientV2}"/> representing the asynchronous operation
+        /// that returns the current <see cref="IClientV2"/> instance for method chaining.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        ValueTask<IClientV2> RegisterEventHandlerAsync(
+            IEventHandler eventHandler,
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the client for managing archived events in V2 API.

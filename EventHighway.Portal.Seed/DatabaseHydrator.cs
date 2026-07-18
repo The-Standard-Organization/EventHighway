@@ -18,6 +18,7 @@ using EventHighway.Core.Brokers.Storages;
 using EventHighway.Core.Clients.EventHighways;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
@@ -397,7 +398,8 @@ namespace EventHighway.Portal.Seed
             }
 
             return (await client.V2.EventListenerV2Client
-                .RetrieveEventListenerV2sByEventAddressIdAsync(eventAddressId))
+                .RetrieveEventListenerV2sByEventAddressIdAsync(
+                    eventAddressId, new EventListenerV2Query { Take = 1000 }))
                 .ToList();
         }
 

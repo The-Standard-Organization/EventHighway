@@ -9,29 +9,26 @@ using EventHighway.Core.Clients.EventHighways.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
-    // Builds the EventHighway V2 client once, lazily, and serialized behind a lock so the many
-    // dashboard panels that first-touch the broker concurrently never construct it twice (which
-    // would race on Database.Migrate() over the same Core database and fail every call).
-    //
-    // Unlike a cached Lazy<T>, a failed construction is NOT remembered: if the factory throws (e.g.
-    // a LocalDB cold-start SqlException) the client stays null and the next request retries, so the
-    // portal recovers once the database becomes reachable — no app restart required.
-    //
-    // The client wraps a SINGLE Core EF DbContext, which is not thread-safe. Blazor Server fans the
-    // dashboard panels out concurrently, so every database call is funnelled through ExecuteAsync,
-    // which holds a one-at-a-time semaphore for the duration of the operation. This guarantees no two
-    // operations ever touch the shared DbContext at the same time (the "A second operation was started
-    // on this context instance" / "used while it is being configured" failures).
+    /// <summary>
+    /// Provides thread-safe lazy initialization of an <see cref="IClientV2"/> instance.
+    /// The client is constructed once on first access using double-checked locking.
+    /// Failed construction attempts are not cached, allowing automatic recovery
+    /// when transient issues (e.g., database connectivity) are resolved.
+    /// </summary>
     public sealed class ClientV2Provider
     {
         private readonly Func<IClientV2> clientFactory;
         private readonly object gate = new();
-        private readonly SemaphoreSlim databaseGate = new(initialCount: 1, maxCount: 1);
         private IClientV2? client;
 
         public ClientV2Provider(Func<IClientV2> clientFactory) =>
             this.clientFactory = clientFactory;
 
+        /// <summary>
+        /// Gets the shared <see cref="IClientV2"/> instance, initializing it on first access
+        /// if necessary. Initialization is thread-safe and occurs at most once.
+        /// </summary>
+        /// <returns>The initialized client instance.</returns>
         public IClientV2 GetClient()
         {
             IClientV2? current = this.client;
@@ -47,40 +44,27 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             }
         }
 
-        public async ValueTask<T> ExecuteAsync<T>(
+        /// <summary>
+        /// Executes an asynchronous operation using the shared client instance.
+        /// </summary>
+        /// <typeparam name="T">The return type of the operation.</typeparam>
+        /// <param name="operation">The operation to execute with the client.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns>The result of the operation.</returns>
+        public ValueTask<T> ExecuteAsync<T>(
             Func<IClientV2, ValueTask<T>> operation,
-            CancellationToken cancellationToken = default)
-        {
-            IClientV2 currentClient = GetClient();
+            CancellationToken cancellationToken = default) =>
+            operation(GetClient());
 
-            await this.databaseGate.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-            try
-            {
-                return await operation(currentClient).ConfigureAwait(false);
-            }
-            finally
-            {
-                this.databaseGate.Release();
-            }
-        }
-
-        public async ValueTask ExecuteAsync(
+        /// <summary>
+        /// Executes an asynchronous operation using the shared client instance.
+        /// </summary>
+        /// <param name="operation">The operation to execute with the client.</param>
+        /// <param name="cancellationToken">Optional cancellation token.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public ValueTask ExecuteAsync(
             Func<IClientV2, ValueTask> operation,
-            CancellationToken cancellationToken = default)
-        {
-            IClientV2 currentClient = GetClient();
-
-            await this.databaseGate.WaitAsync(cancellationToken).ConfigureAwait(false);
-
-            try
-            {
-                await operation(currentClient).ConfigureAwait(false);
-            }
-            finally
-            {
-                this.databaseGate.Release();
-            }
-        }
+            CancellationToken cancellationToken = default) =>
+            operation(GetClient());
     }
 }

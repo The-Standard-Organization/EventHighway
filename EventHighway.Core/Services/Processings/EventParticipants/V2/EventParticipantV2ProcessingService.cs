@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Services.Foundations.EventParticipants.V2;
 
 namespace EventHighway.Core.Services.Processings.EventParticipants.V2
@@ -58,6 +60,56 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
             return await this.eventParticipantV2Service.AddEventParticipantV2Async(
                 eventParticipantV2,
                 cancellationToken);
+        });
+
+        public ValueTask<IReadOnlyList<EventParticipantV2>> RetrieveEventParticipantV2sByQueryAsync(
+            EventParticipantV2Query eventParticipantV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventParticipantV2Query(eventParticipantV2Query);
+
+            IQueryable<EventParticipantV2> eventParticipantV2s =
+                await this.eventParticipantV2Service.RetrieveAllEventParticipantV2sAsync(
+                    cancellationToken);
+
+            if (eventParticipantV2Query.Name is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.Name == eventParticipantV2Query.Name);
+            }
+
+            if (eventParticipantV2Query.IsActive is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.IsActive == eventParticipantV2Query.IsActive);
+            }
+
+            if (eventParticipantV2Query.IsSecretRequired is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.IsSecretRequired == eventParticipantV2Query.IsSecretRequired);
+            }
+
+            if (eventParticipantV2Query.CreatedFrom is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.CreatedDate >= eventParticipantV2Query.CreatedFrom);
+            }
+
+            if (eventParticipantV2Query.CreatedTo is not null)
+            {
+                eventParticipantV2s = eventParticipantV2s.Where(eventParticipantV2 =>
+                    eventParticipantV2.CreatedDate <= eventParticipantV2Query.CreatedTo);
+            }
+
+            return eventParticipantV2s
+                .OrderByDescending(eventParticipantV2 => eventParticipantV2.CreatedDate)
+                .ThenBy(eventParticipantV2 => eventParticipantV2.Id)
+                .Skip(eventParticipantV2Query.Skip)
+                .Take(eventParticipantV2Query.Take)
+                .ToList();
         });
 
         public ValueTask<IQueryable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(

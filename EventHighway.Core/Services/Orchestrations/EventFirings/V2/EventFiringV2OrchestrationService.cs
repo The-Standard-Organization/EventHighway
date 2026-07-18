@@ -64,27 +64,35 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
 
             foreach (EventListenerV2 eventListenerV2 in eventListenerV2s)
             {
-                DateTimeOffset now =
-                    await this.dateTimeBroker.GetDateTimeOffsetAsync();
+                try
+                {
+                    DateTimeOffset now =
+                        await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-                ListenerEventV2 listenerEventV2 =
-                    CreateListenerEventV2(
-                        eventV2,
-                        eventListenerV2,
-                        now);
+                    ListenerEventV2 listenerEventV2 =
+                        CreateListenerEventV2(
+                            eventV2,
+                            eventListenerV2,
+                            now);
 
-                ListenerEventV2 addedListenerEventV2 =
-                    await this.listenerEventV2ProcessingService
-                        .AddListenerEventV2Async(listenerEventV2, cancellationToken);
+                    ListenerEventV2 addedListenerEventV2 =
+                        await this.listenerEventV2ProcessingService
+                            .AddListenerEventV2Async(listenerEventV2, cancellationToken);
 
-                ListenerEventV2 processedListenerEventV2 =
-                    await RunEventCallV2Async(
-                        eventV2,
-                        eventListenerV2,
-                        addedListenerEventV2,
-                        cancellationToken);
+                    ListenerEventV2 processedListenerEventV2 =
+                        await RunEventCallV2Async(
+                            eventV2,
+                            eventListenerV2,
+                            addedListenerEventV2,
+                            cancellationToken);
 
-                processedListenerEventV2s.Add(processedListenerEventV2);
+                    processedListenerEventV2s.Add(processedListenerEventV2);
+                }
+                catch (Exception exception)
+                    when (exception is not OperationCanceledException)
+                {
+                    await this.loggingBroker.LogErrorAsync(exception);
+                }
             }
 
             eventV2.ListenerEventV2s = processedListenerEventV2s;
@@ -98,26 +106,26 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
             ListenerEventV2 listenerEventV2,
             CancellationToken cancellationToken)
         {
-            IEnumerable<string> requiredKeys =
-                string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
-                    ? Array.Empty<string>()
-                    : await this.eventCallV2ProcessingService
-                        .SplitPromotedPropertyKeysAsync(
-                            eventListenerV2.PromotedProperties,
-                            cancellationToken);
-
-            var eventCallV2 = new EventCallV2
-            {
-                Content = eventV2.Content,
-                HandlerId = eventListenerV2.HandlerId,
-                HandlerName = eventListenerV2.HandlerName,
-                FilterCriteria = eventListenerV2.FilterCriteria,
-                RequiredPromotedProperties = requiredKeys,
-                Response = null
-            };
-
             try
             {
+                IEnumerable<string> requiredKeys =
+                    string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
+                        ? Array.Empty<string>()
+                        : await this.eventCallV2ProcessingService
+                            .SplitPromotedPropertyKeysAsync(
+                                eventListenerV2.PromotedProperties,
+                                cancellationToken);
+
+                var eventCallV2 = new EventCallV2
+                {
+                    Content = eventV2.Content,
+                    HandlerId = eventListenerV2.HandlerId,
+                    HandlerName = eventListenerV2.HandlerName,
+                    FilterCriteria = eventListenerV2.FilterCriteria,
+                    RequiredPromotedProperties = requiredKeys,
+                    Response = null
+                };
+
                 eventCallV2.PromotedProperties =
                     string.IsNullOrWhiteSpace(eventV2.Content)
                         || string.IsNullOrWhiteSpace(eventListenerV2.PromotedProperties)
@@ -167,6 +175,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 EventV2Id = eventV2.Id,
                 EventListenerV2Id = eventListenerV2.Id,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
+                EventParticipantV2Id = eventListenerV2.EventParticipantV2Id,
                 Status = ListenerEventStatusV2.Pending,
                 RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
                 RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,

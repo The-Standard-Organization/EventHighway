@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
@@ -32,9 +32,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventArchives.V2
             await this.clientBroker.ArchiveDeadEventV2sAsync();
 
             // when
-            IQueryable<EventArchiveV2> actualEventArchiveV2s =
+            IReadOnlyList<EventArchiveV2> actualEventArchiveV2s =
                 await this.clientBroker
-                    .RetrieveAllEventArchiveV2sAsync();
+                    .RetrieveAllEventArchiveV2sAsync(
+                        new EventArchiveV2Query { Take = 1000 });
 
             // then
             actualEventArchiveV2s.Should()

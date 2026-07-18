@@ -321,8 +321,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
             {
                 EventParticipantV2Id = eventParticipantV2Id,
                 Name = name,
-                ContactEmail = GetRandomString(),
-                ContactPhone = GetRandomString(),
                 IsActive = true,
                 OwnedListeners = GetRandomNumber()
             };

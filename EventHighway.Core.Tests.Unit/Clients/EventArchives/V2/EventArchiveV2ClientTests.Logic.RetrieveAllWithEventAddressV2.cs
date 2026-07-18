@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,30 +25,32 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventArchives.V2
             IQueryable<EventArchiveV2> randomEventArchiveV2s =
                 CreateRandomEventArchiveV2s();
 
-            IQueryable<EventArchiveV2> retrievedEventArchiveV2s =
-                randomEventArchiveV2s;
+            IReadOnlyList<EventArchiveV2> retrievedEventArchiveV2s =
+                randomEventArchiveV2s.ToList();
 
-            IQueryable<EventArchiveV2> expectedEventArchiveV2s =
+            IReadOnlyList<EventArchiveV2> expectedEventArchiveV2s =
                 retrievedEventArchiveV2s.DeepClone();
 
+            var inputEventArchiveV2Query = new EventArchiveV2Query();
+
             this.eventArchiveV2ServiceMock.Setup(service =>
-                service.RetrieveAllEventArchiveV2sWithEventAddressV2Async(
-                    randomCancellationToken))
+                service.RetrieveEventArchiveV2sWithEventAddressV2ByQueryAsync(
+                    inputEventArchiveV2Query, randomCancellationToken))
                         .ReturnsAsync(retrievedEventArchiveV2s);
 
             // when
-            IQueryable<EventArchiveV2> actualEventArchiveV2s =
+            IReadOnlyList<EventArchiveV2> actualEventArchiveV2s =
                 await this.eventArchiveV2Client
                     .RetrieveAllEventArchiveV2sWithEventAddressV2Async(
-                        randomCancellationToken);
+                        inputEventArchiveV2Query, randomCancellationToken);
 
             // then
             actualEventArchiveV2s.Should().BeEquivalentTo(
                 expectedEventArchiveV2s);
 
             this.eventArchiveV2ServiceMock.Verify(service =>
-                service.RetrieveAllEventArchiveV2sWithEventAddressV2Async(
-                    randomCancellationToken),
+                service.RetrieveEventArchiveV2sWithEventAddressV2ByQueryAsync(
+                    inputEventArchiveV2Query, randomCancellationToken),
                         Times.Once);
 
             this.eventArchiveV2ServiceMock.VerifyNoOtherCalls();

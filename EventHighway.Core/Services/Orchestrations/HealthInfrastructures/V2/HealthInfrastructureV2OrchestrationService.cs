@@ -119,8 +119,6 @@ namespace EventHighway.Core.Services.Orchestrations.HealthInfrastructures.V2
                     {
                         EventParticipantV2Id = eventParticipant.Id,
                         Name = eventParticipant.Name,
-                        ContactEmail = eventParticipant.ContactEmail,
-                        ContactPhone = eventParticipant.ContactPhone,
                         IsActive = eventParticipant.IsActive,
 
                         OwnedListeners = eventListeners

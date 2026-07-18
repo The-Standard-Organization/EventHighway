@@ -11,6 +11,8 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
 {
     internal partial class EventParticipantSecretV2Service
     {
+        private const int MinimumSecretLength = 36;
+
         private async ValueTask ValidateEventParticipantSecretV2OnAddAsync(
             EventParticipantSecretV2 eventParticipantSecretV2)
         {
@@ -23,6 +25,9 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 Parameter: nameof(EventParticipantSecretV2.Id)),
 
                 (Rule: IsInvalid(eventParticipantSecretV2.Secret),
+                Parameter: nameof(EventParticipantSecretV2.Secret)),
+
+                (Rule: IsTooShort(eventParticipantSecretV2.Secret),
                 Parameter: nameof(EventParticipantSecretV2.Secret)),
 
                 (Rule: IsInvalid(eventParticipantSecretV2.CreatedDate),
@@ -66,9 +71,6 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
                 (Rule: IsInvalid(eventParticipantSecretV2.Id),
                 Parameter: nameof(EventParticipantSecretV2.Id)),
 
-                (Rule: IsInvalid(eventParticipantSecretV2.Secret),
-                Parameter: nameof(EventParticipantSecretV2.Secret)),
-
                 (Rule: IsInvalid(eventParticipantSecretV2.CreatedDate),
                 Parameter: nameof(EventParticipantSecretV2.CreatedDate)),
 
@@ -109,6 +111,11 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
 
             Validate(
                 message: "Event participant secret is invalid, fix the errors and try again.",
+
+                (Rule: IsNotSameAsStorage(
+                    firstSecret: incomingEventParticipantSecretV2.Secret,
+                    secondSecret: storageEventParticipantSecretV2.Secret),
+                Parameter: nameof(EventParticipantSecretV2.Secret)),
 
                 (Rule: IsNotSameAsStorage(
                     firstDate: incomingEventParticipantSecretV2.CreatedDate,
@@ -163,6 +170,14 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             Message = "Required"
         };
 
+        private static dynamic IsTooShort(string text) => new
+        {
+            Condition = String.IsNullOrWhiteSpace(text) is false
+                && text.Length < MinimumSecretLength,
+
+            Message = $"Text must be at least {MinimumSecretLength} characters long"
+        };
+
         private static dynamic IsInvalid(DateTimeOffset date) => new
         {
             Condition = date == default,
@@ -193,6 +208,14 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             {
                 Condition = firstDate != secondDate,
                 Message = "Date is not the same as storage."
+            };
+
+        private static dynamic IsNotSameAsStorage(
+            string firstSecret,
+            string secondSecret) => new
+            {
+                Condition = firstSecret != secondSecret,
+                Message = "Secret is not the same as storage."
             };
 
         private static dynamic IsEarlierThan(
@@ -251,6 +274,78 @@ namespace EventHighway.Core.Services.Foundations.EventParticipantSecrets.V2
             }
 
             invalidEventParticipantSecretV2Exception.ThrowIfContainsErrors();
+        }
+
+        private static void ValidateEventParticipantSecretV2Query(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query)
+        {
+            ValidateEventParticipantSecretV2QueryIsNotNull(eventParticipantSecretV2Query);
+
+            ValidateQuery(
+                (Rule: IsNegative(eventParticipantSecretV2Query.Skip),
+                Parameter: nameof(EventParticipantSecretV2Query.Skip)),
+
+                (Rule: IsOutOfRange(eventParticipantSecretV2Query.Take),
+                Parameter: nameof(EventParticipantSecretV2Query.Take)),
+
+                (Rule: IsBefore(
+                    firstDate: eventParticipantSecretV2Query.CreatedTo,
+                    secondDate: eventParticipantSecretV2Query.CreatedFrom,
+                    secondDateName: nameof(EventParticipantSecretV2Query.CreatedFrom)),
+                Parameter: nameof(EventParticipantSecretV2Query.CreatedTo)));
+        }
+
+        private static void ValidateEventParticipantSecretV2QueryIsNotNull(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query)
+        {
+            if (eventParticipantSecretV2Query is null)
+            {
+                throw new NullEventParticipantSecretV2QueryException(
+                    message: "Event participant secret query is null.");
+            }
+        }
+
+        private static dynamic IsNegative(int value) => new
+        {
+            Condition = value < 0,
+            Message = "Value must be zero or greater"
+        };
+
+        private static dynamic IsOutOfRange(int value) => new
+        {
+            Condition = value < 1 || value > 1000,
+            Message = "Value must be between 1 and 1000"
+        };
+
+        private static dynamic IsBefore(
+            DateTimeOffset? firstDate,
+            DateTimeOffset? secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate is not null
+                    && secondDate is not null
+                    && firstDate < secondDate,
+
+                Message = $"Date must be after {secondDateName}"
+            };
+
+        private static void ValidateQuery(params (dynamic Rule, string Parameter)[] validations)
+        {
+            var invalidEventParticipantSecretV2QueryException =
+                new InvalidEventParticipantSecretV2QueryException(
+                    message: "Event participant secret query is invalid, fix the errors and try again.");
+
+            foreach ((dynamic rule, string parameter) in validations)
+            {
+                if (rule.Condition)
+                {
+                    invalidEventParticipantSecretV2QueryException.UpsertDataList(
+                        key: parameter,
+                        value: rule.Message);
+                }
+            }
+
+            invalidEventParticipantSecretV2QueryException.ThrowIfContainsErrors();
         }
     }
 }

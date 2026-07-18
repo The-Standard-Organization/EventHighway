@@ -650,8 +650,6 @@ namespace EventHighway.Core.Services.Coordinations.HealthChecks.V2
                     {
                         EventParticipantV2Id = eventParticipantV2Id,
                         Name = nameRow?.Name ?? "Unknown",
-                        ContactEmail = nameRow?.ContactEmail,
-                        ContactPhone = nameRow?.ContactPhone,
                         IsActive = nameRow?.IsActive ?? false,
                         OwnedListeners = nameRow?.OwnedListeners ?? 0,
                         TotalEventsSubmitted = totalEventsSubmitted,

@@ -587,7 +587,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
                 CreateQuarantinedEventArchiveV2(participant, addressA, earlyDate),
                 CreateQuarantinedEventArchiveV2(participant, addressA, laterDate),
                 CreateQuarantinedEventArchiveV2(participant, addressB, earlyDate),
-                CreateQuarantinedEventArchiveV2(eventParticipantV2Id: null, addressA, laterDate),
+                CreateQuarantinedEventArchiveV2(GetRandomId(), addressA, laterDate),
                 AssignAddress(
                     WithStatus(CreateRandomEventArchiveV2WithArchivedDate(earlyDate), EventArchiveStatusV2.Active),
                     addressA),
@@ -663,7 +663,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthArchivedEve
         }
 
         private static EventArchiveV2 CreateQuarantinedEventArchiveV2(
-            Guid? eventParticipantV2Id, Guid eventAddressV2Id, DateTimeOffset archivedDate)
+            Guid eventParticipantV2Id, Guid eventAddressV2Id, DateTimeOffset archivedDate)
         {
             EventArchiveV2 eventArchiveV2 = CreateRandomEventArchiveV2WithArchivedDate(archivedDate);
             eventArchiveV2.EventParticipantV2Id = eventParticipantV2Id;

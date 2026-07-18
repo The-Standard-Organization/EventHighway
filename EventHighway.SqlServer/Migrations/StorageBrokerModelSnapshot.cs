@@ -198,7 +198,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventAddressV2Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FilterCriteria")
@@ -263,9 +263,7 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventParticipantV2Id");
-
-                    b.HasIndex("Id", "Secret")
+                    b.HasIndex("EventParticipantV2Id", "Secret")
                         .IsUnique()
                         .HasFilter("[Secret] IS NOT NULL");
 
@@ -297,6 +295,9 @@ namespace EventHighway.Core.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSecretRequired")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -392,7 +393,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<string>("EventName")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
@@ -488,7 +489,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<string>("EventName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
@@ -594,7 +595,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventListenerV2Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventV2Id")
@@ -751,7 +752,7 @@ namespace EventHighway.Core.Migrations
                     b.Property<Guid>("EventListenerV2Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventV2Id")
@@ -841,7 +842,8 @@ namespace EventHighway.Core.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventListenerV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 
@@ -892,7 +894,8 @@ namespace EventHighway.Core.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 
@@ -910,7 +913,8 @@ namespace EventHighway.Core.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventArchiveV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 
@@ -941,7 +945,8 @@ namespace EventHighway.Core.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("ListenerEventArchiveV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventListenerV2");
 
@@ -1019,7 +1024,8 @@ namespace EventHighway.Core.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("ListenerEventV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", "EventV2")
                         .WithMany("ListenerEventV2s")

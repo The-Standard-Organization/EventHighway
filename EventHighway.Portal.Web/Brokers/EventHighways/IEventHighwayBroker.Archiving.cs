@@ -4,11 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventsArchives.V2;
-using EventHighway.Portal.Web.Models.Brokers.EventHighways;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -21,14 +19,12 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             DateTimeOffset olderThan,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+        ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sAsync(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default);
 
-        ValueTask<List<EventArchiveV2Summary>> RetrieveAllEventArchiveV2SummariesAsync(
-            CancellationToken cancellationToken = default);
-
-        ValueTask<EventArchiveV2Summary?> RetrieveEventArchiveV2SummaryByIdAsync(
-            Guid eventArchiveId,
+        ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
+            EventArchiveV2Query eventArchiveV2Query,
             CancellationToken cancellationToken = default);
     }
 }

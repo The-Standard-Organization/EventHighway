@@ -9,9 +9,14 @@
 		<Authors>Hassan Habib; Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
 		<Product>EventHighway.SqlServer</Product>
-		<Version>2.1.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<FileVersion>2.1.0.0</FileVersion>
+		<Version>2.2.0</Version>
+		<AssemblyVersion>2.2.0.0</AssemblyVersion>
+		<FileVersion>2.2.0.0</FileVersion>
+		<PackageReleaseNotes>
+			SQL Server storage provider for EventHighway V2:
+			* Persists all V2 entities (events, listeners, participants, secrets, retries, archives) via Microsoft.EntityFrameworkCore.SqlServer.
+			* Supplies the EF Core migrations needed to stand up an EventHighway V2 database on SQL Server.
+		</PackageReleaseNotes>
 		<PackageId>EventHighway.SqlServer</PackageId>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<IsPackable>true</IsPackable>

@@ -32,6 +32,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                 ContactEmail = GetRandomString(),
                 ContactPhone = GetRandomString(),
                 IsActive = false,
+                IsSecretRequired = false,
                 CreatedDate = createdDate,
                 UpdatedDate = createdDate
             };
@@ -44,6 +45,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                 ContactEmail = inputView.ContactEmail,
                 ContactPhone = inputView.ContactPhone,
                 IsActive = inputView.IsActive,
+                IsSecretRequired = inputView.IsSecretRequired,
                 ActiveFrom = inputView.ActiveFrom,
                 ActiveTo = inputView.ActiveTo,
                 CreatedDate = createdDate,
@@ -93,6 +95,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                         && participant.ContactEmail == inputView.ContactEmail
                         && participant.ContactPhone == inputView.ContactPhone
                         && participant.IsActive == inputView.IsActive
+                        && participant.IsSecretRequired == inputView.IsSecretRequired
                         && participant.CreatedDate == createdDate
                         && participant.UpdatedDate == now),
                     It.IsAny<CancellationToken>()),

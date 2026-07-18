@@ -97,10 +97,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
                 values: "Required");
 
             invalidEventParticipantSecretV2Exception.AddData(
-                key: nameof(EventParticipantSecretV2.Secret),
-                values: "Required");
-
-            invalidEventParticipantSecretV2Exception.AddData(
                 key: nameof(EventParticipantSecretV2.CreatedDate),
                 values: "Required");
 
@@ -438,6 +434,86 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
                     actual => actual.SameExceptionAs(
                         expectedEventParticipantSecretV2ValidationException))),
                             Times.Once);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldOverrideSecretFromStorageWhenSuppliedSecretNotSameAsStorageOnModifyAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            int randomDaysAgo = GetRandomNegativeNumber();
+            DateTimeOffset randomDateTime = GetRandomDateTimeOffset();
+
+            EventParticipantSecretV2 randomEventParticipantSecretV2 =
+                CreateRandomEventParticipantSecretV2(randomDateTime);
+
+            EventParticipantSecretV2 inputEventParticipantSecretV2 = randomEventParticipantSecretV2;
+            inputEventParticipantSecretV2.CreatedDate = randomDateTime.AddDays(randomDaysAgo);
+
+            EventParticipantSecretV2 storageEventParticipantSecretV2 =
+                inputEventParticipantSecretV2.DeepClone();
+
+            string storedSecret = storageEventParticipantSecretV2.Secret;
+
+            // the caller supplies a Secret that differs from storage; it must be overridden with
+            // the stored value (the secret is immutable), so modify succeeds instead of failing.
+            inputEventParticipantSecretV2.Secret = GetRandomString();
+
+            EventParticipantSecretV2 persistedEventParticipantSecretV2 =
+                inputEventParticipantSecretV2.DeepClone();
+
+            persistedEventParticipantSecretV2.Secret = storedSecret;
+
+            EventParticipantSecretV2 expectedEventParticipantSecretV2 =
+                persistedEventParticipantSecretV2.DeepClone();
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTime);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectEventParticipantSecretV2ByIdAsync(
+                    inputEventParticipantSecretV2.Id, randomCancellationToken))
+                        .ReturnsAsync(storageEventParticipantSecretV2);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.UpdateEventParticipantSecretV2Async(
+                    It.Is<EventParticipantSecretV2>(secret => secret.Secret == storedSecret),
+                    randomCancellationToken))
+                        .ReturnsAsync(persistedEventParticipantSecretV2);
+
+            // when
+            EventParticipantSecretV2 actualEventParticipantSecretV2 =
+                await this.eventParticipantSecretV2Service
+                    .ModifyEventParticipantSecretV2Async(
+                        inputEventParticipantSecretV2, randomCancellationToken);
+
+            // then
+            actualEventParticipantSecretV2.Should()
+                .BeEquivalentTo(expectedEventParticipantSecretV2);
+
+            actualEventParticipantSecretV2.Secret.Should().Be(storedSecret);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectEventParticipantSecretV2ByIdAsync(
+                    inputEventParticipantSecretV2.Id, randomCancellationToken),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.UpdateEventParticipantSecretV2Async(
+                    It.Is<EventParticipantSecretV2>(secret => secret.Secret == storedSecret),
+                    randomCancellationToken),
+                        Times.Once);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();

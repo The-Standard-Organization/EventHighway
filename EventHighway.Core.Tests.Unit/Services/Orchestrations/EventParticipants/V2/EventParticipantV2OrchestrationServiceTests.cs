@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using EventHighway.Core.Brokers.Hashings;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
@@ -24,6 +25,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
     {
         private readonly Mock<IEventParticipantV2Service> eventParticipantV2ServiceMock;
         private readonly Mock<IEventParticipantSecretV2Service> eventParticipantSecretV2ServiceMock;
+        private readonly Mock<IHashBroker> hashBrokerMock;
         private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
         private readonly IEventParticipantV2OrchestrationService eventParticipantV2OrchestrationService;
@@ -36,6 +38,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             this.eventParticipantSecretV2ServiceMock =
                 new Mock<IEventParticipantSecretV2Service>();
 
+            this.hashBrokerMock =
+                new Mock<IHashBroker>();
+
             this.dateTimeBrokerMock =
                 new Mock<IDateTimeBroker>();
 
@@ -46,6 +51,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
                 new EventParticipantV2OrchestrationService(
                     eventParticipantV2Service: this.eventParticipantV2ServiceMock.Object,
                     eventParticipantSecretV2Service: this.eventParticipantSecretV2ServiceMock.Object,
+                    hashBroker: this.hashBrokerMock.Object,
                     dateTimeBroker: this.dateTimeBrokerMock.Object,
                     loggingBroker: this.loggingBrokerMock.Object);
         }
@@ -154,6 +160,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
                 .OnProperty(eventParticipantV2 => eventParticipantV2.IsActive)
                     .Use(true)
+
+                .OnProperty(eventParticipantV2 => eventParticipantV2.IsSecretRequired)
+                    .Use(false)
 
                 .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveFrom)
                     .IgnoreIt()

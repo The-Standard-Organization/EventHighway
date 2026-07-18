@@ -57,6 +57,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                         EventV2Id = inputEventArchiveV2.Id,
                         EventAddressV2Id = eventAddressId,
                         EventListenerV2Id = newEventListenerV2.Id,
+                        EventParticipantV2Id = newEventListenerV2.EventParticipantV2Id,
                         CreatedDate = inputEventArchiveV2.CreatedDate,
                         UpdatedDate = inputEventArchiveV2.CreatedDate,
                         RemainingRetryAttempts = this.retryConfiguration.RetryAttemptsAllowed,

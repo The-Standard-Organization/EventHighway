@@ -8,6 +8,7 @@ using EventHighway.Core.Clients.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -17,6 +18,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
     public partial class EventAddressV2ClientTests
     {
         private readonly Mock<IEventAddressV2ProcessingService> eventAddressV2ProcessingServiceMock;
+        private int processingServiceResolutionCount;
         private readonly IEventAddressV2Client eventAddressV2Client;
 
         public EventAddressV2ClientTests()
@@ -24,10 +26,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventAddresses.V2
             this.eventAddressV2ProcessingServiceMock =
                 new Mock<IEventAddressV2ProcessingService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.processingServiceResolutionCount++;
+
+                return this.eventAddressV2ProcessingServiceMock.Object;
+            });
+
             this.eventAddressV2Client =
                 new EventAddressV2Client(
-                    eventAddressV2ProcessingService:
-                        this.eventAddressV2ProcessingServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()

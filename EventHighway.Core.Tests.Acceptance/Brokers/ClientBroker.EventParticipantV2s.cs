@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 
 namespace EventHighway.Core.Tests.Acceptance.Brokers
 {
@@ -21,10 +22,10 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
                 await this.eventHighwayClient.V2.EventParticipantV2Client
                     .RetrieveOrAddEventParticipantV2Async(eventParticipantV2);
 
-        public async ValueTask<IEnumerable<EventParticipantV2>>
-            RetrieveAllEventParticipantV2sAsync() =>
+        public async ValueTask<IReadOnlyList<EventParticipantV2>>
+            RetrieveAllEventParticipantV2sAsync(EventParticipantV2Query eventParticipantV2Query) =>
                 await this.eventHighwayClient.V2.EventParticipantV2Client
-                    .RetrieveAllEventParticipantV2sAsync();
+                    .RetrieveAllEventParticipantV2sAsync(eventParticipantV2Query);
 
         public async ValueTask<EventParticipantV2> RetrieveEventParticipantV2ByIdAsync(
             Guid eventParticipantV2Id) =>

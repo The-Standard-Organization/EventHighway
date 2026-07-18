@@ -3,11 +3,13 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ListenerEvents.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -26,6 +28,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someListenerEventV2Query = new ListenerEventV2Query();
+
             var expectedListenerEventV2ClientValidationException =
                 new ListenerEventV2ClientValidationException(
                     message: "Listener event client validation error occurred, fix the errors and try again.",
@@ -33,12 +37,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                     data: (validationException.InnerException as Xeption).Data);
 
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(validationException);
 
             // when
-            ValueTask<IQueryable<ListenerEventV2>> retrieveAllListenerEventV2sTask =
-                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<ListenerEventV2>> retrieveAllListenerEventV2sTask =
+                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                    someListenerEventV2Query, randomCancellationToken);
 
             ListenerEventV2ClientValidationException actualListenerEventV2ClientValidationException =
                 await Assert.ThrowsAsync<ListenerEventV2ClientValidationException>(
@@ -49,7 +55,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                 .BeEquivalentTo(expectedListenerEventV2ClientValidationException);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -61,6 +68,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someListenerEventV2Query = new ListenerEventV2Query();
 
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
@@ -82,12 +91,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                         .InnerException as Xeption).Data);
 
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(listenerEventV2OrchestrationDependencyException);
 
             // when
-            ValueTask<IQueryable<ListenerEventV2>> retrieveAllListenerEventV2sTask =
-                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<ListenerEventV2>> retrieveAllListenerEventV2sTask =
+                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                    someListenerEventV2Query, randomCancellationToken);
 
             ListenerEventV2ClientDependencyException actualListenerEventV2ClientDependencyException =
                 await Assert.ThrowsAsync<ListenerEventV2ClientDependencyException>(
@@ -98,7 +109,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                 .BeEquivalentTo(expectedListenerEventV2ClientDependencyException);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -110,6 +122,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             // given
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
+
+            var someListenerEventV2Query = new ListenerEventV2Query();
 
             string someMessage = GetRandomString();
             var someInnerException = new Xeption(someMessage);
@@ -131,12 +145,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                         .InnerException as Xeption).Data);
 
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(listenerEventV2OrchestrationServiceException);
 
             // when
-            ValueTask<IQueryable<ListenerEventV2>> retrieveAllListenerEventV2sTask =
-                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<ListenerEventV2>> retrieveAllListenerEventV2sTask =
+                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                    someListenerEventV2Query, randomCancellationToken);
 
             ListenerEventV2ClientDependencyException actualListenerEventV2ClientDependencyException =
                 await Assert.ThrowsAsync<ListenerEventV2ClientDependencyException>(
@@ -147,7 +163,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                 .BeEquivalentTo(expectedListenerEventV2ClientDependencyException);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -160,6 +177,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someListenerEventV2Query = new ListenerEventV2Query();
+
             var someXeption = new Xeption(message: GetRandomString());
 
             var expectedListenerEventV2ClientServiceException =
@@ -169,12 +188,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                     data: someXeption.Data);
 
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IQueryable<ListenerEventV2>> retrieveAllListenerEventV2sTask =
-                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<ListenerEventV2>> retrieveAllListenerEventV2sTask =
+                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                    someListenerEventV2Query, randomCancellationToken);
 
             ListenerEventV2ClientServiceException actualListenerEventV2ClientServiceException =
                 await Assert.ThrowsAsync<ListenerEventV2ClientServiceException>(
@@ -185,7 +206,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                 .BeEquivalentTo(expectedListenerEventV2ClientServiceException);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
@@ -198,16 +220,20 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             CancellationToken randomCancellationToken =
                 TestContext.Current.CancellationToken;
 
+            var someListenerEventV2Query = new ListenerEventV2Query();
+
             var operationCanceledException =
                 new OperationCanceledException();
 
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<ListenerEventV2>> retrieveAllListenerEventV2sTask =
-                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+            ValueTask<IReadOnlyList<ListenerEventV2>> retrieveAllListenerEventV2sTask =
+                this.listenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                    someListenerEventV2Query, randomCancellationToken);
 
             OperationCanceledException actualException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -218,7 +244,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    It.IsAny<ListenerEventV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();

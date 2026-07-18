@@ -46,6 +46,18 @@ namespace EventHighway.Core.Brokers.Storages
             CancellationToken cancellationToken = default) =>
             await UpdateAsync(eventV2, cancellationToken);
 
+        public async ValueTask<int> ClaimScheduledEventV2Async(
+            Guid eventV2Id,
+            CancellationToken cancellationToken = default) =>
+            await this.EventV2s
+                .Where(eventV2 =>
+                    eventV2.Id == eventV2Id
+                    && eventV2.Type == EventTypeV2.Scheduled)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(
+                        eventV2 => eventV2.Type, EventTypeV2.Immediate),
+                    cancellationToken);
+
         public async ValueTask<EventV2> DeleteEventV2Async(
             EventV2 eventV2,
             CancellationToken cancellationToken = default) =>

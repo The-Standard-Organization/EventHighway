@@ -31,6 +31,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                 (Rule: IsInvalid(listenerEventV2.EventListenerV2Id),
                 Parameter: nameof(ListenerEventV2.EventListenerV2Id)),
 
+                (Rule: IsInvalid(listenerEventV2.EventParticipantV2Id),
+                Parameter: nameof(ListenerEventV2.EventParticipantV2Id)),
+
                 (Rule: IsInvalid(listenerEventV2.Status),
                 Parameter: nameof(ListenerEventV2.Status)),
 
@@ -70,6 +73,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
                 (Rule: IsInvalid(listenerEventV2.EventListenerV2Id),
                 Parameter: nameof(ListenerEventV2.EventListenerV2Id)),
 
+                (Rule: IsInvalid(listenerEventV2.EventParticipantV2Id),
+                Parameter: nameof(ListenerEventV2.EventParticipantV2Id)),
+
                 (Rule: IsInvalid(listenerEventV2.Status),
                 Parameter: nameof(ListenerEventV2.Status)),
 
@@ -108,6 +114,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
 
                 (Rule: IsInvalid(listenerEventV2.EventListenerV2Id),
                 Parameter: nameof(ListenerEventV2.EventListenerV2Id)),
+
+                (Rule: IsInvalid(listenerEventV2.EventParticipantV2Id),
+                Parameter: nameof(ListenerEventV2.EventParticipantV2Id)),
 
                 (Rule: IsInvalid(listenerEventV2.Status),
                 Parameter: nameof(ListenerEventV2.Status)),
@@ -149,6 +158,9 @@ namespace EventHighway.Core.Services.Foundations.ListenerEvents.V2
 
                 (Rule: IsInvalid(listenerEventV2.EventListenerV2Id),
                 Parameter: nameof(ListenerEventV2.EventListenerV2Id)),
+
+                (Rule: IsInvalid(listenerEventV2.EventParticipantV2Id),
+                Parameter: nameof(ListenerEventV2.EventParticipantV2Id)),
 
                 (Rule: IsInvalid(listenerEventV2.Status),
                 Parameter: nameof(ListenerEventV2.Status)),

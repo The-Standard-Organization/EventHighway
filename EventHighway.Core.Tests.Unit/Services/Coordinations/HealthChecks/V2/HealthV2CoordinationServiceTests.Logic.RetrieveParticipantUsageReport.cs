@@ -102,8 +102,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.HealthChecks.V2
                 {
                     EventParticipantV2Id = participantIdA,
                     Name = nameRowA.Name,
-                    ContactEmail = nameRowA.ContactEmail,
-                    ContactPhone = nameRowA.ContactPhone,
                     IsActive = nameRowA.IsActive,
                     OwnedListeners = nameRowA.OwnedListeners,
                     TotalEventsSubmitted = 10,

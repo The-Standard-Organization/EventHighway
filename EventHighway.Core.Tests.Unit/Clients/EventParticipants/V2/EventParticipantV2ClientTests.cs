@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using EventHighway.Core.Clients.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Services.Processings.EventParticipants.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 
@@ -15,6 +16,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
     public partial class EventParticipantV2ClientTests
     {
         private readonly Mock<IEventParticipantV2ProcessingService> eventParticipantV2ProcessingServiceMock;
+        private int processingServiceResolutionCount;
         private readonly IEventParticipantV2Client eventParticipantV2Client;
 
         public EventParticipantV2ClientTests()
@@ -22,10 +24,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             this.eventParticipantV2ProcessingServiceMock =
                 new Mock<IEventParticipantV2ProcessingService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.processingServiceResolutionCount++;
+
+                return this.eventParticipantV2ProcessingServiceMock.Object;
+            });
+
             this.eventParticipantV2Client =
                 new EventParticipantV2Client(
-                    eventParticipantV2ProcessingService:
-                        this.eventParticipantV2ProcessingServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         private static Guid GetRandomId() =>

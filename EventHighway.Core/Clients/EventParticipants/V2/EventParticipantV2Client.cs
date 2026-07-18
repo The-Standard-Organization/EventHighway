@@ -4,30 +4,41 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
+using EventHighway.Core.Models.Services.Processings.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Processings.EventParticipants.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventParticipants.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventParticipants.V2
 {
     internal class EventParticipantV2Client : IEventParticipantV2Client
     {
-        private readonly IEventParticipantV2ProcessingService eventParticipantV2ProcessingService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public EventParticipantV2Client(IEventParticipantV2ProcessingService eventParticipantV2ProcessingService) =>
-            this.eventParticipantV2ProcessingService = eventParticipantV2ProcessingService;
+        public EventParticipantV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<EventParticipantV2> AddEventParticipantV2Async(
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .AddEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -60,7 +71,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -68,9 +79,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RetrieveOrAddEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -103,17 +121,26 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
-        public async ValueTask<IEnumerable<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
+        public async ValueTask<IReadOnlyList<EventParticipantV2>> RetrieveAllEventParticipantV2sAsync(
+            EventParticipantV2Query eventParticipantV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
-                    .RetrieveAllEventParticipantV2sAsync(cancellationToken);
+                return await eventParticipantV2ProcessingService
+                    .RetrieveEventParticipantV2sByQueryAsync(
+                        eventParticipantV2Query, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
                 eventParticipantV2ProcessingValidationException)
@@ -145,7 +172,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -153,9 +180,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             Guid eventParticipantV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RetrieveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -188,7 +222,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -196,9 +230,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             EventParticipantV2 eventParticipantV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .ModifyEventParticipantV2Async(eventParticipantV2, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -231,7 +272,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -239,9 +280,16 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             Guid eventParticipantV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventParticipantV2ProcessingService eventParticipantV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventParticipantV2ProcessingService>();
+
             try
             {
-                return await this.eventParticipantV2ProcessingService
+                return await eventParticipantV2ProcessingService
                     .RemoveEventParticipantV2ByIdAsync(eventParticipantV2Id, cancellationToken);
             }
             catch (EventParticipantV2ProcessingValidationException
@@ -274,7 +322,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -297,12 +345,15 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         }
 
         private static EventParticipantV2ClientServiceException
-            CreateClientServiceException(Xeption innerException)
+            CreateClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventParticipantV2ClientServiceException(
                 message: "Event participant client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

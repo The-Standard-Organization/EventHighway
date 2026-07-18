@@ -239,7 +239,8 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 DispatchedDate = null,
                 EventV2Id = eventArchiveV2.Id,
                 EventAddressV2Id = eventArchiveV2.EventAddressV2Id,
-                EventListenerV2Id = eventListenerV2.Id
+                EventListenerV2Id = eventListenerV2.Id,
+                EventParticipantV2Id = eventListenerV2.EventParticipantV2Id
             };
         }
 
@@ -255,7 +256,8 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 UpdatedDate = eventArchiveV2.UpdatedDate,
                 ScheduledDate = null,
                 ContentHash = eventArchiveV2.ContentHash,
-                EventAddressV2Id = eventArchiveV2.EventAddressV2Id
+                EventAddressV2Id = eventArchiveV2.EventAddressV2Id,
+                EventParticipantV2Id = eventArchiveV2.EventParticipantV2Id
             };
 
         private ListenerEventV2 MapToListenerEventV2(
@@ -280,7 +282,8 @@ namespace EventHighway.Core.Services.Orchestrations.RestoringEvents.V2
                 DispatchedDate = null,
                 EventV2Id = listenerEventArchiveV2.EventV2Id,
                 EventAddressV2Id = listenerEventArchiveV2.EventAddressV2Id,
-                EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id
+                EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id,
+                EventParticipantV2Id = listenerEventArchiveV2.EventParticipantV2Id
             };
         }
     }

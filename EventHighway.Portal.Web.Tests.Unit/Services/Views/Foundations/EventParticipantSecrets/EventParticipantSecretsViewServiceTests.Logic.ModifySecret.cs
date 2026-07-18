@@ -54,6 +54,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
 
             this.eventHighwayBrokerMock.Setup(broker =>
                 broker.RetrieveAllEventParticipantSecretV2sAsync(
+                    It.Is<EventParticipantSecretV2Query>(query =>
+                        query.EventParticipantV2Id == participantId
+                            && query.Take == 1000),
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(existingSecrets);
 
@@ -76,6 +79,9 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
 
             this.eventHighwayBrokerMock.Verify(broker =>
                 broker.RetrieveAllEventParticipantSecretV2sAsync(
+                    It.Is<EventParticipantSecretV2Query>(query =>
+                        query.EventParticipantV2Id == participantId
+                            && query.Take == 1000),
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 

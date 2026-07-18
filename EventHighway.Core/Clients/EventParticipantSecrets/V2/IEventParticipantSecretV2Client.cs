@@ -10,23 +10,111 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 
 namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 {
+    /// <summary>
+    /// Defines the contract for the V2 event participant secret client, providing add, retrieval,
+    /// modification, and removal operations over event participant secrets.
+    /// </summary>
     public interface IEventParticipantSecretV2Client
     {
+        /// <summary>
+        /// Adds a new event participant secret asynchronously.
+        /// </summary>
+        /// <remarks>
+        /// The provided <paramref name="eventParticipantSecretV2"/> is mutated in place: its
+        /// <c>Secret</c> is overwritten with the hashed value before the record is persisted, so
+        /// the original plaintext secret cannot be read back from the passed instance after this
+        /// call returns. Capture the plaintext before calling if it is still needed.
+        /// </remarks>
+        /// <param name="eventParticipantSecretV2">The event participant secret to add.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{EventParticipantSecretV2}"/> representing the
+        /// asynchronous operation that returns the added event participant secret.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
         ValueTask<EventParticipantSecretV2> AddEventParticipantSecretV2Async(
             EventParticipantSecretV2 eventParticipantSecretV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IEnumerable<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+        /// <summary>
+        /// Retrieves the event participant secrets matching the given query asynchronously —
+        /// filtered, ordered by <c>CreatedDate</c> descending, paged, and materialized at the
+        /// time of the call.
+        /// </summary>
+        /// <remarks>
+        /// The <c>Secret</c> field is redacted (returned as <c>null</c>) on every record — the
+        /// stored value is a hash that callers never need and that should not be exposed, so it is
+        /// stripped at the client boundary.
+        /// </remarks>
+        /// <param name="eventParticipantSecretV2Query">The search criteria; omitted criteria are
+        /// not applied.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching page of event participant secrets.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
+        ValueTask<IReadOnlyList<EventParticipantSecretV2>> RetrieveAllEventParticipantSecretV2sAsync(
+            EventParticipantSecretV2Query eventParticipantSecretV2Query,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Retrieves an event participant secret by its identifier asynchronously.
+        /// </summary>
+        /// <remarks>
+        /// The returned record's <c>Secret</c> field is redacted (returned as <c>null</c>); the
+        /// stored hash is stripped at the client boundary.
+        /// </remarks>
+        /// <param name="eventParticipantSecretV2Id">The identifier of the event participant secret
+        /// to retrieve.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{EventParticipantSecretV2}"/> representing the
+        /// asynchronous operation that returns the retrieved event participant secret.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
         ValueTask<EventParticipantSecretV2> RetrieveEventParticipantSecretV2ByIdAsync(
             Guid eventParticipantSecretV2Id,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Modifies an existing event participant secret asynchronously.
+        /// </summary>
+        /// <remarks>
+        /// The <c>Secret</c> value is immutable and cannot be rotated through this method — the
+        /// supplied <c>Secret</c> (and <c>CreatedDate</c>) must match what is already stored, so
+        /// only the lifecycle fields (for example <c>IsActive</c>, <c>ActiveFrom</c>,
+        /// <c>ActiveTo</c>) can be changed. To change the secret value, remove this record and add
+        /// a new one.
+        /// </remarks>
+        /// <param name="eventParticipantSecretV2">The event participant secret carrying the
+        /// updated values. Its <c>Secret</c> must equal the stored hash.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{EventParticipantSecretV2}"/> representing the
+        /// asynchronous operation that returns the modified event participant secret.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
         ValueTask<EventParticipantSecretV2> ModifyEventParticipantSecretV2Async(
             EventParticipantSecretV2 eventParticipantSecretV2,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Removes an event participant secret by its identifier asynchronously.
+        /// </summary>
+        /// <param name="eventParticipantSecretV2Id">The identifier of the event participant secret
+        /// to remove.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{EventParticipantSecretV2}"/> representing the
+        /// asynchronous operation that returns the removed event participant secret.</returns>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
         ValueTask<EventParticipantSecretV2> RemoveEventParticipantSecretV2ByIdAsync(
             Guid eventParticipantSecretV2Id,
             CancellationToken cancellationToken = default);

@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -9,6 +9,7 @@ using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.HealthChecks.V2
@@ -19,16 +20,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
     /// </summary>
     internal class HealthLoopClientV2 : IHealthLoopClientV2
     {
-        private readonly IHealthV2CoordinationService healthV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthLoopClientV2"/> class with the
         /// specified health coordination service.
         /// </summary>
-        /// <param name="healthV2CoordinationService">The coordination service for health
-        /// reports.</param>
-        public HealthLoopClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
-            this.healthV2CoordinationService = healthV2CoordinationService;
+        /// <param name="serviceProvider">The application service provider used to open a fresh scope per operation.</param>
+        public HealthLoopClientV2(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<LoopDetectionSummaryV2> RetrieveLoopDetectionSummaryV2Async(
             TrafficPeriodV2 period,
@@ -36,9 +37,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IHealthV2CoordinationService healthV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IHealthV2CoordinationService>();
+
             try
             {
-                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                HealthReportV2 healthReport = await healthV2CoordinationService
                     .RetrieveLoopDetectionReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
                 return healthReport.LoopDetection;
@@ -73,7 +81,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             }
             catch (Exception exception)
             {
-                throw CreateHealthLoopClientV2ServiceException(exception as Xeption);
+                throw CreateHealthLoopClientV2ServiceException(exception);
             }
         }
 
@@ -96,12 +104,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         }
 
         private static HealthLoopClientV2ServiceException
-            CreateHealthLoopClientV2ServiceException(Xeption innerException)
+            CreateHealthLoopClientV2ServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new HealthLoopClientV2ServiceException(
                 message: "Health client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

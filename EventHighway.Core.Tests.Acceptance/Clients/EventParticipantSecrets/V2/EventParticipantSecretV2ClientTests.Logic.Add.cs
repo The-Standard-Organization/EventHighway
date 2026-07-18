@@ -3,6 +3,8 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using FluentAssertions;
@@ -24,6 +26,11 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 inputEventParticipantSecretV2 =
                 randomEventParticipantSecretV2;
 
+            string plainTextSecret = inputEventParticipantSecretV2.Secret;
+
+            string expectedHashedSecret = Convert.ToHexStringLower(
+                SHA256.HashData(Encoding.UTF8.GetBytes(plainTextSecret)));
+
             // when
             EventParticipantSecretV2 actualEventParticipantSecretV2 =
                 await this.clientBroker
@@ -31,6 +38,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                         inputEventParticipantSecretV2);
 
             // then
+            actualEventParticipantSecretV2.Secret.Should()
+                .Be(expectedHashedSecret);
+
             actualEventParticipantSecretV2.Should()
                 .BeEquivalentTo(inputEventParticipantSecretV2);
 

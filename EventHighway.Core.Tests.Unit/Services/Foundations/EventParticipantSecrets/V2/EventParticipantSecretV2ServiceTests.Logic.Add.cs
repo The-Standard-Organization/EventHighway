@@ -26,13 +26,19 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
 
             EventParticipantSecretV2 randomEventParticipantSecretV2 =
                 CreateRandomEventParticipantSecretV2(randomDateTimeOffset);
-
+
             EventParticipantSecretV2 inputEventParticipantSecretV2 = randomEventParticipantSecretV2;
+            string inputSecretValue = inputEventParticipantSecretV2.Secret;
+            string hashedSecretValue = GetRandomString();
             EventParticipantSecretV2 insertedEventParticipantSecretV2 = inputEventParticipantSecretV2;
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetDateTimeOffsetAsync())
                     .ReturnsAsync(randomDateTimeOffset);
+
+            this.hashBrokerMock.Setup(broker =>
+                broker.GenerateSha256Hash(inputSecretValue))
+                    .Returns(hashedSecretValue);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertEventParticipantSecretV2Async(
@@ -49,11 +55,17 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
                 insertedEventParticipantSecretV2.DeepClone();
 
             // then
+            actualEventParticipantSecretV2.Secret.Should().Be(hashedSecretValue);
+
             actualEventParticipantSecretV2.Should().BeEquivalentTo(
                 expectedEventParticipantSecretV2);
 
             this.dateTimeBrokerMock.Verify(broker =>
                 broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.hashBrokerMock.Verify(broker =>
+                broker.GenerateSha256Hash(inputSecretValue),
                     Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
@@ -62,6 +74,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
                         Times.Once);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }

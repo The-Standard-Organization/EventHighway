@@ -112,6 +112,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.Events.V2
                 values: "Required");
 
             invalidEventV2Exception.AddData(
+                key: nameof(EventV2.EventParticipantV2Id),
+                values: "Required");
+
+            invalidEventV2Exception.AddData(
                 key: nameof(EventV2.Type),
                 values: "Value is not recognized");
 

@@ -3,13 +3,15 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventListeners.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.EventListeners.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventListeners.V2
@@ -21,44 +23,32 @@ namespace EventHighway.Core.Clients.EventListeners.V2
     /// </summary>
     internal class EventListenerV2Client : IEventListenerV2Client
     {
-        private readonly IEventListenerV2OrchestrationService eventListenerV2OrchestrationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EventListenerV2Client"/> class with
-        /// the specified orchestration service.
+        /// the specified service provider.
         /// </summary>
-        /// <param name="eventListenerV2OrchestrationService">The orchestration service for
-        /// managing event listeners.</param>
-        /// <exception cref="ArgumentNullException">Thrown when
-        /// eventListenerV2OrchestrationService is null.</exception>
-        public EventListenerV2Client(IEventListenerV2OrchestrationService eventListenerV2OrchestrationService) =>
-            this.eventListenerV2OrchestrationService = eventListenerV2OrchestrationService;
+        /// <param name="serviceProvider">The application service provider used to open a fresh
+        /// scope per operation.</param>
+        public EventListenerV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-        /// <summary>
-        /// Registers a new event listener asynchronously by delegating to the orchestration
-        /// service and handling any exceptions that occur.
-        /// </summary>
-        /// <param name="eventListenerV2">The event listener to register.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{EventListenerV2}"/> representing the asynchronous
-        /// operation that returns the registered event listener.</returns>
-        /// <exception cref="EventListenerV2ClientValidationException">Thrown when validation
-        /// errors occur in the orchestration service.</exception>
-        /// <exception cref="EventListenerV2ClientDependencyException">Thrown when dependency
-        /// or service errors occur.</exception>
-        /// <exception cref="EventListenerV2ClientServiceException">Thrown when an unexpected
-        /// error occurs during registration.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
         public async ValueTask<EventListenerV2> RegisterEventListenerV2Async(
             EventListenerV2 eventListenerV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventListenerV2OrchestrationService eventListenerV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventListenerV2OrchestrationService>();
+
             try
             {
-                return await this.eventListenerV2OrchestrationService
+                return await eventListenerV2OrchestrationService
                     .AddEventListenerV2Async(eventListenerV2, cancellationToken);
             }
             catch (EventListenerV2OrchestrationValidationException
@@ -91,38 +81,27 @@ namespace EventHighway.Core.Clients.EventListeners.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventListenerV2ClientServiceException(exception as Xeption);
+                throw CreateEventListenerV2ClientServiceException(exception);
             }
         }
 
-        /// <summary>
-        /// Retrieves event listeners by event address identifier asynchronously by delegating
-        /// to the orchestration service and handling any exceptions that occur.
-        /// </summary>
-        /// <param name="eventAddressId">The identifier of the event address to filter
-        /// listeners by.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
-        /// operation that returns a queryable collection of event listeners for the specified
-        /// event address.</returns>
-        /// <exception cref="EventListenerV2ClientValidationException">Thrown when validation
-        /// errors occur in the orchestration service.</exception>
-        /// <exception cref="EventListenerV2ClientDependencyException">Thrown when dependency
-        /// or service errors occur.</exception>
-        /// <exception cref="EventListenerV2ClientServiceException">Thrown when an unexpected
-        /// error occurs during retrieval.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
-        public async ValueTask<IQueryable<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
+        public async ValueTask<IReadOnlyList<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
             Guid eventAddressId,
+            EventListenerV2Query eventListenerV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventListenerV2OrchestrationService eventListenerV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventListenerV2OrchestrationService>();
+
             try
             {
-                return await this.eventListenerV2OrchestrationService
-                    .RetrieveEventListenerV2sByEventAddressIdAsync(eventAddressId, cancellationToken);
+                return await eventListenerV2OrchestrationService
+                    .RetrieveEventListenerV2sByEventAddressIdByQueryAsync(
+                        eventAddressId, eventListenerV2Query, cancellationToken);
             }
             catch (EventListenerV2OrchestrationValidationException
                 eventListenerV2OrchestrationValidationException)
@@ -154,35 +133,24 @@ namespace EventHighway.Core.Clients.EventListeners.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventListenerV2ClientServiceException(exception as Xeption);
+                throw CreateEventListenerV2ClientServiceException(exception);
             }
         }
 
-        /// <summary>
-        /// Removes an event listener by its identifier asynchronously by delegating to the
-        /// orchestration service and handling any exceptions that occur.
-        /// </summary>
-        /// <param name="eventListenerV2Id">The identifier of the event listener to remove.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{EventListenerV2}"/> representing the asynchronous
-        /// operation that returns the removed event listener.</returns>
-        /// <exception cref="EventListenerV2ClientValidationException">Thrown when validation
-        /// errors occur in the orchestration service.</exception>
-        /// <exception cref="EventListenerV2ClientDependencyException">Thrown when dependency
-        /// or service errors occur.</exception>
-        /// <exception cref="EventListenerV2ClientServiceException">Thrown when an unexpected
-        /// error occurs during removal.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
         public async ValueTask<EventListenerV2> RemoveEventListenerV2ByIdAsync(
             Guid eventListenerV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventListenerV2OrchestrationService eventListenerV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventListenerV2OrchestrationService>();
+
             try
             {
-                return await this.eventListenerV2OrchestrationService
+                return await eventListenerV2OrchestrationService
                     .RemoveEventListenerV2ByIdAsync(eventListenerV2Id, cancellationToken);
             }
             catch (EventListenerV2OrchestrationValidationException
@@ -215,35 +183,24 @@ namespace EventHighway.Core.Clients.EventListeners.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventListenerV2ClientServiceException(exception as Xeption);
+                throw CreateEventListenerV2ClientServiceException(exception);
             }
         }
 
-        /// <summary>
-        /// Retrieves an existing event listener or registers a new one asynchronously by
-        /// delegating to the orchestration service and handling any exceptions that occur.
-        /// </summary>
-        /// <param name="eventListenerV2">The event listener to retrieve or register.</param>
-        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
-        /// asynchronous operation. The default value is
-        /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{EventListenerV2}"/> representing the asynchronous
-        /// operation that returns the retrieved or registered event listener.</returns>
-        /// <exception cref="EventListenerV2ClientValidationException">Thrown when validation
-        /// errors occur in the orchestration service.</exception>
-        /// <exception cref="EventListenerV2ClientDependencyException">Thrown when dependency
-        /// or service errors occur.</exception>
-        /// <exception cref="EventListenerV2ClientServiceException">Thrown when an unexpected
-        /// error occurs during retrieval or registration.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
-        /// signaled.</exception>
         public async ValueTask<EventListenerV2> RetrieveOrRegisterEventListenerV2Async(
             EventListenerV2 eventListenerV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventListenerV2OrchestrationService eventListenerV2OrchestrationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventListenerV2OrchestrationService>();
+
             try
             {
-                return await this.eventListenerV2OrchestrationService
+                return await eventListenerV2OrchestrationService
                     .RetrieveOrRegisterEventListenerV2Async(eventListenerV2, cancellationToken);
             }
             catch (EventListenerV2OrchestrationValidationException
@@ -276,7 +233,7 @@ namespace EventHighway.Core.Clients.EventListeners.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventListenerV2ClientServiceException(exception as Xeption);
+                throw CreateEventListenerV2ClientServiceException(exception);
             }
         }
 
@@ -299,12 +256,15 @@ namespace EventHighway.Core.Clients.EventListeners.V2
         }
 
         private static EventListenerV2ClientServiceException
-            CreateEventListenerV2ClientServiceException(Xeption innerException)
+            CreateEventListenerV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventListenerV2ClientServiceException(
                 message: "Event listener client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

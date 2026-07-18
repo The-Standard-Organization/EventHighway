@@ -14,6 +14,7 @@ namespace EventHighway.Portal.Web.Models.Services.Views.Foundations.EventPartici
         public string ContactEmail { get; set; } = string.Empty;
         public string ContactPhone { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public bool IsSecretRequired { get; set; }
         public DateTimeOffset? ActiveFrom { get; set; }
         public DateTimeOffset? ActiveTo { get; set; }
     }

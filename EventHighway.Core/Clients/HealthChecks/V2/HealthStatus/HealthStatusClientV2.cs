@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -10,6 +10,7 @@ using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.HealthChecks.V2
@@ -20,16 +21,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
     /// </summary>
     internal class HealthStatusClientV2 : IHealthStatusClientV2
     {
-        private readonly IHealthV2CoordinationService healthV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthStatusClientV2"/> class with the
         /// specified health coordination service.
         /// </summary>
-        /// <param name="healthV2CoordinationService">The coordination service for health
-        /// reports.</param>
-        public HealthStatusClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
-            this.healthV2CoordinationService = healthV2CoordinationService;
+        /// <param name="serviceProvider">The application service provider used to open a fresh scope per operation.</param>
+        public HealthStatusClientV2(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<IReadOnlyList<HealthCheckItemV2>> RetrieveHealthRagStatusV2Async(
             TrafficPeriodV2 period,
@@ -37,9 +38,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IHealthV2CoordinationService healthV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IHealthV2CoordinationService>();
+
             try
             {
-                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                HealthReportV2 healthReport = await healthV2CoordinationService
                     .RetrieveHealthCheckItemsReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
                 return healthReport.HealthCheckItems;
@@ -74,7 +82,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             }
             catch (Exception exception)
             {
-                throw CreateHealthStatusClientV2ServiceException(exception as Xeption);
+                throw CreateHealthStatusClientV2ServiceException(exception);
             }
         }
 
@@ -97,12 +105,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         }
 
         private static HealthStatusClientV2ServiceException
-            CreateHealthStatusClientV2ServiceException(Xeption innerException)
+            CreateHealthStatusClientV2ServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new HealthStatusClientV2ServiceException(
                 message: "Health client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

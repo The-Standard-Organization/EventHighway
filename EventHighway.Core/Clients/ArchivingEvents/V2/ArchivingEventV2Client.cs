@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ArchivingEvents.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.ArchivingEvents.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.ArchivingEvents.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.ArchivingEvents.V2
@@ -18,18 +19,17 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
     /// </summary>
     internal class ArchivingEventV2Client : IArchivingEventV2Client
     {
-        private readonly IArchivingEventV2CoordinationService archivingEventV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ArchivingEventV2Client"/> class with
-        /// the specified archiving event coordination service.
+        /// the specified service provider.
         /// </summary>
-        /// <param name="archivingEventV2CoordinationService">The coordination service for
-        /// archiving events.</param>
-        /// <exception cref="ArgumentNullException">Thrown when archivingEventV2CoordinationService
-        /// is null.</exception>
-        public ArchivingEventV2Client(IArchivingEventV2CoordinationService archivingEventV2CoordinationService) =>
-            this.archivingEventV2CoordinationService = archivingEventV2CoordinationService;
+        /// <param name="serviceProvider">The application service provider used to open a fresh
+        /// scope per operation.</param>
+        public ArchivingEventV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         /// <summary>
         /// Archives dead events asynchronously by delegating to the coordination service and
@@ -49,9 +49,16 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         /// signaled.</exception>
         public async ValueTask ArchiveEventV2sAsync(CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IArchivingEventV2CoordinationService archivingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IArchivingEventV2CoordinationService>();
+
             try
             {
-                await this.archivingEventV2CoordinationService
+                await archivingEventV2CoordinationService
                     .ArchiveEventV2sAsync(cancellationToken);
             }
             catch (ArchivingEventV2CoordinationValidationException
@@ -84,7 +91,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
 
@@ -107,12 +114,15 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         }
 
         private static ArchivingEventV2ClientServiceException
-            CreateArchivingEventV2ClientServiceException(Xeption innerException)
+            CreateArchivingEventV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ArchivingEventV2ClientServiceException(
                 message: "Archiving event client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
 
         /// <summary>
@@ -131,9 +141,16 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             DateTimeOffset olderThan,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IArchivingEventV2CoordinationService archivingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IArchivingEventV2CoordinationService>();
+
             try
             {
-                await this.archivingEventV2CoordinationService
+                await archivingEventV2CoordinationService
                     .PurgeEventArchiveV2sAsync(olderThan, cancellationToken);
             }
             catch (ArchivingEventV2CoordinationValidationException
@@ -166,7 +183,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
 
@@ -184,9 +201,16 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         public async ValueTask PurgeEventArchiveV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IArchivingEventV2CoordinationService archivingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IArchivingEventV2CoordinationService>();
+
             try
             {
-                await this.archivingEventV2CoordinationService
+                await archivingEventV2CoordinationService
                     .PurgeEventArchiveV2sAsync(cancellationToken);
             }
             catch (ArchivingEventV2CoordinationValidationException
@@ -219,7 +243,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
     }

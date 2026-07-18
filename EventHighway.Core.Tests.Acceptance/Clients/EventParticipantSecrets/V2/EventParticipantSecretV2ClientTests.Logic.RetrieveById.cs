@@ -22,6 +22,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 expectedEventParticipantSecretV2 =
                 randomEventParticipantSecretV2.DeepClone();
 
+            expectedEventParticipantSecretV2.Secret = null;
+
             Guid inputEventParticipantSecretV2Id =
                 randomEventParticipantSecretV2.Id;
 

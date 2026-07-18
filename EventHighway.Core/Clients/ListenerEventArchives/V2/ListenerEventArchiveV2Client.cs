@@ -3,13 +3,14 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ListenerEventArchives.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.ListenerEventArchives.V2
@@ -20,24 +21,34 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
     /// </summary>
     internal class ListenerEventArchiveV2Client : IListenerEventArchiveV2Client
     {
-        private readonly IListenerEventArchiveV2Service listenerEventArchiveV2Service;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ListenerEventArchiveV2Client"/> class with
-        /// the specified listener event archive service.
+        /// the specified service provider.
         /// </summary>
-        /// <param name="listenerEventArchiveV2Service">The foundation service for archived listener
-        /// events.</param>
-        public ListenerEventArchiveV2Client(IListenerEventArchiveV2Service listenerEventArchiveV2Service) =>
-            this.listenerEventArchiveV2Service = listenerEventArchiveV2Service;
+        /// <param name="serviceProvider">The application service provider used to open a fresh
+        /// scope per operation.</param>
+        public ListenerEventArchiveV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-        public async ValueTask<IQueryable<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sAsync(
+        public async ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sAsync(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventArchiveV2Service listenerEventArchiveV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventArchiveV2Service>();
+
             try
             {
-                return await this.listenerEventArchiveV2Service
-                    .RetrieveAllListenerEventArchiveV2sAsync(cancellationToken);
+                return await listenerEventArchiveV2Service
+                    .RetrieveListenerEventArchiveV2sByQueryAsync(
+                        listenerEventArchiveV2Query, cancellationToken);
             }
             catch (ListenerEventArchiveV2ValidationException
                 listenerEventArchiveV2ValidationException)
@@ -69,17 +80,26 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventArchiveV2ClientServiceException(exception);
             }
         }
 
-        public async ValueTask<IQueryable<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(
+        public async ValueTask<IReadOnlyList<ListenerEventArchiveV2>> RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IListenerEventArchiveV2Service listenerEventArchiveV2Service =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IListenerEventArchiveV2Service>();
+
             try
             {
-                return await this.listenerEventArchiveV2Service
-                    .RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(cancellationToken);
+                return await listenerEventArchiveV2Service
+                    .RetrieveListenerEventArchiveV2sWithEventListenerV2ByQueryAsync(
+                        listenerEventArchiveV2Query, cancellationToken);
             }
             catch (ListenerEventArchiveV2ValidationException
                 listenerEventArchiveV2ValidationException)
@@ -111,7 +131,7 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventArchiveV2ClientServiceException(exception);
             }
         }
 
@@ -134,12 +154,15 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
         }
 
         private static ListenerEventArchiveV2ClientServiceException
-            CreateListenerEventArchiveV2ClientServiceException(Xeption innerException)
+            CreateListenerEventArchiveV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ListenerEventArchiveV2ClientServiceException(
                 message: "Listener event archive client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

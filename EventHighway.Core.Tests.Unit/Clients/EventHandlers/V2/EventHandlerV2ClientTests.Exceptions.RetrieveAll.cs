@@ -3,11 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventHandlers.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
+using EventHighway.Core.Models.Services.Processings.EventHandlers.V2;
 using EventHighway.Core.Models.Services.Processings.EventHandlers.V2.Exceptions;
 using FluentAssertions;
 using Moq;
@@ -40,13 +41,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                     data: (eventHandlerV2ProcessingDependencyException.InnerException as Xeption).Data);
 
             this.eventHandlerV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventHandlerV2ProcessingDependencyException);
 
             // when
-            ValueTask<IQueryable<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
+            ValueTask<IReadOnlyList<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
                 this.eventHandlerV2Client.RetrieveAllEventHandlerV2sAsync(
-                    randomCancellationToken);
+                    new EventHandlerV2Query(), randomCancellationToken);
 
             EventHandlerV2ClientDependencyException actualEventHandlerV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventHandlerV2ClientDependencyException>(
@@ -57,7 +59,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                 expectedEventHandlerV2ClientDependencyException);
 
             this.eventHandlerV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHandlerV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -86,13 +89,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                     data: (eventHandlerV2ProcessingServiceException.InnerException as Xeption).Data);
 
             this.eventHandlerV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(eventHandlerV2ProcessingServiceException);
 
             // when
-            ValueTask<IQueryable<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
+            ValueTask<IReadOnlyList<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
                 this.eventHandlerV2Client.RetrieveAllEventHandlerV2sAsync(
-                    randomCancellationToken);
+                    new EventHandlerV2Query(), randomCancellationToken);
 
             EventHandlerV2ClientDependencyException actualEventHandlerV2ClientDependencyException =
                 await Assert.ThrowsAsync<EventHandlerV2ClientDependencyException>(
@@ -103,7 +107,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                 expectedEventHandlerV2ClientDependencyException);
 
             this.eventHandlerV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHandlerV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -125,13 +130,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                     data: someXeption.Data);
 
             this.eventHandlerV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(someXeption);
 
             // when
-            ValueTask<IQueryable<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
+            ValueTask<IReadOnlyList<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
                 this.eventHandlerV2Client.RetrieveAllEventHandlerV2sAsync(
-                    randomCancellationToken);
+                    new EventHandlerV2Query(), randomCancellationToken);
 
             EventHandlerV2ClientServiceException actualEventHandlerV2ClientServiceException =
                 await Assert.ThrowsAsync<EventHandlerV2ClientServiceException>(
@@ -142,7 +148,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                 expectedEventHandlerV2ClientServiceException);
 
             this.eventHandlerV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHandlerV2ProcessingServiceMock.VerifyNoOtherCalls();
@@ -159,13 +166,14 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                 new OperationCanceledException();
 
             this.eventHandlerV2ProcessingServiceMock.Setup(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()))
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(operationCanceledException);
 
             // when
-            ValueTask<IQueryable<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
+            ValueTask<IReadOnlyList<EventHandlerV2>> retrieveAllEventHandlerV2sTask =
                 this.eventHandlerV2Client.RetrieveAllEventHandlerV2sAsync(
-                    randomCancellationToken);
+                    new EventHandlerV2Query(), randomCancellationToken);
 
             OperationCanceledException actualOperationCanceledException =
                 await Assert.ThrowsAsync<OperationCanceledException>(
@@ -176,7 +184,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
                 .BeEquivalentTo(operationCanceledException);
 
             this.eventHandlerV2ProcessingServiceMock.Verify(service =>
-                service.RetrieveAllEventHandlerV2sAsync(It.IsAny<CancellationToken>()),
+                service.RetrieveEventHandlerV2sByQueryAsync(
+                    It.IsAny<EventHandlerV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHandlerV2ProcessingServiceMock.VerifyNoOtherCalls();

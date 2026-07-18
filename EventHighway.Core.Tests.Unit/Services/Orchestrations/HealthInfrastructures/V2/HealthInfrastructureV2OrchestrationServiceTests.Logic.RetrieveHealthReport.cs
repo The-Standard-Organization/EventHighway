@@ -114,8 +114,6 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthInfrastruct
                     {
                         EventParticipantV2Id = participant.Id,
                         Name = participant.Name,
-                        ContactEmail = participant.ContactEmail,
-                        ContactPhone = participant.ContactPhone,
                         IsActive = participant.IsActive,
 
                         OwnedListeners = randomEventListeners

@@ -51,6 +51,101 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
             return await this.storageBroker.SelectAllEventArchiveV2sAsync(cancellationToken);
         });
 
+        public ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveEventArchiveV2sByQueryAsync(
+            EventArchiveV2Query eventArchiveV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventArchiveV2Query(eventArchiveV2Query);
+
+            IQueryable<EventArchiveV2> eventArchiveV2s =
+                await this.storageBroker.SelectAllEventArchiveV2sAsync(cancellationToken);
+
+            return ApplyEventArchiveV2Query(eventArchiveV2s, eventArchiveV2Query);
+        });
+
+        public ValueTask<IReadOnlyList<EventArchiveV2>> RetrieveEventArchiveV2sWithEventAddressV2ByQueryAsync(
+            EventArchiveV2Query eventArchiveV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventArchiveV2Query(eventArchiveV2Query);
+
+            IQueryable<EventArchiveV2> eventArchiveV2s =
+                await this.storageBroker
+                    .SelectAllEventArchiveV2sWithEventAddressV2Async(cancellationToken);
+
+            return ApplyEventArchiveV2Query(eventArchiveV2s, eventArchiveV2Query);
+        });
+
+        private static IReadOnlyList<EventArchiveV2> ApplyEventArchiveV2Query(
+            IQueryable<EventArchiveV2> eventArchiveV2s,
+            EventArchiveV2Query eventArchiveV2Query)
+        {
+            if (eventArchiveV2Query.EventAddressV2Id is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.EventAddressV2Id == eventArchiveV2Query.EventAddressV2Id);
+            }
+
+            if (eventArchiveV2Query.EventParticipantV2Id is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.EventParticipantV2Id == eventArchiveV2Query.EventParticipantV2Id);
+            }
+
+            if (eventArchiveV2Query.EventName is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.EventName == eventArchiveV2Query.EventName);
+            }
+
+            if (eventArchiveV2Query.Status is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.Status == eventArchiveV2Query.Status);
+            }
+
+            if (eventArchiveV2Query.Type is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.Type == eventArchiveV2Query.Type);
+            }
+
+            if (eventArchiveV2Query.CreatedFrom is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.CreatedDate >= eventArchiveV2Query.CreatedFrom);
+            }
+
+            if (eventArchiveV2Query.CreatedTo is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.CreatedDate <= eventArchiveV2Query.CreatedTo);
+            }
+
+            if (eventArchiveV2Query.ArchivedFrom is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.ArchivedDate >= eventArchiveV2Query.ArchivedFrom);
+            }
+
+            if (eventArchiveV2Query.ArchivedTo is not null)
+            {
+                eventArchiveV2s = eventArchiveV2s.Where(eventArchiveV2 =>
+                    eventArchiveV2.ArchivedDate <= eventArchiveV2Query.ArchivedTo);
+            }
+
+            return eventArchiveV2s
+                .OrderByDescending(eventArchiveV2 => eventArchiveV2.ArchivedDate)
+                .ThenBy(eventArchiveV2 => eventArchiveV2.Id)
+                .Skip(eventArchiveV2Query.Skip)
+                .Take(eventArchiveV2Query.Take)
+                .ToList();
+        }
+
         public ValueTask<IQueryable<EventArchiveV2>> RetrieveAllEventArchiveV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -147,7 +242,7 @@ namespace EventHighway.Core.Services.Foundations.EventArchives.V2
 
             await this.storageBroker.BulkInsertEventArchiveV2sAsync(itemsToBulkAdd, cancellationToken);
 
-            return existingItems.Concat(itemsToBulkAdd).ToList();
+            return (IEnumerable<EventArchiveV2>)existingItems.Concat(itemsToBulkAdd).ToList();
         });
 
         public ValueTask BulkRemoveEventArchiveV2sAsync(

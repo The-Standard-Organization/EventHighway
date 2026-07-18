@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.Loggings;
 using EventHighway.Core.Brokers.Times;
+using EventHighway.Core.Models.Configurations.BatchProcessings;
+using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
@@ -22,6 +25,7 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         private readonly IEventV2OrchestrationService eventV2OrchestrationService;
         private readonly IEventFiringV2OrchestrationService eventFiringV2OrchestrationService;
         private readonly IEventParticipantV2OrchestrationService eventParticipantV2OrchestrationService;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly IDateTimeBroker dateTimeBroker;
         private readonly ILoggingBroker loggingBroker;
 
@@ -29,12 +33,14 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
             IEventV2OrchestrationService eventV2OrchestrationService,
             IEventFiringV2OrchestrationService eventFiringV2OrchestrationService,
             IEventParticipantV2OrchestrationService eventParticipantV2OrchestrationService,
+            IConfigurationBroker configurationBroker,
             IDateTimeBroker dateTimeBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventV2OrchestrationService = eventV2OrchestrationService;
             this.eventFiringV2OrchestrationService = eventFiringV2OrchestrationService;
             this.eventParticipantV2OrchestrationService = eventParticipantV2OrchestrationService;
+            this.configurationBroker = configurationBroker;
             this.dateTimeBroker = dateTimeBroker;
             this.loggingBroker = loggingBroker;
         }
@@ -49,6 +55,8 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
 
             await this.eventParticipantV2OrchestrationService
                 .ValidateEventParticipantsAsync(eventV2, cancellationToken);
+
+            eventV2.EventParticipantV2Secret = null;
 
             DateTimeOffset now =
                 await this.dateTimeBroker.GetDateTimeOffsetAsync();
@@ -103,6 +111,103 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
                 .RetrieveAllEventV2sAsync(cancellationToken);
         });
 
+        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sByQueryAsync(
+            EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventV2Query(eventV2Query);
+
+            IQueryable<EventV2> eventV2s =
+                await this.eventV2OrchestrationService
+                    .RetrieveAllEventV2sAsync(cancellationToken);
+
+            return ApplyEventV2Query(eventV2s, eventV2Query).ToList();
+        });
+
+        public ValueTask<IReadOnlyList<EventV2>> RetrieveEventV2sWithEventAddressV2ByQueryAsync(
+            EventV2Query eventV2Query,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventV2Query(eventV2Query);
+
+            IQueryable<EventV2> eventV2s =
+                await this.eventV2OrchestrationService
+                    .RetrieveAllEventV2sWithEventAddressV2Async(cancellationToken);
+
+            return ApplyEventV2Query(eventV2s, eventV2Query).ToList();
+        });
+
+        private static IQueryable<EventV2> ApplyEventV2Query(
+            IQueryable<EventV2> eventV2s,
+            EventV2Query eventV2Query)
+        {
+            if (eventV2Query.EventAddressV2Id is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.EventAddressV2Id == eventV2Query.EventAddressV2Id);
+            }
+
+            if (eventV2Query.EventParticipantV2Id is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.EventParticipantV2Id == eventV2Query.EventParticipantV2Id);
+            }
+
+            if (eventV2Query.EventName is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.EventName == eventV2Query.EventName);
+            }
+
+            if (eventV2Query.Status is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.Status == eventV2Query.Status);
+            }
+
+            if (eventV2Query.Type is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.Type == eventV2Query.Type);
+            }
+
+            if (eventV2Query.CreatedFrom is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.CreatedDate >= eventV2Query.CreatedFrom);
+            }
+
+            if (eventV2Query.CreatedTo is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.CreatedDate <= eventV2Query.CreatedTo);
+            }
+
+            if (eventV2Query.ScheduledFrom is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.ScheduledDate != null
+                        && eventV2.ScheduledDate >= eventV2Query.ScheduledFrom);
+            }
+
+            if (eventV2Query.ScheduledTo is not null)
+            {
+                eventV2s = eventV2s.Where(eventV2 =>
+                    eventV2.ScheduledDate != null
+                        && eventV2.ScheduledDate <= eventV2Query.ScheduledTo);
+            }
+
+            return eventV2s
+                .OrderByDescending(eventV2 => eventV2.CreatedDate)
+                .ThenBy(eventV2 => eventV2.Id)
+                .Skip(eventV2Query.Skip)
+                .Take(eventV2Query.Take);
+        }
+
         public ValueTask<IQueryable<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
@@ -131,30 +236,60 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            List<EventV2> eventV2s =
-                  (await this.eventV2OrchestrationService
-                      .RetrieveScheduledPendingEventV2sAsync(cancellationToken))
-                          .ToList();
+            BatchConfiguration batchConfiguration =
+                this.configurationBroker.GetBatchConfiguration();
 
-            foreach (EventV2 eventV2 in eventV2s)
+            int take = batchConfiguration.BatchSizeForBulkProcessing;
+            var attemptedEventV2Ids = new HashSet<Guid>();
+
+            do
             {
-                if (eventV2.Status == EventStatusV2.Quarantined)
-                    continue;
-
-                try
-                {
-                    await this.eventFiringV2OrchestrationService
-                        .FireEventV2Async(eventV2, cancellationToken);
-
+                IQueryable<EventV2> scheduledPendingEventV2s =
                     await this.eventV2OrchestrationService
-                        .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
-                }
-                catch (Exception exception)
-                    when (exception is not OperationCanceledException)
+                        .RetrieveScheduledPendingEventV2sAsync(cancellationToken);
+
+                List<EventV2> batchOfEventV2s = take > 0
+                    ? scheduledPendingEventV2s.OrderBy(eventV2 => eventV2.ScheduledDate)
+                        .Take(take).ToList()
+                    : scheduledPendingEventV2s.ToList();
+
+                List<EventV2> freshEventV2s =
+                    batchOfEventV2s.Where(eventV2 =>
+                        !attemptedEventV2Ids.Contains(eventV2.Id)).ToList();
+
+                if (!freshEventV2s.Any())
+                    break;
+
+                foreach (EventV2 eventV2 in freshEventV2s)
                 {
-                    await this.loggingBroker.LogErrorAsync(exception);
+                    attemptedEventV2Ids.Add(eventV2.Id);
+
+                    if (eventV2.Status == EventStatusV2.Quarantined)
+                        continue;
+
+                    try
+                    {
+                        int claimedEventV2Count =
+                            await this.eventV2OrchestrationService
+                                .TryClaimScheduledEventV2Async(eventV2.Id, cancellationToken);
+
+                        if (claimedEventV2Count == 0)
+                            continue;
+
+                        await this.eventFiringV2OrchestrationService
+                            .FireEventV2Async(eventV2, cancellationToken);
+                    }
+                    catch (Exception exception)
+                        when (exception is not OperationCanceledException)
+                    {
+                        await this.loggingBroker.LogErrorAsync(exception);
+                    }
                 }
+
+                if (take <= 0)
+                    break;
             }
+            while (true);
         });
 
         public ValueTask<EventV2> RemoveEventV2ByIdAsync(
