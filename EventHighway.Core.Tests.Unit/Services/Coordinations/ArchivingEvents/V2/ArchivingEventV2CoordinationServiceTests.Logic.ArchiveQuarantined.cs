@@ -54,7 +54,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 Type = (EventArchiveTypeV2)quarantinedEventV2.Type,
                 Status = (EventArchiveStatusV2)quarantinedEventV2.Status,
                 CreatedDate = quarantinedEventV2.CreatedDate,
-                UpdatedDate = quarantinedEventV2.CreatedDate,
+                UpdatedDate = quarantinedEventV2.UpdatedDate,
                 ScheduledDate = quarantinedEventV2.ScheduledDate,
                 EventAddressV2Id = quarantinedEventV2.EventAddressV2Id
             };
@@ -176,7 +176,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 Type = (EventArchiveTypeV2)quarantinedEventV2.Type,
                 Status = (EventArchiveStatusV2)quarantinedEventV2.Status,
                 CreatedDate = quarantinedEventV2.CreatedDate,
-                UpdatedDate = quarantinedEventV2.CreatedDate,
+                UpdatedDate = quarantinedEventV2.UpdatedDate,
                 ScheduledDate = quarantinedEventV2.ScheduledDate,
                 EventAddressV2Id = quarantinedEventV2.EventAddressV2Id,
                 EventParticipantV2Id = quarantinedEventV2.EventParticipantV2Id
@@ -298,7 +298,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 Type = (EventArchiveTypeV2)unarchivableQuarantinedEventV2.Type,
                 Status = (EventArchiveStatusV2)unarchivableQuarantinedEventV2.Status,
                 CreatedDate = unarchivableQuarantinedEventV2.CreatedDate,
-                UpdatedDate = unarchivableQuarantinedEventV2.CreatedDate,
+                UpdatedDate = unarchivableQuarantinedEventV2.UpdatedDate,
                 ScheduledDate = unarchivableQuarantinedEventV2.ScheduledDate,
                 EventAddressV2Id = unarchivableQuarantinedEventV2.EventAddressV2Id,
                 EventParticipantV2Id = unarchivableQuarantinedEventV2.EventParticipantV2Id
