@@ -187,6 +187,85 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
         }
 
         [Fact]
+        public async Task ShouldPreserveEventParticipantV2IdWhenRestoringEventV2Async()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventArchiveV2 inputEventArchiveV2 =
+                CreateEventArchiveV2Filler().Create();
+
+            List<EventArchiveV2> inputEventArchiveV2s =
+                new List<EventArchiveV2> { inputEventArchiveV2 };
+
+            List<ListenerEventArchiveV2> inputListenerEventArchiveV2s =
+                new List<ListenerEventArchiveV2>();
+
+            this.eventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<EventV2>().AsQueryable());
+
+            List<EventV2> capturedEventV2sToRestore = null;
+
+            this.eventV2ProcessingServiceMock.Setup(service =>
+                service.BulkRestoreEventV2sAsync(
+                    It.IsAny<IEnumerable<EventV2>>(),
+                    randomCancellationToken))
+                        .Callback<IEnumerable<EventV2>, CancellationToken>(
+                            (actualEventV2s, _) =>
+                                capturedEventV2sToRestore = actualEventV2s.ToList())
+                        .ReturnsAsync(new List<EventV2>());
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
+                    .ReturnsAsync(new List<ListenerEventV2>().AsQueryable());
+
+            this.listenerEventV2ProcessingServiceMock.Setup(service =>
+                service.BulkRestoreListenerEventV2sAsync(
+                    It.IsAny<IEnumerable<ListenerEventV2>>(),
+                    randomCancellationToken))
+                        .ReturnsAsync(new List<ListenerEventV2>());
+
+            // when
+            await this.restoringEventV2OrchestrationService.RestoreAsync(
+                inputEventArchiveV2s,
+                inputListenerEventArchiveV2s,
+                randomCancellationToken);
+
+            // then
+            EventV2 actualEventV2 = capturedEventV2sToRestore.Single();
+
+            actualEventV2.EventParticipantV2Id.Should()
+                .Be(inputEventArchiveV2.EventParticipantV2Id);
+
+            this.eventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveAllEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2ProcessingServiceMock.Verify(service =>
+                service.BulkRestoreEventV2sAsync(
+                    It.IsAny<IEnumerable<EventV2>>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.listenerEventV2ProcessingServiceMock.Verify(service =>
+                service.BulkRestoreListenerEventV2sAsync(
+                    It.IsAny<IEnumerable<ListenerEventV2>>(),
+                    randomCancellationToken),
+                        Times.Once);
+
+            this.eventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.listenerEventV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.eventListenerV2ProcessingServiceMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldResetRetryFieldsOnRestoreWhenListenerEventArchiveV2HasNonDefaultRetryStateAsync()
         {
             // given
