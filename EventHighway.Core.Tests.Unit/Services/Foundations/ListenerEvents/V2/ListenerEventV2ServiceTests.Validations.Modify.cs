@@ -116,6 +116,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V2
                 values: "Required");
 
             invalidListenerEventV2Exception.AddData(
+                key: nameof(ListenerEventV2.EventParticipantV2Id),
+                values: "Required");
+
+            invalidListenerEventV2Exception.AddData(
                 key: nameof(ListenerEventV2.Status),
                 values: "Value is not recognized");
 
@@ -331,10 +335,13 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V2
 
             DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
 
+            int randomDaysAgo = GetRandomNegativeNumber();
+
             ListenerEventV2 randomListenerEventV2 =
                 CreateRandomListenerEventV2(dates: randomDateTimeOffset);
 
             ListenerEventV2 invalidListenerEventV2 = randomListenerEventV2;
+            invalidListenerEventV2.CreatedDate = randomDateTimeOffset.AddDays(randomDaysAgo);
             invalidListenerEventV2.EventParticipantV2Id = Guid.Empty;
 
             var invalidListenerEventV2Exception =
