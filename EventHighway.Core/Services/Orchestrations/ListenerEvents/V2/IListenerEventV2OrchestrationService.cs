@@ -12,7 +12,7 @@ using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 
 namespace EventHighway.Core.Services.Orchestrations.ListenerEvents.V2
 {
-    public interface IListenerEventV2OrchestrationService
+    internal interface IListenerEventV2OrchestrationService
     {
         ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
             CancellationToken cancellationToken = default);
