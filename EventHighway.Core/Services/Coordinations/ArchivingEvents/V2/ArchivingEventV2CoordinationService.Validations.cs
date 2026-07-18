@@ -15,6 +15,18 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 (Rule: IsInvalid(olderThan), Parameter: "OlderThan"));
         }
 
+        private static void ValidateOnPurgeFromConfiguration(int retentionDays)
+        {
+            Validate(
+                (Rule: IsInvalidRetentionDays(retentionDays), Parameter: "RetentionDays"));
+        }
+
+        private static dynamic IsInvalidRetentionDays(int retentionDays) => new
+        {
+            Condition = retentionDays < 1,
+            Message = "Retention days must be greater than zero to avoid purging all archived events."
+        };
+
         private static dynamic IsInvalid(DateTimeOffset date) => new
         {
             Condition = date == default,

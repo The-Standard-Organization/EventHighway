@@ -102,6 +102,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
             PurgeConfiguration purgeConfiguration = this.configurationBroker.GetPurgeConfiguration();
+            ValidateOnPurgeFromConfiguration(purgeConfiguration.RetentionDays);
             DateTimeOffset currentDateTimeOffset = await this.dateTimeBroker.GetDateTimeOffsetAsync();
             DateTimeOffset olderThan = currentDateTimeOffset.AddDays(-purgeConfiguration.RetentionDays);
             BatchConfiguration batchConfiguration = this.configurationBroker.GetBatchConfiguration();
@@ -124,6 +125,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
 
         private async ValueTask ArchiveQuarantinedEventV2sAsync(CancellationToken cancellationToken)
         {
+            var faultedEventV2Ids = new HashSet<Guid>();
             var failedEventV2Ids = new List<Guid>();
             IEnumerable<EventV2> quarantinedEventV2s;
 
@@ -133,11 +135,15 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                     await this.archivingEventV2OrchestrationService
                         .RetrieveBatchOfQuarantinedEventV2sAsync(cancellationToken);
 
-                if (!quarantinedEventV2s.Any())
+                IEnumerable<EventV2> pendingQuarantinedEventV2s =
+                    quarantinedEventV2s.Where(eventV2 =>
+                        !faultedEventV2Ids.Contains(eventV2.Id)).ToList();
+
+                if (!pendingQuarantinedEventV2s.Any())
                     break;
 
                 IEnumerable<EventArchiveV2> eventArchiveV2s =
-                    quarantinedEventV2s.Select(MapToEventArchiveV2).ToList();
+                    pendingQuarantinedEventV2s.Select(MapToEventArchiveV2).ToList();
 
                 IEnumerable<EventArchiveV2> addedEventArchiveV2s =
                     await this.eventArchiveV2OrchestrationService
@@ -147,7 +153,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                     addedEventArchiveV2s.Select(archive => archive.Id).ToHashSet();
 
                 IEnumerable<EventV2> removableEventV2s =
-                    quarantinedEventV2s
+                    pendingQuarantinedEventV2s
                         .Where(eventV2 => archivedIds.Contains(eventV2.Id)).ToList();
 
                 if (removableEventV2s.Any())
@@ -156,10 +162,11 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                         .BulkRemoveEventV2sAsync(removableEventV2s, cancellationToken);
                 }
 
-                foreach (EventV2 unarchivedEventV2 in quarantinedEventV2s
+                foreach (EventV2 unarchivedEventV2 in pendingQuarantinedEventV2s
                     .Where(eventV2 => !archivedIds.Contains(eventV2.Id)))
                 {
-                    failedEventV2Ids.Add(unarchivedEventV2.Id);
+                    if (faultedEventV2Ids.Add(unarchivedEventV2.Id))
+                        failedEventV2Ids.Add(unarchivedEventV2.Id);
                 }
             }
             while (true);
@@ -328,7 +335,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 Type = (EventArchiveTypeV2)eventV2.Type,
                 Status = (EventArchiveStatusV2)eventV2.Status,
                 CreatedDate = eventV2.CreatedDate,
-                UpdatedDate = eventV2.CreatedDate,
+                UpdatedDate = eventV2.UpdatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
                 EventParticipantV2Id = eventV2.EventParticipantV2Id
@@ -347,7 +354,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 ResponseCode = listenerEventV2.ResponseCode,
                 ResponseMessage = listenerEventV2.ResponseMessage,
                 CreatedDate = listenerEventV2.CreatedDate,
-                UpdatedDate = listenerEventV2.CreatedDate,
+                UpdatedDate = listenerEventV2.UpdatedDate,
                 RemainingRetryAttempts = listenerEventV2.RemainingRetryAttempts,
                 RetryAttemptsAllowed = listenerEventV2.RetryAttemptsAllowed,
                 NextRetryAttemptNotBefore = listenerEventV2.NextRetryAttemptNotBefore,

@@ -17,7 +17,10 @@ namespace EventHighway.Core.Models.Services.Foundations.EventParticipants.V2
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the secret value used for authentication.
+        /// Gets or sets the secret value used for authentication. This is write-once: on Add the
+        /// supplied plaintext is replaced in place with its SHA-256 hash, and every subsequent
+        /// retrieval returns that hash — never the original plaintext. The value is immutable after
+        /// creation; rotate a secret by removing it and adding a new one.
         /// </summary>
         public string Secret { get; set; }
 

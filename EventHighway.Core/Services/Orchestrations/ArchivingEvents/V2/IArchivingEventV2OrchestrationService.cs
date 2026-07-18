@@ -9,7 +9,7 @@ using EventHighway.Core.Models.Services.Foundations.Events.V2;
 
 namespace EventHighway.Core.Services.Orchestrations.ArchivingEvents.V2
 {
-    public interface IArchivingEventV2OrchestrationService
+    internal interface IArchivingEventV2OrchestrationService
     {
         ValueTask<IEnumerable<EventV2>> RetrieveBatchOfQuarantinedEventV2sAsync(
             CancellationToken cancellationToken = default);

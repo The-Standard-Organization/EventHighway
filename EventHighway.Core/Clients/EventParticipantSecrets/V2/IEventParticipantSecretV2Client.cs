@@ -42,6 +42,11 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// filtered, ordered by <c>CreatedDate</c> descending, paged, and materialized at the
         /// time of the call.
         /// </summary>
+        /// <remarks>
+        /// The <c>Secret</c> field is redacted (returned as <c>null</c>) on every record — the
+        /// stored value is a hash that callers never need and that should not be exposed, so it is
+        /// stripped at the client boundary.
+        /// </remarks>
         /// <param name="eventParticipantSecretV2Query">The search criteria; omitted criteria are
         /// not applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
@@ -58,6 +63,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// <summary>
         /// Retrieves an event participant secret by its identifier asynchronously.
         /// </summary>
+        /// <remarks>
+        /// The returned record's <c>Secret</c> field is redacted (returned as <c>null</c>); the
+        /// stored hash is stripped at the client boundary.
+        /// </remarks>
         /// <param name="eventParticipantSecretV2Id">The identifier of the event participant secret
         /// to retrieve.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
@@ -74,8 +83,15 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// <summary>
         /// Modifies an existing event participant secret asynchronously.
         /// </summary>
+        /// <remarks>
+        /// The <c>Secret</c> value is immutable and cannot be rotated through this method — the
+        /// supplied <c>Secret</c> (and <c>CreatedDate</c>) must match what is already stored, so
+        /// only the lifecycle fields (for example <c>IsActive</c>, <c>ActiveFrom</c>,
+        /// <c>ActiveTo</c>) can be changed. To change the secret value, remove this record and add
+        /// a new one.
+        /// </remarks>
         /// <param name="eventParticipantSecretV2">The event participant secret carrying the
-        /// updated values.</param>
+        /// updated values. Its <c>Secret</c> must equal the stored hash.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>

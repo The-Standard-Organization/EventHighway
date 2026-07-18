@@ -2,6 +2,7 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
@@ -23,9 +24,10 @@ namespace EventHighway.Core.Clients.EventHighways.V2
     /// <summary>
     /// Defines the V2 API contract for the EventHighway client, providing access to event
     /// management operations including event archiving, addresses, listeners, events, health
-    /// checks, and listener events.
+    /// checks, and listener events. Dispose the client to release the underlying dependency
+    /// container and its database contexts.
     /// </summary>
-    public interface IClientV2
+    public interface IClientV2 : IAsyncDisposable
     {
         /// <summary>
         /// Registers an event handler with the EventHighway V2 client, retrieving it if it was

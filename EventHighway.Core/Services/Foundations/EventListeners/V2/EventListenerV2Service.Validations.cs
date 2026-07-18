@@ -33,6 +33,9 @@ namespace EventHighway.Core.Services.Foundations.EventListeners.V2
                 (Rule: IsInvalid(eventListenerV2.HandlerName),
                 Parameter: nameof(EventListenerV2.HandlerName)),
 
+                (Rule: IsExceedingLengthOf(eventListenerV2.FilterCriteria, 4000),
+                Parameter: nameof(EventListenerV2.FilterCriteria)),
+
                 (Rule: IsInvalid(eventListenerV2.EventAddressV2Id),
                 Parameter: nameof(EventListenerV2.EventAddressV2Id)),
 

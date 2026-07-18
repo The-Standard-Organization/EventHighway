@@ -37,6 +37,10 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V2
             EventV2 eventV2,
             CancellationToken cancellationToken = default);
 
+        ValueTask<int> TryClaimScheduledEventV2Async(
+            Guid eventV2Id,
+            CancellationToken cancellationToken = default);
+
         ValueTask<EventV2> RemoveEventV2ByIdAsync(
             Guid eventV2Id,
             CancellationToken cancellationToken = default);

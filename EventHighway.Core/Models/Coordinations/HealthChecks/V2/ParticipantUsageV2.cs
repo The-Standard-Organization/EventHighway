@@ -25,16 +25,6 @@ namespace EventHighway.Core.Models.Coordinations.HealthChecks.V2
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the participant's contact email address.
-        /// </summary>
-        public string ContactEmail { get; set; }
-
-        /// <summary>
-        /// Gets or sets the participant's contact phone number.
-        /// </summary>
-        public string ContactPhone { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether the participant is currently active.
         /// </summary>
         public bool IsActive { get; set; }

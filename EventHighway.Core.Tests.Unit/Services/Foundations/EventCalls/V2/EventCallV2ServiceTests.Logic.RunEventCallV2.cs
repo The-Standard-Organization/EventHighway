@@ -2,10 +2,12 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Models.Configurations.Dispatch;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.PromotedProperties;
 using FluentAssertions;
@@ -16,6 +18,65 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V2
 {
     public partial class EventCallV2ServiceTests
     {
+        [Fact]
+        public async Task ShouldTimeOutEventCallV2WhenHandlerExceedsConfiguredTimeoutAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventCallV2 randomEventCallV2 = CreateRandomEventCallV2();
+            EventCallV2 inputEventCallV2 = randomEventCallV2;
+
+            var dispatchConfiguration = new DispatchConfiguration
+            {
+                HandlerTimeout = TimeSpan.Zero
+            };
+
+            var neverCompletingTaskSource =
+                new TaskCompletionSource<EventHandlerResult>();
+
+            this.configurationBrokerMock.Setup(broker =>
+                broker.GetDispatchConfiguration())
+                    .Returns(dispatchConfiguration);
+
+            this.eventHandlerBrokerMock.Setup(broker => broker.GetAll())
+                .Returns(new[] { this.eventHandlerMock.Object });
+
+            this.eventHandlerMock.SetupGet(handler => handler.Id)
+                .Returns(inputEventCallV2.HandlerId);
+
+            this.eventHandlerMock
+                .Setup(handler =>
+                    handler.HandleAsync(
+                        inputEventCallV2.Content,
+                        It.IsAny<CancellationToken>()))
+                .Returns(new ValueTask<EventHandlerResult>(neverCompletingTaskSource.Task));
+
+            // when
+            EventCallV2 actualEventCallV2 =
+                await this.eventCallV2Service
+                    .RunEventCallV2Async(inputEventCallV2, randomCancellationToken);
+
+            // then
+            actualEventCallV2.IsSuccess.Should().BeFalse();
+            actualEventCallV2.ResponseCode.Should().Be("HandlerTimeout");
+            actualEventCallV2.Response.Should().Be(actualEventCallV2.ResponseMessage);
+
+            this.eventHandlerBrokerMock.Verify(broker => broker.GetAll(),
+                Times.AtLeastOnce);
+
+            this.eventHandlerBrokerMock.VerifyNoOtherCalls();
+
+            this.eventHandlerMock.Verify(handler =>
+                handler.HandleAsync(
+                    inputEventCallV2.Content,
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
         [Fact]
         public async Task ShouldRunEventCallV2Async()
         {

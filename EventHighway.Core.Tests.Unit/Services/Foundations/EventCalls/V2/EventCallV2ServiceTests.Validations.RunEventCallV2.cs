@@ -125,6 +125,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V2
 
             IEventCallV2Service serviceWithNullBroker = new EventCallV2Service(
                 eventHandlerBroker: null,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
 
             var handlerNotFoundEventCallV2Exception =
@@ -195,6 +196,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventCalls.V2
 
             IEventCallV2Service localService = new EventCallV2Service(
                 eventHandlerBroker: localBrokerMock.Object,
+                configurationBroker: this.configurationBrokerMock.Object,
                 loggingBroker: this.loggingBrokerMock.Object);
 
             var invalidEventCallV2Exception =

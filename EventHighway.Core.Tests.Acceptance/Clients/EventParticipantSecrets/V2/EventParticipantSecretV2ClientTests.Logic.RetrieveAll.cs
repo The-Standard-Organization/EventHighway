@@ -27,6 +27,12 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
             IEnumerable<EventParticipantSecretV2> expectedEventParticipantSecretV2s =
                 inputEventParticipantSecretV2s.DeepClone();
 
+            foreach (EventParticipantSecretV2 expectedEventParticipantSecretV2
+                in expectedEventParticipantSecretV2s)
+            {
+                expectedEventParticipantSecretV2.Secret = null;
+            }
+
             // when
             IReadOnlyList<EventParticipantSecretV2> actualEventParticipantSecretV2s =
                 await this.clientBroker

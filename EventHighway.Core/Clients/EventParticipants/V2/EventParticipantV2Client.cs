@@ -71,7 +71,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -121,7 +121,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -172,7 +172,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -222,7 +222,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -272,7 +272,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -322,7 +322,7 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -345,12 +345,15 @@ namespace EventHighway.Core.Clients.EventParticipants.V2
         }
 
         private static EventParticipantV2ClientServiceException
-            CreateClientServiceException(Xeption innerException)
+            CreateClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventParticipantV2ClientServiceException(
                 message: "Event participant client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }
