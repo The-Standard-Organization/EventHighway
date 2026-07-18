@@ -291,5 +291,71 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.ListenerEvents.V2
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfEventParticipantV2IdIsInvalidAndLogItAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+
+            ListenerEventV2 randomListenerEventV2 =
+                CreateRandomListenerEventV2(randomDateTimeOffset);
+
+            ListenerEventV2 invalidListenerEventV2 = randomListenerEventV2;
+            invalidListenerEventV2.EventParticipantV2Id = Guid.Empty;
+
+            var invalidListenerEventV2Exception =
+                new InvalidListenerEventV2Exception(
+                    message: "Listener event is invalid, fix the errors and try again.");
+
+            invalidListenerEventV2Exception.AddData(
+                key: nameof(ListenerEventV2.EventParticipantV2Id),
+                values: "Required");
+
+            var expectedListenerEventV2ValidationException =
+                new ListenerEventV2ValidationException(
+                    message: "Listener event validation error occurred, fix the errors and try again.",
+                    innerException: invalidListenerEventV2Exception);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
+
+            // when
+            ValueTask<ListenerEventV2> addListenerEventV2Task =
+                this.listenerEventV2Service.AddListenerEventV2Async(
+                    invalidListenerEventV2,
+                    randomCancellationToken);
+
+            ListenerEventV2ValidationException actualListenerEventV2ValidationException =
+                await Assert.ThrowsAsync<ListenerEventV2ValidationException>(
+                    addListenerEventV2Task.AsTask);
+
+            // then
+            actualListenerEventV2ValidationException.Should().BeEquivalentTo(
+                expectedListenerEventV2ValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedListenerEventV2ValidationException))),
+                        Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertListenerEventV2Async(
+                    It.IsAny<ListenerEventV2>(),
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
