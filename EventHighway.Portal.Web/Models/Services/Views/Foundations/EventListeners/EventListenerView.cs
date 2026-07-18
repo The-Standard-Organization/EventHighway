@@ -14,7 +14,7 @@ namespace EventHighway.Portal.Web.Models.Services.Views.Foundations.EventListene
         public string HandlerName { get; set; } = string.Empty;
         public Guid HandlerId { get; set; }
         public Guid EventAddressV2Id { get; set; }
-        public Guid? EventParticipantV2Id { get; set; }
+        public Guid EventParticipantV2Id { get; set; }
         public string PromotedProperties { get; set; } = string.Empty;
         public string FilterCriteria { get; set; } = string.Empty;
     }

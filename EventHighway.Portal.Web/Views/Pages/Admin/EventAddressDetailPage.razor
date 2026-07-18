@@ -240,13 +240,15 @@ else
             return;
         }
 
+        if (Guid.TryParse(newListenerParticipantId, out Guid participantId) is false)
+        {
+            registerListenerError = "Select a participant.";
+            return;
+        }
+
         newListener.HandlerId = selectedEventHandler.Id;
         newListener.HandlerName = selectedEventHandler.Name;
-
-        newListener.EventParticipantV2Id =
-            Guid.TryParse(newListenerParticipantId, out Guid participantId)
-                ? participantId
-                : null;
+        newListener.EventParticipantV2Id = participantId;
 
         try
         {

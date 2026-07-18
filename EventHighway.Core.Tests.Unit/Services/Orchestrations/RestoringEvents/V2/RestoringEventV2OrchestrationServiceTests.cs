@@ -164,7 +164,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.RestoringEvents.V
                 DispatchedDate = null,
                 EventV2Id = listenerEventArchiveV2.EventV2Id,
                 EventAddressV2Id = listenerEventArchiveV2.EventAddressV2Id,
-                EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id
+                EventListenerV2Id = listenerEventArchiveV2.EventListenerV2Id,
+                EventParticipantV2Id = listenerEventArchiveV2.EventParticipantV2Id
             };
 
         private static int GetRandomNumber() =>

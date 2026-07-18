@@ -85,7 +85,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
             return randomEventAddressV2;
         }
 
-        private EventListenerV2 CreateDelegateHandlerListenerV2(Guid eventAddressId)
+        private EventListenerV2 CreateDelegateHandlerListenerV2(
+            Guid eventAddressId,
+            Guid eventParticipantId)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -97,17 +99,31 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
                 HandlerId = this.delegateEventHandler.Id,
                 HandlerName = this.delegateEventHandler.Name,
                 EventAddressV2Id = eventAddressId,
+                EventParticipantV2Id = eventParticipantId,
                 CreatedDate = now,
                 UpdatedDate = now,
             };
         }
 
+        private async ValueTask<EventParticipantV2> CreateRandomEventParticipantV2Async()
+        {
+            EventParticipantV2 randomEventParticipantV2 =
+                CreateEventParticipantV2Filler().Create();
+
+            await this.clientBroker.AddEventParticipantV2Async(
+                randomEventParticipantV2);
+
+            return randomEventParticipantV2;
+        }
+
         private async ValueTask<EventV2> SubmitScheduledEventV2Async(
             Guid eventAddressV2Id,
+            Guid eventParticipantV2Id,
             string content = null)
         {
             EventV2 eventV2 = CreateEventV2Filler(
                 eventAddressV2Id,
+                eventParticipantV2Id,
                 scheduledDate: DateTimeOffset.UtcNow.AddSeconds(1),
                 content: content)
                     .Create();
@@ -139,13 +155,17 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
             EventAddressV2 eventAddressV2 =
                 await CreateRandomEventAddressV2Async();
 
+            EventParticipantV2 eventParticipantV2 =
+                await CreateRandomEventParticipantV2Async();
+
             EventListenerV2 listenerV2 =
-                CreateDelegateHandlerListenerV2(eventAddressV2.Id);
+                CreateDelegateHandlerListenerV2(eventAddressV2.Id, eventParticipantV2.Id);
 
             await this.clientBroker.RegisterEventListenerV2Async(listenerV2);
 
             EventV2 eventV2 =
-                await SubmitScheduledEventV2Async(eventAddressV2.Id, content: content);
+                await SubmitScheduledEventV2Async(
+                    eventAddressV2.Id, eventParticipantV2.Id, content: content);
 
             await this.clientBroker.FireScheduledPendingEventV2sAsync();
 
@@ -190,8 +210,31 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
         private static string GetRandomString() =>
             new MnemonicString(wordCount: 1).GetValue();
 
+        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            var filler = new Filler<EventParticipantV2>();
+
+            filler.Setup()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.Id).Use(() => Guid.NewGuid())
+                .OnProperty(eventParticipantV2 => eventParticipantV2.IsActive).Use(true)
+                .OnProperty(eventParticipantV2 => eventParticipantV2.IsSecretRequired).Use(false)
+                .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveFrom).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.ActiveTo).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.EventV2s).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.EventArchiveV2s).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.EventListenerV2s).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.ListenerEventV2s).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.ListenerEventArchiveV2s).IgnoreIt()
+                .OnProperty(eventParticipantV2 => eventParticipantV2.EventParticipantSecretV2s).IgnoreIt()
+                .OnType<DateTimeOffset>().Use(now);
+
+            return filler;
+        }
+
         private static Filler<EventV2> CreateEventV2Filler(
             Guid eventAddressV2Id,
+            Guid eventParticipantV2Id,
             DateTimeOffset scheduledDate,
             string content = null)
         {
@@ -205,7 +248,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.HealthChecks.V2
                 .OnProperty(eventV2 => eventV2.ScheduledDate).Use(scheduledDate)
                 .OnProperty(eventV2 => eventV2.Status).Use(EventStatusV2.Active)
                 .OnType<DateTimeOffset>().Use(now)
-                .OnProperty(eventV2 => eventV2.EventParticipantV2Id).IgnoreIt()
+                .OnProperty(eventV2 => eventV2.EventParticipantV2Id).Use(eventParticipantV2Id)
                 .OnProperty(eventV2 => eventV2.EventParticipantV2Secret).IgnoreIt()
                 .OnType<EventParticipantV2>().IgnoreIt();
 

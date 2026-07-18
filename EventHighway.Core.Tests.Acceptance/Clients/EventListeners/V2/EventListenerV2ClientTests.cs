@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 
 using EventHighway.Core.Tests.Acceptance.Brokers;
 using Tynamix.ObjectFiller;
@@ -42,9 +43,13 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             EventAddressV2 randomEventAddressV2 =
                 await CreateRandomEventAddressV2Async();
 
+            EventParticipantV2 randomEventParticipantV2 =
+                await CreateRandomEventParticipantV2Async();
+
             EventListenerV2 randomEventListenerV2 =
                 CreateRandomEventListenerV2(
-                    randomEventAddressV2.Id);
+                    randomEventAddressV2.Id,
+                    randomEventParticipantV2.Id);
 
             await this.clientBroker.RegisterEventListenerV2Async(
                 randomEventListenerV2);
@@ -52,8 +57,21 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             return randomEventListenerV2;
         }
 
-        private static EventListenerV2 CreateRandomEventListenerV2(Guid eventAddressId) =>
-            CreateEventListenerV2Filler(eventAddressId).Create();
+        private async ValueTask<EventParticipantV2> CreateRandomEventParticipantV2Async()
+        {
+            EventParticipantV2 randomEventParticipantV2 =
+                CreateEventParticipantV2Filler().Create();
+
+            await this.clientBroker.AddEventParticipantV2Async(
+                randomEventParticipantV2);
+
+            return randomEventParticipantV2;
+        }
+
+        private static EventListenerV2 CreateRandomEventListenerV2(
+            Guid eventAddressId,
+            Guid eventParticipantId) =>
+                CreateEventListenerV2Filler(eventAddressId, eventParticipantId).Create();
 
         private static EventAddressV2 CreateRandomEventAddressV2() =>
             CreateEventAddressV2Filler().Create();
@@ -82,7 +100,8 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
         }
 
         private static Filler<EventListenerV2> CreateEventListenerV2Filler(
-            Guid eventAddressId)
+            Guid eventAddressId,
+            Guid eventParticipantId)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -102,10 +121,51 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
                     eventListenerV2.ListenerEventArchiveV2s).IgnoreIt()
 
                 .OnProperty(eventListenerV2 =>
-                    eventListenerV2.EventParticipantV2Id).IgnoreIt()
+                    eventListenerV2.EventParticipantV2Id).Use(eventParticipantId)
 
                 .OnProperty(eventListenerV2 =>
                     eventListenerV2.EventParticipantV2).IgnoreIt()
+
+                .OnType<DateTimeOffset>().Use(valueToUse: now);
+
+            return filler;
+        }
+
+        private static Filler<EventParticipantV2> CreateEventParticipantV2Filler()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            var filler = new Filler<EventParticipantV2>();
+
+            filler.Setup()
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.Id).Use(() => Guid.NewGuid())
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.IsActive).Use(true)
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.ActiveFrom).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.ActiveTo).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.EventV2s).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.EventArchiveV2s).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.EventListenerV2s).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.ListenerEventV2s).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.ListenerEventArchiveV2s).IgnoreIt()
+
+                .OnProperty(eventParticipantV2 =>
+                    eventParticipantV2.EventParticipantSecretV2s).IgnoreIt()
 
                 .OnType<DateTimeOffset>().Use(valueToUse: now);
 

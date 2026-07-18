@@ -269,6 +269,14 @@ front, alongside its event address. The column is NOT NULL on both `EventV2s` an
 > always reference their participant, **deleting a participant is restricted while any of its data
 > exists** — deactivate it (`IsActive = false`) instead; only its secrets cascade-delete with it.
 
+**The subscription side is attributed too.** A listener carries the participant that owns it, and
+that identity is **mandatory**: `EventListenerV2.EventParticipantV2Id` is NOT NULL (validated
+required on add), and it flows automatically onto every delivery record and its archive —
+`ListenerEventV2` and `ListenerEventArchiveV2` copy the listener's participant when the event is
+fired, and replay/restore preserve it. All three columns are NOT NULL on both providers. So *"who
+received this"* is always answerable — health and usage views never fall back to an "unknown"
+participant on the subscription side, mirroring the guarantee events already had.
+
 **Secrets are hashed at rest and transient in flight.** `EventParticipantSecretV2.Secret` stores a
 lowercase-hex **SHA-256 hash** — the plaintext is visible exactly once, at creation time, and cannot
 be recovered afterwards (the Portal generates a strong secret and shows it a single time for this

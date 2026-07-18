@@ -628,8 +628,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
 
             List<Guid> participantIds = new List<Guid> { GetRandomId(), GetRandomId() };
 
-            List<Guid?> listenerParticipantIds =
-                new List<Guid?> { participantIds[0], participantIds[1], null };
+            List<Guid> listenerParticipantIds =
+                new List<Guid> { participantIds[0], participantIds[1] };
 
             List<Guid> addressIds = new List<Guid> { GetRandomId(), GetRandomId() };
 
@@ -713,7 +713,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 .ToList();
 
             var listenerCounts = windowListenerEvents
-                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id ?? Guid.Empty)
+                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id)
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
@@ -743,7 +743,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             var receivedCounts = windowListenerEvents
                 .GroupBy(listenerEvent => new
                 {
-                    EventParticipantV2Id = listenerEvent.EventParticipantV2Id ?? Guid.Empty,
+                    listenerEvent.EventParticipantV2Id,
                     listenerEvent.EventAddressV2Id
                 })
                 .Select(group => new
@@ -817,7 +817,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
         }
 
         private static ListenerEventV2 AssignParticipantAndAddress(
-            ListenerEventV2 listenerEventV2, Guid? eventParticipantV2Id, Guid eventAddressV2Id)
+            ListenerEventV2 listenerEventV2, Guid eventParticipantV2Id, Guid eventAddressV2Id)
         {
             listenerEventV2.EventParticipantV2Id = eventParticipantV2Id;
             listenerEventV2.EventAddressV2Id = eventAddressV2Id;

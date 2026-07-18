@@ -97,12 +97,14 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
 
         private async ValueTask<EventV2> SubmitScheduledEventV2Async(
             Guid eventAddressV2Id,
+            Guid eventParticipantV2Id,
             string content = null)
         {
             EventV2 eventV2 = CreateEventV2Filler(
                 eventAddressV2Id,
                 scheduledDate: DateTimeOffset.UtcNow.AddSeconds(1),
-                content: content)
+                content: content,
+                eventParticipantV2Id: eventParticipantV2Id)
                     .Create();
 
             await this.clientBroker.SubmitEventV2Async(eventV2);
@@ -135,9 +137,11 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                     .Create();
         }
 
-        private EventListenerV2 CreateDelegateHandlerListenerV2(Guid eventAddressId)
+        private EventListenerV2 CreateDelegateHandlerListenerV2(
+            Guid eventAddressId,
+            Guid eventParticipantId)
         {
-            DateTimeOffset now = 
+            DateTimeOffset now =
                 DateTimeOffset.UtcNow;
 
             return new EventListenerV2
@@ -148,6 +152,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                 HandlerId = this.delegateEventHandler.Id,
                 HandlerName = this.delegateEventHandler.Name,
                 EventAddressV2Id = eventAddressId,
+                EventParticipantV2Id = eventParticipantId,
                 CreatedDate = now,
                 UpdatedDate = now,
             };
@@ -156,9 +161,10 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
         private static Filler<EventV2> CreateEventV2Filler(
             Guid eventAddressV2Id,
             DateTimeOffset scheduledDate,
-            string content = null)
+            string content = null,
+            Guid eventParticipantV2Id = default)
         {
-            DateTimeOffset now = 
+            DateTimeOffset now =
                 DateTimeOffset.UtcNow;
 
             var filler = new Filler<EventV2>();
@@ -170,7 +176,7 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
                 .OnProperty(eventV2 => eventV2.ScheduledDate).Use(scheduledDate)
                 .OnProperty(eventV2 => eventV2.Status).Use(EventStatusV2.Active)
                 .OnType<DateTimeOffset>().Use(now)
-                .OnProperty(eventV2 => eventV2.EventParticipantV2Id).IgnoreIt()
+                .OnProperty(eventV2 => eventV2.EventParticipantV2Id).Use(eventParticipantV2Id)
                 .OnProperty(eventV2 => eventV2.EventParticipantV2Secret).IgnoreIt()
                 .OnType<EventParticipantV2>().IgnoreIt();
 
