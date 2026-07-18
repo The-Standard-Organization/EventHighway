@@ -334,7 +334,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 Type = (EventArchiveTypeV2)eventV2.Type,
                 Status = (EventArchiveStatusV2)eventV2.Status,
                 CreatedDate = eventV2.CreatedDate,
-                UpdatedDate = eventV2.CreatedDate,
+                UpdatedDate = eventV2.UpdatedDate,
                 ScheduledDate = eventV2.ScheduledDate,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
                 EventParticipantV2Id = eventV2.EventParticipantV2Id
@@ -353,7 +353,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
                 ResponseCode = listenerEventV2.ResponseCode,
                 ResponseMessage = listenerEventV2.ResponseMessage,
                 CreatedDate = listenerEventV2.CreatedDate,
-                UpdatedDate = listenerEventV2.CreatedDate,
+                UpdatedDate = listenerEventV2.UpdatedDate,
                 RemainingRetryAttempts = listenerEventV2.RemainingRetryAttempts,
                 RetryAttemptsAllowed = listenerEventV2.RetryAttemptsAllowed,
                 NextRetryAttemptNotBefore = listenerEventV2.NextRetryAttemptNotBefore,
