@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using EventHighway.Core.Models.Configurations.BatchProcessings;
+using EventHighway.Core.Models.Configurations.Dispatch;
 using EventHighway.Core.Models.Configurations.Healths;
 using EventHighway.Core.Models.Configurations.LoopDetections;
 using EventHighway.Core.Models.Configurations.Purging;
@@ -46,5 +47,12 @@ namespace EventHighway.Core.Models.Configurations
         /// Defaults to a <see cref="PurgeConfiguration"/> with a standard retention window.
         /// </summary>
         public PurgeConfiguration Purging { get; set; } = new PurgeConfiguration();
+
+        /// <summary>
+        /// Gets or sets the dispatch configuration that controls how individual handlers are
+        /// invoked, including the per-handler timeout.
+        /// Defaults to a <see cref="DispatchConfiguration"/> with no handler timeout enforced.
+        /// </summary>
+        public DispatchConfiguration Dispatch { get; set; } = new DispatchConfiguration();
     }
 }
