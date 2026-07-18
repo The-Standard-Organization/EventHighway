@@ -167,6 +167,7 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
                 EventV2Id = eventV2.Id,
                 EventListenerV2Id = eventListenerV2.Id,
                 EventAddressV2Id = eventV2.EventAddressV2Id,
+                EventParticipantV2Id = eventListenerV2.EventParticipantV2Id,
                 Status = ListenerEventStatusV2.Pending,
                 RemainingRetryAttempts = retryConfiguration.RetryAttemptsAllowed,
                 RetryAttemptsAllowed = retryConfiguration.RetryAttemptsAllowed,
