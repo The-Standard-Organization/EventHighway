@@ -19,6 +19,12 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         /// <summary>
         /// Adds a new event participant secret asynchronously.
         /// </summary>
+        /// <remarks>
+        /// The provided <paramref name="eventParticipantSecretV2"/> is mutated in place: its
+        /// <c>Secret</c> is overwritten with the hashed value before the record is persisted, so
+        /// the original plaintext secret cannot be read back from the passed instance after this
+        /// call returns. Capture the plaintext before calling if it is still needed.
+        /// </remarks>
         /// <param name="eventParticipantSecretV2">The event participant secret to add.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is

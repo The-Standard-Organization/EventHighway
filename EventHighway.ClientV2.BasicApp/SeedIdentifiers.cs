@@ -49,9 +49,10 @@ namespace EventHighway.ClientV2.Seed
             new Guid("5279a8cd-fadb-4a6e-b4fc-dab683202c8f");
 
         // Participant secret values (what publishers present; verified by the substrate core).
-        public const string NFlixSecretValue = "NFlix";
-        public const string MediaItemServiceSecretValue = "MediaItemService";
-        public const string SubstrateApiSecretValue = "SubstrateApi";
+        // Secrets must be at least 36 characters long (enforced by the foundation validation).
+        public const string NFlixSecretValue = "NFlix-Development-Seed-Secret-DoNotUseInProd";
+        public const string MediaItemServiceSecretValue = "MediaItemService-Development-Seed-Secret-Dev";
+        public const string SubstrateApiSecretValue = "SubstrateApi-Development-Seed-Secret-DevOnly";
 
         // Event addresses
         public static readonly Guid NFlixNewReleasesAddress =

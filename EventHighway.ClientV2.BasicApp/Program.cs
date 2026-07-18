@@ -183,7 +183,7 @@ public partial class Program
             new EventParticipantSecretV2
             {
                 Id = SeedIdentifiers.NFlixSecret,
-                Secret = "NFlix",
+                Secret = SeedIdentifiers.NFlixSecretValue,
                 EventParticipantV2Id = nflix.Id,
                 IsActive = true,
                 CreatedDate = now,
@@ -358,21 +358,21 @@ public partial class Program
 
         // 1) Yellowstone — scheduled
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, yellowstone,
-            scheduled: true, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: true, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 2) Spider-Verse — immediate
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(spiderVerseEventId, client, newReleases.Id, spiderVerse,
-            scheduled: false, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: false, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 3) Guardians — immediate
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, guardians,
-            scheduled: false, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: false, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 4) Top Gun — scheduled, submitted 4 times to simulate a loop
         for (int attempt = 1; attempt <= 4; attempt++)
         {
             AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, topGun,
-                scheduled: true, participantId: nflix.Id, secret: "NFlix",
+                scheduled: true, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue,
                 attempt: attempt));
         }
 

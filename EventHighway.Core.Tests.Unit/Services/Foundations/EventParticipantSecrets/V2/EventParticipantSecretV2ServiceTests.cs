@@ -51,6 +51,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
         private static string GetRandomString() =>
             new MnemonicString().GetValue();
 
+        private static string GetRandomSecret() =>
+            $"{Guid.NewGuid()}{Guid.NewGuid()}";
+
         private static EventParticipantSecretV2 CreateRandomEventParticipantSecretV2(DateTimeOffset dates) =>
             CreateEventParticipantSecretV2Filler(dates).Create();
 
@@ -82,6 +85,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Foundations.EventParticipantSecr
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(dates)
+
+                .OnProperty(secret => secret.Secret)
+                    .Use(() => GetRandomSecret())
 
                 .OnProperty(secret => secret.IsActive)
                     .Use(true)
