@@ -83,9 +83,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 
             try
             {
-                return await eventParticipantSecretV2Service
-                    .RetrieveEventParticipantSecretV2sByQueryAsync(
-                        eventParticipantSecretV2Query, cancellationToken);
+                return RedactSecrets(
+                    await eventParticipantSecretV2Service
+                        .RetrieveEventParticipantSecretV2sByQueryAsync(
+                            eventParticipantSecretV2Query, cancellationToken));
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
             {
@@ -131,8 +132,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 
             try
             {
-                return await eventParticipantSecretV2Service
-                    .RetrieveEventParticipantSecretV2ByIdAsync(eventParticipantSecretV2Id, cancellationToken);
+                return RedactSecret(
+                    await eventParticipantSecretV2Service
+                        .RetrieveEventParticipantSecretV2ByIdAsync(
+                            eventParticipantSecretV2Id, cancellationToken));
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
             {
@@ -178,8 +181,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 
             try
             {
-                return await eventParticipantSecretV2Service
-                    .ModifyEventParticipantSecretV2Async(eventParticipantSecretV2, cancellationToken);
+                return RedactSecret(
+                    await eventParticipantSecretV2Service
+                        .ModifyEventParticipantSecretV2Async(
+                            eventParticipantSecretV2, cancellationToken));
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
             {
@@ -225,8 +230,10 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
 
             try
             {
-                return await eventParticipantSecretV2Service
-                    .RemoveEventParticipantSecretV2ByIdAsync(eventParticipantSecretV2Id, cancellationToken);
+                return RedactSecret(
+                    await eventParticipantSecretV2Service
+                        .RemoveEventParticipantSecretV2ByIdAsync(
+                            eventParticipantSecretV2Id, cancellationToken));
             }
             catch (EventParticipantSecretV2ValidationException eventParticipantSecretV2ValidationException)
             {
@@ -257,6 +264,28 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             {
                 throw CreateClientServiceException(exception);
             }
+        }
+
+        // The stored Secret is a hash, never plaintext. Callers of this client (admin UIs, APIs)
+        // have no need for the hash, and returning it widens the offline-cracking surface, so it
+        // is stripped from every read/modify/remove result. Secret verification composes over the
+        // foundation service, not this client, so the compare is unaffected.
+        private static EventParticipantSecretV2 RedactSecret(
+            EventParticipantSecretV2 eventParticipantSecretV2)
+        {
+            if (eventParticipantSecretV2 is not null)
+                eventParticipantSecretV2.Secret = null;
+
+            return eventParticipantSecretV2;
+        }
+
+        private static IReadOnlyList<EventParticipantSecretV2> RedactSecrets(
+            IReadOnlyList<EventParticipantSecretV2> eventParticipantSecretV2s)
+        {
+            foreach (EventParticipantSecretV2 eventParticipantSecretV2 in eventParticipantSecretV2s)
+                RedactSecret(eventParticipantSecretV2);
+
+            return eventParticipantSecretV2s;
         }
 
         private static EventParticipantSecretV2ClientValidationException

@@ -32,6 +32,8 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
             EventParticipantSecretV2 expectedEventParticipantSecretV2 =
                 modifiedEventParticipantSecretV2.DeepClone();
 
+            expectedEventParticipantSecretV2.Secret = null;
+
             this.eventParticipantSecretV2ServiceMock.Setup(service =>
                 service.ModifyEventParticipantSecretV2Async(
                     inputEventParticipantSecretV2,
