@@ -36,6 +36,7 @@
 - [6. The ListenerEventV2 lifecycle (one picture)](#6-the-listenereventv2-lifecycle-one-picture)
 - [7. Configuration reference](#7-configuration-reference)
 - [8. Client threading & retrieval model](#8-client-threading--retrieval-model)
+- [9. Security model](#9-security-model)
 
 ---
 
@@ -678,6 +679,56 @@ across the client boundary. Instead every `RetrieveAll…`/`Retrieve…ByEventAd
 - To read a large set, page it: start at `Skip = 0`, keep the same `Take`, and increment `Skip` by
   `Take` until a page returns fewer than `Take` rows. The owning service keeps its internal
   `IQueryable RetrieveAll` for service-to-service callers; only the client-facing exposer is paged.
+
+---
+
+## 9. Security model
+
+> **The client is a trusted, server-side component. Never hand it — or any endpoint that reaches
+> it — to an untrusted caller.** The library deliberately contains no authentication or
+> authorization layer; enforcing *who* may call it, and *what* they may do, is the **host's**
+> responsibility.
+
+### 9.1 The trust boundary
+
+`IClientV2` is an **unauthenticated, fully-privileged** surface. Any code holding a client instance
+can, with no further checks:
+
+- read **every participant's secret hash** (retrieval is unrestricted),
+- **purge** archives and remove events, listeners and delivery records,
+- **fire** pending events and **replay** history for any address.
+
+This is by design — the client is meant to sit *behind* a host (an API, a worker, a UI back-end)
+that has already decided the caller is allowed to be there. Wiring a client operation straight to an
+unauthenticated HTTP route exposes all of the above to the public. Treat the client the way you would
+a raw database connection: privileged, internal, never directly reachable from outside.
+
+### 9.2 Secrets and brute-force
+
+Participant secrets are **hashed at rest** and enforced to a **minimum length** on add (see §1.5),
+and secret material is transient in flight — never persisted on the event, archived, or logged. That
+protects secrets **if the database leaks**. It does **not**, on its own, stop an attacker who can
+call a submission endpoint repeatedly from **guessing** a secret: the library performs the hash
+comparison but applies **no rate-limiting, lockout, or throttling** to failed attempts. A host that
+exposes submission (for a participant with `IsSecretRequired == true`) **must** add its own
+rate-limiting / lockout in front of that endpoint — the library cannot, because it has no notion of
+"a caller" to throttle.
+
+### 9.3 What the host owns
+
+| Concern | Owned by |
+|---|---|
+| Authenticating the caller | **Host** |
+| Authorizing the operation (who may fire / purge / read secrets) | **Host** |
+| Rate-limiting / lockout on submission & secret validation | **Host** |
+| Not exposing `IClientV2` to untrusted callers | **Host** |
+| Hashing secrets at rest, enforcing secret strength, clearing transient secrets | Library |
+| Attributing every event and delivery to a participant | Library |
+| DDL / schema migration authority (see §7) | **Host / operator** |
+
+The short version: **the library secures data at rest and guarantees attribution; the host secures
+access.** Skipping the host's half turns a correct library into an open, brute-forceable, fully
+privileged surface.
 
 ---
 
