@@ -104,7 +104,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventAddressV2ClientServiceException(exception as Xeption);
+                throw CreateEventAddressV2ClientServiceException(exception);
             }
         }
 
@@ -172,7 +172,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventAddressV2ClientServiceException(exception as Xeption);
+                throw CreateEventAddressV2ClientServiceException(exception);
             }
         }
 
@@ -226,7 +226,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventAddressV2ClientServiceException(exception as Xeption);
+                throw CreateEventAddressV2ClientServiceException(exception);
             }
         }
 
@@ -294,7 +294,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventAddressV2ClientServiceException(exception as Xeption);
+                throw CreateEventAddressV2ClientServiceException(exception);
             }
         }
 
@@ -317,12 +317,15 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         }
 
         private static EventAddressV2ClientServiceException
-            CreateEventAddressV2ClientServiceException(Xeption innerException)
+            CreateEventAddressV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventAddressV2ClientServiceException(
                 message: "Event address client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

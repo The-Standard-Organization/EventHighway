@@ -73,7 +73,7 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateReplayingEventV2ClientServiceException(exception as Xeption);
+                throw CreateReplayingEventV2ClientServiceException(exception);
             }
         }
 
@@ -132,7 +132,7 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateReplayingEventV2ClientServiceException(exception as Xeption);
+                throw CreateReplayingEventV2ClientServiceException(exception);
             }
         }
 
@@ -182,7 +182,7 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateReplayingEventV2ClientServiceException(exception as Xeption);
+                throw CreateReplayingEventV2ClientServiceException(exception);
             }
         }
 
@@ -205,12 +205,15 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
         }
 
         private static ReplayingEventV2ClientServiceException
-            CreateReplayingEventV2ClientServiceException(Xeption innerException)
+            CreateReplayingEventV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ReplayingEventV2ClientServiceException(
                 message: "Replaying event client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

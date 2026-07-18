@@ -237,7 +237,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipants.V2
             var expectedEventParticipantV2ClientServiceException =
                 new EventParticipantV2ClientServiceException(
                     message: "Event participant client service error occurred, contact support.",
-                    innerException: someException as Xeption,
+                    innerException: new Xeption(someException.Message, someException),
                     data: someException.Data);
 
             this.eventParticipantV2ProcessingServiceMock.Setup(service =>
