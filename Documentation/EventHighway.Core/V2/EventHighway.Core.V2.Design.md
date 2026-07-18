@@ -278,6 +278,13 @@ after validation**, so the secret is never persisted on `EventV2` (the property 
 the storage mapping), never archived, and never travels further down the pipeline — replay and
 restore paths operate without it.
 
+**Adding a secret enforces a minimum length and hashes in place.** On add the foundation validates
+the plaintext `Secret` is **at least 36 characters** — matching the strength of the Portal's
+generated secret and rejecting weak, short, human-chosen values. `AddEventParticipantSecretV2Async`
+then **mutates the instance you pass it**: it overwrites `Secret` with the hash before the record is
+persisted, so the original plaintext cannot be read back from that object once the call returns.
+Capture the plaintext first if you still need it.
+
 **Secrets are time-based, and a participant can hold more than one at once.** Each
 `EventParticipantSecretV2` carries its own `ActiveFrom`/`ActiveTo` window, independent of the
 participant's own window, and a participant may own several secrets simultaneously. That makes
