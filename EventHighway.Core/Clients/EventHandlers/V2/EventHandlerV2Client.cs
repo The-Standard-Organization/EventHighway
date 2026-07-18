@@ -82,7 +82,7 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+                throw CreateEventHandlerV2ClientServiceException(exception);
             }
         }
 
@@ -132,7 +132,7 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+                throw CreateEventHandlerV2ClientServiceException(exception);
             }
         }
 
@@ -176,7 +176,7 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+                throw CreateEventHandlerV2ClientServiceException(exception);
             }
         }
 
@@ -226,7 +226,7 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
             }
             catch (Exception exception)
             {
-                throw CreateEventHandlerV2ClientServiceException(exception as Xeption);
+                throw CreateEventHandlerV2ClientServiceException(exception);
             }
         }
 
@@ -249,12 +249,15 @@ namespace EventHighway.Core.Clients.EventHandlers.V2
         }
 
         private static EventHandlerV2ClientServiceException
-            CreateEventHandlerV2ClientServiceException(Xeption innerException)
+            CreateEventHandlerV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventHandlerV2ClientServiceException(
                 message: "Event handler client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }
