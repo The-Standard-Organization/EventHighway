@@ -3,44 +3,45 @@ using System;
 using EventHighway.Core.Brokers.Storages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace EventHighway.PostgreSql.Migrations
+namespace EventHighway.Core.Migrations
 {
     [DbContext(typeof(StorageBroker))]
-    partial class StorageBrokerModelSnapshot : ModelSnapshot
+    [Migration("20260718032309_ReplaceSecretUniqueIndexWithParticipantSecret")]
+    partial class ReplaceSecretUniqueIndexWithParticipantSecret
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "10.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("EventHighway.Core.Models.Services.Foundations.EventAddresses.EventAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -51,21 +52,19 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -76,27 +75,26 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("EventAddressV2s", (string)null);
                 });
@@ -105,12 +103,12 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -124,30 +122,28 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Endpoint")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("HeaderSecret")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -160,30 +156,28 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Endpoint")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("HeaderSecret")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -196,40 +190,38 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FilterCriteria")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("HandlerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("HandlerName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PromotedProperties")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -238,7 +230,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("Name")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Name] IS NOT NULL");
 
                     b.ToTable("EventListenerV2s", (string)null);
                 });
@@ -247,38 +240,35 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ActiveFrom")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ActiveTo")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Secret")
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventParticipantV2Id", "Secret")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Secret] IS NOT NULL");
 
                     b.ToTable("EventParticipantSecretV2s", (string)null);
                 });
@@ -287,41 +277,37 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ActiveFrom")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("ActiveTo")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ContactEmail")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContactPhone")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsSecretRequired")
-                        .HasColumnType("boolean");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -332,21 +318,19 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -359,31 +343,28 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("RetryAttempts")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -396,54 +377,53 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_EventV2s_CreatedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Type" });
+                        .HasDatabaseName("IX_EventV2s_CreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Type" });
 
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("EventAddressV2Id", "CreatedDate")
-                        .HasDatabaseName("IX_EventV2s_AddressCreatedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status", "Type", "EventParticipantV2Id" });
+                        .HasDatabaseName("IX_EventV2s_AddressCreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "Type", "EventParticipantV2Id" });
 
                     b.HasIndex("Status", "Type")
                         .HasDatabaseName("IX_EventV2s_StatusType");
@@ -458,32 +438,28 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -494,46 +470,42 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Content")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("EventName")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("ScheduledDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -546,8 +518,9 @@ namespace EventHighway.PostgreSql.Migrations
                         .HasDatabaseName("IX_EventArchiveV2s_Status");
 
                     b.HasIndex("EventAddressV2Id", "ArchivedDate")
-                        .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
+                        .HasDatabaseName("IX_EventArchiveV2s_AddressArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
 
                     b.HasIndex("EventAddressV2Id", "ContentHash")
                         .HasDatabaseName("IX_EventArchiveV2s_ContentHash");
@@ -559,40 +532,37 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("EventArchiveV1Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Response")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseReasonPhrase")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -605,69 +575,65 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("ArchivedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid?>("CorrelationId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DispatchedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventArchiveV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventListenerV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("NextRetryAttemptNotBefore")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("RemainingRetryAttempts")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Response")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseCode")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseMessage")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RetryAttemptsAllowed")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ArchivedDate")
-                        .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_ArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ArchivedDate"), new[] { "Status" });
 
                     b.HasIndex("EventArchiveV2Id");
 
@@ -679,8 +645,9 @@ namespace EventHighway.PostgreSql.Migrations
                         .HasDatabaseName("IX_ListenerEventArchiveV2s_Status");
 
                     b.HasIndex("EventAddressV2Id", "ArchivedDate")
-                        .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventArchiveV2s_AddressArchivedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "ArchivedDate"), new[] { "Status" });
 
                     b.HasIndex("Status", "RemainingRetryAttempts")
                         .HasDatabaseName("IX_ListenerEventArchiveV2s_RetryClassification");
@@ -692,30 +659,28 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Response")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -732,33 +697,31 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventListenerId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Response")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseReasonPhrase")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
@@ -775,74 +738,73 @@ namespace EventHighway.PostgreSql.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CorrelationId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset>("CreatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset?>("DispatchedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("EventAddressV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventListenerV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventParticipantV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("EventV2Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("NextRetryAttemptNotBefore")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("RemainingRetryAttempts")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<string>("Response")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseCode")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResponseMessage")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RetryAttemptsAllowed")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
-                        .HasPrecision(6)
-                        .HasColumnType("timestamptz");
+                        .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedDate")
-                        .HasDatabaseName("IX_ListenerEventV2s_CreatedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status" });
+                        .HasDatabaseName("IX_ListenerEventV2s_CreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("CreatedDate"), new[] { "Status" });
 
                     b.HasIndex("EventListenerV2Id");
 
                     b.HasIndex("EventParticipantV2Id");
 
                     b.HasIndex("EventV2Id")
-                        .HasDatabaseName("IX_ListenerEventV2s_ToBeArchived")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status", "RemainingRetryAttempts", "DispatchedDate" });
+                        .HasDatabaseName("IX_ListenerEventV2s_ToBeArchived");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventV2Id"), new[] { "Status", "RemainingRetryAttempts", "DispatchedDate" });
 
                     b.HasIndex("EventAddressV2Id", "CreatedDate")
-                        .HasDatabaseName("IX_ListenerEventV2s_AddressCreatedDate")
-                        .HasAnnotation("SqlServer:Include", new[] { "Status", "RemainingRetryAttempts" });
+                        .HasDatabaseName("IX_ListenerEventV2s_AddressCreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EventAddressV2Id", "CreatedDate"), new[] { "Status", "RemainingRetryAttempts" });
 
                     b.HasIndex("Status", "RemainingRetryAttempts")
                         .HasDatabaseName("IX_ListenerEventV2s_RetryClassification");

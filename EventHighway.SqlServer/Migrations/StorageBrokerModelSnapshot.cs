@@ -263,9 +263,7 @@ namespace EventHighway.Core.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventParticipantV2Id");
-
-                    b.HasIndex("Id", "Secret")
+                    b.HasIndex("EventParticipantV2Id", "Secret")
                         .IsUnique()
                         .HasFilter("[Secret] IS NOT NULL");
 
