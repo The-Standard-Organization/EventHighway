@@ -7,12 +7,90 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Orchestrations.Events.V2.Exceptions;
 using Moq;
+using Xeptions;
 
 namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
 {
     public partial class EventV2CoordinationServiceTests
     {
+        [Fact]
+        public async Task ShouldClaimEventV2BeforeFiringAndSkipWhenAlreadyClaimedAsync()
+        {
+            // given
+            CancellationToken randomCancellationToken =
+                TestContext.Current.CancellationToken;
+
+            EventV2 firstEventV2 = CreateRandomEventV2();
+            EventV2 claimedEventV2 = CreateRandomEventV2();
+            EventV2 lastEventV2 = CreateRandomEventV2();
+
+            IQueryable<EventV2> retrievedEventV2s =
+                new[] { firstEventV2, claimedEventV2, lastEventV2 }.AsQueryable();
+
+            var lockedEventV2Exception =
+                new EventV2OrchestrationDependencyValidationException(
+                    message: GetRandomString(),
+                    innerException: new Xeption(GetRandomString()));
+
+            this.eventV2OrchestrationServiceMock.Setup(service =>
+                service.RetrieveScheduledPendingEventV2sAsync(
+                    randomCancellationToken))
+                        .ReturnsAsync(retrievedEventV2s);
+
+            this.eventV2OrchestrationServiceMock.Setup(service =>
+                service.MarkEventV2AsImmediateAsync(
+                    claimedEventV2,
+                    randomCancellationToken))
+                        .ThrowsAsync(lockedEventV2Exception);
+
+            this.eventFiringV2OrchestrationServiceMock.Setup(service =>
+                service.FireEventV2Async(
+                    It.IsAny<EventV2>(),
+                    randomCancellationToken))
+                        .ReturnsAsync((EventV2 eventV2, CancellationToken _) => eventV2);
+
+            // when
+            await this.eventV2CoordinationService
+                .FireScheduledPendingEventV2sAsync(randomCancellationToken);
+
+            // then
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(firstEventV2, randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(claimedEventV2, randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.MarkEventV2AsImmediateAsync(lastEventV2, randomCancellationToken),
+                    Times.Once);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(firstEventV2, randomCancellationToken),
+                    Times.Once);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(claimedEventV2, randomCancellationToken),
+                    Times.Never);
+
+            this.eventFiringV2OrchestrationServiceMock.Verify(service =>
+                service.FireEventV2Async(lastEventV2, randomCancellationToken),
+                    Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.IsAny<Xeption>()),
+                    Times.Never);
+
+            this.eventV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.eventFiringV2OrchestrationServiceMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.eventParticipantV2OrchestrationServiceMock.VerifyNoOtherCalls();
+        }
+
         [Fact]
         public async Task ShouldFireScheduledPendingEventV2sAsync()
         {
