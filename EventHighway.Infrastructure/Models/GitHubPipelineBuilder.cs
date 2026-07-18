@@ -75,11 +75,12 @@ namespace EventHighway.Infrastructure.Models
         /// </summary>
         /// <param name="branches">The branches to trigger on pull request events.</param>
         /// <returns>The current instance of <see cref="GitHubPipelineBuilder"/>.</returns>
-        public GitHubPipelineBuilder OnPullRequest(params string[] branches)
+        public GitHubPipelineBuilder OnPullRequest(string[] branches, params string[] types)
         {
             this.githubPipeline.OnEvents.PullRequest = new PullRequestEvent
             {
-                Branches = branches
+                Branches = branches,
+                Types = types,
             };
 
             return this;

@@ -25,7 +25,9 @@ namespace EventHighway.Infrastructure.Services
             GitHubPipelineBuilder.CreateNewPipeline()
               .SetName(projectName)
               .OnPush(branchName)
-              .OnPullRequest(branchName)
+              .OnPullRequest(
+                branches: new[] { branchName },
+                types: new[] { "opened", "synchronize", "reopened", "closed" })
 
               .AddJob("build", job => job
                   .WithName("Build & Unit Tests")
