@@ -208,7 +208,7 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<Guid>("EventAddressV2Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
                     b.Property<string>("FilterCriteria")
@@ -633,7 +633,7 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<Guid>("EventListenerV2Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("EventV2Id")
@@ -796,7 +796,7 @@ namespace EventHighway.PostgreSql.Migrations
                     b.Property<Guid>("EventListenerV2Id")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("EventParticipantV2Id")
+                    b.Property<Guid>("EventParticipantV2Id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("EventV2Id")
@@ -885,7 +885,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("EventListenerV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventAddressV2");
 
@@ -987,7 +988,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("ListenerEventArchiveV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("EventListenerV2");
 
@@ -1065,7 +1067,8 @@ namespace EventHighway.PostgreSql.Migrations
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.EventParticipants.V2.EventParticipantV2", "EventParticipantV2")
                         .WithMany("ListenerEventV2s")
                         .HasForeignKey("EventParticipantV2Id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("EventHighway.Core.Models.Services.Foundations.Events.V2.EventV2", "EventV2")
                         .WithMany("ListenerEventV2s")
