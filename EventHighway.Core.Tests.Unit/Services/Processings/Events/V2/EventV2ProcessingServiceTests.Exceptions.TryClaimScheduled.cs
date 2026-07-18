@@ -88,6 +88,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
                     expectedEventV2ProcessingDependencyValidationException))),
                         Times.Once);
 
+            this.eventV2ServiceMock.Verify(service =>
+                service.TryClaimScheduledEventV2Async(
+                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                        Times.Once);
             this.eventV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
@@ -132,6 +136,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
                     expectedEventV2ProcessingDependencyException))),
                         Times.Once);
 
+            this.eventV2ServiceMock.Verify(service =>
+                service.TryClaimScheduledEventV2Async(
+                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                        Times.Once);
             this.eventV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
@@ -182,6 +190,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Processings.Events.V2
                     expectedEventV2ProcessingServiceException))),
                         Times.Once);
 
+            this.eventV2ServiceMock.Verify(service =>
+                service.TryClaimScheduledEventV2Async(
+                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                        Times.Once);
             this.eventV2ServiceMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
