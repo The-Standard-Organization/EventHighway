@@ -8,9 +8,14 @@
 		<Authors>Hassan Habib;Christo du Toit</Authors>
 		<Company>The Standard Organization</Company>
 		<Product>EventHighway.Abstractions</Product>
-		<Version>2.1.0</Version>
-		<AssemblyVersion>2.1.0.0</AssemblyVersion>
-		<FileVersion>2.1.0.0</FileVersion>
+		<Version>2.2.0</Version>
+		<AssemblyVersion>2.2.0.0</AssemblyVersion>
+		<FileVersion>2.2.0.0</FileVersion>
+		<PackageReleaseNotes>
+			V2 contracts for extending EventHighway:
+			* IEventHandler — implement to receive events in-process by HandlerId, without an HTTP endpoint.
+			* Storage provider contract — implement to back EventHighway V2 with any persistence technology; SQL Server and PostgreSQL ship today.
+		</PackageReleaseNotes>
 		<PackageId>EventHighway.Abstractions</PackageId>
 		<PackageIcon>EventHighwayLogo.png</PackageIcon>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
