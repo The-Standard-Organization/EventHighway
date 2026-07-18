@@ -129,6 +129,17 @@ namespace EventHighway.Core.Services.Orchestrations.Events.V2
                 .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
         });
 
+        public ValueTask<int> TryClaimScheduledEventV2Async(
+            Guid eventV2Id,
+            CancellationToken cancellationToken = default) =>
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return await this.eventV2ProcessingService
+                .TryClaimScheduledEventV2Async(eventV2Id, cancellationToken);
+        });
+
         public ValueTask<EventV2> RemoveEventV2ByIdAsync(
             Guid eventV2Id,
             CancellationToken cancellationToken = default) =>

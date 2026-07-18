@@ -107,7 +107,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -176,7 +176,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -245,7 +245,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -311,7 +311,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -380,7 +380,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -451,7 +451,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventV2ClientServiceException(exception);
             }
         }
 
@@ -474,12 +474,15 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         }
 
         private static ListenerEventV2ClientServiceException
-            CreateListenerEventV2ClientServiceException(Xeption innerException)
+            CreateListenerEventV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ListenerEventV2ClientServiceException(
                 message: "Listener event client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

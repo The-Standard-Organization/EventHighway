@@ -80,7 +80,7 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventArchiveV2ClientServiceException(exception);
             }
         }
 
@@ -131,7 +131,7 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
             }
             catch (Exception exception)
             {
-                throw CreateListenerEventArchiveV2ClientServiceException(exception as Xeption);
+                throw CreateListenerEventArchiveV2ClientServiceException(exception);
             }
         }
 
@@ -154,12 +154,15 @@ namespace EventHighway.Core.Clients.ListenerEventArchives.V2
         }
 
         private static ListenerEventArchiveV2ClientServiceException
-            CreateListenerEventArchiveV2ClientServiceException(Xeption innerException)
+            CreateListenerEventArchiveV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ListenerEventArchiveV2ClientServiceException(
                 message: "Listener event archive client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

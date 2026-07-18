@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
 
@@ -114,12 +114,15 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
         }
 
         private static ArchivingEventV2ClientServiceException
-            CreateArchivingEventV2ClientServiceException(Xeption innerException)
+            CreateArchivingEventV2ClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new ArchivingEventV2ClientServiceException(
                 message: "Archiving event client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
 
         /// <summary>
@@ -180,7 +183,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
 
@@ -240,7 +243,7 @@ namespace EventHighway.Core.Clients.ArchivingEvents.V2
             }
             catch (Exception exception)
             {
-                throw CreateArchivingEventV2ClientServiceException(exception as Xeption);
+                throw CreateArchivingEventV2ClientServiceException(exception);
             }
         }
     }

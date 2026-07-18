@@ -80,7 +80,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         EventName = item.EventName,
                         Type = (EventArchiveTypeV2)item.Type,
                         CreatedDate = item.CreatedDate,
-                        UpdatedDate = item.CreatedDate,
+                        UpdatedDate = item.UpdatedDate,
                         ScheduledDate = item.ScheduledDate,
                         EventAddressV2Id = item.EventAddressId
                     }).ToList();
@@ -95,7 +95,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         ResponseCode = item.ResponseCode,
                         ResponseMessage = item.ResponseMessage,
                         CreatedDate = item.CreatedDate,
-                        UpdatedDate = item.CreatedDate,
+                        UpdatedDate = item.UpdatedDate,
                         EventV2Id = item.EventId,
                         EventAddressV2Id = item.EventAddressId,
                         EventListenerV2Id = item.EventListenerId,
@@ -297,7 +297,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 EventName = deadEventV2.EventName,
                 Type = (EventArchiveTypeV2)deadEventV2.Type,
                 CreatedDate = deadEventV2.CreatedDate,
-                UpdatedDate = deadEventV2.CreatedDate,
+                UpdatedDate = deadEventV2.UpdatedDate,
                 ScheduledDate = deadEventV2.ScheduledDate,
                 EventAddressV2Id = deadEventV2.EventAddressV2Id
             };
@@ -314,7 +314,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 ResponseCode = deadListenerEventV2.ResponseCode,
                 ResponseMessage = deadListenerEventV2.ResponseMessage,
                 CreatedDate = deadListenerEventV2.CreatedDate,
-                UpdatedDate = deadListenerEventV2.CreatedDate,
+                UpdatedDate = deadListenerEventV2.UpdatedDate,
                 RemainingRetryAttempts = deadListenerEventV2.RemainingRetryAttempts,
                 RetryAttemptsAllowed = deadListenerEventV2.RetryAttemptsAllowed,
                 NextRetryAttemptNotBefore = deadListenerEventV2.NextRetryAttemptNotBefore,

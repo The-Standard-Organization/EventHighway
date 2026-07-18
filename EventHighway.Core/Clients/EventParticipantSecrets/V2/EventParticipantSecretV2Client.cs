@@ -66,7 +66,7 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -114,7 +114,7 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -161,7 +161,7 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -208,7 +208,7 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -255,7 +255,7 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
             }
             catch (Exception exception)
             {
-                throw CreateClientServiceException(exception as Xeption);
+                throw CreateClientServiceException(exception);
             }
         }
 
@@ -278,12 +278,15 @@ namespace EventHighway.Core.Clients.EventParticipantSecrets.V2
         }
 
         private static EventParticipantSecretV2ClientServiceException
-            CreateClientServiceException(Xeption innerException)
+            CreateClientServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new EventParticipantSecretV2ClientServiceException(
                 message: "Event participant secret client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

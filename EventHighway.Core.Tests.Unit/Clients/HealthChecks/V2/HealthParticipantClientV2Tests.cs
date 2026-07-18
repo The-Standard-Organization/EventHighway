@@ -80,8 +80,6 @@ namespace EventHighway.Core.Tests.Unit.Clients.HealthChecks.V2
                 {
                     EventParticipantV2Id = Guid.NewGuid(),
                     Name = GetRandomString(),
-                    ContactEmail = GetRandomString(),
-                    ContactPhone = GetRandomString(),
                     IsActive = true,
                     Status = HealthStatusV2.Green
                 })

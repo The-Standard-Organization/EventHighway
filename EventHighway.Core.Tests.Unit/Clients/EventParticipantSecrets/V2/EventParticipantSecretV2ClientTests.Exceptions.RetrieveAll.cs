@@ -222,7 +222,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventParticipantSecrets.V2
             var expectedEventParticipantSecretV2ClientServiceException =
                 new EventParticipantSecretV2ClientServiceException(
                     message: "Event participant secret client service error occurred, contact support.",
-                    innerException: someException as Xeption,
+                    innerException: new Xeption(someException.Message, someException),
                     data: someException.Data);
 
             this.eventParticipantSecretV2ServiceMock.Setup(service =>

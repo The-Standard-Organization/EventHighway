@@ -9,8 +9,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using DynamicExpresso;
 using EventHighway.Abstractions.EventHandlers;
+using EventHighway.Core.Brokers.Configurations;
 using EventHighway.Core.Brokers.EventHandlers;
 using EventHighway.Core.Brokers.Loggings;
+using EventHighway.Core.Models.Configurations.Dispatch;
 using EventHighway.Core.Models.Services.Foundations.EventCall.V2;
 using EventHighway.Core.Models.Services.Foundations.PromotedProperties;
 
@@ -19,13 +21,16 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V2
     internal partial class EventCallV2Service : IEventCallV2Service
     {
         private readonly IEventHandlerBroker eventHandlerBroker;
+        private readonly IConfigurationBroker configurationBroker;
         private readonly ILoggingBroker loggingBroker;
 
         public EventCallV2Service(
             IEventHandlerBroker eventHandlerBroker,
+            IConfigurationBroker configurationBroker,
             ILoggingBroker loggingBroker)
         {
             this.eventHandlerBroker = eventHandlerBroker;
+            this.configurationBroker = configurationBroker;
             this.loggingBroker = loggingBroker;
         }
 
@@ -93,10 +98,48 @@ namespace EventHighway.Core.Services.Foundations.EventCalls.V2
                 }
             }
 
-            EventHandlerResult result =
-                await handler.HandleAsync(
+            TimeSpan handlerTimeout =
+                this.configurationBroker.GetDispatchConfiguration().HandlerTimeout;
+
+            EventHandlerResult result;
+
+            if (handlerTimeout == Timeout.InfiniteTimeSpan)
+            {
+                result = await handler.HandleAsync(
                     content: eventCallV2.Content,
                     cancellationToken: cancellationToken);
+            }
+            else
+            {
+                using var handlerTimeoutSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+                Task<EventHandlerResult> handleTask =
+                    handler.HandleAsync(
+                        content: eventCallV2.Content,
+                        cancellationToken: handlerTimeoutSource.Token).AsTask();
+
+                Task completedTask = await Task.WhenAny(
+                    handleTask,
+                    Task.Delay(handlerTimeout, cancellationToken));
+
+                if (completedTask != handleTask)
+                {
+                    handlerTimeoutSource.Cancel();
+
+                    eventCallV2.IsSuccess = false;
+                    eventCallV2.ResponseCode = "HandlerTimeout";
+                    eventCallV2.ResponseMessage =
+                        "The event handler did not complete within the configured handler timeout. " +
+                        "The delivery was recorded as failed so the retry pipeline can re-attempt it.";
+
+                    eventCallV2.Response = eventCallV2.ResponseMessage;
+
+                    return eventCallV2;
+                }
+
+                result = await handleTask;
+            }
 
             eventCallV2.IsSuccess = result.IsSuccess;
             eventCallV2.Response = result.Response;

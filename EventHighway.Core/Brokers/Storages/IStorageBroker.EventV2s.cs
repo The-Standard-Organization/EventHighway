@@ -24,6 +24,11 @@ namespace EventHighway.Core.Brokers.Storages
 
         ValueTask<EventV2> SelectEventV2ByIdAsync(Guid eventV2Id, CancellationToken cancellationToken = default);
         ValueTask<EventV2> UpdateEventV2Async(EventV2 eventV2, CancellationToken cancellationToken = default);
+
+        ValueTask<int> ClaimScheduledEventV2Async(
+            Guid eventV2Id,
+            CancellationToken cancellationToken = default);
+
         ValueTask<EventV2> DeleteEventV2Async(EventV2 eventV2, CancellationToken cancellationToken = default);
 
         ValueTask BulkInsertEventV2sAsync(

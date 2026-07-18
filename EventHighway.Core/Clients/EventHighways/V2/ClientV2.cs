@@ -77,7 +77,7 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         private readonly IStorageBrokerProvider storageProvider;
         private readonly EventHighwayConfiguration configuration;
         private readonly EventHandlerBroker eventHandlerBroker;
-        private IEventHandlerV2ProcessingService eventHandlerV2ProcessingService;
+        private readonly ServiceProvider serviceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientV2"/> class with the specified
@@ -98,8 +98,8 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             this.storageProvider = storageProvider;
             this.configuration = configuration ?? new EventHighwayConfiguration();
             this.eventHandlerBroker = new EventHandlerBroker();
-            IServiceProvider serviceProvider = ConfigureDependencies();
-            InitializeClients(serviceProvider);
+            this.serviceProvider = ConfigureDependencies();
+            InitializeClients(this.serviceProvider);
         }
 
         /// <summary>
@@ -116,7 +116,11 @@ namespace EventHighway.Core.Clients.EventHighways.V2
         /// <returns>The current <see cref="IClientV2"/> instance for method chaining.</returns>
         public IClientV2 RegisterEventHandler(IEventHandler eventHandler)
         {
-            this.eventHandlerV2ProcessingService.RetrieveOrRegisterEventHandlerV2Async(eventHandler)
+            using IServiceScope scope = this.serviceProvider.CreateScope();
+
+            scope.ServiceProvider
+                .GetRequiredService<IEventHandlerV2ProcessingService>()
+                .RetrieveOrRegisterEventHandlerV2Async(eventHandler)
                 .GetAwaiter().GetResult();
 
             return this;
@@ -137,11 +141,22 @@ namespace EventHighway.Core.Clients.EventHighways.V2
             IEventHandler eventHandler,
             CancellationToken cancellationToken = default)
         {
-            await this.eventHandlerV2ProcessingService.RetrieveOrRegisterEventHandlerV2Async(
-                eventHandler, cancellationToken);
+            await using AsyncServiceScope scope = this.serviceProvider.CreateAsyncScope();
+
+            await scope.ServiceProvider
+                .GetRequiredService<IEventHandlerV2ProcessingService>()
+                .RetrieveOrRegisterEventHandlerV2Async(eventHandler, cancellationToken);
 
             return this;
         }
+
+        /// <summary>
+        /// Releases the underlying dependency-injection container and all of the database contexts
+        /// and other disposable services it owns.
+        /// </summary>
+        /// <returns>A <see cref="ValueTask"/> representing the asynchronous dispose operation.</returns>
+        public ValueTask DisposeAsync() =>
+            this.serviceProvider.DisposeAsync();
 
         /// <summary>
         /// Gets the client for managing archived events in V2 API.
@@ -211,9 +226,6 @@ namespace EventHighway.Core.Clients.EventHighways.V2
                 storageBroker.Database.Migrate();
             }
 
-            this.eventHandlerV2ProcessingService =
-                serviceProvider.GetRequiredService<IEventHandlerV2ProcessingService>();
-
             this.ArchivingEventV2Client =
                 serviceProvider.GetRequiredService<IArchivingEventV2Client>();
 
@@ -251,7 +263,7 @@ namespace EventHighway.Core.Clients.EventHighways.V2
                 serviceProvider.GetRequiredService<IReplayingEventV2Client>();
         }
 
-        private IServiceProvider ConfigureDependencies()
+        private ServiceProvider ConfigureDependencies()
         {
             var serviceCollection =
                 new ServiceCollection();

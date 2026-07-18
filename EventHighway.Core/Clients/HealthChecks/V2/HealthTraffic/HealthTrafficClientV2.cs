@@ -1,4 +1,4 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             }
             catch (Exception exception)
             {
-                throw CreateHealthTrafficClientV2ServiceException(exception as Xeption);
+                throw CreateHealthTrafficClientV2ServiceException(exception);
             }
         }
 
@@ -104,12 +104,15 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
         }
 
         private static HealthTrafficClientV2ServiceException
-            CreateHealthTrafficClientV2ServiceException(Xeption innerException)
+            CreateHealthTrafficClientV2ServiceException(Exception exception)
         {
+            Xeption innerException = exception as Xeption
+                ?? new Xeption(exception?.Message, exception);
+
             return new HealthTrafficClientV2ServiceException(
                 message: "Health client service error occurred, contact support.",
                 innerException: innerException,
-                data: innerException?.Data);
+                data: exception?.Data);
         }
     }
 }

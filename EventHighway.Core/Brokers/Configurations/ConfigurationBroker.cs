@@ -4,6 +4,7 @@
 
 using EventHighway.Core.Models.Configurations;
 using EventHighway.Core.Models.Configurations.BatchProcessings;
+using EventHighway.Core.Models.Configurations.Dispatch;
 using EventHighway.Core.Models.Configurations.Healths;
 using EventHighway.Core.Models.Configurations.LoopDetections;
 using EventHighway.Core.Models.Configurations.Purging;
@@ -32,5 +33,8 @@ namespace EventHighway.Core.Brokers.Configurations
 
         public PurgeConfiguration GetPurgeConfiguration() =>
             this.configuration.Purging;
+
+        public DispatchConfiguration GetDispatchConfiguration() =>
+            this.configuration.Dispatch;
     }
 }
