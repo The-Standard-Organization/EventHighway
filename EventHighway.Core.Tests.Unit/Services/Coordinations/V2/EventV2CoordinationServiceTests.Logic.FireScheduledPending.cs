@@ -57,6 +57,10 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
 
             // then
             this.eventV2OrchestrationServiceMock.Verify(service =>
+                service.RetrieveScheduledPendingEventV2sAsync(randomCancellationToken),
+                    Times.Once);
+
+            this.eventV2OrchestrationServiceMock.Verify(service =>
                 service.MarkEventV2AsImmediateAsync(firstEventV2, randomCancellationToken),
                     Times.Once);
 
@@ -272,7 +276,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.V2
                 service.MarkEventV2AsImmediateAsync(
                     failingEventV2,
                     randomCancellationToken),
-                        Times.Never);
+                        Times.Once);
 
             this.eventV2OrchestrationServiceMock.Verify(service =>
                 service.MarkEventV2AsImmediateAsync(

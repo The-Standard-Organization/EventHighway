@@ -12,6 +12,7 @@ using EventHighway.Core.Brokers.Times;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2;
 using EventHighway.Core.Models.Services.Coordinations.Events.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Orchestrations.Events.V2.Exceptions;
 using EventHighway.Core.Services.Orchestrations.EventFirings.V2;
 using EventHighway.Core.Services.Orchestrations.EventParticipants.V2;
 using EventHighway.Core.Services.Orchestrations.Events.V2;
@@ -243,11 +244,17 @@ namespace EventHighway.Core.Services.Coordinations.Events.V2
 
                 try
                 {
-                    await this.eventFiringV2OrchestrationService
-                        .FireEventV2Async(eventV2, cancellationToken);
-
                     await this.eventV2OrchestrationService
                         .MarkEventV2AsImmediateAsync(eventV2, cancellationToken);
+
+                    await this.eventFiringV2OrchestrationService
+                        .FireEventV2Async(eventV2, cancellationToken);
+                }
+                catch (EventV2OrchestrationDependencyValidationException)
+                {
+                    // Another sweep (or host) already claimed this scheduled event by
+                    // transitioning it out of the pending state, so skip it quietly to
+                    // avoid dispatching its listeners twice.
                 }
                 catch (Exception exception)
                     when (exception is not OperationCanceledException)
