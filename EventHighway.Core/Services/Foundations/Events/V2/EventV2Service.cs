@@ -113,7 +113,13 @@ namespace EventHighway.Core.Services.Foundations.Events.V2
         public ValueTask<int> TryClaimScheduledEventV2Async(
             Guid eventV2Id,
             CancellationToken cancellationToken = default) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ValidateEventV2Id(eventV2Id);
+
+            return await this.storageBroker.ClaimScheduledEventV2Async(eventV2Id, cancellationToken);
+        });
 
         public ValueTask<EventV2> RemoveEventV2ByIdAsync(
             Guid eventV2Id,
