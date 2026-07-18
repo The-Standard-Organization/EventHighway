@@ -18,7 +18,7 @@ namespace EventHighway.Core.Brokers.Storages
 
             model.HasIndex(eventParticipantSecretV2 => new
             {
-                eventParticipantSecretV2.Id,
+                eventParticipantSecretV2.EventParticipantV2Id,
                 eventParticipantSecretV2.Secret
             })
             .IsUnique();
