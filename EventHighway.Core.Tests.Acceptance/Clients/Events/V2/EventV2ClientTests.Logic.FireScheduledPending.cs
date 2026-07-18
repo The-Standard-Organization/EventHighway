@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using FluentAssertions;
@@ -27,14 +28,18 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.Events.V2
             EventAddressV2 eventAddressV2 =
                 await CreateRandomEventAddressV2Async();
 
+            EventParticipantV2 eventParticipantV2 =
+                await CreateRandomEventParticipantV2Async();
+
             EventListenerV2 listenerV2 =
-                CreateDelegateHandlerListenerV2(eventAddressV2.Id);
+                CreateDelegateHandlerListenerV2(eventAddressV2.Id, eventParticipantV2.Id);
 
             await this.clientBroker.RegisterEventListenerV2Async(listenerV2);
 
             EventV2 eventV2 =
                 await SubmitScheduledEventV2Async(
                     eventAddressV2.Id,
+                    eventParticipantV2.Id,
                     content: inputContent);
 
             // when

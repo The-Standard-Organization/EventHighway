@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using FluentAssertions;
 using Force.DeepCloner;
 
@@ -24,8 +25,13 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventListeners.V2
             Guid inputEventAddressV2Id =
                 randomEventAddressV2.Id;
 
+            EventParticipantV2 randomEventParticipantV2 =
+                await CreateRandomEventParticipantV2Async();
+
             EventListenerV2 randomEventListenerV2 =
-                CreateRandomEventListenerV2(inputEventAddressV2Id);
+                CreateRandomEventListenerV2(
+                    inputEventAddressV2Id,
+                    randomEventParticipantV2.Id);
 
             await this.clientBroker.RegisterEventListenerV2Async(
                 randomEventListenerV2);
