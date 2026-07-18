@@ -391,6 +391,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
             Guid randomEventId = GetRandomId();
             Guid randomEventAddressId = GetRandomId();
             Guid randomEventListenerId = GetRandomId();
+            Guid randomEventParticipantId = GetRandomId();
 
             return new
             {
@@ -403,7 +404,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = randomUpdatedDate,
                 EventId = randomEventId,
                 EventAddressId = randomEventAddressId,
-                EventListenerId = randomEventListenerId
+                EventListenerId = randomEventListenerId,
+                EventParticipantId = randomEventParticipantId
             };
         }
 

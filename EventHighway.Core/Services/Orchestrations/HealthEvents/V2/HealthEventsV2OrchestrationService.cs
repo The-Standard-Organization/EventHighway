@@ -503,7 +503,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
                 .ToList();
 
             var listenerCounts = windowListenerEvents
-                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id ?? Guid.Empty)
+                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id)
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
@@ -533,7 +533,7 @@ namespace EventHighway.Core.Services.Orchestrations.HealthEvents.V2
             var receivedCounts = windowListenerEvents
                 .GroupBy(listenerEvent => new
                 {
-                    EventParticipantV2Id = listenerEvent.EventParticipantV2Id ?? Guid.Empty,
+                    listenerEvent.EventParticipantV2Id,
                     listenerEvent.EventAddressV2Id
                 })
                 .Select(group => new
