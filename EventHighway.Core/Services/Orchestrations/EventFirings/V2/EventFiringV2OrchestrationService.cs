@@ -64,27 +64,35 @@ namespace EventHighway.Core.Services.Orchestrations.EventFirings.V2
 
             foreach (EventListenerV2 eventListenerV2 in eventListenerV2s)
             {
-                DateTimeOffset now =
-                    await this.dateTimeBroker.GetDateTimeOffsetAsync();
+                try
+                {
+                    DateTimeOffset now =
+                        await this.dateTimeBroker.GetDateTimeOffsetAsync();
 
-                ListenerEventV2 listenerEventV2 =
-                    CreateListenerEventV2(
-                        eventV2,
-                        eventListenerV2,
-                        now);
+                    ListenerEventV2 listenerEventV2 =
+                        CreateListenerEventV2(
+                            eventV2,
+                            eventListenerV2,
+                            now);
 
-                ListenerEventV2 addedListenerEventV2 =
-                    await this.listenerEventV2ProcessingService
-                        .AddListenerEventV2Async(listenerEventV2, cancellationToken);
+                    ListenerEventV2 addedListenerEventV2 =
+                        await this.listenerEventV2ProcessingService
+                            .AddListenerEventV2Async(listenerEventV2, cancellationToken);
 
-                ListenerEventV2 processedListenerEventV2 =
-                    await RunEventCallV2Async(
-                        eventV2,
-                        eventListenerV2,
-                        addedListenerEventV2,
-                        cancellationToken);
+                    ListenerEventV2 processedListenerEventV2 =
+                        await RunEventCallV2Async(
+                            eventV2,
+                            eventListenerV2,
+                            addedListenerEventV2,
+                            cancellationToken);
 
-                processedListenerEventV2s.Add(processedListenerEventV2);
+                    processedListenerEventV2s.Add(processedListenerEventV2);
+                }
+                catch (Exception exception)
+                    when (exception is not OperationCanceledException)
+                {
+                    await this.loggingBroker.LogErrorAsync(exception);
+                }
             }
 
             eventV2.ListenerEventV2s = processedListenerEventV2s;
