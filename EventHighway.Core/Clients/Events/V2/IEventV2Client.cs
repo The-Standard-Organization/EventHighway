@@ -80,6 +80,27 @@ namespace EventHighway.Core.Clients.Events.V2
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Retrieves the events matching the given query asynchronously, each with its associated
+        /// event address V2 — filtered, ordered by <c>CreatedDate</c> descending, paged, and
+        /// materialized at the time of the call.
+        /// </summary>
+        /// <param name="eventV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
+        /// <param name="cancellationToken">A cancellation token to allow cancellation of the
+        /// asynchronous operation. The default value is
+        /// <see cref="CancellationToken.None"/>.</param>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching events with their associated event address
+        /// V2.</returns>
+        /// <exception cref="EventV2ClientValidationException">Thrown when the query is null or
+        /// carries invalid values.</exception>
+        /// <exception cref="EventV2ClientDependencyException">Thrown when dependency or
+        /// service errors occur.</exception>
+        /// <exception cref="EventV2ClientServiceException">Thrown when an unexpected error
+        /// occurs during retrieval.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
+        /// signaled.</exception>
         ValueTask<IReadOnlyList<EventV2>> RetrieveAllEventV2sWithEventAddressV2Async(
             EventV2Query eventV2Query,
             CancellationToken cancellationToken = default);

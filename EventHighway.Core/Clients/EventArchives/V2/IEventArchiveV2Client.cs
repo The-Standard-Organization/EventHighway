@@ -18,13 +18,17 @@ namespace EventHighway.Core.Clients.EventArchives.V2
     public interface IEventArchiveV2Client
     {
         /// <summary>
-        /// Retrieves all archived events asynchronously.
+        /// Retrieves the archived events matching the given query asynchronously — filtered,
+        /// ordered by <c>ArchivedDate</c> descending, paged, and materialized at the time of the
+        /// call.
         /// </summary>
+        /// <param name="eventArchiveV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous operation
-        /// that returns all archived events.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous operation
+        /// that returns the matching page of archived events.</returns>
         /// <exception cref="EventArchiveV2ClientValidationException">Thrown when validation errors
         /// occur.</exception>
         /// <exception cref="EventArchiveV2ClientDependencyException">Thrown when dependency or
@@ -38,13 +42,18 @@ namespace EventHighway.Core.Clients.EventArchives.V2
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves all archived events asynchronously with their associated event address V2.
+        /// Retrieves the archived events matching the given query asynchronously, each with its
+        /// associated event address V2 — filtered, ordered by <c>ArchivedDate</c> descending,
+        /// paged, and materialized at the time of the call.
         /// </summary>
+        /// <param name="eventArchiveV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous operation
-        /// that returns all archived events with their associated event address V2.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous operation
+        /// that returns the matching page of archived events with their associated event address
+        /// V2.</returns>
         /// <exception cref="EventArchiveV2ClientValidationException">Thrown when validation errors
         /// occur.</exception>
         /// <exception cref="EventArchiveV2ClientDependencyException">Thrown when dependency or

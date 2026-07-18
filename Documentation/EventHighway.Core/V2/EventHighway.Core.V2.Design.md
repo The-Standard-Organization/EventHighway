@@ -35,6 +35,7 @@
 - [5. The maintenance jobs a consumer must schedule](#5-the-maintenance-jobs-a-consumer-must-schedule)
 - [6. The ListenerEventV2 lifecycle (one picture)](#6-the-listenereventv2-lifecycle-one-picture)
 - [7. Configuration reference](#7-configuration-reference)
+- [8. Client threading & retrieval model](#8-client-threading--retrieval-model)
 
 ---
 
@@ -622,6 +623,54 @@ scheduling/interval settings** — the consumer owns timing.
 | `LoopDetection` | `Enabled` / `Threshold` / `Window` | true / 5 / 60 s | Quarantine an event when the same signature recurs too often (§1.4). |
 | `BatchProcessing` | `BatchSizeForBulkProcessing` | (system default) | Page size for every bulk/paged job (fire, retry, archive, purge, replay). |
 | `Health` | RAG thresholds | standard | Health-dashboard classification (separate subsystem). |
+
+---
+
+## 8. Client threading & retrieval model
+
+### 8.1 The client is thread-safe (scope-per-operation)
+
+A single `IClientV2` (and every one of its sub-clients) is safe to build once and share across
+threads — a web host can register it as a singleton and let concurrent requests hit it at will.
+
+Each client **operation** opens its own dependency-injection scope, resolves a fresh EF `DbContext`
+(and the service graph above it) inside that scope, runs the operation, and disposes the scope when
+it returns:
+
+```
+await using AsyncServiceScope scope = this.serviceScopeFactory.CreateAsyncScope();
+var service = scope.ServiceProvider.GetRequiredService<IEventV2Service>();
+return await service.RetrieveEventV2sByQueryAsync(query, cancellationToken);
+```
+
+Because no two operations ever share a `DbContext`, concurrent callers never trip the
+*"A second operation was started on this context instance"* / *"used while it is being configured"*
+failures. The storage broker is registered **transient**, so each scope gets — and disposes — its own
+context; nothing leaks between operations.
+
+**Rejected alternative — the serialized gate.** The obvious fix for a *single, shared* `DbContext` is
+to funnel every call through a one-at-a-time `SemaphoreSlim`. It is correct but it serializes the
+whole client: every dashboard panel, every background job waits behind every other, and throughput
+collapses to one operation at a time. Scope-per-operation removes the shared context instead of
+guarding it, so operations run genuinely in parallel and no gate is needed. (A host may still keep a
+*lazy-construction* guard so the client is built exactly once — that is construction, not per-call
+serialization.)
+
+### 8.2 Retrieval is paged, never `IQueryable`
+
+No retrieval exposer returns an `IQueryable`. A deferred query would enumerate *after* its owning
+scope disposed — against a dead `DbContext` — and it would let a caller pull an unbounded result set
+across the client boundary. Instead every `RetrieveAll…`/`Retrieve…ByEventAddressId…` exposer takes a
+**query-criteria object** and returns a materialized `IReadOnlyList<T>`:
+
+- The `XxxQuery` object carries the entity's likely filters plus `Skip` and `Take` (default `100`,
+  validated to `1..1000`). Results are ordered deterministically (`CreatedDate`/`ArchivedDate`
+  descending, then `Id`) so paging is stable.
+- Criteria are plain values, **not** predicates/`Expression`s — the client never leaks EF/LINQ
+  translation semantics or provider-specific behaviour across its boundary.
+- To read a large set, page it: start at `Skip = 0`, keep the same `Take`, and increment `Skip` by
+  `Take` until a page returns fewer than `Take` rows. The owning service keeps its internal
+  `IQueryable RetrieveAll` for service-to-service callers; only the client-facing exposer is paged.
 
 ---
 

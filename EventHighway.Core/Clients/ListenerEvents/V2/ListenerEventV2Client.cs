@@ -50,7 +50,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
         /// operation that returns a queryable collection of all listener events.</returns>
         /// <exception cref="ListenerEventV2ClientValidationException">Thrown when validation
         /// errors occur in the orchestration service.</exception>
@@ -118,7 +118,7 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
         /// operation that returns a queryable collection of all listener events with their
         /// associated event listeners.</returns>
         /// <exception cref="ListenerEventV2ClientValidationException">Thrown when validation

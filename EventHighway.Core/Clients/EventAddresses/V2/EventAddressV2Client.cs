@@ -183,7 +183,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
         /// operation that returns a queryable collection of event addresses.</returns>
         /// <exception cref="EventAddressV2ClientDependencyException">Thrown when dependency
         /// or service errors occur.</exception>
