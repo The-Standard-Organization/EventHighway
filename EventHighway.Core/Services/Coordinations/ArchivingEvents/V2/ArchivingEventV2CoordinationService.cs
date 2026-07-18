@@ -102,6 +102,7 @@ namespace EventHighway.Core.Services.Coordinations.ArchivingEvents.V2
         {
             cancellationToken.ThrowIfCancellationRequested();
             PurgeConfiguration purgeConfiguration = this.configurationBroker.GetPurgeConfiguration();
+            ValidateOnPurgeFromConfiguration(purgeConfiguration.RetentionDays);
             DateTimeOffset currentDateTimeOffset = await this.dateTimeBroker.GetDateTimeOffsetAsync();
             DateTimeOffset olderThan = currentDateTimeOffset.AddDays(-purgeConfiguration.RetentionDays);
             BatchConfiguration batchConfiguration = this.configurationBroker.GetBatchConfiguration();
