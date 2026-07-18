@@ -9,6 +9,7 @@ using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2.Exceptions;
 using EventHighway.Core.Services.Foundations.ListenerEventArchives.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -18,6 +19,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEventArchives.V2
     public partial class ListenerEventArchiveV2ClientTests
     {
         private readonly Mock<IListenerEventArchiveV2Service> listenerEventArchiveV2ServiceMock;
+        private int listenerEventArchiveServiceResolutionCount;
         private readonly IListenerEventArchiveV2Client listenerEventArchiveV2Client;
 
         public ListenerEventArchiveV2ClientTests()
@@ -25,10 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEventArchives.V2
             this.listenerEventArchiveV2ServiceMock =
                 new Mock<IListenerEventArchiveV2Service>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.listenerEventArchiveServiceResolutionCount++;
+
+                return this.listenerEventArchiveV2ServiceMock.Object;
+            });
+
             this.listenerEventArchiveV2Client =
                 new ListenerEventArchiveV2Client(
-                    listenerEventArchiveV2Service:
-                        this.listenerEventArchiveV2ServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()

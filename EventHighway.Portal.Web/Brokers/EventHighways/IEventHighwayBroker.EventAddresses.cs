@@ -6,7 +6,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 
 namespace EventHighway.Portal.Web.Brokers.EventHighways
 {
@@ -16,7 +18,8 @@ namespace EventHighway.Portal.Web.Brokers.EventHighways
             EventAddressV2 eventAddressV2,
             CancellationToken cancellationToken = default);
 
-        ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default);
 
         ValueTask<EventAddressV2> RemoveEventAddressV2ByIdAsync(

@@ -3,10 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 
 namespace EventHighway.Core.Clients.EventAddresses.V2
 {
@@ -49,16 +51,21 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves all event addresses asynchronously.
+        /// Retrieves the event addresses matching the given query asynchronously — filtered,
+        /// ordered by <c>CreatedDate</c> descending, paged, and materialized at the time of the
+        /// call.
         /// </summary>
+        /// <param name="eventAddressV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
-        /// operation that returns a queryable collection of event addresses.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching page of event addresses.</returns>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>

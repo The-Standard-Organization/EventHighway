@@ -9,6 +9,7 @@ using EventHighway.Core.Models.Clients.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2;
 using EventHighway.Core.Models.Coordinations.HealthChecks.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.HealthChecks.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.HealthChecks.V2
@@ -19,16 +20,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
     /// </summary>
     internal class HealthDuplicateClientV2 : IHealthDuplicateClientV2
     {
-        private readonly IHealthV2CoordinationService healthV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthDuplicateClientV2"/> class with the
         /// specified health coordination service.
         /// </summary>
-        /// <param name="healthV2CoordinationService">The coordination service for health
-        /// reports.</param>
-        public HealthDuplicateClientV2(IHealthV2CoordinationService healthV2CoordinationService) =>
-            this.healthV2CoordinationService = healthV2CoordinationService;
+        /// <param name="serviceProvider">The application service provider used to open a fresh scope per operation.</param>
+        public HealthDuplicateClientV2(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         public async ValueTask<DuplicateDetectionSummaryV2> RetrieveDuplicateDetectionSummaryV2Async(
             TrafficPeriodV2 period,
@@ -36,9 +37,16 @@ namespace EventHighway.Core.Clients.HealthChecks.V2
             DateTimeOffset? windowEnd = null,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IHealthV2CoordinationService healthV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IHealthV2CoordinationService>();
+
             try
             {
-                HealthReportV2 healthReport = await this.healthV2CoordinationService
+                HealthReportV2 healthReport = await healthV2CoordinationService
                     .RetrieveDuplicateReportV2Async(period, windowStart, windowEnd, cancellationToken);
 
                 return healthReport.Duplicates;

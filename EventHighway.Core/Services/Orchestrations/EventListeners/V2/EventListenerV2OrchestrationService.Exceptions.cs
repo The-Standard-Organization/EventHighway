@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,88 @@ namespace EventHighway.Core.Services.Orchestrations.EventListeners.V2
     {
         private delegate ValueTask<EventListenerV2> ReturningEventListenerV2Function();
         private delegate ValueTask<IQueryable<EventListenerV2>> ReturningEventListenerV2sFunction();
+        private delegate ValueTask<IReadOnlyList<EventListenerV2>> ReturningEventListenerV2ListFunction();
+
+        private async ValueTask<IReadOnlyList<EventListenerV2>> TryCatch(
+            ReturningEventListenerV2ListFunction returningEventListenerV2ListFunction)
+        {
+            try
+            {
+                return await returningEventListenerV2ListFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.", operationCanceledException);
+
+                var timeoutEventListenerV2OrchestrationException =
+                    new TimeoutEventListenerV2OrchestrationException(
+                        message: "Failed event listener orchestration timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: operationCanceledException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventListenerV2OrchestrationException);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (NullEventListenerV2QueryOrchestrationException
+                nullEventListenerV2QueryOrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventListenerV2QueryOrchestrationException);
+            }
+            catch (InvalidEventListenerV2QueryOrchestrationException
+                invalidEventListenerV2QueryOrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventListenerV2QueryOrchestrationException);
+            }
+            catch (InvalidEventListenerV2OrchestrationException
+                invalidEventListenerV2OrchestrationException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventListenerV2OrchestrationException);
+            }
+            catch (EventListenerV2ProcessingValidationException
+                eventListenerV2ProcessingValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventListenerV2ProcessingValidationException);
+            }
+            catch (EventListenerV2ProcessingDependencyValidationException
+                eventListenerV2ProcessingDependencyValidationException)
+            {
+                throw await CreateAndLogDependencyValidationExceptionAsync(
+                    eventListenerV2ProcessingDependencyValidationException);
+            }
+            catch (EventListenerV2ProcessingDependencyException
+                eventListenerV2ProcessingDependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventListenerV2ProcessingDependencyException);
+            }
+            catch (EventListenerV2ProcessingServiceException
+                eventListenerV2ProcessingServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventListenerV2ProcessingServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventListenerV2OrchestrationServiceException =
+                    new FailedEventListenerV2OrchestrationServiceException(
+                        message: "Failed event listener service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventListenerV2OrchestrationServiceException);
+            }
+        }
 
         private async ValueTask<EventListenerV2> TryCatch(
             ReturningEventListenerV2Function returningEventListenerV2Function)

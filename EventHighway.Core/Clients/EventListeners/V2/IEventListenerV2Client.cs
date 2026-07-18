@@ -3,10 +3,11 @@
 // ----------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
+using EventHighway.Core.Models.Services.Orchestrations.EventListeners.V2;
 
 namespace EventHighway.Core.Clients.EventListeners.V2
 {
@@ -37,18 +38,21 @@ namespace EventHighway.Core.Clients.EventListeners.V2
         /// </summary>
         /// <param name="eventAddressId">The identifier of the event address to filter
         /// listeners by.</param>
+        /// <param name="eventListenerV2Query">The paging and secondary-filter criteria applied
+        /// within the event address.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
-        /// operation that returns a queryable collection of event listeners for the specified
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching page of event listeners for the specified
         /// event address.</returns>
         /// <exception cref="ArgumentException">Thrown when eventAddressId is an empty
         /// Guid.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
+        ValueTask<IReadOnlyList<EventListenerV2>> RetrieveEventListenerV2sByEventAddressIdAsync(
             Guid eventAddressId,
+            EventListenerV2Query eventListenerV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>

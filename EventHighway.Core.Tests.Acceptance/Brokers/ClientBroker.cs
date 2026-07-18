@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Threading.Tasks;
 using EventHighway.Abstractions.EventHandlers;
 using EventHighway.Abstractions.Storages;
 using EventHighway.Core.Clients.EventHighways;
@@ -43,5 +44,8 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
             this.eventHighwayClient.V2.RegisterEventHandler(eventHandler);
             return this;
         }
+
+        public async ValueTask RegisterEventHandlerAsync(IEventHandler eventHandler) =>
+            await this.eventHighwayClient.V2.RegisterEventHandlerAsync(eventHandler);
     }
 }

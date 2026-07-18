@@ -35,6 +35,8 @@
 - [5. The maintenance jobs a consumer must schedule](#5-the-maintenance-jobs-a-consumer-must-schedule)
 - [6. The ListenerEventV2 lifecycle (one picture)](#6-the-listenereventv2-lifecycle-one-picture)
 - [7. Configuration reference](#7-configuration-reference)
+- [8. Client threading & retrieval model](#8-client-threading--retrieval-model)
+- [9. Security model](#9-security-model)
 
 ---
 
@@ -74,8 +76,8 @@ You submit an event with `EventV2Client.SubmitEventV2Async(eventV2)`. The coordi
 fixed sequence before anything is dispatched:
 
 1. **Validate** the event isn't null.
-2. **Validate participants** — if the event/listeners are owned by a participant, the participant secret
-   is checked.
+2. **Validate participants** — the submitting participant (mandatory, §1.5) is validated, and its
+   secret is checked when supplied or required.
 3. **Decide the type** from `ScheduledDate`:
    - `ScheduledDate == null` → **Immediate**
    - `ScheduledDate < now` → **Immediate** (a past schedule means "send now")
@@ -234,32 +236,63 @@ caller. **Quarantined events are never dispatched**, and they are swept up separ
 
 ### 1.5 Event participants & secrets
 
-Two fields on `EventV2` are optional and orthogonal to everything else in this section:
+Two fields on `EventV2` govern attribution and authentication:
 
 ```csharp
 public string EventParticipantV2Secret { get; set; }
-public Guid? EventParticipantV2Id { get; set; }
+public Guid EventParticipantV2Id { get; set; }
 ```
 
-If neither is supplied, the event is treated as **internal** — nothing about participants is
-evaluated, and submission proceeds exactly as described above. If `EventParticipantV2Id` **is**
-supplied, "validate participants" (step 2 of §1's sequence) means:
+**`EventParticipantV2Id` is mandatory** — every event is attributable to a participant, so every
+publisher (including in-process, "internal" ones) submits under a participant identity created up
+front, alongside its event address. The column is NOT NULL on both `EventV2s` and
+`EventArchiveV2s`, the foundation service validates it as required on add, modify and restore, and
+"validate participants" (step 2 of §1's sequence) means:
 
-1. **The participant must exist, be active, and fall inside its own `ActiveFrom`/`ActiveTo` window.**
-   If not, an `InvalidEventParticipantV2OrchestrationException` is thrown and the event is never
-   persisted.
-2. If `EventParticipantV2Secret` is also supplied, it must match one of that participant's secrets —
+1. **A participant id must be supplied** — a missing/empty id throws
+   `InvalidEventParticipantV2OrchestrationException` before anything else is evaluated.
+2. **The participant must exist, be active, and fall inside its own `ActiveFrom`/`ActiveTo` window.**
+   If not, the same exception is thrown and the event is never persisted.
+3. If the participant has **`IsSecretRequired == true`**, an `EventParticipantV2Secret` **must** be
+   supplied — a secretless submission for that participant throws
+   `InvalidEventParticipantV2OrchestrationException`. Participants with `IsSecretRequired == false`
+   (the default) may submit without a secret.
+4. If `EventParticipantV2Secret` is supplied, it must match one of that participant's secrets —
    a single **matching, active, in-window** `EventParticipantSecretV2` is enough. If none match, the
-   same exception is thrown.
-3. **Supplying a secret without an id is invalid on its own** — a secret needs a participant to be
-   checked against, so this also throws `InvalidEventParticipantV2OrchestrationException`.
+   same exception is thrown. The submitted value is the **plaintext** secret; it is SHA-256-hashed
+   before comparison (see below).
 
-> **These fields are intentionally optional on the library.** Internal events — published by code
-> that already trusts its own callers — don't need to prove who they're from. The recommendation is
-> that **external event receivers make these fields mandatory in their own foundation services**, so
-> that no externally-submitted event can be created without them. Participant evaluation itself still
-> happens inside EventHighway (§1.5 above) when `SubmitEventV2Async` is called — the foundation
-> service's job is only to enforce that the values are supplied, not to evaluate them.
+> **Identity is mandatory; authentication is per-participant.** The participant id answers *"where
+> did this event come from"* for every row in `EventV2s` and `EventArchiveV2s` — health reports,
+> loop quarantines and audits never see unattributed events. Whether the sender must also *prove*
+> that identity is decided per participant via **`IsSecretRequired`**: trusted internal publishers
+> can leave it off, external-facing participants should turn it on. Because events (and archives)
+> always reference their participant, **deleting a participant is restricted while any of its data
+> exists** — deactivate it (`IsActive = false`) instead; only its secrets cascade-delete with it.
+
+**The subscription side is attributed too.** A listener carries the participant that owns it, and
+that identity is **mandatory**: `EventListenerV2.EventParticipantV2Id` is NOT NULL (validated
+required on add), and it flows automatically onto every delivery record and its archive —
+`ListenerEventV2` and `ListenerEventArchiveV2` copy the listener's participant when the event is
+fired, and replay/restore preserve it. All three columns are NOT NULL on both providers. So *"who
+received this"* is always answerable — health and usage views never fall back to an "unknown"
+participant on the subscription side, mirroring the guarantee events already had.
+
+**Secrets are hashed at rest and transient in flight.** `EventParticipantSecretV2.Secret` stores a
+lowercase-hex **SHA-256 hash** — the plaintext is visible exactly once, at creation time, and cannot
+be recovered afterwards (the Portal generates a strong secret and shows it a single time for this
+reason). At submission the caller supplies the plaintext on `EventV2.EventParticipantV2Secret`; the
+orchestration hashes it and compares hashes, and the coordination **clears the field immediately
+after validation**, so the secret is never persisted on `EventV2` (the property is also ignored by
+the storage mapping), never archived, and never travels further down the pipeline — replay and
+restore paths operate without it.
+
+**Adding a secret enforces a minimum length and hashes in place.** On add the foundation validates
+the plaintext `Secret` is **at least 36 characters** — matching the strength of the Portal's
+generated secret and rejecting weak, short, human-chosen values. `AddEventParticipantSecretV2Async`
+then **mutates the instance you pass it**: it overwrites `Secret` with the hash before the record is
+persisted, so the original plaintext cannot be read back from that object once the call returns.
+Capture the plaintext first if you still need it.
 
 **Secrets are time-based, and a participant can hold more than one at once.** Each
 `EventParticipantSecretV2` carries its own `ActiveFrom`/`ActiveTo` window, independent of the
@@ -606,6 +639,104 @@ scheduling/interval settings** — the consumer owns timing.
 | `LoopDetection` | `Enabled` / `Threshold` / `Window` | true / 5 / 60 s | Quarantine an event when the same signature recurs too often (§1.4). |
 | `BatchProcessing` | `BatchSizeForBulkProcessing` | (system default) | Page size for every bulk/paged job (fire, retry, archive, purge, replay). |
 | `Health` | RAG thresholds | standard | Health-dashboard classification (separate subsystem). |
+
+---
+
+## 8. Client threading & retrieval model
+
+### 8.1 The client is thread-safe (scope-per-operation)
+
+A single `IClientV2` (and every one of its sub-clients) is safe to build once and share across
+threads — a web host can register it as a singleton and let concurrent requests hit it at will.
+
+Each client **operation** opens its own dependency-injection scope, resolves a fresh EF `DbContext`
+(and the service graph above it) inside that scope, runs the operation, and disposes the scope when
+it returns:
+
+```
+await using AsyncServiceScope scope = this.serviceScopeFactory.CreateAsyncScope();
+var service = scope.ServiceProvider.GetRequiredService<IEventV2Service>();
+return await service.RetrieveEventV2sByQueryAsync(query, cancellationToken);
+```
+
+Because no two operations ever share a `DbContext`, concurrent callers never trip the
+*"A second operation was started on this context instance"* / *"used while it is being configured"*
+failures. The storage broker is registered **transient**, so each scope gets — and disposes — its own
+context; nothing leaks between operations.
+
+**Rejected alternative — the serialized gate.** The obvious fix for a *single, shared* `DbContext` is
+to funnel every call through a one-at-a-time `SemaphoreSlim`. It is correct but it serializes the
+whole client: every dashboard panel, every background job waits behind every other, and throughput
+collapses to one operation at a time. Scope-per-operation removes the shared context instead of
+guarding it, so operations run genuinely in parallel and no gate is needed. (A host may still keep a
+*lazy-construction* guard so the client is built exactly once — that is construction, not per-call
+serialization.)
+
+### 8.2 Retrieval is paged, never `IQueryable`
+
+No retrieval exposer returns an `IQueryable`. A deferred query would enumerate *after* its owning
+scope disposed — against a dead `DbContext` — and it would let a caller pull an unbounded result set
+across the client boundary. Instead every `RetrieveAll…`/`Retrieve…ByEventAddressId…` exposer takes a
+**query-criteria object** and returns a materialized `IReadOnlyList<T>`:
+
+- The `XxxQuery` object carries the entity's likely filters plus `Skip` and `Take` (default `100`,
+  validated to `1..1000`). Results are ordered deterministically (`CreatedDate`/`ArchivedDate`
+  descending, then `Id`) so paging is stable.
+- Criteria are plain values, **not** predicates/`Expression`s — the client never leaks EF/LINQ
+  translation semantics or provider-specific behaviour across its boundary.
+- To read a large set, page it: start at `Skip = 0`, keep the same `Take`, and increment `Skip` by
+  `Take` until a page returns fewer than `Take` rows. The owning service keeps its internal
+  `IQueryable RetrieveAll` for service-to-service callers; only the client-facing exposer is paged.
+
+---
+
+## 9. Security model
+
+> **The client is a trusted, server-side component. Never hand it — or any endpoint that reaches
+> it — to an untrusted caller.** The library deliberately contains no authentication or
+> authorization layer; enforcing *who* may call it, and *what* they may do, is the **host's**
+> responsibility.
+
+### 9.1 The trust boundary
+
+`IClientV2` is an **unauthenticated, fully-privileged** surface. Any code holding a client instance
+can, with no further checks:
+
+- read **every participant's secret hash** (retrieval is unrestricted),
+- **purge** archives and remove events, listeners and delivery records,
+- **fire** pending events and **replay** history for any address.
+
+This is by design — the client is meant to sit *behind* a host (an API, a worker, a UI back-end)
+that has already decided the caller is allowed to be there. Wiring a client operation straight to an
+unauthenticated HTTP route exposes all of the above to the public. Treat the client the way you would
+a raw database connection: privileged, internal, never directly reachable from outside.
+
+### 9.2 Secrets and brute-force
+
+Participant secrets are **hashed at rest** and enforced to a **minimum length** on add (see §1.5),
+and secret material is transient in flight — never persisted on the event, archived, or logged. That
+protects secrets **if the database leaks**. It does **not**, on its own, stop an attacker who can
+call a submission endpoint repeatedly from **guessing** a secret: the library performs the hash
+comparison but applies **no rate-limiting, lockout, or throttling** to failed attempts. A host that
+exposes submission (for a participant with `IsSecretRequired == true`) **must** add its own
+rate-limiting / lockout in front of that endpoint — the library cannot, because it has no notion of
+"a caller" to throttle.
+
+### 9.3 What the host owns
+
+| Concern | Owned by |
+|---|---|
+| Authenticating the caller | **Host** |
+| Authorizing the operation (who may fire / purge / read secrets) | **Host** |
+| Rate-limiting / lockout on submission & secret validation | **Host** |
+| Not exposing `IClientV2` to untrusted callers | **Host** |
+| Hashing secrets at rest, enforcing secret strength, clearing transient secrets | Library |
+| Attributing every event and delivery to a participant | Library |
+| DDL / schema migration authority (see §7) | **Host / operator** |
+
+The short version: **the library secures data at rest and guarantees attribution; the host secures
+access.** Skipping the host's half turns a correct library into an open, brute-forceable, fully
+privileged surface.
 
 ---
 

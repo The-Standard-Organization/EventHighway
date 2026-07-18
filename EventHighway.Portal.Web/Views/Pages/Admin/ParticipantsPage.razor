@@ -48,6 +48,7 @@ else
         <FormText Label="Contact Email" @bind-Value="newParticipant.ContactEmail" />
         <FormText Label="Contact Phone" @bind-Value="newParticipant.ContactPhone" />
         <FormSwitch Label="Active" @bind-Value="newParticipant.IsActive" />
+        <FormSwitch Label="Secret Required" @bind-Value="newParticipant.IsSecretRequired" />
     </ChildContent>
     <FooterContent>
         <Button Color="secondary" OnClick="CloseAddModal">Cancel</Button>
@@ -88,6 +89,10 @@ else
             new DataTableColumn<EventParticipantView>
             {
                 Title = "Active", Value = participant => participant.IsActive ? "Yes" : "No"
+            },
+            new DataTableColumn<EventParticipantView>
+            {
+                Title = "Secret Required", Value = participant => participant.IsSecretRequired ? "Yes" : "No"
             },
         };
 

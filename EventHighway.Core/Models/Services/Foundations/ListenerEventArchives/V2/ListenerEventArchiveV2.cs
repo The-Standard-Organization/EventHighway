@@ -109,9 +109,9 @@ namespace EventHighway.Core.Models.Services.Foundations.ListenerEventArchives.V2
 
         /// <summary>
         /// Gets or sets the identifier of the <see cref="EventParticipants.V2.EventParticipantV2"/> associated with this listener event archive.
-        /// A null value indicates no participant is associated with this listener event archive.
+        /// Required: every listener event archive is attributed to the participant that owns its listener.
         /// </summary>
-        public Guid? EventParticipantV2Id { get; set; }
+        public Guid EventParticipantV2Id { get; set; }
 
         /// <summary>
         /// Gets or sets the <see cref="EventParticipants.V2.EventParticipantV2"/> navigation property associated with this listener event archive.

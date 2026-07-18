@@ -93,6 +93,9 @@ namespace EventHighway.Core.Tests.Acceptance.Clients.EventParticipantSecrets.V2
                     eventParticipantSecretV2.Id).Use(() => Guid.NewGuid())
 
                 .OnProperty(eventParticipantSecretV2 =>
+                    eventParticipantSecretV2.Secret).Use(() => $"{Guid.NewGuid()}{Guid.NewGuid()}")
+
+                .OnProperty(eventParticipantSecretV2 =>
                     eventParticipantSecretV2.EventParticipantV2Id).Use(participantId)
 
                 .OnProperty(eventParticipantSecretV2 =>

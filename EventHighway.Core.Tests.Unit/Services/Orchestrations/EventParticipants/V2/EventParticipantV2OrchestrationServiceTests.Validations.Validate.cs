@@ -16,6 +16,57 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
     public partial class EventParticipantV2OrchestrationServiceTests
     {
         [Fact]
+        public async Task ShouldThrowValidationExceptionOnValidateIfParticipantIdIsNotProvidedAndLogItAsync()
+        {
+            // given
+            EventV2 randomEventV2 = CreateRandomEventV2();
+            EventV2 inputEventV2 = randomEventV2;
+            inputEventV2.EventParticipantV2Id = Guid.Empty;
+            inputEventV2.EventParticipantV2Secret = null;
+
+            var invalidEventParticipantV2OrchestrationException =
+                new InvalidEventParticipantV2OrchestrationException(
+                    message: "Event participant id is required.");
+
+            var expectedEventParticipantV2OrchestrationValidationException =
+                new EventParticipantV2OrchestrationValidationException(
+                    message: "Event participant validation error occurred, fix the errors and try again.",
+                    innerException: invalidEventParticipantV2OrchestrationException);
+
+            // when
+            ValueTask validateTask =
+                this.eventParticipantV2OrchestrationService
+                    .ValidateEventParticipantsAsync(
+                        inputEventV2,
+                        TestContext.Current.CancellationToken);
+
+            EventParticipantV2OrchestrationValidationException
+                actualEventParticipantV2OrchestrationValidationException =
+                    await Assert.ThrowsAsync<EventParticipantV2OrchestrationValidationException>(
+                        validateTask.AsTask);
+
+            // then
+            actualEventParticipantV2OrchestrationValidationException.Should()
+                .BeEquivalentTo(expectedEventParticipantV2OrchestrationValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogErrorAsync(It.Is(SameExceptionAs(
+                    expectedEventParticipantV2OrchestrationValidationException))),
+                        Times.Once);
+
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RetrieveEventParticipantV2ByIdAsync(
+                    It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+                        Times.Never);
+
+            this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
+            this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
         public async Task ShouldThrowValidationExceptionOnValidateIfParticipantIsNotFoundAndLogItAsync()
         {
             // given
@@ -38,7 +89,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(nullEventParticipantV2);
 
@@ -64,7 +115,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -110,7 +161,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(inactiveEventParticipantV2);
 
@@ -136,7 +187,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -182,7 +233,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(notYetActiveEventParticipantV2);
 
@@ -208,7 +259,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -254,7 +305,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Setup(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()))
                         .ReturnsAsync(expiredEventParticipantV2);
 
@@ -280,7 +331,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
 
             this.eventParticipantV2ServiceMock.Verify(service =>
                 service.RetrieveEventParticipantV2ByIdAsync(
-                    inputEventV2.EventParticipantV2Id.Value,
+                    inputEventV2.EventParticipantV2Id,
                     It.IsAny<CancellationToken>()),
                         Times.Once);
 
@@ -300,22 +351,40 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
         }
 
         [Fact]
-        public async Task ShouldThrowValidationExceptionOnValidateIfSecretIsProvidedWithoutParticipantIdAndLogItAsync()
+        public async Task ShouldThrowValidationExceptionOnValidateIfSecretIsRequiredButNotProvidedAndLogItAsync()
         {
             // given
+            DateTimeOffset randomDateTimeOffset = GetRandomDateTimeOffset();
+            EventParticipantV2 randomEventParticipantV2 = CreateRandomEventParticipantV2();
+            EventParticipantV2 activeEventParticipantV2 = randomEventParticipantV2;
+            activeEventParticipantV2.IsActive = true;
+            activeEventParticipantV2.ActiveFrom = null;
+            activeEventParticipantV2.ActiveTo = null;
+            activeEventParticipantV2.IsSecretRequired = true;
+
             EventV2 randomEventV2 = CreateRandomEventV2();
             EventV2 inputEventV2 = randomEventV2;
-            inputEventV2.EventParticipantV2Id = null;
-            inputEventV2.EventParticipantV2Secret = GetRandomString();
+            inputEventV2.EventParticipantV2Id = activeEventParticipantV2.Id;
+            inputEventV2.EventParticipantV2Secret = null;
 
             var invalidEventParticipantV2OrchestrationException =
                 new InvalidEventParticipantV2OrchestrationException(
-                    message: "Event participant secret requires a participant id.");
+                    message: "Event participant secret is required.");
 
             var expectedEventParticipantV2OrchestrationValidationException =
                 new EventParticipantV2OrchestrationValidationException(
                     message: "Event participant validation error occurred, fix the errors and try again.",
                     innerException: invalidEventParticipantV2OrchestrationException);
+
+            this.eventParticipantV2ServiceMock.Setup(service =>
+                service.RetrieveEventParticipantV2ByIdAsync(
+                    inputEventV2.EventParticipantV2Id,
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(activeEventParticipantV2);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetDateTimeOffsetAsync())
+                    .ReturnsAsync(randomDateTimeOffset);
 
             // when
             ValueTask validateTask =
@@ -333,15 +402,32 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.EventParticipants
             actualEventParticipantV2OrchestrationValidationException.Should()
                 .BeEquivalentTo(expectedEventParticipantV2OrchestrationValidationException);
 
+            this.eventParticipantV2ServiceMock.Verify(service =>
+                service.RetrieveEventParticipantV2ByIdAsync(
+                    inputEventV2.EventParticipantV2Id,
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetDateTimeOffsetAsync(),
+                    Times.Once);
+
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogErrorAsync(It.Is(SameExceptionAs(
                     expectedEventParticipantV2OrchestrationValidationException))),
                         Times.Once);
 
+            this.eventParticipantSecretV2ServiceMock.Verify(service =>
+                service.RetrieveAllEventParticipantSecretV2sAsync(
+                    It.IsAny<CancellationToken>()),
+                        Times.Never);
+
             this.eventParticipantV2ServiceMock.VerifyNoOtherCalls();
             this.eventParticipantSecretV2ServiceMock.VerifyNoOtherCalls();
+            this.hashBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
     }
 }

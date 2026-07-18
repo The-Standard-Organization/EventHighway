@@ -16,6 +16,7 @@ using EventHighway.Core.Models.Services.Foundations.EventListeners.V2;
 using EventHighway.Core.Models.Services.Foundations.EventParticipants.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using EventHighway.EventHandlers;
 using EventHighway.SqlServer;
 using Microsoft.Extensions.Configuration;
@@ -147,8 +148,13 @@ public partial class Program
 
         async Task GetOrAddSecretAsync(EventParticipantSecretV2 secret)
         {
-            IEnumerable<EventParticipantSecretV2> existingSecrets =
-                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync();
+            IReadOnlyList<EventParticipantSecretV2> existingSecrets =
+                await client.V2.EventParticipantSecretV2Client.RetrieveAllEventParticipantSecretV2sAsync(
+                    new EventParticipantSecretV2Query
+                    {
+                        EventParticipantV2Id = secret.EventParticipantV2Id,
+                        Take = 1000
+                    });
 
             if (existingSecrets.All(existing => existing.Id != secret.Id))
             {
@@ -177,7 +183,7 @@ public partial class Program
             new EventParticipantSecretV2
             {
                 Id = SeedIdentifiers.NFlixSecret,
-                Secret = "NFlix",
+                Secret = SeedIdentifiers.NFlixSecretValue,
                 EventParticipantV2Id = nflix.Id,
                 IsActive = true,
                 CreatedDate = now,
@@ -352,25 +358,25 @@ public partial class Program
 
         // 1) Yellowstone — scheduled
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, yellowstone,
-            scheduled: true, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: true, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 2) Spider-Verse — immediate
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(spiderVerseEventId, client, newReleases.Id, spiderVerse,
-            scheduled: false, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: false, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 3) Guardians — immediate
         AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, guardians,
-            scheduled: false, participantId: nflix.Id, secret: "NFlix"));
+            scheduled: false, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue));
 
         // 4) Top Gun — scheduled, submitted 4 times to simulate a loop
         for (int attempt = 1; attempt <= 4; attempt++)
         {
             AddIfAccepted(acceptedEventIds, await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, topGun,
-                scheduled: true, participantId: nflix.Id, secret: "NFlix",
+                scheduled: true, participantId: nflix.Id, secret: SeedIdentifiers.NFlixSecretValue,
                 attempt: attempt));
         }
 
-        // 5) John Wick — unauthorised: null participant id with a random secret
+        // 5) John Wick — unauthorised: unknown participant id with a random secret
         var johnWick = new MediaItem
         {
             Id = Guid.NewGuid(),
@@ -380,7 +386,7 @@ public partial class Program
         };
 
         await SubmitMediaAsync(Guid.NewGuid(), client, newReleases.Id, johnWick,
-            scheduled: false, participantId: null, secret: Guid.NewGuid().ToString());
+            scheduled: false, participantId: Guid.NewGuid(), secret: Guid.NewGuid().ToString());
 
         // =========================================================
         // 9) Fire the scheduled (pending) events
@@ -482,7 +488,7 @@ public partial class Program
         Guid eventAddressId,
         MediaItem item,
         bool scheduled,
-        Guid? participantId,
+        Guid participantId,
         string secret,
         int attempt = 0)
     {
@@ -542,8 +548,9 @@ public partial class Program
         EventHighwayClient client,
         params (Guid ListenerId, string Participant)[] listeners)
     {
-        IQueryable<ListenerEventV2> all =
-            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync();
+        IReadOnlyList<ListenerEventV2> all =
+            await client.V2.ListenerEventV2Client.RetrieveAllListenerEventV2sAsync(
+                new ListenerEventV2Query { Take = 1000 });
 
         Console.WriteLine("\n── Listener results ──");
 

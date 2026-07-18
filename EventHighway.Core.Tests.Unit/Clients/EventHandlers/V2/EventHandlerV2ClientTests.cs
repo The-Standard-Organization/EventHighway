@@ -9,6 +9,7 @@ using EventHighway.Core.Clients.EventHandlers.V2;
 using EventHighway.Core.Models.Services.Foundations.EventHandler.V2;
 using EventHighway.Core.Models.Services.Processings.EventHandlers.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventHandlers.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Tynamix.ObjectFiller;
 using Xeptions;
@@ -18,6 +19,7 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
     public partial class EventHandlerV2ClientTests
     {
         private readonly Mock<IEventHandlerV2ProcessingService> eventHandlerV2ProcessingServiceMock;
+        private int eventHandlerProcessingServiceResolutionCount;
         private readonly IEventHandlerV2Client eventHandlerV2Client;
 
         public EventHandlerV2ClientTests()
@@ -25,10 +27,18 @@ namespace EventHighway.Core.Tests.Unit.Clients.EventHandlers.V2
             this.eventHandlerV2ProcessingServiceMock =
                 new Mock<IEventHandlerV2ProcessingService>();
 
+            var serviceCollection = new ServiceCollection();
+
+            serviceCollection.AddScoped(_ =>
+            {
+                this.eventHandlerProcessingServiceResolutionCount++;
+
+                return this.eventHandlerV2ProcessingServiceMock.Object;
+            });
+
             this.eventHandlerV2Client =
                 new EventHandlerV2Client(
-                    eventHandlerV2ProcessingService:
-                        this.eventHandlerV2ProcessingServiceMock.Object);
+                    serviceProvider: serviceCollection.BuildServiceProvider());
         }
 
         public static TheoryData<Xeption> ValidationExceptions()

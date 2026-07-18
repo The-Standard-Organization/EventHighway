@@ -2,10 +2,12 @@
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
@@ -24,27 +26,31 @@ namespace EventHighway.Core.Tests.Unit.Clients.ListenerEvents.V2
             IQueryable<ListenerEventV2> randomListenerEventV2s =
                 CreateRandomListenerEventV2s();
 
-            IQueryable<ListenerEventV2> retrievedListenerEventV2s =
-                randomListenerEventV2s;
+            IReadOnlyList<ListenerEventV2> retrievedListenerEventV2s =
+                randomListenerEventV2s.ToList();
 
-            IQueryable<ListenerEventV2> expectedListenerEventV2s =
+            IReadOnlyList<ListenerEventV2> expectedListenerEventV2s =
                 retrievedListenerEventV2s.DeepClone();
 
+            var inputListenerEventV2Query = new ListenerEventV2Query();
+
             this.listenerEventV2OrchestrationServiceMock.Setup(service =>
-                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken))
-                    .ReturnsAsync(retrievedListenerEventV2s);
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    inputListenerEventV2Query, randomCancellationToken))
+                        .ReturnsAsync(retrievedListenerEventV2s);
 
             // when
-            IQueryable<ListenerEventV2> actualListenerEventV2s =
+            IReadOnlyList<ListenerEventV2> actualListenerEventV2s =
                 await this.listenerEventV2Client
-                    .RetrieveAllListenerEventV2sAsync(randomCancellationToken);
+                    .RetrieveAllListenerEventV2sAsync(inputListenerEventV2Query, randomCancellationToken);
 
             // then
             actualListenerEventV2s.Should().BeEquivalentTo(expectedListenerEventV2s);
 
             this.listenerEventV2OrchestrationServiceMock.Verify(service =>
-                service.RetrieveAllListenerEventV2sAsync(randomCancellationToken),
-                    Times.Once);
+                service.RetrieveListenerEventV2sByQueryAsync(
+                    inputListenerEventV2Query, randomCancellationToken),
+                        Times.Once);
 
             this.listenerEventV2OrchestrationServiceMock.VerifyNoOtherCalls();
         }

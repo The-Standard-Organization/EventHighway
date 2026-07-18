@@ -48,6 +48,12 @@ namespace EventHighway.Core.Models.Services.Foundations.EventParticipants.V2
         public bool IsActive { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether a valid secret is mandatory when
+        /// submitting events on behalf of this participant.
+        /// </summary>
+        public bool IsSecretRequired { get; set; }
+
+        /// <summary>
         /// Gets or sets the date and time from which this participant becomes active.
         /// A null value indicates no lower bound on the active period.
         /// </summary>

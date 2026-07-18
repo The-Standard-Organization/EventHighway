@@ -9,16 +9,18 @@ using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.ReplayingEvents.V2.Exceptions;
 using EventHighway.Core.Models.Coordinations.ReplayingEvents.V2.Exceptions;
 using EventHighway.Core.Services.Coordinations.ReplayingEvents.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.ReplayingEvents.V2
 {
     internal class ReplayingEventV2Client : IReplayingEventV2Client
     {
-        private readonly IReplayingEventV2CoordinationService replayingEventV2CoordinationService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public ReplayingEventV2Client(IReplayingEventV2CoordinationService replayingEventV2CoordinationService) =>
-            this.replayingEventV2CoordinationService = replayingEventV2CoordinationService;
+        public ReplayingEventV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         /// <inheritdoc/>
         public async ValueTask ReplayEventArchiveV2sAsync(
@@ -28,9 +30,16 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
             DateTimeOffset? endDate,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IReplayingEventV2CoordinationService replayingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IReplayingEventV2CoordinationService>();
+
             try
             {
-                await this.replayingEventV2CoordinationService
+                await replayingEventV2CoordinationService
                     .ReplayEventArchiveV2sAsync(
                         eventAddressId, eventListenerIds, startDate, endDate, cancellationToken);
             }
@@ -76,9 +85,16 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
             bool allowReplayOfQuarantinedItem = false,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IReplayingEventV2CoordinationService replayingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IReplayingEventV2CoordinationService>();
+
             try
             {
-                await this.replayingEventV2CoordinationService
+                await replayingEventV2CoordinationService
                     .ReplayEventArchiveV2sAsync(
                         eventV2Id,
                         eventAddressId,
@@ -124,9 +140,16 @@ namespace EventHighway.Core.Clients.ReplayingEvents.V2
         public async ValueTask ProcessReplayedListenerEventV2sAsync(
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IReplayingEventV2CoordinationService replayingEventV2CoordinationService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IReplayingEventV2CoordinationService>();
+
             try
             {
-                await this.replayingEventV2CoordinationService
+                await replayingEventV2CoordinationService
                     .ProcessReplayedListenerEventV2sAsync(cancellationToken);
             }
             catch (ReplayingEventV2CoordinationValidationException

@@ -20,9 +20,15 @@ namespace EventHighway.ClientV2.SubstrateApi.Brokers.EventSubstrates
             this.databaseGate.ExecuteAsync(
                 async () =>
                 {
-                    IEnumerable<EventParticipantSecretV2> existingSecrets =
+                    IReadOnlyList<EventParticipantSecretV2> existingSecrets =
                         await this.eventHighwayClient.V2.EventParticipantSecretV2Client
-                            .RetrieveAllEventParticipantSecretV2sAsync(cancellationToken);
+                            .RetrieveAllEventParticipantSecretV2sAsync(
+                                new EventParticipantSecretV2Query
+                                {
+                                    EventParticipantV2Id = participantSecret.EventParticipantV2Id,
+                                    Take = 1000
+                                },
+                                cancellationToken);
 
                     EventParticipantSecretV2 maybeSecret =
                         existingSecrets.FirstOrDefault(

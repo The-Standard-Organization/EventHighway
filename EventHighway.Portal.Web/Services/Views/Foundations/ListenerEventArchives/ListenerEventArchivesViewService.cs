@@ -16,6 +16,8 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
 {
     public partial class ListenerEventArchivesViewService : IListenerEventArchivesViewService
     {
+        private const int RetrievalPageSize = 1000;
+
         private readonly IEventHighwayBroker eventHighwayBroker;
         private readonly ILoggingBroker loggingBroker;
 
@@ -31,8 +33,10 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventArchiveV2> listenerEventArchives =
-                await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
+            List<ListenerEventArchiveV2> listenerEventArchives =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventArchiveV2Query { Take = RetrievalPageSize },
+                    withEventListener: false,
                     cancellationToken);
 
             return listenerEventArchives
@@ -47,13 +51,17 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
                 CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventArchiveV2> listenerEventArchives =
-                await this.eventHighwayBroker
-                    .RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(cancellationToken);
+            List<ListenerEventArchiveV2> listenerEventArchives =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventArchiveV2Query
+                    {
+                        EventArchiveV2Id = eventArchiveId,
+                        Take = RetrievalPageSize
+                    },
+                    withEventListener: true,
+                    cancellationToken);
 
             return listenerEventArchives
-                .Where(listenerEventArchive =>
-                    listenerEventArchive.EventArchiveV2Id == eventArchiveId)
                 .OrderByDescending(listenerEventArchive => listenerEventArchive.CreatedDate)
                 .Select(AsViewWithEventListener)
                 .ToList();
@@ -64,8 +72,10 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
             CancellationToken cancellationToken = default) =>
         TryCatch(async () =>
         {
-            IQueryable<ListenerEventArchiveV2> listenerEventArchives =
-                await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
+            List<ListenerEventArchiveV2> listenerEventArchives =
+                await RetrieveAllPagesAsync(
+                    new ListenerEventArchiveV2Query { Take = RetrievalPageSize },
+                    withEventListener: false,
                     cancellationToken);
 
             ListenerEventArchiveV2? listenerEventArchive = listenerEventArchives
@@ -73,6 +83,35 @@ namespace EventHighway.Portal.Web.Services.Views.Foundations.ListenerEventArchiv
 
             return listenerEventArchive is null ? null : AsView(listenerEventArchive);
         });
+
+        private async ValueTask<List<ListenerEventArchiveV2>> RetrieveAllPagesAsync(
+            ListenerEventArchiveV2Query listenerEventArchiveV2Query,
+            bool withEventListener,
+            CancellationToken cancellationToken)
+        {
+            var listenerEventArchives = new List<ListenerEventArchiveV2>();
+
+            while (true)
+            {
+                IReadOnlyList<ListenerEventArchiveV2> listenerEventArchivePage = withEventListener
+                    ? await this.eventHighwayBroker
+                        .RetrieveAllListenerEventArchiveV2sWithEventListenerV2Async(
+                            listenerEventArchiveV2Query, cancellationToken)
+                    : await this.eventHighwayBroker.RetrieveAllListenerEventArchiveV2sAsync(
+                        listenerEventArchiveV2Query, cancellationToken);
+
+                listenerEventArchives.AddRange(listenerEventArchivePage);
+
+                if (listenerEventArchivePage.Count < listenerEventArchiveV2Query.Take)
+                {
+                    break;
+                }
+
+                listenerEventArchiveV2Query.Skip += listenerEventArchiveV2Query.Take;
+            }
+
+            return listenerEventArchives;
+        }
 
         private static ListenerEventArchiveView AsView(
             ListenerEventArchiveV2 listenerEventArchive) =>

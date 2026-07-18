@@ -1,9 +1,13 @@
-﻿// ----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // Copyright (c) The Standard Organization: A coalition of the Good-Hearted Engineers
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Foundations.Events.V2;
+using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
 using EventHighway.Portal.Web.Brokers.EventHighways;
 using EventHighway.Portal.Web.Brokers.Loggings;
 using EventHighway.Portal.Web.Models.Brokers.EventHighways;
@@ -43,38 +47,66 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.Events
                 Status = status
             };
 
-        private static EventV2Summary CreateRandomEventSummary(DateTimeOffset createdDate) =>
-            new EventV2Summary
+        private static EventV2 CreateRandomEvent(DateTimeOffset createdDate)
+        {
+            Guid eventAddressId = Guid.NewGuid();
+
+            return new EventV2
             {
                 Id = Guid.NewGuid(),
                 EventName = GetRandomString(),
                 Content = GetRandomString(),
                 Type = EventTypeV2.Scheduled,
                 Status = EventStatusV2.Active,
-                EventAddressV2Id = Guid.NewGuid(),
-                EventAddressName = GetRandomString(),
+                EventAddressV2Id = eventAddressId,
+
+                EventAddressV2 = new EventAddressV2
+                {
+                    Id = eventAddressId,
+                    Name = GetRandomString()
+                },
+
                 EventParticipantV2Id = Guid.NewGuid(),
                 ScheduledDate = createdDate,
-                CreatedDate = createdDate,
-                ListenerEventCount = 3,
-                SucceededListenerEventCount = 2
+                CreatedDate = createdDate
+            };
+        }
+
+        private static ListenerEventV2 CreateListenerEvent(
+            Guid eventId,
+            ListenerEventStatusV2 status) =>
+            new ListenerEventV2
+            {
+                Id = Guid.NewGuid(),
+                EventV2Id = eventId,
+                Status = status
             };
 
-        private static EventView MapToView(EventV2Summary eventSummary) =>
-            new EventView
+        private static EventView MapToView(
+            EventV2 @event,
+            IEnumerable<ListenerEventV2> listenerEvents)
+        {
+            List<ListenerEventV2> eventListenerEvents = listenerEvents
+                .Where(listenerEvent => listenerEvent.EventV2Id == @event.Id)
+                .ToList();
+
+            return new EventView
             {
-                Id = eventSummary.Id,
-                EventName = eventSummary.EventName ?? string.Empty,
-                Content = eventSummary.Content ?? string.Empty,
-                Type = eventSummary.Type.ToString(),
-                Status = eventSummary.Status.ToString(),
-                EventAddressV2Id = eventSummary.EventAddressV2Id,
-                EventAddressName = eventSummary.EventAddressName ?? string.Empty,
-                EventParticipantV2Id = eventSummary.EventParticipantV2Id,
-                ScheduledDate = eventSummary.ScheduledDate,
-                CreatedDate = eventSummary.CreatedDate,
-                ListenerEventCount = eventSummary.ListenerEventCount,
-                SucceededListenerEventCount = eventSummary.SucceededListenerEventCount
+                Id = @event.Id,
+                EventName = @event.EventName ?? string.Empty,
+                Content = @event.Content ?? string.Empty,
+                Type = @event.Type.ToString(),
+                Status = @event.Status.ToString(),
+                EventAddressV2Id = @event.EventAddressV2Id,
+                EventAddressName = @event.EventAddressV2?.Name ?? string.Empty,
+                EventParticipantV2Id = @event.EventParticipantV2Id,
+                ScheduledDate = @event.ScheduledDate,
+                CreatedDate = @event.CreatedDate,
+                ListenerEventCount = eventListenerEvents.Count,
+
+                SucceededListenerEventCount = eventListenerEvents.Count(
+                    listenerEvent => listenerEvent.Status == ListenerEventStatusV2.Success)
             };
+        }
     }
 }

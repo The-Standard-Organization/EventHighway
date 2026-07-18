@@ -64,7 +64,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         UpdatedDate = item.UpdatedDate,
                         EventV2Id = item.EventId,
                         EventAddressV2Id = item.EventAddressId,
-                        EventListenerV2Id = item.EventListenerId
+                        EventListenerV2Id = item.EventListenerId,
+                        EventParticipantV2Id = item.EventParticipantId
                     }).ToList();
 
             IEnumerable<Guid> inputEventV2Ids =
@@ -98,6 +99,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         EventV2Id = item.EventId,
                         EventAddressV2Id = item.EventAddressId,
                         EventListenerV2Id = item.EventListenerId,
+                        EventParticipantV2Id = item.EventParticipantId,
                         EventArchiveV2Id = item.EventId
                     }).ToList();
 
@@ -521,7 +523,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = randomDateTimeOffset,
                 EventV2Id = cleanEventV2Id,
                 EventAddressV2Id = GetRandomId(),
-                EventListenerV2Id = GetRandomId()
+                EventListenerV2Id = GetRandomId(),
+                EventParticipantV2Id = GetRandomId()
             };
 
             var faultedListenerEventV2 = new ListenerEventV2
@@ -535,7 +538,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = randomDateTimeOffset,
                 EventV2Id = faultedEventV2Id,
                 EventAddressV2Id = GetRandomId(),
-                EventListenerV2Id = GetRandomId()
+                EventListenerV2Id = GetRandomId(),
+                EventParticipantV2Id = GetRandomId()
             };
 
             List<ListenerEventV2> retrievedListenerEventV2s =
@@ -584,6 +588,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         EventV2Id = listenerEventV2.EventV2Id,
                         EventAddressV2Id = listenerEventV2.EventAddressV2Id,
                         EventListenerV2Id = listenerEventV2.EventListenerV2Id,
+                        EventParticipantV2Id = listenerEventV2.EventParticipantV2Id,
                         EventArchiveV2Id = listenerEventV2.EventV2Id
                     }).ToList();
 
@@ -803,7 +808,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = randomDateTimeOffset,
                 EventV2Id = cleanEventV2Id,
                 EventAddressV2Id = GetRandomId(),
-                EventListenerV2Id = GetRandomId()
+                EventListenerV2Id = GetRandomId(),
+                EventParticipantV2Id = GetRandomId()
             };
 
             List<ListenerEventV2> retrievedListenerEventV2s =
@@ -850,6 +856,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         EventV2Id = listenerEventV2.EventV2Id,
                         EventAddressV2Id = listenerEventV2.EventAddressV2Id,
                         EventListenerV2Id = listenerEventV2.EventListenerV2Id,
+                        EventParticipantV2Id = listenerEventV2.EventParticipantV2Id,
                         EventArchiveV2Id = listenerEventV2.EventV2Id
                     }).ToList();
 
@@ -1044,7 +1051,8 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                 UpdatedDate = randomDateTimeOffset,
                 EventV2Id = eventV2Id,
                 EventAddressV2Id = GetRandomId(),
-                EventListenerV2Id = GetRandomId()
+                EventListenerV2Id = GetRandomId(),
+                EventParticipantV2Id = GetRandomId()
             };
 
             List<ListenerEventV2> retrievedListenerEventV2s =
@@ -1084,6 +1092,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Coordinations.ArchivingEvents.V2
                         EventV2Id = listenerEventV2.EventV2Id,
                         EventAddressV2Id = listenerEventV2.EventAddressV2Id,
                         EventListenerV2Id = listenerEventV2.EventListenerV2Id,
+                        EventParticipantV2Id = listenerEventV2.EventParticipantV2Id,
                         EventArchiveV2Id = listenerEventV2.EventV2Id
                     }
                 };

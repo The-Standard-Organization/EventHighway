@@ -3,6 +3,7 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
     {
         private delegate ValueTask<EventParticipantV2> ReturningEventParticipantV2Function();
         private delegate ValueTask<IQueryable<EventParticipantV2>> ReturningEventParticipantV2sFunction();
+        private delegate ValueTask<IReadOnlyList<EventParticipantV2>> ReturningEventParticipantV2ListFunction();
 
         private async ValueTask<EventParticipantV2> TryCatch(
             ReturningEventParticipantV2Function returningEventParticipantV2Function)
@@ -118,6 +120,81 @@ namespace EventHighway.Core.Services.Processings.EventParticipants.V2
             catch (OperationCanceledException)
             {
                 throw;
+            }
+            catch (NullEventParticipantV2QueryProcessingException
+                nullEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventParticipantV2QueryProcessingException);
+            }
+            catch (InvalidEventParticipantV2QueryProcessingException
+                invalidEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventParticipantV2QueryProcessingException);
+            }
+            catch (EventParticipantV2DependencyException
+                eventParticipantV2DependencyException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventParticipantV2DependencyException);
+            }
+            catch (EventParticipantV2ServiceException
+                eventParticipantV2ServiceException)
+            {
+                throw await CreateAndLogDependencyExceptionAsync(
+                    eventParticipantV2ServiceException);
+            }
+            catch (Exception exception)
+            {
+                var failedEventParticipantV2ProcessingServiceException =
+                    new FailedEventParticipantV2ProcessingServiceException(
+                        message: "Failed event participant service error occurred, contact support.",
+                        innerException: exception,
+                        data: exception.Data);
+
+                throw await CreateAndLogServiceExceptionAsync(
+                    failedEventParticipantV2ProcessingServiceException);
+            }
+        }
+
+        private async ValueTask<IReadOnlyList<EventParticipantV2>> TryCatch(
+            ReturningEventParticipantV2ListFunction returningEventParticipantV2ListFunction)
+        {
+            try
+            {
+                return await returningEventParticipantV2ListFunction();
+            }
+            catch (OperationCanceledException operationCanceledException)
+                when (operationCanceledException.CancellationToken.IsCancellationRequested is false)
+            {
+                var timeoutException =
+                    new TimeoutException("The dependency operation timed out.");
+
+                var timeoutEventParticipantV2ProcessingException =
+                    new TimeoutEventParticipantV2ProcessingException(
+                        message: "Failed event participant processing timeout error occurred, contact support.",
+                        innerException: timeoutException,
+                        data: timeoutException.Data);
+
+                throw await CreateAndLogTimeoutDependencyExceptionAsync(
+                    timeoutEventParticipantV2ProcessingException);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (NullEventParticipantV2QueryProcessingException
+                nullEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    nullEventParticipantV2QueryProcessingException);
+            }
+            catch (InvalidEventParticipantV2QueryProcessingException
+                invalidEventParticipantV2QueryProcessingException)
+            {
+                throw await CreateAndLogValidationExceptionAsync(
+                    invalidEventParticipantV2QueryProcessingException);
             }
             catch (EventParticipantV2DependencyException
                 eventParticipantV2DependencyException)

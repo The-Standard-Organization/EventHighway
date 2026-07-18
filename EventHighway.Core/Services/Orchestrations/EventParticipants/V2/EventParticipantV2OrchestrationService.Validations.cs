@@ -11,12 +11,12 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
 {
     internal partial class EventParticipantV2OrchestrationService
     {
-        private static void ValidateParticipantSecretHasParticipantId(EventV2 eventV2)
+        private static void ValidateParticipantIdIsPresent(EventV2 eventV2)
         {
-            if (string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret) is false)
+            if (eventV2.EventParticipantV2Id == Guid.Empty)
             {
                 throw new InvalidEventParticipantV2OrchestrationException(
-                    message: "Event participant secret requires a participant id.");
+                    message: "Event participant id is required.");
             }
         }
 
@@ -38,6 +38,18 @@ namespace EventHighway.Core.Services.Orchestrations.EventParticipants.V2
             {
                 throw new InvalidEventParticipantV2OrchestrationException(
                     message: "Event participant is outside its active window.");
+            }
+        }
+
+        private static void ValidateSecretIsProvidedWhenRequired(
+            EventParticipantV2 participant,
+            EventV2 eventV2)
+        {
+            if (participant.IsSecretRequired
+                && string.IsNullOrWhiteSpace(eventV2.EventParticipantV2Secret))
+            {
+                throw new InvalidEventParticipantV2OrchestrationException(
+                    message: "Event participant secret is required.");
             }
         }
 

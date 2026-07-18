@@ -3,13 +3,16 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Clients.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Core.Models.Services.Processings.EventAddresses.V2.Exceptions;
 using EventHighway.Core.Services.Processings.EventAddresses.V2;
+using Microsoft.Extensions.DependencyInjection;
 using Xeptions;
 
 namespace EventHighway.Core.Clients.EventAddresses.V2
@@ -21,18 +24,21 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
     /// </summary>
     internal class EventAddressV2Client : IEventAddressV2Client
     {
-        private readonly IEventAddressV2ProcessingService eventAddressV2ProcessingService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventAddressV2Client"/> class with
-        /// the specified event address processing service.
+        /// Initializes a new instance of the <see cref="EventAddressV2Client"/> class with the
+        /// specified service provider used to resolve the event address processing service.
+        /// Every operation resolves its dependencies within a new service scope so that
+        /// concurrent operations never share a storage context.
         /// </summary>
-        /// <param name="eventAddressV2ProcessingService">The processing service for managing
-        /// event addresses.</param>
-        /// <exception cref="ArgumentNullException">Thrown when
-        /// eventAddressV2ProcessingService is null.</exception>
-        public EventAddressV2Client(IEventAddressV2ProcessingService eventAddressV2ProcessingService) =>
-            this.eventAddressV2ProcessingService = eventAddressV2ProcessingService;
+        /// <param name="serviceProvider">The service provider used to resolve
+        /// dependencies.</param>
+        /// <exception cref="ArgumentNullException">Thrown when serviceProvider is
+        /// null.</exception>
+        public EventAddressV2Client(IServiceProvider serviceProvider) =>
+            this.serviceScopeFactory =
+                serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
         /// <summary>
         /// Registers a new event address asynchronously by delegating to the processing
@@ -56,9 +62,16 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             EventAddressV2 eventAddressV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventAddressV2ProcessingService eventAddressV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventAddressV2ProcessingService>();
+
             try
             {
-                return await this.eventAddressV2ProcessingService
+                return await eventAddressV2ProcessingService
                     .RegisterEventAddressV2Async(eventAddressV2, cancellationToken);
             }
             catch (EventAddressV2ProcessingValidationException
@@ -117,9 +130,16 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             EventAddressV2 eventAddressV2,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventAddressV2ProcessingService eventAddressV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventAddressV2ProcessingService>();
+
             try
             {
-                return await this.eventAddressV2ProcessingService
+                return await eventAddressV2ProcessingService
                     .RetrieveOrRegisterEventAddressV2Async(eventAddressV2, cancellationToken);
             }
             catch (EventAddressV2ProcessingValidationException
@@ -163,7 +183,7 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
         /// operation that returns a queryable collection of event addresses.</returns>
         /// <exception cref="EventAddressV2ClientDependencyException">Thrown when dependency
         /// or service errors occur.</exception>
@@ -171,13 +191,22 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        public async ValueTask<IQueryable<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+        public async ValueTask<IReadOnlyList<EventAddressV2>> RetrieveAllEventAddressV2sAsync(
+            EventAddressV2Query eventAddressV2Query,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventAddressV2ProcessingService eventAddressV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventAddressV2ProcessingService>();
+
             try
             {
-                return await this.eventAddressV2ProcessingService
-                    .RetrieveAllEventAddressV2sAsync(cancellationToken);
+                return await eventAddressV2ProcessingService
+                    .RetrieveEventAddressV2sByQueryAsync(
+                        eventAddressV2Query, cancellationToken);
             }
             catch (EventAddressV2ProcessingDependencyException
                 eventAddressV2ProcessingDependencyException)
@@ -223,9 +252,16 @@ namespace EventHighway.Core.Clients.EventAddresses.V2
             Guid eventAddressV2Id,
             CancellationToken cancellationToken = default)
         {
+            await using AsyncServiceScope serviceScope =
+                this.serviceScopeFactory.CreateAsyncScope();
+
+            IEventAddressV2ProcessingService eventAddressV2ProcessingService =
+                serviceScope.ServiceProvider
+                    .GetRequiredService<IEventAddressV2ProcessingService>();
+
             try
             {
-                return await this.eventAddressV2ProcessingService
+                return await eventAddressV2ProcessingService
                     .RemoveEventAddressV2ByIdAsync(eventAddressV2Id, cancellationToken);
             }
             catch (EventAddressV2ProcessingValidationException

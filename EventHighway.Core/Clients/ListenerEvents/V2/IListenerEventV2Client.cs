@@ -3,10 +3,12 @@
 // ----------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.ListenerEvents.V2;
+using EventHighway.Core.Models.Services.Orchestrations.ListenerEvents.V2;
 
 namespace EventHighway.Core.Clients.ListenerEvents.V2
 {
@@ -17,13 +19,17 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
     public interface IListenerEventV2Client
     {
         /// <summary>
-        /// Retrieves all listener events asynchronously.
+        /// Retrieves the listener events matching the given query asynchronously — filtered,
+        /// ordered by <c>CreatedDate</c> descending, paged, and materialized at the time of the
+        /// call.
         /// </summary>
+        /// <param name="listenerEventV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
-        /// operation that returns a queryable collection of all listener events.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching page of listener events.</returns>
         /// <exception cref="ListenerEventV2ClientValidationException">Thrown when validation
         /// errors occur.</exception>
         /// <exception cref="ListenerEventV2ClientDependencyException">Thrown when dependency or
@@ -32,19 +38,23 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
+        ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveAllListenerEventV2sAsync(
+            ListenerEventV2Query listenerEventV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Retrieves all listener events asynchronously with their associated event listeners by 
-        /// delegating to the orchestration service and handling any exceptions that occur.
+        /// Retrieves the listener events matching the given query asynchronously, each with its
+        /// associated event listener — filtered, ordered by <c>CreatedDate</c> descending, paged,
+        /// and materialized at the time of the call.
         /// </summary>
+        /// <param name="listenerEventV2Query">The search criteria; omitted criteria are not
+        /// applied.</param>
         /// <param name="cancellationToken">A cancellation token to allow cancellation of the
         /// asynchronous operation. The default value is
         /// <see cref="CancellationToken.None"/>.</param>
-        /// <returns>A <see cref="ValueTask{IQueryable}"/> representing the asynchronous
-        /// operation that returns a queryable collection of all listener events with their
-        /// associated event listeners.</returns>
+        /// <returns>A <see cref="ValueTask{IReadOnlyList}"/> representing the asynchronous
+        /// operation that returns the matching page of listener events with their associated event
+        /// listeners.</returns>
         /// <exception cref="ListenerEventV2ClientValidationException">Thrown when validation
         /// errors occur in the orchestration service.</exception>
         /// <exception cref="ListenerEventV2ClientDependencyException">Thrown when dependency
@@ -53,7 +63,8 @@ namespace EventHighway.Core.Clients.ListenerEvents.V2
         /// error occurs during retrieval.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the cancellation token is
         /// signaled.</exception>
-        ValueTask<IQueryable<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(
+        ValueTask<IReadOnlyList<ListenerEventV2>> RetrieveAllListenerEventV2sWithEventListenerV2Async(
+            ListenerEventV2Query listenerEventV2Query,
             CancellationToken cancellationToken = default);
 
         /// <summary>

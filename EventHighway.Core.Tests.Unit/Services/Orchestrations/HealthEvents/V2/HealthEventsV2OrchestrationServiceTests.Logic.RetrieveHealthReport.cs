@@ -626,7 +626,11 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             DateTimeOffset laterInWindowDate = inputWindowStart.AddTicks((windowEnd - inputWindowStart).Ticks / 2);
             DateTimeOffset outOfWindowDate = inputWindowStart.AddTicks(-1);
 
-            List<Guid?> participantIds = new List<Guid?> { GetRandomId(), GetRandomId(), null };
+            List<Guid> participantIds = new List<Guid> { GetRandomId(), GetRandomId() };
+
+            List<Guid> listenerParticipantIds =
+                new List<Guid> { participantIds[0], participantIds[1] };
+
             List<Guid> addressIds = new List<Guid> { GetRandomId(), GetRandomId() };
 
             List<EventV2> inWindowEvents = Enumerable.Range(start: 0, count: GetRandomNumber() + addressIds.Count)
@@ -640,9 +644,9 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 Enumerable.Range(start: 0, count: GetRandomNumber() + addressIds.Count)
                     .Select(index => AssignParticipantAndAddress(
                         CreateRandomListenerEventV2WithCreatedDate(inWindowDate),
-                        participantIds[index % participantIds.Count],
+                        listenerParticipantIds[index % listenerParticipantIds.Count],
                         addressIds[index % addressIds.Count]))
-                    .Concat(participantIds.Select((participantId, index) => WithStatus(
+                    .Concat(listenerParticipantIds.Select((participantId, index) => WithStatus(
                         AssignParticipantAndAddress(
                             CreateRandomListenerEventV2WithCreatedDate(laterInWindowDate),
                             participantId,
@@ -698,7 +702,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             List<ListenerEventV2> windowListenerEvents)
         {
             var eventCounts = windowEvents
-                .GroupBy(@event => @event.EventParticipantV2Id ?? Guid.Empty)
+                .GroupBy(@event => @event.EventParticipantV2Id)
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
@@ -709,7 +713,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 .ToList();
 
             var listenerCounts = windowListenerEvents
-                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id ?? Guid.Empty)
+                .GroupBy(listenerEvent => listenerEvent.EventParticipantV2Id)
                 .Select(group => new
                 {
                     EventParticipantV2Id = group.Key,
@@ -725,7 +729,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             var sentCounts = windowEvents
                 .GroupBy(@event => new
                 {
-                    EventParticipantV2Id = @event.EventParticipantV2Id ?? Guid.Empty,
+                    EventParticipantV2Id = @event.EventParticipantV2Id,
                     @event.EventAddressV2Id
                 })
                 .Select(group => new
@@ -739,7 +743,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
             var receivedCounts = windowListenerEvents
                 .GroupBy(listenerEvent => new
                 {
-                    EventParticipantV2Id = listenerEvent.EventParticipantV2Id ?? Guid.Empty,
+                    listenerEvent.EventParticipantV2Id,
                     listenerEvent.EventAddressV2Id
                 })
                 .Select(group => new
@@ -804,7 +808,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
         }
 
         private static EventV2 AssignParticipantAndAddress(
-            EventV2 eventV2, Guid? eventParticipantV2Id, Guid eventAddressV2Id)
+            EventV2 eventV2, Guid eventParticipantV2Id, Guid eventAddressV2Id)
         {
             eventV2.EventParticipantV2Id = eventParticipantV2Id;
             eventV2.EventAddressV2Id = eventAddressV2Id;
@@ -813,7 +817,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
         }
 
         private static ListenerEventV2 AssignParticipantAndAddress(
-            ListenerEventV2 listenerEventV2, Guid? eventParticipantV2Id, Guid eventAddressV2Id)
+            ListenerEventV2 listenerEventV2, Guid eventParticipantV2Id, Guid eventAddressV2Id)
         {
             listenerEventV2.EventParticipantV2Id = eventParticipantV2Id;
             listenerEventV2.EventAddressV2Id = eventAddressV2Id;
@@ -844,7 +848,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
                 CreateQuarantinedEventV2(participant, addressA, earlyDate),
                 CreateQuarantinedEventV2(participant, addressA, laterDate),
                 CreateQuarantinedEventV2(participant, addressB, earlyDate),
-                CreateQuarantinedEventV2(eventParticipantV2Id: null, addressA, laterDate),
+                CreateQuarantinedEventV2(GetRandomId(), addressA, laterDate),
                 AssignParticipantAndAddress(
                     WithStatus(CreateRandomEventV2WithCreatedDate(earlyDate), EventStatusV2.Active),
                     participant, addressA),
@@ -920,7 +924,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
         }
 
         private static EventV2 CreateQuarantinedEventV2(
-            Guid? eventParticipantV2Id, Guid eventAddressV2Id, DateTimeOffset createdDate)
+            Guid eventParticipantV2Id, Guid eventAddressV2Id, DateTimeOffset createdDate)
         {
             EventV2 eventV2 = CreateRandomEventV2WithCreatedDate(createdDate);
             eventV2.EventParticipantV2Id = eventParticipantV2Id;
@@ -1073,7 +1077,7 @@ namespace EventHighway.Core.Tests.Unit.Services.Orchestrations.HealthEvents.V2
         }
 
         private static EventV2 CreateEventV2WithHash(
-            Guid? eventParticipantV2Id, Guid eventAddressV2Id, string contentHash, DateTimeOffset createdDate)
+            Guid eventParticipantV2Id, Guid eventAddressV2Id, string contentHash, DateTimeOffset createdDate)
         {
             EventV2 eventV2 = CreateRandomEventV2WithCreatedDate(createdDate);
             eventV2.EventParticipantV2Id = eventParticipantV2Id;

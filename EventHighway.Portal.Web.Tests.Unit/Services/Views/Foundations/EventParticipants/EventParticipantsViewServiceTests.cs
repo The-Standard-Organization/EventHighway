@@ -88,6 +88,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                 ContactEmail = GetRandomString(),
                 ContactPhone = GetRandomString(),
                 IsActive = true,
+                IsSecretRequired = true,
                 ActiveFrom = null,
                 ActiveTo = null
             };
@@ -117,6 +118,7 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
                 ContactEmail = participant.ContactEmail,
                 ContactPhone = participant.ContactPhone,
                 IsActive = participant.IsActive,
+                IsSecretRequired = participant.IsSecretRequired,
                 ActiveFrom = participant.ActiveFrom,
                 ActiveTo = participant.ActiveTo
             }).ToList();

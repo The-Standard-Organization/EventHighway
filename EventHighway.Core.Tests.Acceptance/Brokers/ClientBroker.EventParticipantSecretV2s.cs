@@ -16,10 +16,11 @@ namespace EventHighway.Core.Tests.Acceptance.Brokers
                 await this.eventHighwayClient.V2.EventParticipantSecretV2Client
                     .AddEventParticipantSecretV2Async(eventParticipantSecretV2);
 
-        public async ValueTask<IEnumerable<EventParticipantSecretV2>>
-            RetrieveAllEventParticipantSecretV2sAsync() =>
+        public async ValueTask<IReadOnlyList<EventParticipantSecretV2>>
+            RetrieveAllEventParticipantSecretV2sAsync(
+                EventParticipantSecretV2Query eventParticipantSecretV2Query) =>
                 await this.eventHighwayClient.V2.EventParticipantSecretV2Client
-                    .RetrieveAllEventParticipantSecretV2sAsync();
+                    .RetrieveAllEventParticipantSecretV2sAsync(eventParticipantSecretV2Query);
 
         public async ValueTask<EventParticipantSecretV2> RetrieveEventParticipantSecretV2ByIdAsync(
             Guid eventParticipantSecretV2Id) =>

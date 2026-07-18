@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventHighway.Core.Models.Services.Foundations.EventAddresses.V2;
+using EventHighway.Core.Models.Services.Processings.EventAddresses.V2;
 using EventHighway.Portal.Web.Models.Services.Views.Foundations.EventAddresses;
 using FluentAssertions;
 using Moq;
@@ -21,11 +22,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventAdd
         {
             // given
             List<EventAddressV2> randomAddresses = CreateRandomAddresses(count: 3);
-            IQueryable<EventAddressV2> returnedAddresses = randomAddresses.AsQueryable();
+            IReadOnlyList<EventAddressV2> returnedAddresses = randomAddresses;
             List<EventAddressView> expectedViews = MapToViews(randomAddresses);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()))
+                broker.RetrieveAllEventAddressV2sAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(returnedAddresses);
 
             // when
@@ -37,7 +39,8 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventAdd
             actualViews.Should().BeEquivalentTo(expectedViews);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventAddressV2sAsync(It.IsAny<CancellationToken>()),
+                broker.RetrieveAllEventAddressV2sAsync(
+                    It.IsAny<EventAddressV2Query>(), It.IsAny<CancellationToken>()),
                     Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();

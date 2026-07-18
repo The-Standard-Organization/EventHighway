@@ -20,24 +20,22 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
         {
             // given
             Guid participantId = Guid.NewGuid();
-            Guid otherParticipantId = Guid.NewGuid();
 
             List<EventParticipantSecretV2> participantSecrets =
                 CreateRandomSecrets(participantId, count: 2);
 
-            List<EventParticipantSecretV2> otherSecrets =
-                CreateRandomSecrets(otherParticipantId, count: 2);
-
-            var allSecrets = new List<EventParticipantSecretV2>();
-            allSecrets.AddRange(participantSecrets);
-            allSecrets.AddRange(otherSecrets);
+            IReadOnlyList<EventParticipantSecretV2> returnedSecrets = participantSecrets;
 
             List<EventParticipantSecretView> expectedViews =
                 MapToViews(participantSecrets);
 
             this.eventHighwayBrokerMock.Setup(broker =>
-                broker.RetrieveAllEventParticipantSecretV2sAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(allSecrets);
+                broker.RetrieveAllEventParticipantSecretV2sAsync(
+                    It.Is<EventParticipantSecretV2Query>(query =>
+                        query.EventParticipantV2Id == participantId
+                            && query.Take == 1000),
+                    It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(returnedSecrets);
 
             // when
             List<EventParticipantSecretView> actualViews =
@@ -49,8 +47,12 @@ namespace EventHighway.Portal.Web.Tests.Unit.Services.Views.Foundations.EventPar
             actualViews.Should().BeEquivalentTo(expectedViews);
 
             this.eventHighwayBrokerMock.Verify(broker =>
-                broker.RetrieveAllEventParticipantSecretV2sAsync(It.IsAny<CancellationToken>()),
-                    Times.Once);
+                broker.RetrieveAllEventParticipantSecretV2sAsync(
+                    It.Is<EventParticipantSecretV2Query>(query =>
+                        query.EventParticipantV2Id == participantId
+                            && query.Take == 1000),
+                    It.IsAny<CancellationToken>()),
+                        Times.Once);
 
             this.eventHighwayBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
