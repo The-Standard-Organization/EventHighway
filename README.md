@@ -109,7 +109,7 @@ await eventHighway.EventListenerV2Client.RetrieveOrRegisterEventListenerV2Async(
 });
 ```
 
-A listener can optionally carry `PromotedProperties` + `FilterCriteria` so its handler only receives events that match (e.g. `double.Parse(meta("Rating")) >= 8.0`).
+A listener can optionally carry `PromotedProperties` + `FilterCriteria` so its handler only receives events that match (e.g. `double.Parse(meta("Rating")) >= 8.0`). Property names resolve against the event's `Content` top level first, then as dot paths into nested objects (e.g. `Content.Entity.Id`).
 
 ## 2.3 - Publishing & Observing
 

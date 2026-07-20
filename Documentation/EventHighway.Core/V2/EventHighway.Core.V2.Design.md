@@ -169,7 +169,10 @@ happens: **promoted properties** and a **filter**.
 
 - **Promoted properties** — a comma-separated list of JSON property names on the listener. Before
   dispatch, the engine extracts those named values from the event's `Content` (case-sensitive) into a
-  small metadata bag. These feed the filter and can be required.
+  small metadata bag. These feed the filter and can be required. A name resolves against the `Content`
+  top level first; when no exact match exists it is treated as a dot path into nested objects
+  (e.g. `Content.Entity.Id`). String values promote as-is; numbers and booleans promote as their raw
+  JSON text (e.g. `8.6`, `true`).
 - **Filter criteria** — a boolean expression (DynamicExpresso syntax) on the listener that decides
   whether this listener should actually handle the event, using `meta("PropertyName")` to read promoted
   values, e.g. `meta("Genre") == "Action" && meta("ReleaseYear") > "2020"`.
